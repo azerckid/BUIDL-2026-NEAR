@@ -85,6 +85,14 @@ NEAR 계정 하나로 이더리움, 솔라나 등 타 체인의 보험 스마트
 
 > "우리는 NEAR를 기록용 레이어로 쓰지 않는다. NEAR의 Privacy Compute, Private Settlement, Chain Abstraction을 유전자 보험이라는 가장 민감한 금융 서비스에 적용하는 첫 번째 프로젝트다."
 
+**생태계 동반 성장 (Leverage)**
+
+MyDNA의 성장은 세 개의 플라이휠을 동시에 구동한다.
+
+- **NEAR 생태계**: 사용자 증가 → IronClaw·Confidential Intents 실사용 수요 창출 → NEAR의 "프라이버시 컴퓨팅 체인" 포지셔닝 강화 → 타 프라이버시 DApp 유입 가속. MyDNA는 이 두 기술의 첫 번째 소비자 향 레퍼런스다.
+- **글로벌 보험 유동성**: 플랫폼 성장 → 보험사의 NEAR 체인 상품 출시 수익성 검증 → 타 체인 보험 프로토콜의 Chain Signatures 연동 요청 → MyDNA = 글로벌 보험 상품의 단일 진입점(Super-GA) 완성.
+- **의료 데이터 산업**: 데이터 Pool 확대 → 제약사·연구소 데이터 구매 → 수익 70% 사용자 환원 → 더 많은 사용자 유입 (자기 강화 루프). 중앙화 기업이 독점하던 유전자 데이터 경제를 사용자에게 되돌린다.
+
 ---
 
 ## Slide 6 — Competitive Landscape
@@ -186,6 +194,16 @@ NEAR 계정 하나로 이더리움, 솔라나 등 타 체인의 보험 스마트
 - IronClaw, Confidential Intents, Chain Signatures 세 기술을 단일 소비자 서비스에서 통합 활용하는 최초 레퍼런스 구현.
 - "User-Owned AI"가 단순한 슬로건이 아닌 실제 금융 서비스에서 작동함을 증명.
 
+**이 플랫폼이 구동하는 세 개의 플라이휠**
+
+| 플라이휠 | 파급 대상 | 메커니즘 |
+|---|---|---|
+| NEAR 생태계 | NEAR Protocol, 검증자, 개발자 | MyDNA 성장 → IronClaw·Confidential Intents 수요 → 프라이버시 DApp 생태계 가속 |
+| 글로벌 보험 유동성 | 국내외 보험사, Web3 보험 프로토콜 | 플랫폼 성장 → 보험사 NEAR 진입 → MyDNA = 글로벌 보험 단일 진입점 |
+| 의료 데이터 산업 | 제약사, 연구소, 사용자 | 데이터 Pool 확대 → 수익 70% 사용자 환원 → 자기 강화 루프 |
+
+> 규제 강화는 오히려 해자(Moat)를 높인다. 중앙화 경쟁자들은 데이터 보관 자체가 불법이 되지만, MyDNA는 애초에 데이터를 보관하지 않는 구조이므로 규제 강화 시 유일한 합법 대안이 된다.
+
 ---
 
 ## 관련 문서
@@ -193,6 +211,7 @@ NEAR 계정 하나로 이더리움, 솔라나 등 타 체인의 보험 스마트
 - [비즈니스 기획안](./GENETIC_AI_INSURANCE_AGENT.md)
 - [수익 모델 상세](./MONEY_FLOW.md)
 - [경쟁 분석](./COMPETITIVE_ANALYSIS.md)
+- [생태계 파급력 전략](./VISION_CORE_LEVERAGE.md)
 - [사용자 플로우](../02_UI_Screens/USER_FLOW.md)
 - [기술 아키텍처](../03_Technical_Specs/NEAR_PRIVACY_STACK_ARCH.md)
 - [NEAR 기술 스택](../03_Technical_Specs/LATEST_NEAR_TECH_STACK.md)
