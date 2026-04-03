@@ -19,7 +19,7 @@ export const userProfileInsertSchema = z.object({
     .string()
     .min(2)
     .max(64)
-    .regex(/^[a-z0-9_\-\.]+\.near$|^[a-f0-9]{64}$/),
+    .regex(/^[a-z0-9_\-\.]+\.(near|testnet)$|^[a-f0-9]{64}$/),
   subscriptionTier: z.enum(["free", "pro"]).default("free"),
   subscriptionExpiresAt: z.number().int().positive().nullable().default(null),
   lastAnalysisAt: z.number().int().positive().nullable().default(null),

@@ -133,3 +133,51 @@
     @apply font-sans;
   }
 }
+
+/* ─── NEAR Wallet Selector Modal — Dark Theme Override ─────────────────────── */
+
+.wallet-selector-modal {
+  --near-wallet-selector-backdrop: oklch(0.05 0 0 / 80%);
+}
+
+.wallet-selector-modal .Modal-wrapper {
+  background-color: oklch(0.10 0 0);
+  border: 1px solid oklch(1 0 0 / 10%);
+  border-radius: 0.75rem;
+  color: oklch(0.97 0 0);
+}
+
+.wallet-selector-modal .Modal-body h2 {
+  color: oklch(0.97 0 0);
+}
+
+.wallet-selector-modal .Modal-body p {
+  color: oklch(0.60 0 0);
+}
+
+.wallet-selector-modal .options {
+  border-top: 1px solid oklch(1 0 0 / 10%);
+}
+
+.wallet-selector-modal .options .option {
+  border: 1px solid oklch(1 0 0 / 10%);
+  background: oklch(0.13 0 0);
+  border-radius: 0.5rem;
+}
+
+.wallet-selector-modal .options .option:hover {
+  background: oklch(0.18 0 0);
+  border-color: oklch(0.55 0.22 264 / 50%);
+}
+
+.wallet-selector-modal .options .option p {
+  color: oklch(0.97 0 0);
+}
+
+.wallet-selector-modal .Modal-close-button {
+  color: oklch(0.60 0 0);
+}
+
+.wallet-selector-modal .Modal-close-button:hover {
+  color: oklch(0.97 0 0);
+}

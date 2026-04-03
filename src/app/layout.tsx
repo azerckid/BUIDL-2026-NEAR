@@ -6,6 +6,7 @@ import "@fontsource/pretendard/600.css";
 import "@fontsource/pretendard/700.css";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { WalletProvider } from "@/context/WalletContext";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -28,7 +29,9 @@ export default function RootLayout({
   return (
     <html lang="ko" className={`${inter.variable} dark h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        {children}
+        <WalletProvider>
+          {children}
+        </WalletProvider>
         <Toaster richColors position="top-right" />
       </body>
     </html>

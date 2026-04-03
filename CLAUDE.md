@@ -6,51 +6,72 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **MyDNA Insurance Agent** — A privacy-first genetic insurance DApp for the NEAR Buidl 2026 Hackathon (deadline: April 20, 2026). The app analyzes sensitive genetic data inside a Trusted Execution Environment (TEE) and recommends personalized insurance products without exposing genetic information to insurers.
 
-This project is currently in the **planning and documentation phase**. No implementation code exists yet.
+## Tech Stack
 
-## Tech Stack (Planned)
+- **Frontend**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, Shadcn/ui, Framer Motion, Zod v4, Luxon, next-intl
+- **Backend**: Next.js Server Actions (no separate API layer), Drizzle ORM, Turso (Edge SQLite via `@libsql/client`)
+- **Web3**: NEAR Protocol (IronClaw TEE, Confidential Intents, Chain Signatures), near-api-js, @near-wallet-selector, Noir ZKP circuits (`circuits/insurance_eligibility/`)
+- **UI extras**: Sonner (toasts), react-hook-form + @hookform/resolvers, next-themes, Pretendard font
 
-- **Frontend**: Next.js 15 (App Router), React, TypeScript, Tailwind CSS v4, Shadcn/ui, Framer Motion, Zod, Luxon, next-intl
-- **Backend**: Next.js Server Actions (no separate API layer), Drizzle ORM, Turso (Edge SQLite)
-- **Web3**: NEAR Protocol (IronClaw TEE, Confidential Intents, Chain Signatures), near-api-js, @near-wallet-selector, Noir (ZKP circuits), @nearai/client
-
-## Setup Commands (Once Development Begins)
+## Common Commands
 
 ```bash
-# Initialize Next.js project
-npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
+npm run dev        # Start dev server (http://localhost:3000)
+npm run build      # Production build
+npm run lint       # ESLint
 
-# Add Shadcn/ui
-npx shadcn@latest init
-npx shadcn@latest add button card dialog progress alert badge table
+# Drizzle ORM
+npx drizzle-kit generate   # Generate migration from schema changes
+npx drizzle-kit migrate    # Apply migrations to Turso DB
+npx drizzle-kit studio     # Open Drizzle Studio (DB browser)
 
-# Install dependencies
-npm i drizzle-orm @libsql/client near-api-js @nearai/client
-npm i @near-wallet-selector/core @near-wallet-selector/my-near-wallet @near-wallet-selector/modal-ui
-npm i framer-motion zod luxon next-intl
-npm i -D drizzle-kit dotenv @types/luxon
-
-# Local Turso DB
-turso auth login
-turso db create mydna-local --type embedded-replicas
+# Seed the DB
+npx tsx src/lib/db/seed.ts
 ```
 
-## Intended Source Structure
+Required env vars in `.env.local`:
+```
+TURSO_DATABASE_URL=
+TURSO_AUTH_TOKEN=
+```
+
+## Source Structure
 
 ```
 src/
 ├── app/                    # Next.js App Router pages & layouts
 ├── components/
-│   ├── ui/                 # Shadcn/ui primitives
+│   ├── ui/                 # Shadcn/ui primitives (button, card, dialog, etc.)
 │   └── modules/            # Domain components (DNA upload, insurance recommendations)
 ├── lib/
 │   ├── db/
-│   │   ├── schema.ts       # Drizzle ORM schemas
-│   │   └── index.ts        # Turso connection
-│   └── near/               # Wallet, Chain Signatures, TEE utils
+│   │   ├── schema.ts       # All Drizzle table definitions + Zod insert schemas + inferred types
+│   │   ├── index.ts        # Turso client + drizzle instance (export: db)
+│   │   └── seed.ts         # Insurance product seed data
+│   └── near/               # Wallet, Chain Signatures, TEE utils (to be built)
 ├── actions/                # Next.js Server Actions (DB + blockchain calls)
 └── types/                  # Shared Zod schemas and TypeScript types
+circuits/
+└── insurance_eligibility/  # Noir ZKP circuit for proving risk eligibility
+drizzle/                    # Migration SQL files (committed, do not hand-edit)
 ```
+
+## Database Schema (Turso / SQLite)
+
+Six tables in `src/lib/db/schema.ts`. Each table has a co-located Zod insert schema.
+
+| Table | Key columns |
+|---|---|
+| `user_profiles` | `wallet_address` (PK), `subscription_tier` (free/pro) |
+| `insurance_products` | `id` (UUID), `coverage_category`, `chain_network`, `monthly_premium_usdc` |
+| `analysis_sessions` | `id`, `wallet_address` (FK), `status` (pending→purged pipeline), `file_hash` |
+| `analysis_results` | `id`, `session_id` (unique FK), `risk_profile` (JSON), `recommended_product_ids` (JSON), `zkp_proof_hash` |
+| `recommendation_carts` | `id`, `wallet_address` (FK), `selected_product_ids` (JSON), `status` |
+| `transactions` | `id`, `cart_id` (unique FK), `tx_hash`, `network`, `confidential_intents_used` |
+
+`riskProfile` JSON shape: `{ oncology, cardiovascular, metabolic, neurological }` each with `{ level: "high"|"moderate"|"normal", flags: string[] }` — validated by `riskProfileSchema`.
+
+Array-type columns (`riskTargets`, `selectedProductIds`, `recommendedProductIds`) are stored as JSON strings in SQLite; serialize/deserialize explicitly in Server Actions.
 
 ## Architecture: Three-Layer Privacy Model
 

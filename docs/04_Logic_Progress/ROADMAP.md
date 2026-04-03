@@ -1,7 +1,7 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-03 (Stage 1 완료)
+- **최종 수정일**: 2026-04-03 (Stage 2 완료)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v2.0
 
@@ -141,23 +141,24 @@
 ### Stage 2 — 랜딩 + NEAR 지갑 연결 (User Flow Step 1)
 
 #### 2-1. NEAR Wallet 연동
-- [ ] `src/lib/near/wallet.ts` — NEAR Wallet Selector 초기화 (testnet, MyNearWallet)
-- [ ] Wallet Selector Modal UI 스타일 오버라이드 (다크 테마 일치)
-- [ ] 지갑 연결 상태 전역 관리 (React Context)
+- [x] `src/lib/near/wallet.ts` — NEAR Wallet Selector 초기화 (testnet, MyNearWallet)
+- [x] Wallet Selector Modal UI 스타일 오버라이드 (다크 테마 일치)
+- [x] 지갑 연결 상태 전역 관리 (React Context — `src/context/WalletContext.tsx`)
 
 #### 2-2. 랜딩 페이지 UI
-- [ ] `src/app/page.tsx` — 히어로 섹션 (타이틀, 서브카피, CTA 버튼)
-- [ ] `src/components/modules/WalletConnect.tsx` — 지갑 연결/해제 버튼 컴포넌트
-- [ ] 지갑 연결 전/후 상태별 UI 분기 (미연결: 연결 버튼 / 연결됨: 주소 표시 + 다음 단계 버튼)
-- [ ] 지갑 주소 축약 표시 (앞 6자 + ... + 뒤 4자)
+- [x] `src/app/page.tsx` — 히어로 섹션 (타이틀, 서브카피, CTA 버튼)
+- [x] `src/components/modules/WalletConnect.tsx` — 지갑 연결/해제 버튼 컴포넌트
+- [x] 지갑 연결 전/후 상태별 UI 분기 (미연결: 연결 버튼 / 연결됨: 주소 표시 + 다음 단계 버튼)
+- [x] 지갑 주소 축약 표시 (앞 6자 + ... + 뒤 4자)
 
 #### 2-3. DB 연동
-- [ ] `src/actions/upsertUserProfile.ts` — 지갑 주소 기반 `user_profiles` upsert Server Action
-- [ ] 지갑 연결 성공 시 Server Action 호출
+- [x] `src/actions/upsertUserProfile.ts` — 지갑 주소 기반 `user_profiles` upsert Server Action
+- [x] 지갑 연결 성공 시 Server Action 호출
 
 #### 2-4. 검증
-- [ ] NEAR Testnet 지갑 연결 → 주소 표시 정상 동작
-- [ ] DB에 `user_profiles` 레코드 생성 확인
+- [x] `npm run build` TypeScript 오류 0건 확인
+- [x] NEAR Testnet 지갑 연결 → 헤더에 주소 표시 + 토스트 정상 동작 (`rogulus.testnet`)
+- [x] DB에 `user_profiles` 레코드 생성 확인 (Drizzle Studio 검증)
 
 ---
 
