@@ -1,7 +1,7 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-03
+- **최종 수정일**: 2026-04-03 (Stage 1 완료)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v2.0
 
@@ -88,53 +88,53 @@
 ### Stage 1 — 초기 세팅
 
 #### 1-1. 프로젝트 생성 및 기본 설정
-- [ ] `npx create-next-app@latest` 실행 (typescript, tailwind, eslint, app router, src-dir, import-alias)
-- [ ] `npx shadcn@latest init` 실행 — 다크 테마, zinc 기반 CSS 변수 선택
-- [ ] Shadcn 컴포넌트 추가: `button card dialog progress alert badge table tabs toast sonner`
+- [x] `npx create-next-app@latest` 실행 (typescript, tailwind, eslint, app router, src-dir, import-alias)
+- [x] `npx shadcn@latest init` 실행 — 다크 테마, CSS 변수 선택
+- [x] Shadcn 컴포넌트 추가: `button card dialog progress alert badge table tabs sonner`
 
 #### 1-2. 패키지 설치
-- [ ] 애니메이션: `framer-motion`
-- [ ] 날짜/시간: `luxon`, `@types/luxon`
-- [ ] 국제화: `next-intl`
-- [ ] DB: `drizzle-orm`, `@libsql/client`, `drizzle-kit`, `dotenv`
-- [ ] Web3: `near-api-js`, `@nearai/client`
-- [ ] NEAR Wallet: `@near-wallet-selector/core`, `@near-wallet-selector/my-near-wallet`, `@near-wallet-selector/modal-ui`
-- [ ] 폼 검증: `zod`, `react-hook-form`, `@hookform/resolvers`
-- [ ] 유틸: `uuid`, `@types/uuid`
-- [ ] 폰트: `@fontsource/pretendard`
+- [x] 애니메이션: `framer-motion`
+- [x] 날짜/시간: `luxon`, `@types/luxon`
+- [x] 국제화: `next-intl`
+- [x] DB: `drizzle-orm`, `@libsql/client`, `drizzle-kit`, `dotenv`
+- [x] Web3: `near-api-js` (`@nearai/client` — npm 미등록, Stage 7에서 별도 처리)
+- [x] NEAR Wallet: `@near-wallet-selector/core`, `@near-wallet-selector/my-near-wallet`, `@near-wallet-selector/modal-ui`
+- [x] 폼 검증: `zod`, `react-hook-form`, `@hookform/resolvers`
+- [x] 유틸: `uuid`, `@types/uuid`
+- [x] 폰트: `@fontsource/pretendard`
 
 #### 1-3. 환경 변수 및 설정 파일
-- [ ] `.env.local` 생성 — `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `NEAR_WALLET_NETWORK`, `NEARAI_API_KEY`
-- [ ] `drizzle.config.ts` 생성 — SQLite dialect, schema 경로 설정
-- [ ] `next.config.ts` — 보안 헤더 설정 (`X-Frame-Options`, `X-Content-Type-Options`, `CSP`)
+- [x] `.env.local` 생성 — `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `NEXT_PUBLIC_NEAR_WALLET_NETWORK`
+- [x] `drizzle.config.ts` 생성 — Turso dialect, `.env.local` 자동 로드, schema 경로 설정
+- [x] `next.config.ts` — 보안 헤더 설정 (`X-Frame-Options`, `X-Content-Type-Options`, `CSP`)
 
 #### 1-4. Turso DB 초기화
-- [ ] Turso CLI 설치 및 `turso auth login`
-- [ ] `turso db create mydna-local` 실행
-- [ ] `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` `.env.local`에 기입
+- [x] Turso CLI 설치 및 `turso auth login` (azerckid)
+- [x] `turso db create mydna-local` 실행 (ap-northeast-1)
+- [x] `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` `.env.local`에 기입
 
 #### 1-5. DB 스키마 및 마이그레이션
-- [ ] `src/lib/db/schema.ts` 작성 — `DB_SCHEMA.md` 기준 6개 테이블 전체
-  - [ ] `user_profiles`
-  - [ ] `analysis_sessions`
-  - [ ] `analysis_results`
-  - [ ] `insurance_products`
-  - [ ] `insurance_applications`
-  - [ ] `platform_earnings`
-- [ ] `npx drizzle-kit generate` 실행
-- [ ] `npx drizzle-kit migrate` 실행
-- [ ] `src/lib/db/seed.ts` 작성 — 5종 보험 상품 시드 데이터
-- [ ] `npx tsx src/lib/db/seed.ts` 실행
+- [x] `src/lib/db/schema.ts` 작성 — 6개 테이블 전체 (DB_SCHEMA.md 기준)
+  - [x] `user_profiles`
+  - [x] `analysis_sessions`
+  - [x] `analysis_results`
+  - [x] `insurance_products`
+  - [x] `recommendation_carts` (구현 중 insurance_applications → recommendation_carts로 확정)
+  - [x] `transactions` (구현 중 platform_earnings → transactions로 확정)
+- [x] `npx drizzle-kit generate` 실행
+- [x] `npx drizzle-kit migrate` 실행
+- [x] `src/lib/db/seed.ts` 작성 — 5종 보험 상품 시드 데이터
+- [x] `npx tsx src/lib/db/seed.ts` 실행
 
 #### 1-6. 디자인 시스템 및 디렉토리 구조
-- [ ] `src/app/globals.css` — `DESIGN_SYSTEM_SHADCN.md` 기준 CSS 변수 적용 (bg-zinc-950, Electric Blue, Emerald Purge 색상)
-- [ ] `src/app/layout.tsx` — Inter + Pretendard 폰트, 전역 메타데이터
-- [ ] 디렉토리 구조 생성: `components/modules/`, `lib/near/`, `lib/tee/`, `actions/`, `types/`, `messages/`
-- [ ] `public/mock/mock_genome_gentok.txt` 배치 — `AI_MATCHING_PIPELINE.md` 7절 스펙 기준
+- [x] `src/app/globals.css` — 사이버네틱 메디컬 다크 테마 CSS 변수 적용 (Electric Blue primary, Emerald 소각 색상)
+- [x] `src/app/layout.tsx` — Inter + Pretendard 폰트, 전역 메타데이터, Sonner Toaster
+- [x] 디렉토리 구조 생성: `components/modules/`, `lib/near/`, `lib/tee/`, `lib/zkp/`, `actions/`, `types/`, `messages/`
+- [x] `public/mock/mock_genome_gentok.txt` 배치 — 젠톡 포맷 데모 유전자 파일
 
 #### 1-7. 초기 세팅 검증
-- [ ] `npm run dev` → `localhost:3000` 다크 테마 화면 정상 표시
-- [ ] `npx drizzle-kit studio` → 5종 시드 상품 DB 확인
+- [x] `npm run build` 빌드 성공 확인 (TypeScript 오류 0건)
+- [x] Turso DB 5종 시드 상품 삽입 확인 (`turso db shell` 쿼리)
 
 ---
 
