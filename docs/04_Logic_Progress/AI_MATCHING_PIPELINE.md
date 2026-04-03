@@ -34,14 +34,30 @@
   → JSON Output 생성
         │
         ▼
+[Stage 2.5] TEE 내부 — Noir ZKP 증명 생성 (신규)
+  → risk_score를 private input으로 Noir 회로 주입
+  → assert(risk_score >= threshold) 검증
+  → proof bytes 생성 (수치는 이 시점 TEE 메모리 소각)
+  → proof bytes만 TEE 외부 반환
+        │
+        ▼
 [Stage 3] 결과 후처리
   → JSON Output 파싱 및 Zod 검증
+  → ZKP proof bytes를 TeeAnalysisOutput에 포함
   → DB 상품 매칭 쿼리 (riskTargets 기반 필터링)
   → 추천 순위 정렬
         │
         ▼
+[Stage 4] 결제 — Chain Signatures + Confidential Intents (신규)
+  → v1.signer MPC 컨트랙트로 트랜잭션 서명 생성
+  → ZKP proof bytes를 트랜잭션 calldata에 첨부
+  → Confidential Intents로 기밀 트랜잭션 제출
+        │
+        ▼
 [출력]
 AnalysisResult (DB 저장 + 프론트 렌더링용)
++ ZkpProof (proof bytes, DB 저장)
++ TxHash (NEAR Explorer 링크)
 ```
 
 ---
@@ -444,7 +460,11 @@ export async function runAnalysis(sessionId: string, fileBuffer: ArrayBuffer): P
   const validated = teeAnalysisOutputSchema.parse(teeOutput);
 
   await updateSessionStatus(sessionId, "zkp_generating");
-  // ZKP 생성은 Phase 2에서 Noir 회로로 대체. Phase 0에서는 skip.
+  // Stage 2.5: Noir ZKP proof 생성 (Phase 0: 로컬 생성, Phase 2: TEE 내부 생성 + 온체인 검증)
+  const zkpProof = await generateZkpProof({
+    riskScore: derivePrimaryRiskScore(validated.riskProfile),
+    threshold: INSURANCE_ELIGIBILITY_THRESHOLD, // 보험사 공개 기준값
+  });
   await updateSessionStatus(sessionId, "completed");
 
   // Stage 3: 상품 매칭
@@ -453,11 +473,12 @@ export async function runAnalysis(sessionId: string, fileBuffer: ArrayBuffer): P
     validated.priorityOrder
   );
 
-  // DB 저장
+  // DB 저장 (ZKP proof bytes 포함)
   await saveAnalysisResult({
     sessionId,
     riskProfile: validated.riskProfile,
     recommendedProductIds: matchedIds,
+    zkpProofBytes: zkpProof.proofBytes,
     expiresAt: DateTime.now().plus({ days: 30 }).toUnixInteger(),
   });
 

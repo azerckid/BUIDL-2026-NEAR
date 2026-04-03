@@ -1,7 +1,7 @@
 # [보안 검증] 유전자 정보 취급 및 NEAR 프라이버시 스택 체크리스트
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-01
+- **최종 수정일**: 2026-04-03
 - **레이어**: 05_QA_Validation
 - **상태**: Draft v1.1
 
@@ -16,20 +16,36 @@
 
 ---
 
-## 2. 신뢰 실행 환경 (TEE) 분석 보안
-- [ ] AI 모델 분석이 가상 메모리가 아닌 하드웨어 격리 영역(IronClaw TEE)에서 수행되는가?
+## 2. 신뢰 실행 환경 (TEE) 분석 보안 — IronClaw Agentic Harness
+- [ ] AI 모델 분석이 가상 메모리가 아닌 하드웨어 격리 인클레이브(IronClaw TEE)에서 수행되며, 검증 가능한 Attestation이 제공되는가?
 - [ ] TEE 내부로 데이터가 전달될 때 전송 구간 암호화(TLS 1.3)가 보장되는가?
 - [ ] 분석 종료 후 TEE 내부의 모든 휘발성 메모리가 즉시 초기화되는가?
 - [ ] TEE 분석 타임아웃(60초) 발생 시 세션이 강제 종료되고 중간 데이터가 소각되는가?
 - [ ] TEE 내부 오류(ENCLAVE_ERROR) 발생 시 Emergency Purge가 실행되는가?
+- [ ] 외부 도구 호출이 WebAssembly(WASM) 컨테이너 내 능력 기반(capability-based) 권한 모델로 격리 실행되고, 네트워크 요청이 승인된 엔드포인트 화이트리스트로만 제한되는가?
+- [ ] API 키 등 자격증명이 AES-256-GCM 암호화 금고에 보관되며 외부 도구에 직접 노출되지 않고 런타임 시점에만 주입되는가?
+- [ ] 프롬프트 인젝션(Prompt Injection) 공격에 대해 IronClaw 내장 패턴 감지 및 콘텐츠 살균 레이어가 활성화되어 있는가?
 
 ---
 
-## 3. ZKP 증명 및 결과 전달 보안
-- [ ] Noir 회로의 private input(실제 risk_score)이 TEE 외부로 절대 노출되지 않는가?
-- [ ] ZKP 증명(proof bytes)의 유효성이 NEAR 스마트 컨트랙트 온체인에서 검증되는가?
+## 3. Noir ZKP 증명 및 결과 전달 보안
+- [ ] Noir 회로의 private input(`risk_score`)이 IronClaw TEE 외부로 절대 노출되지 않는가?
+- [ ] `circuits/insurance_eligibility/src/main.nr` 회로 로직이 `assert(risk_score >= threshold)` 단일 조건으로 제한되는가?
+- [ ] `nargo compile` 아티팩트가 버전 관리되고 변조 불가 상태로 유지되는가?
+- [ ] ZKP proof 생성이 IronClaw TEE 내부(`prover.ts`)에서만 호출되는가?
+- [ ] proof bytes 외 수치 데이터가 `TeeAnalysisOutput`에 포함되지 않는가?
+- [ ] ZKP proof bytes가 Confidential Intents 트랜잭션 calldata에 첨부되는가?
+- [ ] Phase 0 로컬 검증(`nargo verify`)이 통과되는가?
+- [ ] Phase 2 전환 시 NEAR 스마트 컨트랙트 온체인 verifier 함수가 동일 proof를 검증하는가?
 - [ ] 분석 결과 리포트가 사용자 본인에게만 암호화되어 전달되는가?
-- [ ] 보험사로 전달되는 데이터가 사용자의 상세 유전자 정보를 포함하지 않는가? (조건 충족 결과만 전달)
+- [ ] 보험사로 전달되는 데이터가 proof bytes + 상품 코드만 포함하는가? (수치 미포함)
+- [ ] ZKP proof 생성 실패 시 결제 플로우가 진행 불가 상태로 차단되는가?
+
+## 3-1. Chain Signatures 보안
+- [ ] `v1.signer` MPC 컨트랙트 호출 시 서명 요청 payload에 민감 데이터가 포함되지 않는가?
+- [ ] 파생 키(Derived Key) 생성 path가 사용자 계정별 고유하게 분리되는가?
+- [ ] MPC 서명 응답 검증 후에만 트랜잭션 브로드캐스트가 진행되는가?
+- [ ] Chain Signatures 서명 요청이 사용자 명시적 승인(Wallet Selector 팝업) 없이 자동 실행되지 않는가?
 - [ ] Confidential Intents를 통해 거래 증명이 안전하게 온체인에 기록되는가?
 - [ ] 거래 실패 시 결제 금액이 즉시 온체인 revert되고 보험사로 데이터 미전송이 보장되는가?
 

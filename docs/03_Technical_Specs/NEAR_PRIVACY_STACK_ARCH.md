@@ -1,7 +1,7 @@
 # [기술 명세] NEAR AI 프라이버시 스택 기반 유전자 데이터 처리 아키텍처
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-01
+- **최종 수정일**: 2026-04-03
 - **레이어**: 03_Technical_Specs
 - **상태**: Draft v1.0
 
@@ -12,8 +12,10 @@
 
 ### 1.1 핵심 기술 구성 요소 (Key Components)
 - **NEAR Private Cloud (NPC)**: 사용자별 암호화 스토리지. 유전자 원본 데이터(VCF, PDF)가 보관되는 금고 역할.
-- **IronClaw Runtime (in NEAR TEE)**: AI 에이전트가 격리된 엔클레이브(Enclave) 내에서 가동되도록 보장하는 오픈소스 런타임. 외부의 메모리 스캔이나 조작이 불가능함.
-- **Private Shards (Confidential Layer)**: 2026.02 도입. 허가된 검증자 셋이 운영하는 전 전용 샤드로서, 거래 상세 내역을 퍼블릭 멤풀에 노출하지 않음.
+- **IronClaw (Agentic Harness, NEAR TEE)**: AI 에이전트가 WASM 샌드박스 + 하드웨어 격리 인클레이브 이중 격리 환경에서 가동되도록 보장하는 오픈소스 Rust 런타임 (2026-02-23 NEARCON 발표). 자격증명 런타임 주입, 프롬프트 인젝션 방어 내장.
+- **Noir ZKP (영지식 증명 레이어)**: Aztec 개발 Rust 기반 ZK DSL. TEE 내부에서 유전자 위험 수치를 private input으로 Noir 회로에 주입하여 "자격 충족 여부(bool)"만 proof로 생성. 수치는 TEE 외부로 절대 미노출.
+- **Private Shards / Confidential Intents**: 2026.02 도입. 허가된 검증자 셋이 운영하는 전용 샤드로서, 거래 상세 내역(ZKP proof 포함)을 퍼블릭 멤풀에 노출하지 않음.
+- **Chain Signatures (MPC 서명)**: `v1.signer` MPC 컨트랙트를 통해 NEAR 계정 하나로 이더리움, 솔라나 등 타 체인 트랜잭션에 서명. 별도 지갑 없이 멀티체인 보험 결제 접근.
 - **TEE-based Bridges**: 메인넷과 프라이빗 샤드 간의 데이터 이동을 하드웨어 수준에서 증명하고 보안을 유지함.
 
 ---
@@ -32,20 +34,51 @@
 2. TEE 내부에서 데이터 복호화 및 AI 에이전트 가동.
 3. 분석 완료 직후, TEE 내부의 모든 중간 데이터(복호화된 원본 등)는 즉시 파기(Volatile Memory).
 
-### Step 3: 결과 도출 및 기밀 계약 (Result & Settlement)
+### Step 3: ZKP 증명 생성 (In-TEE Proof Generation)
+1. IronClaw TEE 내부에서 AI 분석 완료 직후 Noir 회로 실행.
+2. `risk_score`(private)와 `threshold`(public)를 회로에 주입하여 `assert(risk_score >= threshold)` 검증.
+3. proof bytes 생성 → 사용자 지갑으로 반환. 원본 risk_score는 이 시점에 TEE 메모리에서 소각.
+4. 생성된 proof bytes는 `analysis_results` DB에 저장 (온체인 검증은 Phase 2).
+
+### Step 4: 결과 도출 및 기밀 계약 (Result & Settlement)
 1. AI 에이전트가 최적의 보험 상품 조합 리포트 생성.
-2. 리포트는 사용자에게만 전달되며, 보험사에는 '검증된 AI에 의해 설계된 적정 상품 코드'만 전달됨.
-3. **Confidential Intents**를 통해 실제 가입 및 보험료 결제 프로세스 진행.
+2. 리포트는 사용자에게만 전달되며, 보험사에는 'Noir ZKP proof + 적정 상품 코드'만 전달됨.
+3. **Chain Signatures** (`v1.signer` MPC)로 트랜잭션 서명 생성.
+4. **Confidential Intents**를 통해 ZKP proof가 첨부된 기밀 트랜잭션으로 보험료 결제 프로세스 진행.
 
 ---
 
 ## 3. 보안 원칙 (Security Principles)
-1.  **Zero-Knowledge Proof (ZKP) 활용**: 사용자의 실제 유전자 수치를 공개하지 않고도 '고위험군 여부' 등 조건 충족 사실만 증명.
-    - **ZK 라이브러리**: [Noir](https://noir-lang.org/) (Aztec 개발, Rust 기반 ZK DSL) 사용. NEAR 스마트 컨트랙트에서 Noir로 컴파일된 회로(circuit)를 on-chain에서 검증 가능.
-    - **회로 로직 예시**: `assert(risk_score >= threshold)` — 실제 risk_score 수치는 회로 내부(private input)에 머물고, 임계값 초과 여부(public output)만 보험사에 전달.
-    - **증명 생성 위치**: TEE 내부에서 Noir 증명 생성 후, 증명 데이터(proof bytes)만 사용자 지갑으로 반환. 원본 수치는 TEE 외부로 절대 노출되지 않음.
-2.  **Volatile Analysis**: 모든 분석은 휘발성 메모리(TEE) 내에서만 이루어지며, 원본은 NPC 외부로 절대 유출되지 않음.
-3.  **User-Owned AI**: AI 에이전트의 분석 로직은 투명하게 공개되되, 분석 시점은 사용자의 승인 하에만 작동.
+
+### 3-1. Noir ZKP (영지식 증명)
+사용자의 실제 유전자 수치를 공개하지 않고도 '보험 자격 충족 여부'만 증명.
+- **ZK 라이브러리**: [Noir](https://noir-lang.org/) (Aztec 개발, Rust 기반 ZK DSL). NEAR 스마트 컨트랙트에서 Noir로 컴파일된 회로를 온체인 검증 가능.
+- **회로 구조**:
+  ```noir
+  fn main(risk_score: u8, pub threshold: u8) {
+      assert(risk_score >= threshold);
+  }
+  ```
+  - `risk_score`: private input — TEE 내부에서만 사용, 외부 절대 미노출
+  - `threshold`: public input — 보험사 공개 기준값
+  - proof output: "기준값 충족 여부(bool)"만 보험사에 전달
+- **증명 생성 위치**: IronClaw TEE 내부. `prover.ts`가 호출되며, proof bytes만 TEE 외부로 반환.
+- **검증 위치**: Phase 0 — 로컬 (`nargo verify`). Phase 2 — NEAR 스마트 컨트랙트 온체인.
+- **트랜잭션 첨부**: proof bytes가 Confidential Intents 트랜잭션 calldata에 포함되어 보험사 컨트랙트가 직접 검증.
+
+### 3-2. Chain Signatures (MPC 기반 멀티체인 서명)
+NEAR 계정 하나로 타 체인 트랜잭션에 서명. 별도 지갑 없이 글로벌 보험 유동성 접근.
+- **MPC 컨트랙트**: `v1.signer` (`multichain-testnet.near` on testnet)
+- **파생 키 생성**: `deriveAddress(accountId, path)` — NEAR 계정에서 ETH/SOL 주소 파생
+- **서명 요청**: `requestSignature(payload, path)` → MPC 노드들이 분산 서명 후 합산
+- **Phase 0 적용**: NEAR → NEAR testnet MPC 서명 시연 (단일 체인, 플로우 증명)
+- **Phase 3 적용**: NEAR → ETH/SOL 파생 주소로 타 체인 보험 상품 결제 (Relayer 서비스 연동)
+
+### 3-3. Volatile Analysis
+모든 분석은 휘발성 메모리(IronClaw TEE) 내에서만 이루어지며, 원본은 NPC 외부로 절대 유출되지 않음.
+
+### 3-4. User-Owned AI
+AI 에이전트의 분석 로직은 투명하게 공개되되, 분석 시점은 사용자의 승인 하에만 작동.
 
 ---
 
