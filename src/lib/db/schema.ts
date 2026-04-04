@@ -107,6 +107,30 @@ export const analysisSessions = sqliteTable("analysis_sessions", {
   purgedAt: integer("purged_at", { mode: "timestamp" }),
 });
 
+export const analysisSessionInsertSchema = z.object({
+  id: z.string().uuid(),
+  walletAddress: z
+    .string()
+    .min(2)
+    .max(64)
+    .regex(/^[a-z0-9_\-\.]+\.(near|testnet)$|^[a-f0-9]{64}$/),
+  fileHash: z.string().length(64, "SHA-256 해시는 64자 hex여야 합니다"),
+  fileType: z.enum(["vcf", "pdf", "txt", "csv"]),
+  status: z
+    .enum([
+      "pending",
+      "uploading",
+      "tee_processing",
+      "zkp_generating",
+      "completed",
+      "purged",
+      "failed",
+      "timeout",
+    ])
+    .default("uploading"),
+  startedAt: z.number().int().positive(),
+});
+
 // ─── analysis_results ────────────────────────────────────────────────────────
 
 export const analysisResults = sqliteTable("analysis_results", {
