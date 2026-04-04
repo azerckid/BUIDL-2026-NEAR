@@ -185,55 +185,53 @@
 
 ---
 
-### Stage 4 — Mock TEE 분석 + Noir ZKP + Memory Purge 애니메이션 (User Flow Step 3)
+### Stage 4 — Mock TEE 분석 + Noir ZKP + Memory Purge 애니메이션 (User Flow Step 3) ✓ 완료 2026-04-04
 
 #### 4-1. 타입 정의
-- [ ] `src/types/genetic.ts` — `NormalizedGeneticProfile` 타입 + Zod 스키마
-- [ ] `src/types/tee-output.ts` — `TeeAnalysisOutput` 타입 + `teeAnalysisOutputSchema` Zod 스키마 (`zkpProof` 필드 포함)
+- [x] `src/types/genetic.ts` — `NormalizedGeneticProfile` 타입 + Zod 스키마
+- [x] `src/types/tee-output.ts` — `TeeAnalysisOutput` 타입 + `teeAnalysisOutputSchema` (priorityOrder .min(4).max(4) Zod v4 호환)
+- [x] `src/types/zkp.ts` — `ZkpProof` 인터페이스 (proofBytes, publicInputs, verificationKey)
 
 #### 4-2. 파이프라인 로직
-- [ ] `src/lib/tee/normalizer.ts` — Stage 1 파싱 및 정규화 구현
-  - [ ] `.txt` 젠톡 포맷 파서
-  - [ ] 텍스트 레이블 → RiskLevel 변환 (`high / moderate / normal`)
-  - [ ] VCF 수치 → RiskLevel 변환 (`scoreToLevel`)
-- [ ] `src/lib/tee/mock-tee.ts` — Mock TEE 함수 구현 (`AI_MATCHING_PIPELINE.md` 5절 코드 기준)
-  - [ ] `runMockTeeAnalysis` 함수 (2초 지연 시뮬레이션)
-  - [ ] `buildPriorityOrder` 함수
-  - [ ] `buildAdvisoryMessages` 함수
-- [ ] `src/actions/matchProducts.ts` — DB 상품 매칭 Server Action
-- [ ] `src/actions/runAnalysis.ts` — 전체 파이프라인 Server Action (Stage 1 → Mock TEE → **Noir ZKP** → Zod 검증 → 상품 매칭 → DB 저장)
+- [x] `src/lib/tee/mock-data.ts` — 젠톡 샘플 파일 내용 TS 상수화 (Vercel fs 접근 불안정 대응)
+- [x] `src/lib/tee/normalizer.ts` — [SECTION] 헤더 기반 젠톡 TXT 파서 구현
+  - [x] `.txt` 젠톡 포맷 파서 (실제 파일 형식 기준)
+  - [x] 텍스트 레이블 → RiskLevel 변환 (주의 필요=high, 관심 필요=moderate, 정상=normal)
+  - [x] VCF 수치 → RiskLevel 변환 (`scoreToLevel`)
+- [x] `src/lib/tee/mock-tee.ts` — Mock TEE 함수 구현
+  - [x] `runMockTeeAnalysis` 함수 (2초 지연 시뮬레이션)
+  - [x] `buildPriorityOrder` 함수
+  - [x] `buildAdvisoryMessages` 함수
+- [x] `src/actions/updateSessionStatus.ts` — 세션 상태 전환 + 타임스탬프 기록
+- [x] `src/actions/matchProducts.ts` — DB 상품 매칭 Server Action
+- [x] `src/actions/runAnalysis.ts` — 전체 파이프라인 Server Action (파싱 → Mock TEE → ZKP → 상품 매칭 → DB 저장)
 
-#### 4-3. Noir ZKP 회로 구현 (신규)
-- [ ] `nargo` CLI 설치 (`curl -L https://noirup.dev | bash && noirup`)
-- [ ] `circuits/insurance_eligibility/` 디렉토리 생성 + `nargo init`
-- [ ] `circuits/insurance_eligibility/src/main.nr` 회로 작성
-  - [ ] `private input: risk_score: u8` — TEE 내부에서만 접근, 외부 절대 미노출
-  - [ ] `public input: threshold: u8` — 보험사 공개 기준값
-  - [ ] `assert(risk_score >= threshold)` — 자격 충족 여부만 증명, 수치 미노출
-- [ ] `nargo compile` → `circuits/insurance_eligibility/target/` 아티팩트 생성
-- [ ] `nargo prove` → 더미 입력으로 proof 생성 동작 확인
-- [ ] `nargo verify` → proof 검증 동작 확인
-- [ ] `src/lib/zkp/prover.ts` — Noir proof 생성 래퍼 함수 (TEE 내부에서 호출)
-- [ ] `src/lib/zkp/verifier.ts` — proof 검증 래퍼 함수 (Phase 0: 로컬 검증, Phase 2: NEAR 온체인 검증)
-- [ ] `src/types/zkp.ts` — `ZkpProof` 타입 정의 (proof bytes, publicInputs, verificationKey)
-- [ ] `runAnalysis.ts` ZKP 단계 추가: TEE 출력 → `prover.ts` 호출 → proof bytes → DB 저장
-- [ ] Phase 0에서 ZKP proof를 `analysis_results` DB에 저장 (온체인 검증은 Phase 2)
+#### 4-3. Noir ZKP 회로 구현
+- [x] `circuits/insurance_eligibility/Nargo.toml` 초기화
+- [x] `circuits/insurance_eligibility/src/main.nr` 회로 작성
+  - [x] `private input: risk_score: u8` — TEE 내부에서만 접근
+  - [x] `public input: threshold: pub u8` — 보험사 공개 기준값
+  - [x] `assert(risk_score >= threshold)` — 자격 충족 여부만 증명
+- [x] `src/lib/zkp/prover.ts` — Phase 0 더미 proof 반환 (Vercel 배포 호환)
+- [x] `src/lib/zkp/verifier.ts` — Phase 0 로컬 검증 (Phase 2: NEAR 온체인 검증 교체)
+- [x] Phase 0 ZKP proof를 `analysis_results.zkp_proof_hash` DB 저장 완료
+- 참고: nargo compile/prove/verify는 Phase 2에서 수행 (Vercel 환경 CLI 미지원)
 
 #### 4-4. 분석 진행 UI
-- [ ] `src/components/modules/TeeAnalysisProgress.tsx` — 단계별 Progress 컴포넌트
-- [ ] 5단계 상태 표시: `파일 파싱 중` → `TEE 분석 중` → `ZKP 증명 생성 중` → `위험 프로파일 생성` → `데이터 소각 완료`
-- [ ] Memory Purge 파티클 애니메이션 (Framer Motion — 초록 파티클이 흩어지는 효과)
-- [ ] 소각 완료 메시지: "유전자 원본 데이터가 안전하게 소각되었습니다"
-- [ ] ZKP 완료 표시: "자격 증명 생성 완료 — 수치는 보험사에 전달되지 않습니다"
+- [x] `src/components/modules/TeeAnalysisProgress.tsx` — 5단계 Progress 컴포넌트
+- [x] 5단계 상태 표시: `파일 파싱 중` → `TEE 분석 중` → `ZKP 증명 생성 중` → `위험 프로파일 생성` → `데이터 소각 완료`
+- [x] Memory Purge 파티클 애니메이션 (12개 에메랄드 파티클 방사형 분산)
+- [x] 소각 완료 메시지: "유전자 원본 데이터가 안전하게 소각되었습니다"
+- [x] ZKP 완료 배지: "자격 증명 생성 완료 — 수치는 보험사에 전달되지 않습니다"
 
 #### 4-5. 에러 처리
-- [ ] 파이프라인 실패 시 에러 상태 UI 표시
-- [ ] 타임아웃(60초) 발생 시 세션 강제 종료 및 에러 안내
-- [ ] Noir proof 생성 실패 시 에러 메시지: "보험사 전달 증명 생성 실패 — 분석 재실행 필요"
+- [x] 파이프라인 실패 시 에러 상태 UI + "파일 업로드로 돌아가기" 버튼
+- [x] 실패 시 `status = 'failed'` 업데이트
+- [ ] 타임아웃(60초) UI — Stage 8 QA 단계에서 처리
 
 #### 4-6. 전환
-- [ ] 분석 완료 → `analysis_sessions.status = 'completed'` 업데이트
-- [ ] Step 4 대시보드로 자동 전환
+- [x] 분석 완료 → `analysis_sessions.status` 전환 (tee_processing → zkp_generating → completed → purged)
+- [x] `/dashboard?sid=[sessionId]` 자동 전환 확인
 
 ---
 
