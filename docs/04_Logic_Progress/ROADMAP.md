@@ -1,7 +1,7 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-03 (Stage 2 완료)
+- **최종 수정일**: 2026-04-05 (Stage 5 완료, Stage 9 추가)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v2.0
 
@@ -235,31 +235,33 @@
 
 ---
 
-### Stage 5 — 보험 추천 대시보드 (User Flow Step 4)
+### Stage 5 — 보험 추천 대시보드 (User Flow Step 4) ✓ 완료 2026-04-05
 
 #### 5-1. 대시보드 페이지
-- [ ] `src/app/dashboard/page.tsx` — 대시보드 기본 레이아웃
-- [ ] `analysis_results` DB에서 결과 조회 Server Action
-- [ ] 보장 공백 요약 배너 (`coverageGapSummary` 표시)
+- [x] `src/app/dashboard/page.tsx` — Server Component, sid 없거나 만료 시 /upload redirect
+- [x] `src/actions/getDashboardData.ts` — analysis_results + insurance_products 조회, riskProfileSchema Zod 검증, 만료 확인
 
 #### 5-2. 위험 프로파일 카드
-- [ ] `src/components/modules/RiskProfileCard.tsx` — 4개 카테고리별 위험 수준 표시
-- [ ] 수준별 색상 구분: `high → red-500`, `moderate → yellow-500`, `normal → emerald-500`
-- [ ] 카테고리별 어드바이저리 메시지 표시 (`advisoryMessages`)
+- [x] `src/components/modules/RiskProfileCard.tsx` — 4개 카테고리별 위험 수준 표시
+- [x] 수준별 색상 구분: `high → red`, `moderate → amber`, `normal → emerald`
+- [x] 위험 플래그 한국어 레이블 매핑 (13종)
 
 #### 5-3. 보험 상품 카드
-- [ ] `src/components/modules/InsuranceProductCard.tsx` — 상품 카드 UI
-- [ ] 상품명, 보험사, 월 보험료, 주요 보장 내용 표시
-- [ ] AI 추천 이유 표시 (어떤 유전자 위험 항목과 매칭되었는지)
-- [ ] 상품 선택 체크박스 + 선택 상태 강조 효과
+- [x] `src/components/modules/InsuranceProductCard.tsx` — 상품 카드 UI
+- [x] 상품명, 보험사, 월 보험료 표시
+- [x] discountEligible === 1 시 원가 취소선 + ZKP 할인 뱃지 표시
+- [x] 상품 선택 체크박스 + 선택 상태 강조 효과
 
-#### 5-4. 우선순위 탭 및 AI 근거
-- [ ] `priorityOrder` 기반 탭 UI (높은 위험 카테고리 탭 우선 표시)
-- [ ] AI 추론 요약 섹션 (`reasoning` 필드 표시)
-- [ ] 선택 상품 소계 + 결제 진행 버튼
+#### 5-4. 탭 UI 및 카트 요약
+- [x] `src/components/modules/DashboardClient.tsx` — 탭 UI (위험 프로필 / 추천 보험)
+- [x] riskProfile 위험 수준 내림차순 정렬 (high > moderate > normal)
+- [x] 선택 상품 소계 + ZKP 할인액 실시간 계산
+- [x] 결제하기 버튼 (선택 없을 시 비활성화)
 
-#### 5-5. 전환
-- [ ] 결제 진행 버튼 → Step 5 결제 Dialog 오픈
+#### 5-5. 카트 생성 및 전환
+- [x] `src/actions/createCart.ts` — 선택 상품 보험료 합산 + recommendation_carts 레코드 생성
+- [x] 결제하기 → /checkout/[cartId] 이동 (Stage 6 연결 지점)
+- [x] `src/app/checkout/[cartId]/page.tsx` — Stage 6 placeholder
 
 ---
 
@@ -368,6 +370,32 @@
 - [ ] 피치덱 (`PITCH_DECK.md`) 최종 검토
 - [ ] 데모 영상 녹화 (`DEMO_SCENARIO.md` 씬 순서대로)
 - [ ] 해커톤 제출 폼 작성 (GitHub URL, 데모 영상 URL, 피치덱)
+
+---
+
+### Stage 9 — ZKP 프로토콜 흐름 시각화 애니메이션
+
+> 데모 퀄리티 향상용. Stage 8(QA/데모 준비) 완료 후 착수.
+
+#### 9-1. 3-컬럼 흐름 다이어그램 컴포넌트
+- [ ] `src/components/modules/ZkpFlowDiagram.tsx` — Framer Motion 기반 프로토콜 흐름 시각화
+- [ ] 3개 노드: `[브라우저]` → `[TEE 서버 (IronClaw)]` → `[NEAR 온체인]`
+- [ ] 화살표 애니메이션: stage별 방향 + 전송 데이터 레이블 표시
+  - parsing: Browser → TEE (file hash)
+  - tee: TEE 내부 활동 (risk_score 🔒 강조)
+  - zkp: TEE 내부 (private/public input, Noir 회로 실행)
+  - profiling: TEE → Browser (proof bytes)
+  - purged: Browser → NEAR (proof + tx calldata)
+- [ ] TEE 컬럼 활동 로그: stage 진행에 따라 항목 순차 표시
+
+#### 9-2. TeeAnalysisProgress 통합
+- [ ] `TeeAnalysisProgress.tsx` 중앙 스피너 영역을 `ZkpFlowDiagram`으로 교체
+- [ ] 기존 Progress Bar, 단계 인디케이터, 에러 상태 UI 유지
+
+#### 9-3. 검증
+- [ ] 전체 분석 플로우(파싱 → TEE → ZKP → 소각) 애니메이션 동기화 확인
+- [ ] 모바일 반응형 레이아웃 확인
+- [ ] `npm run build` TypeScript 오류 0건 확인
 
 ---
 
