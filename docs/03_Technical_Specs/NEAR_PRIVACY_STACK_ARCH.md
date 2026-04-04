@@ -160,7 +160,27 @@ TEE 내부에서 proof를 생성하면:
 | proof bytes 저장 | `analysis_results.zkp_proof_hash` DB 저장 | 동일 + 온체인 검증 결과 hash 추가 저장 |
 | Vercel 배포 | 가능 (더미 구현으로 번들 제한 회피) | 별도 증명 서버 필요 (WASM 50MB 제한 초과) |
 
-### 6-4. Phase 2 전환 시 교체 지점
+### 6-4. Hash vs ZKP Proof bytes — 차이와 역할
+
+둘 다 원본 값(`risk_score`)을 역추적할 수 없다는 점에서 겉으로 비슷해 보인다. 그러나 목적과 검증 방식이 근본적으로 다르다.
+
+| 항목 | Hash (해시) | ZKP Proof bytes |
+|---|---|---|
+| 출력 형태 | 고정 길이 hex 문자열 (예: SHA-256 → 64자) | 수학적 증명 구조체 (가변 바이트 배열) |
+| 목적 | 데이터 무결성 확인 | 조건 충족 여부를 값 노출 없이 증명 |
+| 검증 방법 | 같은 입력을 다시 해싱해서 비교 | proof bytes + public input을 verifier에 넣어 true/false 반환 |
+| 원본 역추적 | 불가 | 불가 |
+
+**결정적 차이**: 해시는 "이 데이터가 맞다/아니다"만 답할 수 있다. ZKP proof는 "이 데이터가 특정 조건을 만족한다"를 값 노출 없이 답할 수 있다.
+
+**보험사 관점에서의 의미**
+
+- 해시만 받으면: `risk_score`의 동일성만 확인 가능 — "자격이 되는지"는 알 수 없음.
+- ZKP proof bytes를 받으면: `risk_score` 수치 없이도 `risk_score >= threshold` 조건 충족 여부를 수학적으로 검증 가능.
+
+본 시스템이 단순 해시 대신 ZKP proof를 사용하는 이유가 여기에 있다. 보험사는 유전자 수치를 전혀 알지 못하면서도, proof bytes만으로 보험 자격 여부를 신뢰할 수 있다.
+
+### 6-5. Phase 2 전환 시 교체 지점
 
 ```
 src/lib/zkp/prover.ts      — generateZkpProof() 구현체 교체
