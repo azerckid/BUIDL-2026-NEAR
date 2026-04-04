@@ -162,26 +162,26 @@
 
 ---
 
-### Stage 3 — 파일 업로드 (User Flow Step 2)
+### Stage 3 — 파일 업로드 (User Flow Step 2) ✓ 완료 2026-04-04
 
 #### 3-1. 업로드 UI
-- [ ] `src/components/modules/FileUploadZone.tsx` — 드래그앤드롭 영역 컴포넌트
-- [ ] 파일 선택 버튼 + 드래그앤드롭 이벤트 처리
-- [ ] 데모용 Mock 파일 자동 선택 버튼 ("샘플 파일로 체험하기")
-- [ ] 업로드된 파일명, 크기 표시
+- [x] `src/components/modules/FileUploadZone.tsx` — 드래그앤드롭 영역 컴포넌트
+- [x] 파일 선택 버튼 + 드래그앤드롭 이벤트 처리
+- [x] 데모용 Mock 파일 자동 선택 버튼 ("샘플 파일로 체험하기")
+- [x] 업로드된 파일명, 크기 표시
 
 #### 3-2. 파일 검증 (Zod)
-- [ ] 허용 MIME 타입 화이트리스트 검증: `text/plain`, `text/csv`, `application/pdf`, `chemical/x-vcf`
-- [ ] 파일 크기 상한 검증: 5MB 초과 시 에러 메시지
-- [ ] 확장자 이중 검증 (.vcf, .csv, .pdf, .txt)
+- [x] 허용 MIME 타입 화이트리스트 검증 — 확장자 기반(.vcf, .txt, .csv, .pdf)으로 구현 (MIME은 브라우저 호환성 이슈로 보조)
+- [x] 파일 크기 상한 검증: 5MB 초과 시 에러 메시지
+- [x] 확장자 이중 검증 (.vcf, .csv, .pdf, .txt)
 
 #### 3-3. 애니메이션
-- [ ] 파일 검증 통과 시 자물쇠 잠김 Framer Motion 애니메이션
-- [ ] 업로드 진행 Progress Bar
+- [x] 파일 검증 통과 시 자물쇠 잠김 Framer Motion 애니메이션
+- [x] 업로드 진행 Progress Bar
 
 #### 3-4. DB 연동 및 전환
-- [ ] `src/actions/createSession.ts` — `analysis_sessions` 레코드 생성 Server Action (`status: 'uploading'`)
-- [ ] 업로드 완료 → Step 3 화면으로 전환
+- [x] `src/actions/createSession.ts` — `analysis_sessions` 레코드 생성 Server Action (`status: 'uploading'`)
+- [x] 업로드 완료 → `/analysis/[sessionId]` 화면으로 전환
 
 ---
 
