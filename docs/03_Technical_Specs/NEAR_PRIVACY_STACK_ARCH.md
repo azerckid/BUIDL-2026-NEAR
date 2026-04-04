@@ -1,9 +1,9 @@
 # [기술 명세] NEAR AI 프라이버시 스택 기반 유전자 데이터 처리 아키텍처
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-03
+- **최종 수정일**: 2026-04-04
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.0
+- **상태**: Draft v2.0
 
 ---
 
@@ -101,6 +101,78 @@ AI 에이전트의 분석 로직은 투명하게 공개되되, 분석 시점은 
 
 ---
 
+---
+
+## 6. ZKP proof 생성·검증 흐름 상세 (ZKP Flow Detail)
+
+### 6-1. 실제 설계 흐름
+
+```
+[브라우저]              [TEE 서버]                  [NEAR 온체인]
+    │                       │                             │
+    │  파일 hash만 전송      │                             │
+    │──────────────────────>│                             │
+    │                       │  유전자 파일 파싱            │
+    │                       │  risk_score 계산             │
+    │                       │  (TEE 내부, 외부 미노출)     │
+    │                       │                             │
+    │                       │  Noir 회로 실행              │
+    │                       │  private input: risk_score   │
+    │                       │  public  input: threshold    │
+    │                       │  assert(risk_score >= th)    │
+    │                       │                             │
+    │                       │  risk_score 소각             │
+    │                       │  (TEE volatile memory)       │
+    │                       │                             │
+    │<── proof bytes ───────│                             │
+    │                       │                             │
+    │  결제 시 proof를 tx calldata에 첨부                  │
+    │────────────────────────────────────────────────────>│
+    │                       │          verify_proof()      │
+    │                       │          스마트 컨트랙트      │
+```
+
+**proof 생성 위치**: TEE 서버 내부 (`prover.ts` → IronClaw Runtime)
+**proof 검증 위치**: NEAR 온체인 스마트 컨트랙트 (`verify_proof(proof_bytes, public_inputs)`)
+
+### 6-2. 브라우저에서 proof를 생성하지 않는 이유
+
+proof 생성에는 **private input인 `risk_score`가 필수**다. `risk_score`는 유전자 데이터에서 도출되는 값이다.
+
+만약 브라우저에서 proof를 생성한다면:
+- `risk_score`가 브라우저 JavaScript 힙 메모리에 노출됨
+- 개발자 도구, 메모리 덤프, 악성 확장 프로그램 등으로 수치 추출 가능
+- TEE 프라이버시 모델이 완전히 무력화됨
+
+TEE 내부에서 proof를 생성하면:
+- `risk_score`가 하드웨어 격리 인클레이브 밖으로 절대 나오지 않음
+- proof bytes만 TEE 외부로 반환 (수치 정보 없음)
+- 브라우저는 proof bytes를 결제 트랜잭션 calldata에 첨부하는 역할만 수행
+
+### 6-3. Phase 0 / Phase 2 구현 비교
+
+| 항목 | Phase 0 (해커톤 데모) | Phase 2 (실 서비스) |
+|---|---|---|
+| proof 생성 위치 | TEE 서버 (`prover.ts` 더미 문자열) | TEE 서버 (`@noir-lang/noir_js` + BarretenbergBackend) |
+| proof 검증 위치 | 로컬 (항상 `true` 반환) | NEAR 스마트 컨트랙트 온체인 `verify_proof()` |
+| risk_score 위치 | 서버 메모리 (즉시 소각) | IronClaw TEE 메모리 (즉시 소각) |
+| 브라우저 관여 | 없음 | 없음 |
+| proof bytes 저장 | `analysis_results.zkp_proof_hash` DB 저장 | 동일 + 온체인 검증 결과 hash 추가 저장 |
+| Vercel 배포 | 가능 (더미 구현으로 번들 제한 회피) | 별도 증명 서버 필요 (WASM 50MB 제한 초과) |
+
+### 6-4. Phase 2 전환 시 교체 지점
+
+```
+src/lib/zkp/prover.ts      — generateZkpProof() 구현체 교체
+src/lib/zkp/verifier.ts    — verifyZkpProof() → 온체인 컨트랙트 호출로 교체
+circuits/insurance_eligibility/src/main.nr — 회로 파일 재사용 (변경 없음)
+```
+
+Phase 0에서 작성된 Noir 회로(`main.nr`)는 Phase 2에서 그대로 사용한다. 교체 대상은 proof 생성·검증 래퍼 함수뿐이다.
+
+---
+
 ## 관련 문서
 - [비즈니스 기획안](../01_Concept_Design/GENETIC_AI_INSURANCE_AGENT.md)
+- [AI 매칭 파이프라인](../04_Logic_Progress/AI_MATCHING_PIPELINE.md)
 - [품질 보증 및 보안 검증 시나리오](../05_QA_Validation/SECURITY_CHECKLIST.md)
