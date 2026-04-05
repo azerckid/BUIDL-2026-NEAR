@@ -125,12 +125,20 @@ function ConfidentialIntentPanel({ data }: { data: CartData }) {
         <span className="ml-2 text-xs text-muted-foreground font-mono">
           confidential-intent — near_testnet
         </span>
-        <Badge
-          variant="outline"
-          className="ml-auto text-[10px] px-1.5 py-0 border-primary/30 text-primary"
-        >
-          Defuse Protocol
-        </Badge>
+        <div className="ml-auto flex items-center gap-1.5">
+          <Badge
+            variant="outline"
+            className="text-[10px] px-1.5 py-0 border-primary/30 text-primary"
+          >
+            Defuse Protocol
+          </Badge>
+          <Badge
+            variant="outline"
+            className="text-[10px] px-1.5 py-0 border-yellow-500/40 text-yellow-500"
+          >
+            Phase 2 예정
+          </Badge>
+        </div>
       </div>
 
       {/* 인텐트 필드 */}
