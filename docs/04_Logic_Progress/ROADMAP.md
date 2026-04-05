@@ -1,7 +1,7 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-05 (Stage 11 Phase 2 구현 명세 추가)
+- **최종 수정일**: 2026-04-06 (Stage 11-1 MPC Chain Signatures 구현 완료)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v2.0
 
@@ -277,10 +277,11 @@
 
 #### 6-2. Chain Signatures 연동
 - [x] `src/lib/near/chain-signatures.ts` — NEAR Testnet 실거래 트랜잭션 구현 (Stage 10에서 교체, `wrap.testnet` 0.001 NEAR Transfer)
-- [ ] `v1.signer` MPC 컨트랙트 testnet 실연동 — Phase 2 예정 (`multichain-testnet.near`)
-- [ ] `deriveAddress` 함수 — NEAR 계정 기반 파생 키 생성 — Phase 2 예정
-- [ ] `requestSignature` 함수 — MPC 서명 요청 — Phase 2 예정
-- [ ] Phase 3 준비: 타 체인(ETH/SOL) 파생 주소 생성 함수 분리 설계
+- [x] `v1.signer-prod.testnet` MPC 컨트랙트 testnet 실연동 — Stage 11-1 완료 (2026-04-06)
+- [x] `deriveEthAddress` 함수 — NEAR 계정 기반 ETH 파생 주소 생성
+- [x] `requestMpcSignature` 함수 — MPC 서명 요청 (250 Tgas + 1 yoctoNEAR)
+- [x] `broadcastEthTransaction` 함수 — ETH Sepolia 브로드캐스트
+- [ ] Phase 3 준비: SOL 파생 주소 생성 함수 분리 설계
 
 #### 6-3. Confidential Intents + ZKP proof 결합
 - [x] ZKP proof hash를 `submitConfidentialIntent` 파라미터로 전달 (Phase 0)
@@ -518,32 +519,36 @@
 
 | # | 항목 | 상태 | 사유 |
 |---|------|------|------|
-| 11-1 | v1.signer MPC Chain Signatures | **구현 예정** | `near-api-js` v7로 직접 컨트랙트 호출. 외부 의존성 없음 |
+| 11-1 | v1.signer MPC Chain Signatures | **완료** 2026-04-06 | `near-api-js` v7 RPC 직접 호출. `ethers` 패키지로 서명 복원. |
 | 11-2 | ZKP: IronClaw TEE 실제 proof 생성 + proof hash 온체인 등록 | **구현 예정** | `prover.ts`를 TEE API 호출 래퍼로 교체. `zkp.rogulus.testnet` hash 등록은 이미 완료 |
 | 11-3 | Confidential Intents SDK 연동 | **대기** | `@defuse-protocol/intents-sdk`가 `near-api-js` v5를 요구하여 현재 프로젝트(v7)와 버전 충돌. SDK 업데이트 대기 |
 | 11-4 | Noir ultraplonk 온체인 수학적 검증 | **향후 과제** | NEAR 생태계에 ultraplonk verifier 공식 라이브러리 부재. `barretenberg-sys` Rust FFI 바인딩 또는 순수 Rust 구현 필요. Aztec Protocol 팀 협력 필수 |
 
 ---
 
-#### 11-1. v1.signer MPC Chain Signatures 실연동 [구현 예정]
+#### 11-1. v1.signer MPC Chain Signatures 실연동 ✓ 완료 2026-04-06
 
 > **목적**: NEAR 지갑 하나로 ETH/BTC/SOL 보험료 결제 (멀티체인 보험 결제)
-> **외부 의존성**: 없음 — `near-api-js` v7 + `ethers` 패키지로 구현 가능
+> **외부 의존성**: 없음 — NEAR JSON-RPC 직접 호출 + `ethers` 패키지로 구현
+> **비고**: `near-api-js` v7에서 `connect`/`keyStores` 제거됨 → `fetch`로 view call 직접 호출
 
-- [ ] `src/lib/near/chain-signatures.ts` — `deriveEthAddress` 함수 추가
-  - [ ] `v1.signer-prod.testnet` view call: `derived_public_key(path, predecessor)` 호출
-  - [ ] compressed secp256k1 공개키 → ETH 주소 변환 (`ethers` 패키지)
-- [ ] `src/lib/near/chain-signatures.ts` — `requestMpcSignature` 함수 추가
-  - [ ] `v1.signer-prod.testnet` FunctionCall: `sign({ payload, path, key_version })` 호출
-  - [ ] 250 Tgas + 1 yoctoNEAR deposit 필요
-  - [ ] MPC 응답: `{ big_r, s }` 추출
-- [ ] `src/lib/near/chain-signatures.ts` — `broadcastEthTransaction` 함수 추가
-  - [ ] MPC 서명 → ETH 트랜잭션 복원 (`ethers.Transaction`)
-  - [ ] Ethereum Sepolia 테스트넷 브로드캐스트
-- [ ] `CheckoutClient.tsx` — 체인 선택 UI 추가 (NEAR / ETH)
-- [ ] `src/lib/db/schema.ts` — `transactions.network` enum에 `ethereum_sepolia` 추가
-- [ ] `next.config.ts` — CSP `connect-src`에 Ethereum RPC 엔드포인트 추가
-- [ ] E2E 검증: NEAR 지갑 서명 → MPC 서명 → ETH 트랜잭션 브로드캐스트 확인
+- [x] `src/lib/near/chain-signatures.ts` — `deriveEthAddress` 함수 추가
+  - [x] NEAR JSON-RPC `call_function` 직접 호출: `v1.signer-prod.testnet` → `derived_public_key`
+  - [x] compressed secp256k1 공개키 → ETH 주소 변환 (`ethers.computeAddress`)
+- [x] `src/lib/near/chain-signatures.ts` — `requestMpcSignature` 함수 추가
+  - [x] WalletSelector FunctionCall: `sign({ payload, path, key_version })` 호출
+  - [x] 250 Tgas + 1 yoctoNEAR deposit
+  - [x] MPC 응답 `receipts_outcome` → `{ big_r, s }` 추출
+- [x] `src/lib/near/chain-signatures.ts` — `broadcastEthTransaction` 함수 추가
+  - [x] MPC `{ bigR, s }` → v=27/28 복구 비트 탐색 → `ethers.Signature` 복원
+  - [x] Ethereum Sepolia 브로드캐스트 (`https://rpc.sepolia.org`)
+- [x] `src/lib/near/chain-signatures.ts` — `getEthBalance` 함수 추가
+- [x] `CheckoutClient.tsx` — 체인 선택 UI 추가 (NEAR Testnet / ETH Sepolia)
+  - [x] ETH 선택 시 파생 주소 + 잔액 자동 표시
+  - [x] 잔액 부족(< 0.001 ETH) 시 결제 버튼 비활성화
+- [x] `src/lib/db/schema.ts` — `transactions.network` enum에 `ethereum_sepolia` 추가
+- [x] `next.config.ts` — CSP `connect-src`에 `https://rpc.sepolia.org` 추가
+- [ ] E2E 검증: NEAR 지갑 서명 → MPC 서명 → ETH 트랜잭션 브로드캐스트 확인 (파생 주소 Faucet 충전 필요)
 - [ ] Phase 3 준비: SOL 파생 주소 생성 함수 분리 설계
 
 ---
