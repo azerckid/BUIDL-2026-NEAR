@@ -7,6 +7,7 @@ import { DateTime } from "luxon";
 import { v4 as uuidv4 } from "uuid";
 import { parseMockFile } from "@/lib/tee/normalizer";
 import { runMockTeeAnalysis } from "@/lib/tee/mock-tee";
+import { runIronClawAnalysis } from "@/lib/tee/ironclaw-tee";
 import { teeAnalysisOutputSchema } from "@/types/tee-output";
 import { generateZkpProof, derivePrimaryRiskScore } from "@/lib/zkp/prover";
 import { matchProducts } from "./matchProducts";
@@ -47,8 +48,12 @@ export async function runAnalysis(sessionId: string): Promise<RunAnalysisResult>
 
     await updateSessionStatus(sessionId, "tee_processing");
 
-    // ── Stage 2: Mock TEE 분석 (2초 지연 시뮬레이션) ──────────────────────
-    const teeOutput = await runMockTeeAnalysis(sessionId, profile);
+    // ── Stage 2: TEE 분석 ──────────────────────────────────────────────────
+    // USE_REAL_TEE=true → IronClaw NEAR AI Cloud, 미설정 → Mock (Phase 0)
+    const useRealTee = process.env.USE_REAL_TEE === "true";
+    const teeOutput = useRealTee
+      ? await runIronClawAnalysis(sessionId, profile)
+      : await runMockTeeAnalysis(sessionId, profile);
 
     // Zod 검증
     const validated = teeAnalysisOutputSchema.parse(teeOutput);
