@@ -7,7 +7,7 @@
 //   Transfer → FunctionCall: pay_premium({ zkp_proof_hash, product_ids })
 //   Confidential Intents SDK (@defuse-protocol/intents-sdk) 연동
 
-import { getWalletSelector } from "@/lib/near/wallet";
+import type { WalletSelector } from "@near-wallet-selector/core";
 
 // 데모 보험료 수신 계정 (항상 존재하는 testnet 계정)
 // Phase 2에서 실제 보험사 컨트랙트로 교체
@@ -36,8 +36,10 @@ export interface SignIntentResult {
  * 서명 완료 후 /checkout/[cartId]?transactionHashes=REAL_HASH 로 복귀.
  * 복귀 후 CheckoutClient의 useEffect가 confirmCheckout을 호출하여 완료 처리.
  */
-export async function initiateNearTransaction(cartId: string): Promise<void> {
-  const selector = await getWalletSelector();
+export async function initiateNearTransaction(
+  cartId: string,
+  selector: WalletSelector
+): Promise<void> {
   const wallet = await selector.wallet();
 
   // near-wallet-selector v10 Action 타입 호환을 위해 명시적 캐스팅

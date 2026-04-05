@@ -18,6 +18,7 @@ interface WalletContextValue {
   accountId: string | null;
   isConnected: boolean;
   isLoading: boolean;
+  selector: WalletSelector | null;
   connect: () => void;
   disconnect: () => Promise<void>;
 }
@@ -100,6 +101,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         accountId,
         isConnected: accountId !== null,
         isLoading,
+        selector,
         connect,
         disconnect,
       }}

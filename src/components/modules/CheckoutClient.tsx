@@ -12,6 +12,7 @@ import { prepareCheckout } from "@/actions/prepareCheckout";
 import { confirmCheckout } from "@/actions/confirmCheckout";
 import { initiateNearTransaction } from "@/lib/near/chain-signatures";
 import { truncateAddress } from "@/lib/near/wallet";
+import { useWallet } from "@/context/WalletContext";
 import type { CartData } from "@/actions/getCartData";
 import type { InsuranceProduct } from "@/lib/db/schema";
 
@@ -82,6 +83,7 @@ type PaymentStep = "idle" | "preparing" | "signing" | "confirming" | "done";
 export function CheckoutClient({ data }: CheckoutClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { selector } = useWallet();
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<CheckoutResult | null>(null);
 
@@ -150,12 +152,19 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
       );
 
       // 3단계: 지갑 서명 요청 (MyNearWallet 리다이렉트)
+      if (!selector) {
+        toast.error("지갑이 초기화되지 않았습니다. 페이지를 새로고침 후 다시 시도하세요.");
+        setStep("idle");
+        return;
+      }
+
       setStep("signing");
       try {
-        await initiateNearTransaction(data.cartId);
+        await initiateNearTransaction(data.cartId, selector);
         // 이 아래는 실행되지 않음 — 브라우저가 지갑 페이지로 이동
-      } catch {
-        toast.error("지갑 서명 요청에 실패했습니다");
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        toast.error("지갑 서명 오류: " + message);
         setStep("idle");
       }
     });
