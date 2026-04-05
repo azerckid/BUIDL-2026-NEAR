@@ -1,7 +1,7 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-05 (Stage 9 DNA 배경·ZKP 터미널 로그·네비게이션 완료)
+- **최종 수정일**: 2026-04-05 (Stage 10 NEAR 실연동 + Confidential Intents 인텐트 패널 완료)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v2.0
 
@@ -276,7 +276,7 @@
 - [x] 결제 완료 후 인라인 성공 화면 (txHash, 결제 지갑, NEAR Testnet 표시)
 
 #### 6-2. Chain Signatures 연동
-- [x] `src/lib/near/chain-signatures.ts` — Phase 0 Mock 구현 (2초 지연 + NEAR base58 44자 txHash 생성)
+- [x] `src/lib/near/chain-signatures.ts` — NEAR Testnet 실거래 트랜잭션 구현 (Stage 10에서 교체, `wrap.testnet` 0.001 NEAR Transfer)
 - [ ] `v1.signer` MPC 컨트랙트 testnet 실연동 — Phase 2 예정 (`multichain-testnet.near`)
 - [ ] `deriveAddress` 함수 — NEAR 계정 기반 파생 키 생성 — Phase 2 예정
 - [ ] `requestSignature` 함수 — MPC 서명 요청 — Phase 2 예정
@@ -296,7 +296,7 @@
 - [x] `recommendation_carts.status` → `checked_out` 업데이트
 - [x] 트랜잭션 해시 표시 (인라인 성공 화면, base58 44자)
 - [x] abandoned / checked_out 카트 재진입 시 `/upload` redirect 처리
-- [ ] NEAR Explorer 링크 — Phase 2 예정 (testnet explorer URL 확정 후 적용)
+- [x] NEAR Testnet Explorer 링크 — Stage 10에서 구현 완료 (`https://testnet.nearblocks.io/txns/{txHash}`)
 
 #### 6-5. 에러 처리
 - [x] 트랜잭션 실패 시 `transactions.status = failed` + `recommendation_carts.status = active` 롤백
@@ -453,6 +453,48 @@
 - [x] 전체 페이지 헤더 `MyDNA Insurance Agent` 로고 → 홈(`/`) 링크 연결
   - [x] `src/app/page.tsx`, `src/app/upload/page.tsx`, `src/app/analysis/[sessionId]/page.tsx` 공통 적용
   - [x] `hover:opacity-80 transition-opacity` 인터랙션 추가
+
+---
+
+### Stage 10 — NEAR Testnet 실연동 + Confidential Intents 인텐트 패널 ✓ 완료 2026-04-05
+
+> Stage 6 Phase 0 Mock을 Phase 1 Testnet 실연동으로 교체. `@defuse-protocol/intents-sdk` near-api-js v7 충돌로 SDK 미사용, 인텐트 구조 수동 구현.
+
+#### 10-1. Chain Signatures 실거래 트랜잭션 ✓ 완료
+- [x] `src/lib/near/chain-signatures.ts` — 전면 교체
+  - [x] `initiateNearTransaction(cartId, selector)` 함수 구현 — WalletSelector v10 borsh 포맷
+  - [x] Action: `{ transfer: { deposit: "1000000000000000000000" } }` (0.001 NEAR)
+  - [x] Receiver: `wrap.testnet` (항상 존재하는 testnet 계정)
+  - [x] `callbackUrl`: `/checkout/${cartId}` — BrowserWallet 리다이렉트 복귀 처리
+  - [x] InjectedWallet(팝업): `FinalExecutionOutcome.transaction.hash` 직접 추출
+  - [x] BrowserWallet(리다이렉트): `null` 반환 → `?transactionHashes=` useEffect 처리
+- [x] `src/components/modules/CheckoutClient.tsx` — 3단계 결제 플로우 (preparing → signing → confirming)
+  - [x] `sessionStorage` — 리다이렉트 복귀 시 txId 복원
+  - [x] `prepareCheckout` / `confirmCheckout` Server Action 분리
+  - [x] InjectedWallet / BrowserWallet 분기 처리
+
+#### 10-2. CSP 및 네비게이션 보강 ✓ 완료
+- [x] `next.config.ts` — NEAR RPC 도메인 CSP connect-src 추가
+  - [x] `https://*.fastnear.com`, `https://*.pagoda.co`, `https://rpc.testnet.near.org`, `https://rpc.mainnet.near.org`
+- [x] `src/components/modules/AppHeader.tsx` — 전체 페이지 공통 헤더 컴포넌트 신규 생성
+  - [x] MyDNA 로고 → `/` 홈 링크, 선택적 Back 버튼, WalletConnect 포함
+  - [x] 전체 5개 페이지(홈/업로드/분석/대시보드/결제) 적용
+
+#### 10-3. Confidential Intents 인텐트 패널 ✓ 완료
+> `@defuse-protocol/intents-sdk` v0.58.2가 near-api-js v7 → v5 다운그레이드를 요구하므로 SDK 미설치.
+> 인텐트 데이터 구조를 수동으로 구성하여 결제 UI에 시각화.
+
+- [x] `CheckoutClient.tsx` — `ConfidentialIntentPanel` 컴포넌트 추가
+  - [x] 결제 버튼 상단에 Confidential Intent 구조 표시
+  - [x] `intent_type: "insurance_premium_payment"`, `zkp_proof_hash` (truncated), `product_ids` 목록, `estimated_usdc`, `network: "near_testnet"`, `intent_hash` (클라이언트 파생 16진수)
+  - [x] `[PRIVATE — not exposed to insurer]` 노란색 강조
+  - [x] 결제 완료 후 증서 화면에 "Confidential Intent 실행 완료" 배지 표시
+- [ ] Defuse Protocol Solver 네트워크 실연동 — Phase 2 예정 (intents-sdk near-api-js 버전 충돌 해소 후)
+- [ ] Private Shard 기반 Confidential 정산 — Phase 2 예정
+
+#### 10-4. NEAR Explorer 링크 ✓ 완료
+- [x] `CheckoutClient.tsx` 결제 완료 화면에 `https://testnet.nearblocks.io/txns/{txHash}` 링크 표시
+- [x] `target="_blank" rel="noopener noreferrer"` 적용
 
 ---
 

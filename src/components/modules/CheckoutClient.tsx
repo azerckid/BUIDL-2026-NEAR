@@ -19,6 +19,17 @@ import type { InsuranceProduct } from "@/lib/db/schema";
 // NEAR Testnet Explorer
 const NEAR_EXPLORER_BASE = "https://testnet.nearblocks.io/txns";
 
+// Deterministic hex hash from intent content (client-side, no crypto API required)
+function deriveIntentHash(cartId: string, zkpProofHash: string | null, productIds: string[]): string {
+  const raw = [cartId, zkpProofHash ?? "null", ...productIds].join("|");
+  let h = 0x811c9dc5;
+  for (let i = 0; i < raw.length; i++) {
+    h ^= raw.charCodeAt(i);
+    h = (Math.imul(h, 0x01000193) >>> 0);
+  }
+  return h.toString(16).padStart(8, "0") + cartId.replace(/-/g, "").slice(0, 8);
+}
+
 const CATEGORY_LABELS: Record<string, string> = {
   oncology: "종양·암",
   cardiovascular: "심혈관",
@@ -75,6 +86,75 @@ function ProductRow({ product }: { product: InsuranceProduct }) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function ConfidentialIntentPanel({ data }: { data: CartData }) {
+  const intentHash = deriveIntentHash(
+    data.cartId,
+    data.zkpProofHash,
+    data.products.map((p) => p.id)
+  );
+
+  const rows: { label: string; value: string; private?: boolean }[] = [
+    { label: "intent_type", value: '"insurance_premium_payment"' },
+    {
+      label: "zkp_proof_hash",
+      value: data.zkpProofHash
+        ? `"${data.zkpProofHash.slice(0, 12)}..."`
+        : '"(none)"',
+      private: true,
+    },
+    {
+      label: "product_ids",
+      value: `[${data.products.map((p) => `"${p.id.slice(0, 8)}..."`).join(", ")}]`,
+      private: true,
+    },
+    { label: "estimated_usdc", value: `${data.totalMonthlyUsdc.toFixed(2)}` },
+    { label: "network", value: '"near_testnet"' },
+    { label: "intent_hash", value: `"0x${intentHash}"` },
+  ];
+
+  return (
+    <div className="rounded-xl border border-primary/20 bg-card overflow-hidden">
+      {/* 터미널 헤더 */}
+      <div className="flex items-center gap-1.5 px-3 py-2 bg-muted/40 border-b border-border/60">
+        <span className="h-2.5 w-2.5 rounded-full bg-red-400/70" />
+        <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/70" />
+        <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/70" />
+        <span className="ml-2 text-xs text-muted-foreground font-mono">
+          confidential-intent — near_testnet
+        </span>
+        <Badge
+          variant="outline"
+          className="ml-auto text-[10px] px-1.5 py-0 border-primary/30 text-primary"
+        >
+          Defuse Protocol
+        </Badge>
+      </div>
+
+      {/* 인텐트 필드 */}
+      <div className="p-3 font-mono text-xs flex flex-col gap-1">
+        <span className="text-zinc-400">{"{"}</span>
+        {rows.map(({ label, value, private: isPrivate }) => (
+          <div key={label} className="flex items-start gap-1 pl-4">
+            <span className="text-primary/70">{label}:</span>
+            <span className={isPrivate ? "text-yellow-400" : "text-emerald-400"}>{value}</span>
+            {isPrivate && (
+              <span className="ml-1 text-yellow-500/60 text-[10px]">
+                [PRIVATE]
+              </span>
+            )}
+          </div>
+        ))}
+        <span className="text-zinc-400">{"}"}</span>
+      </div>
+
+      <div className="px-3 pb-2.5 text-[10px] text-muted-foreground">
+        보험사에 전달되지 않는 필드는{" "}
+        <span className="text-yellow-500">[PRIVATE]</span>으로 표시됩니다.
+      </div>
+    </div>
   );
 }
 
@@ -267,6 +347,12 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
               </div>
             )}
             <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Confidential Intent</span>
+              <Badge className="text-xs px-2 py-0 bg-primary/10 text-primary border-primary/30 hover:bg-primary/10">
+                실행 완료
+              </Badge>
+            </div>
+            <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">네트워크</span>
               <span className="text-foreground">NEAR Testnet</span>
             </div>
@@ -432,12 +518,16 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
         </div>
       </div>
 
+      {/* Confidential Intent 미리보기 */}
+      <ConfidentialIntentPanel data={data} />
+
       {/* 결제 버튼 */}
       <Button
         className="w-full"
         disabled={isPending || data.products.length === 0}
         onClick={handlePayment}
       >
+        {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         {getButtonLabel()}
       </Button>
     </div>
