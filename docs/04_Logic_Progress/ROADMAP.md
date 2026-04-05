@@ -305,6 +305,27 @@
 
 ---
 
+### Stage 7 착수 전 선행 조건
+
+> Stage 7 코드 작업을 시작하기 전에 아래 4가지를 순서대로 완료해야 한다.
+> 4-1, 4-2(외부 조사)를 먼저 완료한 뒤 4-3, 4-4(작업)를 진행한다.
+> 상세 내용: `docs/03_Technical_Specs/DEPLOYMENT_STRATEGY.md` 섹션 4
+
+#### 외부 조사 (결과에 따라 Stage 7 범위가 달라짐)
+- [ ] `@nearai/client` npm 미등록 문제 — A(REST 직접 호출) / B(git 의존성) / C(팀 문의) 중 방법 결정
+- [ ] Confidential Intents testnet 엔드포인트 가용성 확인 — 미공개 시 Stage 7 범위에서 제외
+
+#### 인프라 작업
+- [ ] `Dockerfile` + `.dockerignore` 작성 및 로컬 빌드 검증 (`nargo --version` 컨테이너 내 확인)
+- [ ] GCP Cloud Run 또는 AWS App Runner 배포 테스트 (환경 변수 Secret 등록 포함)
+
+#### 코드 작업
+- [ ] `completeCheckout.ts` → `prepareCheckout` + `confirmCheckout` 두 함수로 분리
+- [ ] `CheckoutClient.tsx` → 브라우저 지갑 서명 단계(`signAndSendTransaction`) 추가
+- [ ] `src/lib/near/chain-signatures.ts` — Mock 제거, v1.signer MPC 호출 구조로 교체
+
+---
+
 ### Stage 7 — IronClaw 실제 연동
 
 #### 7-1. NEAR AI Cloud 설정
