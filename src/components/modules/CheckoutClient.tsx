@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { DateTime } from "luxon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -147,10 +148,14 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
     return "NEAR로 결제하기";
   }
 
-  // 결제 완료 화면
+  // 보험 가입 확인서 화면
   if (result) {
+    const policyNumber = "MYD-" + result.txId.replace(/-/g, "").slice(0, 8).toUpperCase();
+    const enrolledAt = DateTime.now().toFormat("yyyy-MM-dd");
+
     return (
-      <div className="mx-auto w-full max-w-lg px-4 py-12 flex flex-col items-center gap-6">
+      <div className="mx-auto w-full max-w-lg px-4 py-10 flex flex-col gap-6">
+        {/* 헤더 */}
         <div className="flex flex-col items-center gap-3 text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100">
             <svg
@@ -164,45 +169,119 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
             </svg>
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground">결제 완료</h1>
+            <h1 className="text-xl font-bold text-foreground">보험 가입 완료</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              NEAR Confidential Intents로 보험료가 안전하게 처리되었습니다.
+              NEAR Confidential Intents로 안전하게 처리된 가상 보험 증서입니다.
             </p>
           </div>
         </div>
 
-        <div className="w-full rounded-xl border border-border/60 bg-card p-4 flex flex-col gap-3">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">월 보험료</span>
-            <span className="font-bold text-primary">${data.totalMonthlyUsdc.toFixed(1)} USDC</span>
+        {/* 증서 카드 */}
+        <div className="w-full rounded-xl border border-border/60 bg-card flex flex-col divide-y divide-border/60">
+
+          {/* 증서 정보 */}
+          <div className="p-4 flex flex-col gap-2.5">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">증서 정보</p>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">증서 번호</span>
+              <span className="font-mono font-semibold text-foreground">{policyNumber}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">가입일</span>
+              <span className="text-foreground">{enrolledAt}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">결제 지갑</span>
+              <span className="font-mono text-xs text-foreground">{truncateAddress(data.walletAddress)}</span>
+            </div>
+            {data.zkpProofHash && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">ZKP 검증</span>
+                <Badge className="text-xs px-2 py-0 bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100">
+                  검증 완료
+                </Badge>
+              </div>
+            )}
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">네트워크</span>
+              <span className="text-foreground">NEAR Testnet</span>
+            </div>
           </div>
-          <div className="flex items-center justify-between text-sm border-t border-border/60 pt-3">
-            <span className="text-muted-foreground">트랜잭션 ID</span>
-            <span className="font-mono text-xs text-foreground">{result.txId.slice(0, 8)}...</span>
+
+          {/* 가입 상품 목록 */}
+          <div className="p-4 flex flex-col gap-3">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              가입 상품 ({data.products.length}건)
+            </p>
+            {data.products.map((product) => (
+              <div key={product.id} className="flex items-center justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{product.name}</p>
+                  <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                    <Badge variant="outline" className="text-xs px-1.5 py-0">
+                      {CATEGORY_LABELS[product.coverageCategory] ?? product.coverageCategory}
+                    </Badge>
+                    <Badge variant="outline" className="text-xs px-1.5 py-0">
+                      {NETWORK_LABELS[product.chainNetwork] ?? product.chainNetwork}
+                    </Badge>
+                    {product.discountEligible === 1 && (
+                      <Badge className="text-xs px-1.5 py-0 bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100">
+                        ZKP 할인
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                <span className="text-sm font-bold text-foreground flex-shrink-0">
+                  ${product.monthlyPremiumUsdc.toFixed(1)}/mo
+                </span>
+              </div>
+            ))}
           </div>
-          <div className="flex flex-col gap-1 border-t border-border/60 pt-3">
-            <span className="text-xs text-muted-foreground">Tx Hash (NEAR Testnet)</span>
-            <span className="font-mono text-xs text-foreground break-all bg-muted/40 rounded px-2 py-1.5">
-              {result.txHash}
-            </span>
-          </div>
-          {data.zkpProofHash && (
-            <div className="flex flex-col gap-1 border-t border-border/60 pt-3">
-              <span className="text-xs text-muted-foreground">ZKP Proof Hash</span>
-              <span className="font-mono text-xs text-emerald-700 break-all bg-emerald-50 rounded px-2 py-1.5">
-                {data.zkpProofHash.slice(0, 32)}...
+
+          {/* 결제 요약 */}
+          <div className="p-4 flex flex-col gap-2.5">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">결제 요약</p>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">월 보험료 합계</span>
+              <span className="text-lg font-bold text-primary">${data.totalMonthlyUsdc.toFixed(1)} USDC/mo</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">결제 방식</span>
+              <span className="text-foreground">NEAR Confidential Intents</span>
+            </div>
+            <div className="flex flex-col gap-1 pt-1">
+              <span className="text-xs text-muted-foreground">Tx Hash (NEAR Testnet)</span>
+              <span className="font-mono text-xs text-foreground break-all bg-muted/40 rounded px-2 py-1.5">
+                {result.txHash}
               </span>
             </div>
-          )}
+          </div>
+
+          {/* 데모 고지 */}
+          <div className="px-4 py-3 bg-muted/30 rounded-b-xl">
+            <p className="text-xs text-muted-foreground text-center">
+              본 증서는 해커톤 데모용 가상 계약서이며 실제 보험 효력이 없습니다.
+            </p>
+          </div>
         </div>
 
-        <Button
-          variant="outline"
-          className="w-full"
-          onClick={() => router.push("/upload")}
-        >
-          처음으로 돌아가기
-        </Button>
+        {/* 버튼 */}
+        <div className="flex flex-col gap-2">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => window.print()}
+          >
+            확인서 인쇄
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => router.push("/upload")}
+          >
+            처음으로 돌아가기
+          </Button>
+        </div>
       </div>
     );
   }
