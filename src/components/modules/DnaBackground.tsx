@@ -115,10 +115,16 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
     let closestDist = HOVER_THRESHOLD;
 
     basePairs.forEach((bp, i) => {
-      // p1 월드 좌표 → 스크린 NDC 투영
-      const worldPos = bp.p1.clone().applyMatrix4(groupRef.current!.matrixWorld);
-      const projected = worldPos.project(state.camera);
-      const dist = Math.hypot(projected.x - mouse.x, projected.y - mouse.y);
+      // p1, p2 양쪽 모두 체크 — 가까운 쪽 거리 사용
+      const world1 = bp.p1.clone().applyMatrix4(groupRef.current!.matrixWorld);
+      const proj1 = world1.project(state.camera);
+      const dist1 = Math.hypot(proj1.x - mouse.x, proj1.y - mouse.y);
+
+      const world2 = bp.p2.clone().applyMatrix4(groupRef.current!.matrixWorld);
+      const proj2 = world2.project(state.camera);
+      const dist2 = Math.hypot(proj2.x - mouse.x, proj2.y - mouse.y);
+
+      const dist = Math.min(dist1, dist2);
       if (dist < closestDist) {
         closestDist = dist;
         closestIdx = i;
