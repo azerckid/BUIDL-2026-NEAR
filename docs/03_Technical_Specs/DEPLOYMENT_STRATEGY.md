@@ -1,7 +1,7 @@
 # [기술 명세] 배포 전략 및 Phase 2 전환 계획
 
 - **작성일**: 2026-04-05
-- **최종 수정일**: 2026-04-05 (4-1, 4-2 조사 완료)
+- **최종 수정일**: 2026-04-05 (NEAR AI Cloud 계정 설정 완료)
 - **레이어**: 03_Technical_Specs
 - **상태**: Draft v1.1
 
@@ -282,6 +282,78 @@ Chain Signatures MPC 실연동을 위해 Server Action 구조를 변경한다.
 | Phase 0 (현재) | Vercel | proof hash (더미) | Mock 2초 지연 | Mock |
 | Phase 2 (Stage 7) | Docker (GCP/AWS) | proof bytes (nargo) | v1.signer MPC 실연동 | 가용성 확인 후 결정 |
 | Phase 3 | Docker | proof bytes | MPC + 멀티체인 | 메인넷 |
+
+---
+
+---
+
+## 6. NEAR AI Cloud 계정 설정 절차 (완료 기준)
+
+Stage 7 IronClaw 실연동에 필요한 외부 계정 및 자격증명 설정 절차.
+
+### 6-1. 계정 생성
+
+- `cloud.near.ai` 접속 → Register 클릭
+- 이메일/비밀번호 입력 후 이메일 인증 완료
+
+### 6-2. 크레딧 충전
+
+NEAR AI Cloud는 API 호출 시 토큰당 과금하는 **유료 종량제** 방식이다.
+잔액이 $0.00이면 API 호출이 차단되므로 사전 충전이 필요하다.
+
+- Dashboard → Credits → 결제 수단 등록 후 충전
+- 해커톤 데모 수준(수십 회 호출): 소액으로 충분
+
+### 6-3. API Key 발급
+
+- Dashboard → Keys → `Create new key` 클릭
+- Key Name: `mydna-dev` (식별용)
+- Limit: 비워두면 잔액 한도 내 무제한
+
+**발급 키 형식**: `sk-...`
+
+### 6-4. .env.local 등록
+
+```bash
+IRONCLAW_BASE_URL=https://cloud-api.near.ai/v1
+IRONCLAW_API_KEY=sk-발급받은_키_값
+```
+
+> 주의: `IRONCLAW_API_KEY`는 서버 사이드 전용 환경 변수다. `NEXT_PUBLIC_` 접두사 절대 사용 금지.
+
+### 6-5. IronClaw Agent 인스턴스 생성 (선택)
+
+IronClaw Agent 배포는 에이전트 런타임을 NEAR AI Cloud 인프라 위에서 실행하는 옵션이다.
+단순 LLM API 호출만 필요한 경우 생략 가능하며, 우리 프로젝트는 **API 호출 방식**을 사용한다.
+
+- Dashboard → Deploy → `Deploy Secure Agent` 클릭 (필요 시)
+- Starter 티어: 에이전트 1개 무료 포함
+- 생성 완료 후 Agent ID 메모 → 추후 `.env.local`의 `IRONCLAW_AGENT_ID`에 등록
+
+### 6-6. cloud.near.ai vs IronClaw 관계 정리
+
+| | cloud.near.ai | IronClaw |
+|---|---|---|
+| 정체 | NEAR AI 관리형 클라우드 서비스 | NEAR AI 오픈소스 TEE 에이전트 런타임 |
+| 역할 | LLM 모델 추론 API 제공 (OpenAI 호환) | 에이전트를 TEE 안에서 실행하는 Rust 런타임 |
+| 크레딧 소비 | API 호출 시 토큰당 과금 | 자체 호스팅 — 별도 과금 없음 |
+| 우리 프로젝트 사용 | `ironclaw-tee.ts`에서 직접 호출 | cloud.near.ai 인프라 위에서 동작 |
+
+**크레딧 소비 흐름**:
+```
+MyDNA 앱 → ironclaw-tee.ts → cloud.near.ai API 호출 (토큰 소비)
+                               → TEE 안에서 LLM 유전자 분석
+                               → riskProfile 반환
+```
+
+### 6-7. 완료 체크리스트
+
+- [x] cloud.near.ai 계정 생성
+- [x] 크레딧 충전
+- [x] API Key 발급 (`mydna-dev`)
+- [x] `.env.local`에 `IRONCLAW_BASE_URL`, `IRONCLAW_API_KEY` 등록
+- [ ] IronClaw Agent 인스턴스 생성 (필요 시)
+- [ ] `IRONCLAW_AGENT_ID` `.env.local` 등록 (Agent 생성 시)
 
 ---
 

@@ -330,9 +330,9 @@
 ### Stage 7 — IronClaw 실제 연동
 
 #### 7-1. NEAR AI Cloud 설정
-- [ ] NEAR AI Cloud 계정 생성 (Starter tier — 무료)
-- [ ] `NEARAI_API_KEY` 발급 및 `.env.local` 기입
-- [ ] IronClaw Agent 인스턴스 생성 (NEAR AI Cloud 콘솔)
+- [x] NEAR AI Cloud 계정 생성 + 크레딧 충전 완료
+- [x] `IRONCLAW_BASE_URL`, `IRONCLAW_API_KEY` 발급 및 `.env.local` 등록 완료
+- [ ] IronClaw Agent 인스턴스 생성 (필요 시 — API 호출 방식 사용 시 생략 가능)
 
 #### 7-2. IronClaw 연동 레이어 작성
 - [ ] `src/lib/tee/ironclaw-tee.ts` 작성 — `@nearai/client` 기반 실제 API 호출
