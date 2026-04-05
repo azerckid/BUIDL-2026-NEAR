@@ -401,14 +401,14 @@
 > 결제 완료 후 가상의 보험 증서를 보여주어 사용자 경험을 완성하는 항목.
 > 실제 보험 계약이 아닌 데모용 확인서이며, 해커톤 심사위원 인상에 중요한 요소.
 
-- [ ] `CheckoutClient.tsx` 결제 완료 화면 → 보험 가입 확인서로 확장
-  - [ ] 증서 번호 표시 (`MYD-` + txId 앞 8자리)
-  - [ ] 가입일, 지갑 주소, ZKP 검증 완료 뱃지
-  - [ ] 가입 상품 목록 (상품명, 보장 카테고리, 월 보험료)
-  - [ ] 월 보험료 합계 + Confidential Intents 보호 문구
-  - [ ] "확인서 인쇄" 버튼 (`window.print()`)
-  - [ ] "처음으로 돌아가기" 버튼
-- [ ] 상세 명세: `docs/02_UI_Screens/SCREEN_SPEC.md` Step 5 섹션 참조
+- [x] `CheckoutClient.tsx` 결제 완료 화면 → 보험 가입 확인서로 확장
+  - [x] 증서 번호 표시 (`MYD-` + txId 앞 8자리)
+  - [x] 가입일, 지갑 주소, ZKP 검증 완료 뱃지
+  - [x] 가입 상품 목록 (상품명, 보장 카테고리, 월 보험료)
+  - [x] 월 보험료 합계 + Confidential Intents 보호 문구
+  - [x] "확인서 인쇄" 버튼 (`window.print()`)
+  - [x] "처음으로 돌아가기" 버튼
+- [x] 상세 명세: `docs/02_UI_Screens/SCREEN_SPEC.md` Section 6 참조
 
 ---
 
