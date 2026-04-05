@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import { getCartData } from "@/actions/getCartData";
 import { CheckoutClient } from "@/components/modules/CheckoutClient";
 
@@ -15,5 +17,15 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
     redirect("/upload");
   }
 
-  return <CheckoutClient data={data} />;
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-1 items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      }
+    >
+      <CheckoutClient data={data} />
+    </Suspense>
+  );
 }

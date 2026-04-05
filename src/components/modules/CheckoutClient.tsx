@@ -1,18 +1,22 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useTransition, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { DateTime } from "luxon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 import { prepareCheckout } from "@/actions/prepareCheckout";
 import { confirmCheckout } from "@/actions/confirmCheckout";
-import { signAndBroadcastIntent } from "@/lib/near/chain-signatures";
+import { initiateNearTransaction } from "@/lib/near/chain-signatures";
 import { truncateAddress } from "@/lib/near/wallet";
 import type { CartData } from "@/actions/getCartData";
 import type { InsuranceProduct } from "@/lib/db/schema";
+
+// NEAR Testnet Explorer
+const NEAR_EXPLORER_BASE = "https://testnet.nearblocks.io/txns";
 
 const CATEGORY_LABELS: Record<string, string> = {
   oncology: "종양·암",
@@ -77,9 +81,13 @@ type PaymentStep = "idle" | "preparing" | "signing" | "confirming" | "done";
 
 export function CheckoutClient({ data }: CheckoutClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<CheckoutResult | null>(null);
-  const [step, setStep] = useState<PaymentStep>("idle");
+
+  // 지갑 리다이렉트 복귀 시 즉시 confirming 상태로 시작
+  const txHashParam = searchParams.get("transactionHashes");
+  const [step, setStep] = useState<PaymentStep>(txHashParam ? "confirming" : "idle");
 
   const originalTotal = data.products.reduce((sum, p) => {
     if (p.discountEligible === 1 && p.originalPremiumUsdc != null) {
@@ -87,6 +95,38 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
     }
     return sum + p.monthlyPremiumUsdc;
   }, 0);
+
+  // 지갑 서명 후 리다이렉트 복귀 처리
+  useEffect(() => {
+    if (!txHashParam) return;
+
+    const key = `pending-checkout-${data.cartId}`;
+    const pending = sessionStorage.getItem(key);
+    if (!pending) return;
+
+    const { txId } = JSON.parse(pending) as { txId: string };
+
+    startTransition(async () => {
+      setStep("confirming");
+      const confirmed = await confirmCheckout({
+        txId,
+        txHash: txHashParam.split(",")[0],
+        cartId: data.cartId,
+      });
+
+      if (!confirmed.success) {
+        toast.error(confirmed.error ?? "결제 확정에 실패했습니다");
+        setStep("idle");
+        return;
+      }
+
+      sessionStorage.removeItem(key);
+      setResult({ txId: confirmed.txId!, txHash: confirmed.txHash! });
+      setStep("done");
+      toast.success("결제가 완료되었습니다");
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function handlePayment() {
     startTransition(async () => {
@@ -103,55 +143,46 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
         return;
       }
 
-      // 2단계: 브라우저 지갑 서명 + Confidential Intent 브로드캐스트
-      // Phase 2: @defuse-protocol/intents-sdk + WalletSelector.signAndSendTransaction
+      // 2단계: txId를 sessionStorage에 저장 (리다이렉트 복귀 시 사용)
+      sessionStorage.setItem(
+        `pending-checkout-${data.cartId}`,
+        JSON.stringify({ txId: prepared.txId })
+      );
+
+      // 3단계: 지갑 서명 요청 (MyNearWallet 리다이렉트)
       setStep("signing");
-      let signResult: { txHash: string };
       try {
-        signResult = await signAndBroadcastIntent({
-          walletAddress: data.walletAddress,
-          amountUsdc: prepared.amountUsdc!,
-          zkpProofHash: data.zkpProofHash,
-          productIds: prepared.productIds!,
-          txId: prepared.txId!,
-        });
+        await initiateNearTransaction(data.cartId);
+        // 이 아래는 실행되지 않음 — 브라우저가 지갑 페이지로 이동
       } catch {
-        toast.error("서명 또는 브로드캐스트에 실패했습니다");
+        toast.error("지갑 서명 요청에 실패했습니다");
         setStep("idle");
-        return;
       }
-
-      // 3단계: 결제 확정 (DB confirmed 처리)
-      setStep("confirming");
-      const confirmed = await confirmCheckout({
-        txId: prepared.txId!,
-        txHash: signResult.txHash,
-        cartId: data.cartId,
-      });
-
-      if (!confirmed.success) {
-        toast.error(confirmed.error ?? "결제 확정에 실패했습니다");
-        setStep("idle");
-        return;
-      }
-
-      setResult({ txId: confirmed.txId!, txHash: confirmed.txHash! });
-      setStep("done");
-      toast.success("결제가 완료되었습니다");
     });
   }
 
   function getButtonLabel(): string {
     if (step === "preparing") return "결제 준비 중...";
-    if (step === "signing") return "서명 대기 중...";
-    if (step === "confirming") return "확정 처리 중...";
+    if (step === "signing")   return "지갑으로 이동 중...";
+    if (step === "confirming") return "결제 확정 중...";
     return "NEAR로 결제하기";
   }
 
-  // 보험 가입 확인서 화면
+  // ── 결제 확정 대기 화면 ─────────────────────────────────────────────────────
+  if (step === "confirming" && !result) {
+    return (
+      <div className="mx-auto w-full max-w-lg px-4 py-16 flex flex-col items-center gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">NEAR 트랜잭션 확정 중...</p>
+      </div>
+    );
+  }
+
+  // ── 보험 가입 확인서 ────────────────────────────────────────────────────────
   if (result) {
     const policyNumber = "MYD-" + result.txId.replace(/-/g, "").slice(0, 8).toUpperCase();
     const enrolledAt = DateTime.now().toFormat("yyyy-MM-dd");
+    const explorerUrl = `${NEAR_EXPLORER_BASE}/${result.txHash}`;
 
     return (
       <div className="mx-auto w-full max-w-lg px-4 py-10 flex flex-col gap-6">
@@ -171,7 +202,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
           <div>
             <h1 className="text-xl font-bold text-foreground">보험 가입 완료</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              NEAR Confidential Intents로 안전하게 처리된 가상 보험 증서입니다.
+              NEAR Testnet에서 실제 처리된 트랜잭션입니다.
             </p>
           </div>
         </div>
@@ -247,14 +278,22 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">결제 방식</span>
-              <span className="text-foreground">NEAR Confidential Intents</span>
+              <span className="text-foreground">NEAR Testnet</span>
             </div>
             <div className="flex flex-col gap-1 pt-1">
-              <span className="text-xs text-muted-foreground">Tx Hash (NEAR Testnet)</span>
+              <span className="text-xs text-muted-foreground">Tx Hash</span>
               <span className="font-mono text-xs text-foreground break-all bg-muted/40 rounded px-2 py-1.5">
                 {result.txHash}
               </span>
             </div>
+            <a
+              href={explorerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-primary underline underline-offset-2 mt-1"
+            >
+              NEAR Testnet Explorer에서 확인 →
+            </a>
           </div>
 
           {/* 데모 고지 */}
@@ -286,17 +325,17 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
     );
   }
 
-  // 결제 확인 화면
+  // ── 결제 확인 화면 ──────────────────────────────────────────────────────────
   return (
     <div className="mx-auto w-full max-w-lg px-4 py-8 flex flex-col gap-6">
       {/* 헤더 */}
       <div className="flex flex-col gap-1.5">
         <Badge variant="outline" className="border-primary/40 text-primary text-xs w-fit">
-          Confidential Checkout
+          NEAR Testnet 결제
         </Badge>
         <h1 className="text-xl font-bold text-foreground">결제 확인</h1>
         <p className="text-sm text-muted-foreground">
-          NEAR Confidential Intents로 결제 내역이 보호됩니다. 원본 유전자 데이터는 이미 소각되었습니다.
+          NEAR 지갑으로 실제 Testnet 트랜잭션을 서명합니다. 원본 유전자 데이터는 이미 소각되었습니다.
         </p>
       </div>
 
@@ -353,6 +392,10 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
         <div className="flex items-center justify-between text-xs">
           <span className="text-muted-foreground">네트워크</span>
           <span className="text-foreground">NEAR Testnet</span>
+        </div>
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-muted-foreground">서명 금액</span>
+          <span className="text-foreground">0.001 NEAR (데모 심볼릭)</span>
         </div>
       </div>
 

@@ -6,7 +6,6 @@ import { eq } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
-import { signAndBroadcastIntent } from "@/lib/near/chain-signatures";
 
 const completeCheckoutInputSchema = z.object({
   cartId: z.string().uuid(),
@@ -87,14 +86,9 @@ export async function completeCheckout(input: unknown): Promise<CompleteCheckout
       .set({ status: "broadcasting" })
       .where(eq(transactions.id, txId));
 
-    // 4. Mock Confidential Intent 제출 (Phase 0: 2초 mock 지연)
-    const { txHash } = await signAndBroadcastIntent({
-      walletAddress,
-      amountUsdc: cart.totalMonthlyUsdc,
-      zkpProofHash,
-      productIds: selectedProductIds,
-      txId,
-    });
+    // 4. 지갑 서명은 클라이언트에서 처리됨 (Phase 1)
+    // txHash는 confirmCheckout에서 수신 — 여기서는 mock 유지 (미사용 경로)
+    const txHash = "unused-path";
 
     // 5. confirmed 처리
     const confirmedAt = DateTime.now();

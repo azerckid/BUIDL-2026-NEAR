@@ -1,5 +1,20 @@
-// Phase 0: Mock 서명 — Phase 2에서 @defuse-protocol/intents-sdk + v1.signer MPC로 교체
-// 이 파일은 클라이언트 사이드에서 호출된다 ("use server" 없음)
+// Phase 1: WalletSelector 실거래 트랜잭션
+// BrowserWallet(MyNearWallet)은 서명 시 외부 페이지로 리다이렉트 →
+// callbackUrl(?transactionHashes=HASH)로 복귀 → CheckoutClient에서 확정 처리
+//
+// Phase 2 교체 대상:
+//   receiverId → 실제 NEAR 보험 컨트랙트 주소
+//   Transfer → FunctionCall: pay_premium({ zkp_proof_hash, product_ids })
+//   Confidential Intents SDK (@defuse-protocol/intents-sdk) 연동
+
+import { getWalletSelector } from "@/lib/near/wallet";
+
+// 데모 보험료 수신 계정 (항상 존재하는 testnet 계정)
+// Phase 2에서 실제 보험사 컨트랙트로 교체
+const DEMO_INSURANCE_TREASURY = "wrap.testnet";
+
+// 0.001 NEAR (yoctoNEAR) — 데모용 심볼릭 보험료
+const DEMO_AMOUNT_YNEAR = "1000000000000000000000";
 
 export interface SignIntentParams {
   walletAddress: string;
@@ -15,34 +30,28 @@ export interface SignIntentResult {
 }
 
 /**
- * Confidential Intent 서명 및 브로드캐스트
+ * NEAR Testnet 실거래 트랜잭션 시작
  *
- * Phase 0: Mock 구현 — NEAR base58 44자 txHash 반환
- * Phase 2 교체 대상:
- *   1. @defuse-protocol/intents-sdk 로 Confidential Intent 구성
- *   2. WalletSelector.signAndSendTransaction 으로 브라우저 지갑 서명
- *   3. v1.signer MPC 컨트랙트 호출로 Chain Signatures 적용
+ * BrowserWallet은 이 함수 호출 시 MyNearWallet 페이지로 리다이렉트.
+ * 서명 완료 후 /checkout/[cartId]?transactionHashes=REAL_HASH 로 복귀.
+ * 복귀 후 CheckoutClient의 useEffect가 confirmCheckout을 호출하여 완료 처리.
  */
-export async function signAndBroadcastIntent(
-  params: SignIntentParams
-): Promise<SignIntentResult> {
-  // Phase 2 교체 지점 ──────────────────────────────────────────────────
-  // const { intents } = await import("@defuse-protocol/intents-sdk");
-  // const wallet = await getWalletSelector().then((s) => s.wallet());
-  // const outcome = await wallet.signAndSendTransaction({ ... });
-  // return { txHash: outcome.transaction.hash, network: "near_testnet" };
-  // ────────────────────────────────────────────────────────────────────
+export async function initiateNearTransaction(cartId: string): Promise<void> {
+  const selector = await getWalletSelector();
+  const wallet = await selector.wallet();
 
-  // Phase 0 Mock: 2초 지연 후 NEAR base58 44자 txHash 반환
-  void params;
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-  return { txHash: generateMockTxHash(), network: "near_testnet" };
-}
+  // near-wallet-selector v10 Action 타입 호환을 위해 명시적 캐스팅
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const actions: any[] = [
+    {
+      type: "Transfer",
+      params: { deposit: DEMO_AMOUNT_YNEAR },
+    },
+  ];
 
-// NEAR tx hash 형식: base58 알파벳 44자
-function generateMockTxHash(): string {
-  const chars = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-  return Array.from({ length: 44 }, () =>
-    chars[Math.floor(Math.random() * chars.length)]
-  ).join("");
+  await wallet.signAndSendTransaction({
+    receiverId: DEMO_INSURANCE_TREASURY,
+    callbackUrl: `${window.location.origin}/checkout/${cartId}`,
+    actions,
+  });
 }
