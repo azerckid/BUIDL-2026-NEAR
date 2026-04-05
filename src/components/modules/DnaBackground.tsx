@@ -105,7 +105,7 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
   });
 
   return (
-    <group ref={groupRef} scale={[2, 2, 2]}>
+    <group ref={groupRef} scale={[3, 3, 3]}>
       {/* 나선 1 — Electric Blue */}
       <mesh geometry={geo1}>
         <meshStandardMaterial
