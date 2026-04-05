@@ -316,13 +316,14 @@
 - [x] Confidential Intents testnet 엔드포인트 가용성 확인 — **메인넷 출시 완료** (2026-02-25), `@defuse-protocol/intents-sdk` 사용
 
 #### 인프라 작업
-- [ ] `Dockerfile` + `.dockerignore` 작성 및 로컬 빌드 검증 (`nargo --version` 컨테이너 내 확인)
+- [x] `Dockerfile` + `.dockerignore` 작성 (nargo CLI 포함, next.config.ts standalone 설정)
 - [ ] GCP Cloud Run 또는 AWS App Runner 배포 테스트 (환경 변수 Secret 등록 포함)
 
 #### 코드 작업
-- [ ] `completeCheckout.ts` → `prepareCheckout` + `confirmCheckout` 두 함수로 분리
-- [ ] `CheckoutClient.tsx` → 브라우저 지갑 서명 단계(`signAndSendTransaction`) 추가
-- [ ] `src/lib/near/chain-signatures.ts` — Mock 제거, v1.signer MPC 호출 구조로 교체
+- [x] `prepareCheckout.ts` 생성 — 1단계: cart 선점 + transaction INSERT
+- [x] `confirmCheckout.ts` 생성 — 3단계: txHash 수신 후 DB confirmed 처리
+- [x] `CheckoutClient.tsx` — preparing → signing → confirming 3단계 플로우 적용
+- [x] `chain-signatures.ts` — `signAndBroadcastIntent`로 개명, Phase 2 교체 지점 주석 추가
 
 ---
 
