@@ -1,7 +1,7 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-05 (Stage 5 완료, Stage 9 추가)
+- **최종 수정일**: 2026-04-05 (Stage 6 완료)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v2.0
 
@@ -261,7 +261,8 @@
 #### 5-5. 카트 생성 및 전환
 - [x] `src/actions/createCart.ts` — 선택 상품 보험료 합산 + recommendation_carts 레코드 생성
 - [x] 결제하기 → /checkout/[cartId] 이동 (Stage 6 연결 지점)
-- [x] `src/app/checkout/[cartId]/page.tsx` — Stage 6 placeholder
+- [x] `src/app/checkout/[cartId]/page.tsx` — Stage 6에서 Server Component로 교체 완료
+- [x] `src/lib/db/schema.ts` — `transactionInsertSchema` Zod insert schema 추가
 
 ---
 
