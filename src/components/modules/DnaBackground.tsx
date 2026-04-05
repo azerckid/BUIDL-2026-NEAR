@@ -164,8 +164,8 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
         <meshStandardMaterial
           color={COLOR_STRAND_1}
           emissive={COLOR_STRAND_1}
-          emissiveIntensity={0.4}
-          transparent opacity={0.75}
+          emissiveIntensity={0.2}
+          transparent opacity={0.55}
           roughness={0.3} metalness={0.1}
         />
       </mesh>
@@ -175,8 +175,8 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
         <meshStandardMaterial
           color={COLOR_STRAND_2}
           emissive={COLOR_STRAND_2}
-          emissiveIntensity={0.4}
-          transparent opacity={0.75}
+          emissiveIntensity={0.2}
+          transparent opacity={0.55}
           roughness={0.3} metalness={0.1}
         />
       </mesh>
@@ -194,8 +194,8 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
               ref={(m) => { lineMatRefs.current[i] = m; }}
               color={COLOR_BASE_PAIR}
               emissive={COLOR_BASE_PAIR}
-              emissiveIntensity={0.3}
-              transparent opacity={0.55}
+              emissiveIntensity={0.15}
+              transparent opacity={0.38}
             />
           </mesh>
           {/* 끝점 구체 — 나선 1 쪽 */}
@@ -205,8 +205,8 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
               ref={(m) => { node1MatRefs.current[i] = m; }}
               color={COLOR_NODE_1}
               emissive={COLOR_NODE_1}
-              emissiveIntensity={0.8}
-              transparent opacity={0.9}
+              emissiveIntensity={0.4}
+              transparent opacity={0.7}
             />
           </mesh>
           {/* 끝점 구체 — 나선 2 쪽 */}
@@ -216,8 +216,8 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
               ref={(m) => { node2MatRefs.current[i] = m; }}
               color={COLOR_NODE_2}
               emissive={COLOR_NODE_2}
-              emissiveIntensity={0.8}
-              transparent opacity={0.9}
+              emissiveIntensity={0.4}
+              transparent opacity={0.7}
             />
           </mesh>
         </group>
@@ -229,7 +229,7 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
           <sphereGeometry args={[0.1, 10, 10]} />
           <meshStandardMaterial
             color={COLOR_NODE_1} emissive={COLOR_NODE_1}
-            emissiveIntensity={0.9} transparent opacity={0.95}
+            emissiveIntensity={0.5} transparent opacity={0.75}
           />
         </mesh>
       ))}
@@ -240,7 +240,7 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
           <sphereGeometry args={[0.1, 10, 10]} />
           <meshStandardMaterial
             color={COLOR_NODE_2} emissive={COLOR_NODE_2}
-            emissiveIntensity={0.9} transparent opacity={0.95}
+            emissiveIntensity={0.5} transparent opacity={0.75}
           />
         </mesh>
       ))}
@@ -272,7 +272,7 @@ export function DnaBackground() {
     <div
       className="absolute inset-0 pointer-events-none overflow-hidden"
       aria-hidden="true"
-      style={{ zIndex: 0, opacity: 0.18 }}
+      style={{ zIndex: 0, opacity: 0.11 }}
     >
       <Canvas
         camera={{ position: [0, 0, 18], fov: 55 }}
