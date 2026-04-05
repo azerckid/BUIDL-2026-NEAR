@@ -3,8 +3,8 @@
 // Proves that a user's genetic risk score meets the insurer's threshold
 // WITHOUT revealing the actual score.
 //
-// Private input: risk_score — computed inside TEE, never leaves secure memory
-// Public  input: threshold  — insurer's publicly known eligibility cutoff
+// Private input: risk_score - computed inside TEE, never leaves secure memory
+// Public  input: threshold  - insurer's publicly known eligibility cutoff
 //
 // Phase 0: Circuit is compiled but proof is generated as a dummy in prover.ts
 // Phase 2: @noir-lang/noir_js + BarretenbergBackend will generate real proofs

@@ -1,0 +1,4 @@
+# Test input: risk_score=80 (private), threshold=70 (public)
+# 80 >= 70 => eligibility proof should succeed
+risk_score = 80
+threshold = 70

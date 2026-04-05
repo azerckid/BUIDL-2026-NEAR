@@ -12,6 +12,7 @@ import { prepareCheckout } from "@/actions/prepareCheckout";
 import { confirmCheckout } from "@/actions/confirmCheckout";
 import { initiateNearTransaction } from "@/lib/near/chain-signatures";
 import { truncateAddress } from "@/lib/near/wallet";
+import { ZKP_VERIFIER_CONTRACT } from "@/lib/zkp/verifier";
 import { useWallet } from "@/context/WalletContext";
 import type { CartData } from "@/actions/getCartData";
 import type { InsuranceProduct } from "@/lib/db/schema";
@@ -272,6 +273,34 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
           toast.error(confirmed.error ?? "결제 확정에 실패했습니다");
           setStep("idle");
           return;
+        }
+
+        // ZKP proof hash 온체인 등록 (zkp.rogulus.testnet)
+        if (data.zkpProofHash && selector) {
+          try {
+            const zkpWallet = await selector.wallet();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await (zkpWallet as any).signAndSendTransaction({
+              receiverId: ZKP_VERIFIER_CONTRACT,
+              actions: [
+                {
+                  functionCall: {
+                    methodName: "submit_proof",
+                    args: JSON.stringify({
+                      proof_hash: data.zkpProofHash,
+                      cart_id: data.cartId,
+                    }),
+                    gas: "30000000000000",
+                    deposit: "0",
+                  },
+                },
+              ],
+            });
+            toast.success("ZKP proof가 온체인에 등록되었습니다");
+          } catch {
+            // proof 등록 실패는 결제 자체를 롤백하지 않음
+            toast.error("ZKP 온체인 등록 실패 (결제는 완료됨)");
+          }
         }
 
         sessionStorage.removeItem(`pending-checkout-${data.cartId}`);
