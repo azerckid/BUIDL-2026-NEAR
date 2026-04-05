@@ -1,11 +1,9 @@
-import Link from "next/link";
 import { db } from "@/lib/db";
 import { analysisSessions } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
-import { WalletConnect } from "@/components/modules/WalletConnect";
+import { AppHeader } from "@/components/modules/AppHeader";
 import { TeeAnalysisProgress } from "@/components/modules/TeeAnalysisProgress";
-import { Badge } from "@/components/ui/badge";
 
 interface AnalysisPageProps {
   params: Promise<{ sessionId: string }>;
@@ -33,16 +31,7 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      {/* Nav */}
-      <header className="flex items-center justify-between px-8 py-5 border-b border-border">
-        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <span className="text-primary font-bold text-xl tracking-tight">MyDNA</span>
-          <Badge variant="outline" className="border-primary/40 text-primary text-xs">
-            Insurance Agent
-          </Badge>
-        </Link>
-        <WalletConnect />
-      </header>
+      <AppHeader backHref="/upload" backLabel="업로드로" />
 
       {/* Step 인디케이터 */}
       <div className="flex items-center justify-center gap-2 py-4 border-b border-border">

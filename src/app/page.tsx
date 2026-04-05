@@ -1,11 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { AppHeader } from "@/components/modules/AppHeader";
+import { useWallet } from "@/context/WalletContext";
 import { WalletConnect } from "@/components/modules/WalletConnect";
 import { Badge } from "@/components/ui/badge";
-import { useWallet } from "@/context/WalletContext";
 import { Button } from "@/components/ui/button";
 
 // 3D DNA 배경 — SSR 비활성화 (WebGL은 서버에서 실행 불가)
@@ -20,19 +20,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      {/* Nav */}
-      <header className="flex items-center justify-between px-8 py-5 border-b border-border">
-        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <span className="text-primary font-bold text-xl tracking-tight">MyDNA</span>
-          <Badge
-            variant="outline"
-            className="border-primary/40 text-primary text-xs"
-          >
-            Insurance Agent
-          </Badge>
-        </Link>
-        <WalletConnect />
-      </header>
+      <AppHeader />
 
       {/* Hero */}
       <main className="relative flex flex-1 flex-col items-center justify-center px-6 text-center gap-8 overflow-hidden">

@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useWallet } from "@/context/WalletContext";
-import { WalletConnect } from "@/components/modules/WalletConnect";
+import { AppHeader } from "@/components/modules/AppHeader";
 import { FileUploadZone } from "@/components/modules/FileUploadZone";
-import { Badge } from "@/components/ui/badge";
 
 export default function UploadPage() {
   const { isConnected, isLoading } = useWallet();
@@ -25,16 +23,7 @@ export default function UploadPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      {/* Nav */}
-      <header className="flex items-center justify-between px-8 py-5 border-b border-border">
-        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <span className="text-primary font-bold text-xl tracking-tight">MyDNA</span>
-          <Badge variant="outline" className="border-primary/40 text-primary text-xs">
-            Insurance Agent
-          </Badge>
-        </Link>
-        <WalletConnect />
-      </header>
+      <AppHeader backHref="/" backLabel="홈으로" />
 
       {/* Step 진행 표시 */}
       <div className="flex items-center justify-center gap-2 py-4 border-b border-border">
