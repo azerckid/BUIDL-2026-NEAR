@@ -13,7 +13,8 @@ const TURNS = 2.5;
 const SEGMENTS = 80;
 const RADIUS = 2.93;
 const HEIGHT = 15.75;
-const BASE_PAIR_EVERY = 8;
+const BASE_PAIR_EVERY = 4; // 염기쌍 직선 간격 — 약 20개
+const NODE_EVERY = 8;      // 노드 구체 간격 — 약 10개 (기존 유지)
 const ROTATE_SPEED = 0.25;   // Y축 자동 회전 (rad/s)
 const TILT_X_MAX = 0.28;     // 마우스 상하 틸트 최대값 (rad, 약 16°)
 const TILT_Z_MAX = 0.14;     // 마우스 좌우 틸트 최대값 (rad, 약 8°)
@@ -48,10 +49,8 @@ function useHelixData() {
       pts1.push(p1);
       pts2.push(p2);
 
+      // 염기쌍 직선 — BASE_PAIR_EVERY 간격
       if (i % BASE_PAIR_EVERY === 0) {
-        nodes1.push(p1.clone());
-        nodes2.push(p2.clone());
-
         const mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
         const dir = new THREE.Vector3().subVectors(p2, p1);
         const len = dir.length();
@@ -60,6 +59,12 @@ function useHelixData() {
           dir.normalize()
         );
         basePairs.push({ mid, quat, len });
+      }
+
+      // 노드 구체 — NODE_EVERY 간격 (염기쌍과 독립)
+      if (i % NODE_EVERY === 0) {
+        nodes1.push(p1.clone());
+        nodes2.push(p2.clone());
       }
     }
 
