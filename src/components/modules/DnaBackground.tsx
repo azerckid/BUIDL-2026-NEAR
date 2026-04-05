@@ -13,7 +13,7 @@ const TURNS = 2.5;
 const SEGMENTS = 80;
 const RADIUS = 2.93;
 const HEIGHT = 15.75;
-const BASE_PAIR_EVERY = 1; // 염기쌍 직선 간격 — 약 80개 (매 segment)
+const BASE_PAIR_EVERY = 2; // 염기쌍 직선 간격 — 약 40개
 const NODE_EVERY = 8;      // 노드 구체 간격 — 약 10개 (기존 유지)
 const ROTATE_SPEED = 0.25;   // Y축 자동 회전 (rad/s)
 const TILT_X_MAX = 0.28;     // 마우스 상하 틸트 최대값 (rad, 약 16°)
@@ -35,7 +35,7 @@ function useHelixData() {
   return useMemo(() => {
     const pts1: THREE.Vector3[] = [];
     const pts2: THREE.Vector3[] = [];
-    const basePairs: { mid: THREE.Vector3; quat: THREE.Quaternion; len: number }[] = [];
+    const basePairs: { mid: THREE.Vector3; quat: THREE.Quaternion; len: number; p1: THREE.Vector3; p2: THREE.Vector3 }[] = [];
     const nodes1: THREE.Vector3[] = [];
     const nodes2: THREE.Vector3[] = [];
 
@@ -58,7 +58,7 @@ function useHelixData() {
           new THREE.Vector3(0, 1, 0),
           dir.normalize()
         );
-        basePairs.push({ mid, quat, len });
+        basePairs.push({ mid, quat, len, p1: p1.clone(), p2: p2.clone() });
       }
 
       // 노드 구체 — NODE_EVERY 간격 (염기쌍과 독립)
@@ -132,22 +132,46 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
         />
       </mesh>
 
-      {/* 염기쌍 */}
+      {/* 염기쌍 직선 + 끝점 구체 */}
       {basePairs.map((bp, i) => (
-        <mesh
-          key={`bp-${i}`}
-          position={bp.mid.toArray()}
-          quaternion={bp.quat.toArray() as [number, number, number, number]}
-        >
-          <cylinderGeometry args={[0.028, 0.028, bp.len, 6]} />
-          <meshStandardMaterial
-            color={COLOR_BASE_PAIR}
-            emissive={COLOR_BASE_PAIR}
-            emissiveIntensity={0.3}
-            transparent
-            opacity={0.55}
-          />
-        </mesh>
+        <group key={`bp-${i}`}>
+          {/* 연결 직선 */}
+          <mesh
+            position={bp.mid.toArray()}
+            quaternion={bp.quat.toArray() as [number, number, number, number]}
+          >
+            <cylinderGeometry args={[0.028, 0.028, bp.len, 6]} />
+            <meshStandardMaterial
+              color={COLOR_BASE_PAIR}
+              emissive={COLOR_BASE_PAIR}
+              emissiveIntensity={0.3}
+              transparent
+              opacity={0.55}
+            />
+          </mesh>
+          {/* 끝점 구체 — 나선 1 쪽 */}
+          <mesh position={bp.p1.toArray()}>
+            <sphereGeometry args={[0.07, 8, 8]} />
+            <meshStandardMaterial
+              color={COLOR_NODE_1}
+              emissive={COLOR_NODE_1}
+              emissiveIntensity={0.8}
+              transparent
+              opacity={0.9}
+            />
+          </mesh>
+          {/* 끝점 구체 — 나선 2 쪽 */}
+          <mesh position={bp.p2.toArray()}>
+            <sphereGeometry args={[0.07, 8, 8]} />
+            <meshStandardMaterial
+              color={COLOR_NODE_2}
+              emissive={COLOR_NODE_2}
+              emissiveIntensity={0.8}
+              transparent
+              opacity={0.9}
+            />
+          </mesh>
+        </group>
       ))}
 
       {/* 노드 구체 — 나선 1 */}
