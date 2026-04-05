@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, LockOpen, Upload, FileText, X } from "lucide-react";
 import { z } from "zod";
@@ -18,10 +19,8 @@ type AllowedExtension = (typeof ALLOWED_EXTENSIONS)[number];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 const fileValidationSchema = z.object({
-  size: z.number().max(MAX_FILE_SIZE, "파일 크기는 5MB를 초과할 수 없습니다"),
-  extension: z.enum([...ALLOWED_EXTENSIONS], {
-    message: ".vcf, .txt, .csv, .pdf 파일만 허용됩니다",
-  }),
+  size: z.number().max(MAX_FILE_SIZE),
+  extension: z.enum([...ALLOWED_EXTENSIONS]),
 });
 
 // ─── 처리 단계 ────────────────────────────────────────────────────────────────
@@ -33,13 +32,6 @@ const STAGE_PROGRESS: Record<ProcessStage, number> = {
   hashing: 40,
   creating: 80,
   done: 100,
-};
-
-const STAGE_LABEL: Record<ProcessStage, string> = {
-  idle: "",
-  hashing: "SHA-256 해시 계산 중...",
-  creating: "세션 생성 중...",
-  done: "완료",
 };
 
 // ─── 유틸 함수 ────────────────────────────────────────────────────────────────
@@ -65,7 +57,15 @@ function formatFileSize(bytes: number): string {
 
 export function FileUploadZone() {
   const router = useRouter();
+  const t = useTranslations("fileUpload");
   const { accountId } = useWallet();
+
+  const STAGE_LABEL: Record<ProcessStage, string> = {
+    idle: "",
+    hashing: t("hashing"),
+    creating: t("creatingSession"),
+    done: t("done"),
+  };
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -81,7 +81,12 @@ export function FileUploadZone() {
     const result = fileValidationSchema.safeParse({ size: file.size, extension: ext });
 
     if (!result.success) {
-      const message = result.error.issues[0]?.message ?? "파일 검증 실패";
+      const issue = result.error.issues[0];
+      const message = issue?.code === "too_big"
+        ? t("fileTooLarge")
+        : issue?.code === "invalid_value"
+        ? t("invalidFormat")
+        : t("validationFailed");
       setValidationError(message);
       setSelectedFile(null);
       setIsLocked(false);
@@ -91,8 +96,9 @@ export function FileUploadZone() {
 
     setSelectedFile(file);
     setIsLocked(true);
-    toast.success("파일 검증 완료 — 분석을 시작할 수 있습니다");
-  }, []);
+    toast.success(t("validationPassed"));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [t]);
 
   const handleDrop = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {
@@ -115,14 +121,15 @@ export function FileUploadZone() {
   const handleSampleFile = useCallback(async () => {
     try {
       const res = await fetch("/mock/mock_genome_gentok.txt");
-      if (!res.ok) throw new Error("fetch 실패");
+      if (!res.ok) throw new Error("fetch failed");
       const blob = await res.blob();
       const file = new File([blob], "mock_genome_gentok.txt", { type: "text/plain" });
       validateAndSetFile(file);
     } catch {
-      toast.error("샘플 파일을 불러올 수 없습니다");
+      toast.error(t("sampleFetchError"));
     }
-  }, [validateAndSetFile]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validateAndSetFile, t]);
 
   const handleClearFile = useCallback(() => {
     setSelectedFile(null);
@@ -145,24 +152,25 @@ export function FileUploadZone() {
       const result = await createSession(accountId, fileHash, fileType);
 
       if (!result.success || !result.sessionId) {
-        toast.error(result.error ?? "세션 생성 실패");
+        toast.error(result.error ?? t("sessionError"));
         setIsProcessing(false);
         setStage("idle");
         return;
       }
 
       setStage("done");
-      toast.success("세션 생성 완료 — 분석 화면으로 이동합니다");
+      toast.success(t("sessionCreated"));
 
       setTimeout(() => {
         router.push(`/analysis/${result.sessionId}`);
       }, 800);
     } catch {
-      toast.error("처리 중 오류가 발생했습니다");
+      toast.error(t("processError"));
       setIsProcessing(false);
       setStage("idle");
     }
-  }, [selectedFile, accountId, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedFile, accountId, router, t]);
 
   const dropZoneClass = [
     "relative w-full rounded-2xl border-2 border-dashed transition-colors duration-200",
@@ -234,21 +242,21 @@ export function FileUploadZone() {
                   handleClearFile();
                 }}
                 className="text-muted-foreground hover:text-foreground ml-1 flex-shrink-0"
-                aria-label="파일 제거"
+                aria-label={t("removeBtn")}
               >
                 <X size={14} />
               </button>
             </div>
             <span className="text-xs text-muted-foreground">{formatFileSize(selectedFile.size)}</span>
-            <span className="text-xs text-emerald-500 mt-1">검증 완료 — 분석을 시작할 수 있습니다</span>
+            <span className="text-xs text-emerald-500 mt-1">{t("validationPassed")}</span>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-1 text-center">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Upload size={16} />
-              <p className="text-sm font-medium text-foreground">파일을 드래그하거나 클릭하여 선택</p>
+              <p className="text-sm font-medium text-foreground">{t("dropzone")}</p>
             </div>
-            <p className="text-xs text-muted-foreground">.vcf, .txt, .csv, .pdf — 최대 5MB</p>
+            <p className="text-xs text-muted-foreground">{t("hint")}</p>
           </div>
         )}
       </div>
@@ -275,7 +283,7 @@ export function FileUploadZone() {
           onClick={handleSampleFile}
           className="text-xs border-primary/30 text-primary/80 hover:text-primary hover:border-primary/60"
         >
-          샘플 파일로 체험하기
+          {t("sampleBtn")}
         </Button>
       )}
 
@@ -303,7 +311,7 @@ export function FileUploadZone() {
             disabled={isProcessing}
             className="w-full font-semibold"
           >
-            {isProcessing ? "처리 중..." : "분석 시작"}
+            {isProcessing ? t("processing") : t("startBtn")}
           </Button>
         </div>
       )}

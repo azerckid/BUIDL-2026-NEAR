@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { analysisSessions } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -6,11 +8,13 @@ import { AppHeader } from "@/components/modules/AppHeader";
 import { TeeAnalysisProgress } from "@/components/modules/TeeAnalysisProgress";
 
 interface AnalysisPageProps {
-  params: Promise<{ sessionId: string }>;
+  params: Promise<{ sessionId: string; locale: string }>;
 }
 
 export default async function AnalysisPage({ params }: AnalysisPageProps) {
-  const { sessionId } = await params;
+  const { sessionId, locale } = await params;
+  const t = await getTranslations("analysis");
+  const tc = await getTranslations("common");
 
   const sessions = await db
     .select({ status: analysisSessions.status })
@@ -18,22 +22,23 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
     .where(eq(analysisSessions.id, sessionId))
     .limit(1);
 
-  // 세션 미존재
-  if (sessions.length === 0) {
-    redirect("/upload");
-  }
+  if (sessions.length === 0) redirect(`/${locale}/upload`);
 
-  // 이미 완료된 세션 → 대시보드로 바로 이동
   const { status } = sessions[0];
-  if (status === "purged") {
-    redirect(`/dashboard?sid=${sessionId}`);
-  }
+  if (status === "purged") redirect(`/${locale}/dashboard?sid=${sessionId}`);
+
+  const STEPS = [
+    tc("steps.walletConnect"),
+    tc("steps.fileUpload"),
+    tc("steps.teeAnalysis"),
+    tc("steps.insuranceRecommend"),
+    tc("steps.payment"),
+  ];
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <AppHeader backHref="/upload" backLabel="업로드로" />
+      <AppHeader backHref="/upload" backLabel={t("backLabel")} />
 
-      {/* Step 인디케이터 */}
       <div className="flex items-center justify-center gap-2 py-4 border-b border-border">
         {STEPS.map((s, i) => (
           <div key={s} className="flex items-center gap-2">
@@ -64,21 +69,15 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
         ))}
       </div>
 
-      {/* 메인 콘텐츠 */}
       <main className="flex flex-1 flex-col items-center justify-center px-6 py-12 gap-8">
         <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-2xl font-bold text-foreground">TEE 분석 진행 중</h1>
-          <p className="text-sm text-muted-foreground max-w-md">
-            유전자 데이터가 IronClaw Trusted Execution Environment 내부에서 분석됩니다.
-            <br />
-            분석 완료 즉시 원본 데이터는 소각됩니다.
-          </p>
+          <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
+          <p className="text-sm text-muted-foreground max-w-md">{t("description")}</p>
         </div>
-
-        <TeeAnalysisProgress sessionId={sessionId} />
+        <Suspense>
+          <TeeAnalysisProgress sessionId={sessionId} />
+        </Suspense>
       </main>
     </div>
   );
 }
-
-const STEPS = ["지갑 연결", "파일 업로드", "TEE 분석", "보험 추천", "결제"];

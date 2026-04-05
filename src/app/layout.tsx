@@ -5,8 +5,6 @@ import "@fontsource/pretendard/500.css";
 import "@fontsource/pretendard/600.css";
 import "@fontsource/pretendard/700.css";
 import "./globals.css";
-import { Toaster } from "@/components/ui/sonner";
-import { WalletProvider } from "@/context/WalletContext";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -27,12 +25,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={`${inter.variable} h-full antialiased`}>
+    <html className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <WalletProvider>
-          {children}
-        </WalletProvider>
-        <Toaster richColors position="top-right" />
+        {children}
       </body>
     </html>
   );

@@ -1,25 +1,44 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
 import { ChevronLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { WalletConnect } from "@/components/modules/WalletConnect";
 
 interface AppHeaderProps {
-  /** 뒤로가기 버튼 표시 여부 */
   backHref?: string;
-  /** 뒤로가기 버튼 레이블 */
   backLabel?: string;
 }
 
-export function AppHeader({ backHref, backLabel = "이전" }: AppHeaderProps) {
+function LanguageSwitcher() {
+  const locale = useLocale();
   const router = useRouter();
+
+  const toggle = () => {
+    router.replace("/", { locale: locale === "ko" ? "en" : "ko" });
+  };
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      className="text-xs text-muted-foreground hover:text-foreground font-mono px-2"
+      onClick={toggle}
+    >
+      {locale === "ko" ? "EN" : "KO"}
+    </Button>
+  );
+}
+
+export function AppHeader({ backHref, backLabel }: AppHeaderProps) {
+  const router = useRouter();
+  const tc = useTranslations("common");
+  const label = backLabel ?? tc("back");
 
   return (
     <header className="flex items-center justify-between px-8 py-5 border-b border-border">
-      {/* 왼쪽: 로고 + 뒤로가기 */}
       <div className="flex items-center gap-4">
         <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           <span className="text-primary font-bold text-xl tracking-tight">MyDNA</span>
@@ -38,14 +57,16 @@ export function AppHeader({ backHref, backLabel = "이전" }: AppHeaderProps) {
               onClick={() => router.push(backHref)}
             >
               <ChevronLeft size={14} />
-              {backLabel}
+              {label}
             </Button>
           </>
         )}
       </div>
 
-      {/* 오른쪽: 지갑 */}
-      <WalletConnect />
+      <div className="flex items-center gap-2">
+        <LanguageSwitcher />
+        <WalletConnect />
+      </div>
     </header>
   );
 }

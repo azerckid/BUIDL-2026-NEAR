@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -18,22 +19,9 @@ interface StageConfig {
   progress: number;
 }
 
-const STAGE_CONFIG: Record<AnalysisStage, StageConfig> = {
-  parsing:   { label: "파일 파싱 중",       sublabel: "유전자 파일 데이터 구조 분석 중",                    progress: 10 },
-  tee:       { label: "TEE 분석 중",        sublabel: "IronClaw 보안 환경 내부에서 처리 중",                 progress: 35 },
-  zkp:       { label: "ZKP 증명 생성 중",   sublabel: "유전자 수치 없이 자격 증명 생성 중",                  progress: 65 },
-  profiling: { label: "위험 프로파일 생성", sublabel: "분석 결과 암호화 저장 중",                            progress: 85 },
-  purged:    { label: "데이터 소각 완료",   sublabel: "유전자 원본 데이터가 안전하게 소각되었습니다",         progress: 100 },
-  error:     { label: "분석 실패",          sublabel: "오류가 발생했습니다",                                 progress: 0 },
+const STAGE_PROGRESS: Record<AnalysisStage, number> = {
+  parsing: 10, tee: 35, zkp: 65, profiling: 85, purged: 100, error: 0,
 };
-
-const STEPS: Array<{ key: AnalysisStage; label: string }> = [
-  { key: "parsing",   label: "파일 파싱" },
-  { key: "tee",       label: "TEE 분석" },
-  { key: "zkp",       label: "ZKP 증명" },
-  { key: "profiling", label: "프로파일 생성" },
-  { key: "purged",    label: "소각 완료" },
-];
 
 const STAGE_ORDER: AnalysisStage[] = ["parsing", "tee", "zkp", "profiling", "purged"];
 
@@ -62,6 +50,25 @@ type LogEntry = { id: string; text: string; type: "default" | "success" | "priva
 
 export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
   const router = useRouter();
+  const t = useTranslations("teeProgress");
+
+  const STAGE_CONFIG: Record<AnalysisStage, StageConfig> = {
+    parsing:   { label: t("steps.parsing"),   sublabel: t("steps.parsingDesc"),  progress: STAGE_PROGRESS.parsing },
+    tee:       { label: t("steps.tee"),        sublabel: t("steps.teeDesc"),      progress: STAGE_PROGRESS.tee },
+    zkp:       { label: t("steps.zkp"),        sublabel: t("steps.zkpDesc"),      progress: STAGE_PROGRESS.zkp },
+    profiling: { label: t("steps.profile"),    sublabel: t("steps.profileDesc"),  progress: STAGE_PROGRESS.profiling },
+    purged:    { label: t("steps.purge"),      sublabel: t("steps.purgeDesc"),    progress: STAGE_PROGRESS.purged },
+    error:     { label: t("errorTitle"),       sublabel: t("errorDesc"),          progress: STAGE_PROGRESS.error },
+  };
+
+  const STEPS: Array<{ key: AnalysisStage; label: string }> = [
+    { key: "parsing",   label: t("steps.parsing") },
+    { key: "tee",       label: t("steps.tee") },
+    { key: "zkp",       label: t("steps.zkp") },
+    { key: "profiling", label: t("steps.profile") },
+    { key: "purged",    label: t("steps.purge") },
+  ];
+
   const [stage, setStage] = useState<AnalysisStage>("parsing");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isDone, setIsDone] = useState(false);
@@ -83,8 +90,8 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
       if (!result.success) {
         timers.forEach(clearTimeout);
         setStage("error");
-        setErrorMessage(result.error ?? "분석 중 오류가 발생했습니다");
-        toast.error("분석 실패: " + (result.error ?? "알 수 없는 오류"));
+        setErrorMessage(result.error ?? t("analysisError"));
+        toast.error(t("errorTitle") + ": " + (result.error ?? t("analysisError")));
         return;
       }
 
@@ -222,7 +229,7 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
             className="flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs"
           >
             <CheckCircle size={13} />
-            자격 증명 생성 완료 — 수치는 보험사에 전달되지 않습니다
+            {t("zkpBadge")}
           </motion.div>
         )}
       </AnimatePresence>
@@ -237,13 +244,13 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
             className="w-full flex flex-col items-center gap-2"
           >
             <p className="text-xs text-muted-foreground">
-              분석이 완료되었습니다. 위 로그를 확인 후 대시보드로 이동하세요.
+              {t("doneMessage")}
             </p>
             <Button
               className="w-full"
               onClick={() => router.push(`/dashboard?sid=${sessionId}`)}
             >
-              대시보드로 이동
+              {t("goToDashboard")}
             </Button>
           </motion.div>
         )}
@@ -264,7 +271,7 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
               size="sm"
               onClick={() => router.push("/upload")}
             >
-              파일 업로드로 돌아가기
+              {t("backToUpload")}
             </Button>
           </motion.div>
         )}

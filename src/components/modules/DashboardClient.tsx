@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ interface DashboardClientProps {
 export function DashboardClient({ data }: DashboardClientProps) {
   const { sessionId, walletAddress, riskProfile, products, zkpProofHash } = data;
   const router = useRouter();
+  const t = useTranslations("dashboard");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isPending, startTransition] = useTransition();
 
@@ -55,7 +57,7 @@ export function DashboardClient({ data }: DashboardClientProps) {
 
   function handleCheckout() {
     if (selectedIds.size === 0) {
-      toast.error("상품을 하나 이상 선택해 주세요");
+      toast.error(t("selectPrompt"));
       return;
     }
 
@@ -67,47 +69,42 @@ export function DashboardClient({ data }: DashboardClientProps) {
       });
 
       if (!result.success) {
-        toast.error(result.error ?? "카트 생성에 실패했습니다");
+        toast.error(result.error ?? t("cartError"));
         return;
       }
 
-      toast.success("카트가 생성되었습니다");
+      toast.success(t("cartCreated"));
       router.push(`/checkout/${result.cartId}`);
     });
   }
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8 flex flex-col gap-6">
-      {/* 헤더 */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="border-primary/40 text-primary text-xs">
-            Stage 5 — 보험 추천 대시보드
+            Stage 5
           </Badge>
           {zkpProofHash && (
             <Badge variant="outline" className="border-emerald-300 text-emerald-700 text-xs">
-              ZKP 검증 완료
+              {t("badge")}
             </Badge>
           )}
         </div>
-        <h1 className="text-xl font-bold text-foreground">맞춤 보험 추천</h1>
-        <p className="text-sm text-muted-foreground">
-          TEE 분석 결과를 기반으로 최적의 보험 상품을 추천했습니다. 원본 유전자 수치는 소각되었습니다.
-        </p>
+        <h1 className="text-xl font-bold text-foreground">{t("title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("description")}</p>
       </div>
 
-      {/* 탭: 위험 프로필 / 추천 상품 */}
       <Tabs defaultValue="profile">
         <TabsList className="w-full">
           <TabsTrigger value="profile" className="flex-1">
-            위험 프로필
+            {t("tabRisk")}
           </TabsTrigger>
           <TabsTrigger value="products" className="flex-1">
-            추천 보험 ({products.length})
+            {t("tabInsurance", { count: products.length })}
           </TabsTrigger>
         </TabsList>
 
-        {/* 위험 프로필 탭 */}
         <TabsContent value="profile" className="mt-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {orderedCategories.map((cat) => (
@@ -121,11 +118,10 @@ export function DashboardClient({ data }: DashboardClientProps) {
           </div>
         </TabsContent>
 
-        {/* 추천 상품 탭 */}
         <TabsContent value="products" className="mt-4">
           {products.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">
-              매칭된 보험 상품이 없습니다.
+              {t("noProducts")}
             </p>
           ) : (
             <div className="flex flex-col gap-3">
@@ -142,20 +138,19 @@ export function DashboardClient({ data }: DashboardClientProps) {
         </TabsContent>
       </Tabs>
 
-      {/* 카트 요약 + 결제 버튼 */}
       <div className="rounded-xl border border-border/60 bg-card p-4 flex flex-col gap-3">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">선택한 상품</span>
-          <span className="font-medium text-foreground">{selectedIds.size}개</span>
+          <span className="text-muted-foreground">{t("selectedProducts")}</span>
+          <span className="font-medium text-foreground">{selectedIds.size}</span>
         </div>
         {totalDiscount > 0 && (
           <div className="flex items-center justify-between text-sm">
-            <span className="text-emerald-600">ZKP 할인 적용</span>
+            <span className="text-emerald-600">{t("zkpDiscount")}</span>
             <span className="font-medium text-emerald-600">-${totalDiscount.toFixed(1)}/mo</span>
           </div>
         )}
         <div className="flex items-center justify-between border-t border-border/60 pt-3">
-          <span className="text-sm font-semibold text-foreground">월 보험료 합계</span>
+          <span className="text-sm font-semibold text-foreground">{t("totalPremium")}</span>
           <span className="text-lg font-bold text-primary">${totalMonthly.toFixed(1)}/mo</span>
         </div>
         <Button
@@ -163,7 +158,7 @@ export function DashboardClient({ data }: DashboardClientProps) {
           disabled={selectedIds.size === 0 || isPending}
           onClick={handleCheckout}
         >
-          {isPending ? "처리 중..." : "결제하기"}
+          {isPending ? t("processing") : t("checkout")}
         </Button>
       </div>
     </div>

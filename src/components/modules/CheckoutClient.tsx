@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { DateTime } from "luxon";
@@ -31,13 +32,6 @@ function deriveIntentHash(cartId: string, zkpProofHash: string | null, productId
   return h.toString(16).padStart(8, "0") + cartId.replace(/-/g, "").slice(0, 8);
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  oncology: "종양·암",
-  cardiovascular: "심혈관",
-  metabolic: "대사·내분비",
-  neurological: "신경·뇌",
-};
-
 const NETWORK_LABELS: Record<string, string> = {
   near: "NEAR",
   ethereum: "ETH",
@@ -54,6 +48,7 @@ interface CheckoutResult {
 }
 
 function ProductRow({ product }: { product: InsuranceProduct }) {
+  const tp = useTranslations("insuranceProduct");
   const isDiscount = product.discountEligible === 1 && product.originalPremiumUsdc != null;
 
   return (
@@ -63,14 +58,16 @@ function ProductRow({ product }: { product: InsuranceProduct }) {
           <p className="text-sm font-medium text-foreground truncate">{product.name}</p>
           <div className="mt-1 flex items-center gap-1.5">
             <Badge variant="outline" className="text-xs px-1.5 py-0">
-              {CATEGORY_LABELS[product.coverageCategory] ?? product.coverageCategory}
+              {tp.has(`categories.${product.coverageCategory}`)
+                ? tp(`categories.${product.coverageCategory}` as Parameters<typeof tp>[0])
+                : product.coverageCategory}
             </Badge>
             <Badge variant="outline" className="text-xs px-1.5 py-0">
               {NETWORK_LABELS[product.chainNetwork] ?? product.chainNetwork}
             </Badge>
             {isDiscount && (
               <Badge className="text-xs px-1.5 py-0 bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100">
-                ZKP 할인
+                {tp("zkpDiscount")}
               </Badge>
             )}
           </div>
@@ -90,7 +87,17 @@ function ProductRow({ product }: { product: InsuranceProduct }) {
   );
 }
 
+function ConfidentialIntentPanelNote() {
+  const t = useTranslations("checkout");
+  return (
+    <div className="px-3 pb-2.5 text-[10px] text-muted-foreground">
+      {t("intentPanel.privateNote")}
+    </div>
+  );
+}
+
 function ConfidentialIntentPanel({ data }: { data: CartData }) {
+  const t = useTranslations("checkout");
   const intentHash = deriveIntentHash(
     data.cartId,
     data.zkpProofHash,
@@ -124,7 +131,7 @@ function ConfidentialIntentPanel({ data }: { data: CartData }) {
         <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/70" />
         <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/70" />
         <span className="ml-2 text-xs text-muted-foreground font-mono">
-          confidential-intent — near_testnet
+          {t("intentPanel.terminal")}
         </span>
         <div className="ml-auto flex items-center gap-1.5">
           <Badge
@@ -137,7 +144,7 @@ function ConfidentialIntentPanel({ data }: { data: CartData }) {
             variant="outline"
             className="text-[10px] px-1.5 py-0 border-yellow-500/40 text-yellow-500"
           >
-            Phase 2 예정
+            {t("intentPanel.phase2")}
           </Badge>
         </div>
       </div>
@@ -159,10 +166,7 @@ function ConfidentialIntentPanel({ data }: { data: CartData }) {
         <span className="text-zinc-400">{"}"}</span>
       </div>
 
-      <div className="px-3 pb-2.5 text-[10px] text-muted-foreground">
-        보험사에 전달되지 않는 필드는{" "}
-        <span className="text-yellow-500">[PRIVATE]</span>으로 표시됩니다.
-      </div>
+      <ConfidentialIntentPanelNote />
     </div>
   );
 }
@@ -172,6 +176,8 @@ type PaymentStep = "idle" | "preparing" | "signing" | "confirming" | "done";
 export function CheckoutClient({ data }: CheckoutClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations("checkout");
+  const tp = useTranslations("insuranceProduct");
   const { selector } = useWallet();
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<CheckoutResult | null>(null);
@@ -206,7 +212,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
       });
 
       if (!confirmed.success) {
-        toast.error(confirmed.error ?? "결제 확정에 실패했습니다");
+        toast.error(confirmed.error ?? t("toastConfirmError"));
         setStep("idle");
         return;
       }
@@ -214,7 +220,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
       sessionStorage.removeItem(key);
       setResult({ txId: confirmed.txId!, txHash: confirmed.txHash! });
       setStep("done");
-      toast.success("결제가 완료되었습니다");
+      toast.success(t("toastSuccess"));
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -229,7 +235,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
       });
 
       if (!prepared.success) {
-        toast.error(prepared.error ?? "결제 준비에 실패했습니다");
+        toast.error(prepared.error ?? t("toastPrepareError"));
         setStep("idle");
         return;
       }
@@ -242,7 +248,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
 
       // 3단계: 지갑 서명 요청 (MyNearWallet 리다이렉트)
       if (!selector) {
-        toast.error("지갑이 초기화되지 않았습니다. 페이지를 새로고침 후 다시 시도하세요.");
+        toast.error(t("toastWalletError"));
         setStep("idle");
         return;
       }
@@ -255,7 +261,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
         // signResult !== null: InjectedWallet(팝업) → 바로 아래에서 처리
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
-        toast.error("지갑 서명 오류: " + message);
+        toast.error(t("toastSignError", { message }));
         setStep("idle");
         return;
       }
@@ -270,7 +276,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
         });
 
         if (!confirmed.success) {
-          toast.error(confirmed.error ?? "결제 확정에 실패했습니다");
+          toast.error(confirmed.error ?? t("toastConfirmError"));
           setStep("idle");
           return;
         }
@@ -296,26 +302,25 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
                 },
               ],
             });
-            toast.success("ZKP proof가 온체인에 등록되었습니다");
+            toast.success(t("toastZkpSuccess"));
           } catch {
-            // proof 등록 실패는 결제 자체를 롤백하지 않음
-            toast.error("ZKP 온체인 등록 실패 (결제는 완료됨)");
+            toast.error(t("toastZkpError"));
           }
         }
 
         sessionStorage.removeItem(`pending-checkout-${data.cartId}`);
         setResult({ txId: confirmed.txId!, txHash: confirmed.txHash! });
         setStep("done");
-        toast.success("결제가 완료되었습니다");
+        toast.success(t("toastSuccess"));
       }
     });
   }
 
   function getButtonLabel(): string {
-    if (step === "preparing") return "결제 준비 중...";
-    if (step === "signing")   return "지갑으로 이동 중...";
-    if (step === "confirming") return "결제 확정 중...";
-    return "NEAR로 결제하기";
+    if (step === "preparing") return t("btnPreparing");
+    if (step === "signing")   return t("btnSigning");
+    if (step === "confirming") return t("btnConfirming");
+    return t("btnPay");
   }
 
   // ── 결제 확정 대기 화면 ─────────────────────────────────────────────────────
@@ -323,7 +328,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
     return (
       <div className="mx-auto w-full max-w-lg px-4 py-16 flex flex-col items-center gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-sm text-muted-foreground">NEAR 트랜잭션 확정 중...</p>
+        <p className="text-sm text-muted-foreground">{t("confirming")}</p>
       </div>
     );
   }
@@ -350,9 +355,9 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
             </svg>
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground">보험 가입 완료</h1>
+            <h1 className="text-xl font-bold text-foreground">{t("success.title")}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              NEAR Testnet에서 실제 처리된 트랜잭션입니다.
+              {t("success.subtitle")}
             </p>
           </div>
         </div>
@@ -362,35 +367,35 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
 
           {/* 증서 정보 */}
           <div className="p-4 flex flex-col gap-2.5">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">증서 정보</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("success.policyInfo")}</p>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">증서 번호</span>
+              <span className="text-muted-foreground">{t("success.policyNumber")}</span>
               <span className="font-mono font-semibold text-foreground">{policyNumber}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">가입일</span>
+              <span className="text-muted-foreground">{t("success.enrolledAt")}</span>
               <span className="text-foreground">{enrolledAt}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">결제 지갑</span>
+              <span className="text-muted-foreground">{t("success.payWallet")}</span>
               <span className="font-mono text-xs text-foreground">{truncateAddress(data.walletAddress)}</span>
             </div>
             {data.zkpProofHash && (
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">ZKP 검증</span>
+                <span className="text-muted-foreground">{t("success.zkpVerified")}</span>
                 <Badge className="text-xs px-2 py-0 bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100">
-                  검증 완료
+                  {t("success.zkpVerifiedBadge")}
                 </Badge>
               </div>
             )}
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Confidential Intent</span>
+              <span className="text-muted-foreground">{t("success.confidentialIntent")}</span>
               <Badge className="text-xs px-2 py-0 bg-primary/10 text-primary border-primary/30 hover:bg-primary/10">
-                실행 완료
+                {t("success.intentDone")}
               </Badge>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">네트워크</span>
+              <span className="text-muted-foreground">{t("success.network")}</span>
               <span className="text-foreground">NEAR Testnet</span>
             </div>
           </div>
@@ -398,7 +403,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
           {/* 가입 상품 목록 */}
           <div className="p-4 flex flex-col gap-3">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              가입 상품 ({data.products.length}건)
+              {t("success.products", { count: data.products.length })}
             </p>
             {data.products.map((product) => (
               <div key={product.id} className="flex items-center justify-between gap-3">
@@ -406,14 +411,16 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
                   <p className="text-sm font-medium text-foreground truncate">{product.name}</p>
                   <div className="mt-1 flex items-center gap-1.5 flex-wrap">
                     <Badge variant="outline" className="text-xs px-1.5 py-0">
-                      {CATEGORY_LABELS[product.coverageCategory] ?? product.coverageCategory}
+                      {tp.has(`categories.${product.coverageCategory}`)
+                        ? tp(`categories.${product.coverageCategory}` as Parameters<typeof tp>[0])
+                        : product.coverageCategory}
                     </Badge>
                     <Badge variant="outline" className="text-xs px-1.5 py-0">
                       {NETWORK_LABELS[product.chainNetwork] ?? product.chainNetwork}
                     </Badge>
                     {product.discountEligible === 1 && (
                       <Badge className="text-xs px-1.5 py-0 bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100">
-                        ZKP 할인
+                        {tp("zkpDiscount")}
                       </Badge>
                     )}
                   </div>
@@ -427,17 +434,17 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
 
           {/* 결제 요약 */}
           <div className="p-4 flex flex-col gap-2.5">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">결제 요약</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("success.paymentSummary")}</p>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">월 보험료 합계</span>
+              <span className="text-muted-foreground">{t("success.totalPremium")}</span>
               <span className="text-lg font-bold text-primary">${data.totalMonthlyUsdc.toFixed(1)} USDC/mo</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">결제 방식</span>
+              <span className="text-muted-foreground">{t("success.paymentMethod")}</span>
               <span className="text-foreground">NEAR Testnet</span>
             </div>
             <div className="flex flex-col gap-1 pt-1">
-              <span className="text-xs text-muted-foreground">Tx Hash</span>
+              <span className="text-xs text-muted-foreground">{t("success.txHash")}</span>
               <span className="font-mono text-xs text-foreground break-all bg-muted/40 rounded px-2 py-1.5">
                 {result.txHash}
               </span>
@@ -448,14 +455,14 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
               rel="noopener noreferrer"
               className="text-xs text-primary underline underline-offset-2 mt-1"
             >
-              NEAR Testnet Explorer에서 확인 →
+              {t("success.explorerLink")}
             </a>
           </div>
 
           {/* 데모 고지 */}
           <div className="px-4 py-3 bg-muted/30 rounded-b-xl">
             <p className="text-xs text-muted-foreground text-center">
-              본 증서는 해커톤 데모용 가상 계약서이며 실제 보험 효력이 없습니다.
+              {t("success.demoNotice")}
             </p>
           </div>
         </div>
@@ -467,14 +474,14 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
             className="w-full"
             onClick={() => window.print()}
           >
-            확인서 인쇄
+            {t("success.printBtn")}
           </Button>
           <Button
             variant="outline"
             className="w-full"
             onClick={() => router.push("/upload")}
           >
-            처음으로 돌아가기
+            {t("success.backBtn")}
           </Button>
         </div>
       </div>
@@ -484,24 +491,20 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
   // ── 결제 확인 화면 ──────────────────────────────────────────────────────────
   return (
     <div className="mx-auto w-full max-w-lg px-4 py-8 flex flex-col gap-6">
-      {/* 헤더 */}
       <div className="flex flex-col gap-1.5">
         <Badge variant="outline" className="border-primary/40 text-primary text-xs w-fit">
-          NEAR Testnet 결제
+          {t("badge")}
         </Badge>
-        <h1 className="text-xl font-bold text-foreground">결제 확인</h1>
-        <p className="text-sm text-muted-foreground">
-          NEAR 지갑으로 실제 Testnet 트랜잭션을 서명합니다. 원본 유전자 데이터는 이미 소각되었습니다.
-        </p>
+        <h1 className="text-xl font-bold text-foreground">{t("title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("description")}</p>
       </div>
 
-      {/* 선택 상품 목록 */}
       <div className="flex flex-col gap-2">
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          선택한 보험 상품 ({data.products.length}개)
+          {t("selectedProducts", { count: data.products.length })}
         </p>
         {data.products.length === 0 ? (
-          <p className="text-sm text-muted-foreground">선택된 상품이 없습니다.</p>
+          <p className="text-sm text-muted-foreground">{t("noProducts")}</p>
         ) : (
           <div className="flex flex-col gap-2">
             {data.products.map((product) => (
@@ -511,47 +514,45 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
         )}
       </div>
 
-      {/* 결제 요약 */}
       <div className="rounded-xl border border-border/60 bg-card p-4 flex flex-col gap-2.5">
         {data.discountAppliedUsdc > 0 && (
           <>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">정가 합계</span>
+              <span className="text-muted-foreground">{t("originalTotal")}</span>
               <span className="text-muted-foreground">${originalTotal.toFixed(1)}/mo</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-emerald-600">ZKP 할인</span>
+              <span className="text-emerald-600">{t("zkpDiscount")}</span>
               <span className="text-emerald-600 font-medium">-${data.discountAppliedUsdc.toFixed(1)}/mo</span>
             </div>
           </>
         )}
         <div className="flex items-center justify-between border-t border-border/60 pt-2.5">
-          <span className="text-sm font-semibold text-foreground">월 보험료</span>
+          <span className="text-sm font-semibold text-foreground">{t("monthlyPremium")}</span>
           <span className="text-lg font-bold text-primary">${data.totalMonthlyUsdc.toFixed(1)} USDC/mo</span>
         </div>
       </div>
 
-      {/* 메타 정보 */}
       <div className="rounded-xl border border-border/60 bg-muted/20 px-4 py-3 flex flex-col gap-2">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">결제 지갑</span>
+          <span className="text-muted-foreground">{t("payWallet")}</span>
           <span className="font-mono text-foreground">{truncateAddress(data.walletAddress)}</span>
         </div>
         {data.zkpProofHash && (
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">ZKP Proof</span>
+            <span className="text-muted-foreground">{t("zkpProof")}</span>
             <Badge variant="outline" className="border-emerald-300 text-emerald-700 text-xs px-1.5 py-0">
-              검증 완료
+              {t("success.zkpVerifiedBadge")}
             </Badge>
           </div>
         )}
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">네트워크</span>
+          <span className="text-muted-foreground">{t("network")}</span>
           <span className="text-foreground">NEAR Testnet</span>
         </div>
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">서명 금액</span>
-          <span className="text-foreground">0.001 NEAR (데모 심볼릭)</span>
+          <span className="text-muted-foreground">{t("signAmount")}</span>
+          <span className="text-foreground">{t("signAmountValue")}</span>
         </div>
       </div>
 

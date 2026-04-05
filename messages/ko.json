@@ -1,0 +1,213 @@
+{
+  "common": {
+    "steps": {
+      "walletConnect": "지갑 연결",
+      "fileUpload": "파일 업로드",
+      "teeAnalysis": "TEE 분석",
+      "insuranceRecommend": "보험 추천",
+      "payment": "결제"
+    },
+    "back": "이전",
+    "loading": "로딩 중..."
+  },
+  "home": {
+    "badge": "NEAR Buidl 2026 — Privacy-First Genetic Insurance",
+    "headline1": "유전자 분석,",
+    "headline2": "TEE 안에서만.",
+    "headline3": "보험사엔 자격 여부만 전달됩니다.",
+    "description": "유전자 원본 데이터는 Trusted Execution Environment에서 분석 후 즉시 소각됩니다. Noir ZKP 증명으로 수치 없이 자격을 증명하고, Confidential Intents로 기밀 결제합니다.",
+    "connectPrompt": "NEAR Testnet 지갑을 연결하여 분석을 시작하세요",
+    "startUpload": "유전자 파일 업로드 시작",
+    "walletConnected": "지갑 연결 완료 — 다음 단계로 진행할 수 있습니다",
+    "features": {
+      "tee": {
+        "label": "TEE",
+        "title": "TEE 프라이버시 분석",
+        "desc": "유전자 데이터는 IronClaw TEE 안에서만 처리되고 분석 즉시 소각됩니다."
+      },
+      "zkp": {
+        "label": "ZKP",
+        "title": "Noir ZKP 자격 증명",
+        "desc": "유전자 수치는 공개하지 않고 보험 자격 충족 여부만 영지식 증명으로 제출합니다."
+      },
+      "ci": {
+        "label": "CI",
+        "title": "Confidential Intents 결제",
+        "desc": "NEAR Confidential Intents로 보험료를 기밀 결제합니다. 거래 내용은 당사자만 확인 가능합니다."
+      }
+    },
+    "footer": "Powered by NEAR Protocol — IronClaw TEE · Confidential Intents · Chain Signatures"
+  },
+  "upload": {
+    "backLabel": "홈으로",
+    "title": "유전자 파일 업로드",
+    "description": "파일은 서버로 전송되지 않습니다. 브라우저에서 해시값만 계산된 후 TEE 내부에서 원본 분석이 진행됩니다.",
+    "supportedFormats": "지원 형식: GenTok(.txt), VCF(.vcf), CSV(.csv), PDF(.pdf)",
+    "maxSize": "최대 파일 크기: 5MB"
+  },
+  "analysis": {
+    "backLabel": "업로드로",
+    "title": "TEE 분석 진행 중",
+    "description": "유전자 데이터가 IronClaw Trusted Execution Environment 내부에서 분석됩니다. 분석 완료 즉시 원본 데이터는 소각됩니다."
+  },
+  "dashboard": {
+    "backLabel": "업로드로",
+    "badge": "ZKP 검증 완료",
+    "title": "맞춤 보험 추천",
+    "description": "TEE 분석 결과를 기반으로 최적의 보험 상품을 추천했습니다. 원본 유전자 수치는 소각되었습니다.",
+    "tabRisk": "위험 프로필",
+    "tabInsurance": "추천 보험 ({count})",
+    "noProducts": "매칭된 보험 상품이 없습니다.",
+    "selectedProducts": "선택한 상품",
+    "zkpDiscount": "ZKP 할인 적용",
+    "totalPremium": "월 보험료 합계",
+    "processing": "처리 중...",
+    "checkout": "결제하기",
+    "selectPrompt": "상품을 하나 이상 선택해 주세요",
+    "cartError": "카트 생성에 실패했습니다",
+    "cartCreated": "카트가 생성되었습니다"
+  },
+  "checkout": {
+    "backLabel": "대시보드로",
+    "badge": "NEAR Testnet 결제",
+    "title": "결제 확인",
+    "description": "NEAR 지갑으로 실제 Testnet 트랜잭션을 서명합니다. 원본 유전자 데이터는 이미 소각되었습니다.",
+    "selectedProducts": "선택한 보험 상품 ({count}개)",
+    "noProducts": "선택된 상품이 없습니다.",
+    "originalTotal": "정가 합계",
+    "zkpDiscount": "ZKP 할인",
+    "monthlyPremium": "월 보험료",
+    "payWallet": "결제 지갑",
+    "zkpProof": "ZKP Proof",
+    "network": "네트워크",
+    "signAmount": "서명 금액",
+    "signAmountValue": "0.001 NEAR (데모 심볼릭)",
+    "btnPreparing": "결제 준비 중...",
+    "btnSigning": "지갑으로 이동 중...",
+    "btnConfirming": "결제 확정 중...",
+    "btnPay": "NEAR로 결제하기",
+    "confirming": "NEAR 트랜잭션 확정 중...",
+    "intentPanel": {
+      "terminal": "confidential-intent — near_testnet",
+      "phase2": "Phase 2 예정",
+      "privateNote": "보험사에 전달되지 않는 필드는 [PRIVATE]으로 표시됩니다."
+    },
+    "success": {
+      "title": "보험 가입 완료",
+      "subtitle": "NEAR Testnet에서 실제 처리된 트랜잭션입니다.",
+      "policyInfo": "증서 정보",
+      "policyNumber": "증서 번호",
+      "enrolledAt": "가입일",
+      "payWallet": "결제 지갑",
+      "zkpVerified": "ZKP 검증",
+      "zkpVerifiedBadge": "검증 완료",
+      "confidentialIntent": "Confidential Intent",
+      "intentDone": "실행 완료",
+      "network": "네트워크",
+      "products": "가입 상품 ({count}건)",
+      "paymentSummary": "결제 요약",
+      "totalPremium": "월 보험료 합계",
+      "paymentMethod": "결제 방식",
+      "txHash": "Tx Hash",
+      "explorerLink": "NEAR Testnet Explorer에서 확인 →",
+      "demoNotice": "본 증서는 해커톤 데모용 가상 계약서이며 실제 보험 효력이 없습니다.",
+      "printBtn": "확인서 인쇄",
+      "backBtn": "처음으로 돌아가기"
+    },
+    "toastSuccess": "결제가 완료되었습니다",
+    "toastConfirmError": "결제 확정에 실패했습니다",
+    "toastPrepareError": "결제 준비에 실패했습니다",
+    "toastWalletError": "지갑이 초기화되지 않았습니다. 페이지를 새로고침 후 다시 시도하세요.",
+    "toastSignError": "지갑 서명 오류: {message}",
+    "toastZkpSuccess": "ZKP proof가 온체인에 등록되었습니다",
+    "toastZkpError": "ZKP 온체인 등록 실패 (결제는 완료됨)"
+  },
+  "walletConnect": {
+    "connecting": "초기화 중...",
+    "connect": "NEAR 지갑 연결",
+    "disconnect": "연결 해제",
+    "toastConnected": "지갑 연결 완료: {address}",
+    "toastDisconnected": "지갑 연결이 해제되었습니다.",
+    "toastProfileSaved": "프로필이 DB에 저장되었습니다.",
+    "toastProfileError": "프로필 저장 실패: {error}"
+  },
+  "fileUpload": {
+    "dropzone": "파일을 드래그하거나 클릭하여 선택",
+    "hint": ".vcf, .txt, .csv, .pdf — 최대 5MB",
+    "sampleBtn": "샘플 파일로 체험하기",
+    "removeBtn": "파일 제거",
+    "startBtn": "분석 시작",
+    "processing": "처리 중...",
+    "hashing": "SHA-256 해시 계산 중...",
+    "creatingSession": "세션 생성 중...",
+    "done": "완료",
+    "validationFailed": "파일 검증 실패",
+    "validationPassed": "파일 검증 완료 — 분석을 시작할 수 있습니다",
+    "sampleFetchError": "샘플 파일을 불러올 수 없습니다",
+    "sessionError": "세션 생성 실패",
+    "sessionCreated": "세션 생성 완료 — 분석 화면으로 이동합니다",
+    "processError": "처리 중 오류가 발생했습니다",
+    "fileTooLarge": "파일 크기는 5MB를 초과할 수 없습니다",
+    "invalidFormat": ".vcf, .txt, .csv, .pdf 파일만 허용됩니다"
+  },
+  "teeProgress": {
+    "steps": {
+      "parsing": "파일 파싱 중",
+      "parsingDesc": "유전자 파일 데이터 구조 분석 중",
+      "tee": "TEE 분석 중",
+      "teeDesc": "IronClaw 보안 환경 내부에서 처리 중",
+      "zkp": "ZKP 증명 생성 중",
+      "zkpDesc": "유전자 수치 없이 자격 증명 생성 중",
+      "profile": "위험 프로파일 생성",
+      "profileDesc": "분석 결과 암호화 저장 중",
+      "purge": "데이터 소각 완료",
+      "purgeDesc": "유전자 원본 데이터가 안전하게 소각되었습니다"
+    },
+    "errorTitle": "분석 실패",
+    "errorDesc": "오류가 발생했습니다",
+    "analysisError": "분석 중 오류가 발생했습니다",
+    "zkpBadge": "자격 증명 생성 완료 — 수치는 보험사에 전달되지 않습니다",
+    "doneMessage": "분석이 완료되었습니다. 위 로그를 확인 후 대시보드로 이동하세요.",
+    "goToDashboard": "대시보드로 이동",
+    "backToUpload": "파일 업로드로 돌아가기"
+  },
+  "riskProfile": {
+    "categories": {
+      "oncology": "종양·암",
+      "cardiovascular": "심혈관",
+      "metabolic": "대사·내분비",
+      "neurological": "신경·뇌"
+    },
+    "levels": {
+      "high": "고위험",
+      "moderate": "주의",
+      "normal": "정상"
+    },
+    "flags": {
+      "pancreatic_cancer": "췌장암",
+      "liver_cancer": "간암",
+      "lung_cancer": "폐암",
+      "breast_cancer": "유방암",
+      "colorectal_cancer": "대장암",
+      "myocardial_infarction": "심근경색",
+      "stroke": "뇌졸중",
+      "arrhythmia": "부정맥",
+      "type2_diabetes": "2형 당뇨",
+      "hyperlipidemia": "고지혈증",
+      "thyroid_disorder": "갑상선 이상",
+      "alzheimers": "알츠하이머",
+      "parkinsons": "파킨슨병"
+    },
+    "noFlags": "감지된 위험 인자 없음"
+  },
+  "insuranceProduct": {
+    "categories": {
+      "oncology": "종양·암",
+      "cardiovascular": "심혈관",
+      "metabolic": "대사·내분비",
+      "neurological": "신경·뇌"
+    },
+    "zkpDiscount": "ZKP 할인",
+    "perMonth": "/mo"
+  }
+}

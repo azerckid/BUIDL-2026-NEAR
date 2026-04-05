@@ -1,0 +1,213 @@
+{
+  "common": {
+    "steps": {
+      "walletConnect": "Connect Wallet",
+      "fileUpload": "Upload File",
+      "teeAnalysis": "TEE Analysis",
+      "insuranceRecommend": "Recommendations",
+      "payment": "Payment"
+    },
+    "back": "Back",
+    "loading": "Loading..."
+  },
+  "home": {
+    "badge": "NEAR Buidl 2026 — Privacy-First Genetic Insurance",
+    "headline1": "DNA Analysis,",
+    "headline2": "Inside TEE Only.",
+    "headline3": "Only eligibility is shared with insurers.",
+    "description": "Your raw genetic data is analyzed inside a Trusted Execution Environment and immediately purged. Prove eligibility without revealing scores via Noir ZKP, and pay privately with Confidential Intents.",
+    "connectPrompt": "Connect your NEAR Testnet wallet to begin",
+    "startUpload": "Upload Genetic File",
+    "walletConnected": "Wallet connected — ready to proceed",
+    "features": {
+      "tee": {
+        "label": "TEE",
+        "title": "TEE Privacy Analysis",
+        "desc": "Genetic data is processed only inside IronClaw TEE and purged immediately after analysis."
+      },
+      "zkp": {
+        "label": "ZKP",
+        "title": "Noir ZKP Credential",
+        "desc": "Prove insurance eligibility with zero-knowledge proof without exposing your genetic scores."
+      },
+      "ci": {
+        "label": "CI",
+        "title": "Confidential Intents Payment",
+        "desc": "Pay premiums privately via NEAR Confidential Intents. Transaction details are visible only to the parties involved."
+      }
+    },
+    "footer": "Powered by NEAR Protocol — IronClaw TEE · Confidential Intents · Chain Signatures"
+  },
+  "upload": {
+    "backLabel": "Home",
+    "title": "Upload Genetic File",
+    "description": "Your file is never sent to the server. Only a hash is computed in the browser, then the original is analyzed inside TEE.",
+    "supportedFormats": "Supported formats: GenTok(.txt), VCF(.vcf), CSV(.csv), PDF(.pdf)",
+    "maxSize": "Max file size: 5MB"
+  },
+  "analysis": {
+    "backLabel": "Back to Upload",
+    "title": "TEE Analysis in Progress",
+    "description": "Your genetic data is being analyzed inside the IronClaw Trusted Execution Environment. The original data will be purged immediately after analysis."
+  },
+  "dashboard": {
+    "backLabel": "Back to Upload",
+    "badge": "ZKP Verified",
+    "title": "Personalized Insurance Recommendations",
+    "description": "Based on TEE analysis results, we matched the best insurance products for you. Your original genetic scores have been purged.",
+    "tabRisk": "Risk Profile",
+    "tabInsurance": "Recommendations ({count})",
+    "noProducts": "No matching insurance products found.",
+    "selectedProducts": "Selected Products",
+    "zkpDiscount": "ZKP Discount Applied",
+    "totalPremium": "Monthly Premium Total",
+    "processing": "Processing...",
+    "checkout": "Proceed to Checkout",
+    "selectPrompt": "Please select at least one product",
+    "cartError": "Failed to create cart",
+    "cartCreated": "Cart created"
+  },
+  "checkout": {
+    "backLabel": "Back to Dashboard",
+    "badge": "NEAR Testnet Payment",
+    "title": "Confirm Payment",
+    "description": "Sign a real Testnet transaction with your NEAR wallet. Your original genetic data has already been purged.",
+    "selectedProducts": "Selected Products ({count})",
+    "noProducts": "No products selected.",
+    "originalTotal": "Original Total",
+    "zkpDiscount": "ZKP Discount",
+    "monthlyPremium": "Monthly Premium",
+    "payWallet": "Payment Wallet",
+    "zkpProof": "ZKP Proof",
+    "network": "Network",
+    "signAmount": "Sign Amount",
+    "signAmountValue": "0.001 NEAR (demo symbolic)",
+    "btnPreparing": "Preparing...",
+    "btnSigning": "Redirecting to Wallet...",
+    "btnConfirming": "Confirming...",
+    "btnPay": "Pay with NEAR",
+    "confirming": "Confirming NEAR transaction...",
+    "intentPanel": {
+      "terminal": "confidential-intent — near_testnet",
+      "phase2": "Phase 2 Planned",
+      "privateNote": "Fields marked [PRIVATE] are not disclosed to the insurer."
+    },
+    "success": {
+      "title": "Insurance Enrollment Complete",
+      "subtitle": "This transaction was processed on NEAR Testnet.",
+      "policyInfo": "Policy Information",
+      "policyNumber": "Policy Number",
+      "enrolledAt": "Enrolled On",
+      "payWallet": "Payment Wallet",
+      "zkpVerified": "ZKP Verification",
+      "zkpVerifiedBadge": "Verified",
+      "confidentialIntent": "Confidential Intent",
+      "intentDone": "Executed",
+      "network": "Network",
+      "products": "Enrolled Products ({count})",
+      "paymentSummary": "Payment Summary",
+      "totalPremium": "Monthly Premium Total",
+      "paymentMethod": "Payment Method",
+      "txHash": "Tx Hash",
+      "explorerLink": "View on NEAR Testnet Explorer →",
+      "demoNotice": "This certificate is a demo artifact for the hackathon and does not constitute a real insurance contract.",
+      "printBtn": "Print Certificate",
+      "backBtn": "Back to Start"
+    },
+    "toastSuccess": "Payment completed successfully",
+    "toastConfirmError": "Failed to confirm payment",
+    "toastPrepareError": "Failed to prepare payment",
+    "toastWalletError": "Wallet not initialized. Please refresh and try again.",
+    "toastSignError": "Wallet signing error: {message}",
+    "toastZkpSuccess": "ZKP proof registered on-chain",
+    "toastZkpError": "ZKP on-chain registration failed (payment completed)"
+  },
+  "walletConnect": {
+    "connecting": "Initializing...",
+    "connect": "Connect NEAR Wallet",
+    "disconnect": "Disconnect",
+    "toastConnected": "Wallet connected: {address}",
+    "toastDisconnected": "Wallet disconnected.",
+    "toastProfileSaved": "Profile saved to DB.",
+    "toastProfileError": "Failed to save profile: {error}"
+  },
+  "fileUpload": {
+    "dropzone": "Drag & drop or click to select a file",
+    "hint": ".vcf, .txt, .csv, .pdf — max 5MB",
+    "sampleBtn": "Try with sample file",
+    "removeBtn": "Remove file",
+    "startBtn": "Start Analysis",
+    "processing": "Processing...",
+    "hashing": "Computing SHA-256 hash...",
+    "creatingSession": "Creating session...",
+    "done": "Done",
+    "validationFailed": "File validation failed",
+    "validationPassed": "File validated — ready to start analysis",
+    "sampleFetchError": "Failed to load sample file",
+    "sessionError": "Failed to create session",
+    "sessionCreated": "Session created — redirecting to analysis",
+    "processError": "An error occurred during processing",
+    "fileTooLarge": "File size must not exceed 5MB",
+    "invalidFormat": "Only .vcf, .txt, .csv, .pdf files are allowed"
+  },
+  "teeProgress": {
+    "steps": {
+      "parsing": "Parsing File",
+      "parsingDesc": "Analyzing genetic file data structure",
+      "tee": "TEE Analysis",
+      "teeDesc": "Processing inside IronClaw secure environment",
+      "zkp": "Generating ZKP Proof",
+      "zkpDesc": "Creating eligibility credential without exposing scores",
+      "profile": "Building Risk Profile",
+      "profileDesc": "Encrypting and storing analysis results",
+      "purge": "Data Purged",
+      "purgeDesc": "Original genetic data has been securely destroyed"
+    },
+    "errorTitle": "Analysis Failed",
+    "errorDesc": "An error occurred",
+    "analysisError": "An error occurred during analysis",
+    "zkpBadge": "Credential generated — scores are not shared with insurers",
+    "doneMessage": "Analysis complete. Review the log above and proceed to dashboard.",
+    "goToDashboard": "Go to Dashboard",
+    "backToUpload": "Back to Upload"
+  },
+  "riskProfile": {
+    "categories": {
+      "oncology": "Oncology",
+      "cardiovascular": "Cardiovascular",
+      "metabolic": "Metabolic",
+      "neurological": "Neurological"
+    },
+    "levels": {
+      "high": "High Risk",
+      "moderate": "Moderate",
+      "normal": "Normal"
+    },
+    "flags": {
+      "pancreatic_cancer": "Pancreatic Cancer",
+      "liver_cancer": "Liver Cancer",
+      "lung_cancer": "Lung Cancer",
+      "breast_cancer": "Breast Cancer",
+      "colorectal_cancer": "Colorectal Cancer",
+      "myocardial_infarction": "Myocardial Infarction",
+      "stroke": "Stroke",
+      "arrhythmia": "Arrhythmia",
+      "type2_diabetes": "Type 2 Diabetes",
+      "hyperlipidemia": "Hyperlipidemia",
+      "thyroid_disorder": "Thyroid Disorder",
+      "alzheimers": "Alzheimer's",
+      "parkinsons": "Parkinson's"
+    },
+    "noFlags": "No risk factors detected"
+  },
+  "insuranceProduct": {
+    "categories": {
+      "oncology": "Oncology",
+      "cardiovascular": "Cardiovascular",
+      "metabolic": "Metabolic",
+      "neurological": "Neurological"
+    },
+    "zkpDiscount": "ZKP Discount",
+    "perMonth": "/mo"
+  }
+}

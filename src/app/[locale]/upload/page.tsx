@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { useWallet } from "@/context/WalletContext";
 import { AppHeader } from "@/components/modules/AppHeader";
 import { FileUploadZone } from "@/components/modules/FileUploadZone";
@@ -9,6 +10,8 @@ import { FileUploadZone } from "@/components/modules/FileUploadZone";
 export default function UploadPage() {
   const { isConnected, isLoading } = useWallet();
   const router = useRouter();
+  const t = useTranslations("upload");
+  const tc = useTranslations("common");
 
   useEffect(() => {
     if (!isLoading && !isConnected) {
@@ -16,16 +19,20 @@ export default function UploadPage() {
     }
   }, [isConnected, isLoading, router]);
 
-  // 지갑 초기화 중 또는 미연결 → 빈 화면 (리다이렉트 처리 중)
-  if (isLoading || !isConnected) {
-    return null;
-  }
+  if (isLoading || !isConnected) return null;
+
+  const STEPS = [
+    tc("steps.walletConnect"),
+    tc("steps.fileUpload"),
+    tc("steps.teeAnalysis"),
+    tc("steps.insuranceRecommend"),
+    tc("steps.payment"),
+  ];
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <AppHeader backHref="/" backLabel="홈으로" />
+      <AppHeader backHref="/" backLabel={t("backLabel")} />
 
-      {/* Step 진행 표시 */}
       <div className="flex items-center justify-center gap-2 py-4 border-b border-border">
         {STEPS.map((s, i) => (
           <div key={s} className="flex items-center gap-2">
@@ -56,26 +63,19 @@ export default function UploadPage() {
         ))}
       </div>
 
-      {/* 메인 콘텐츠 */}
       <main className="flex flex-1 flex-col items-center justify-center px-6 py-12 gap-8">
         <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-2xl font-bold text-foreground">유전자 파일 업로드</h1>
-          <p className="text-sm text-muted-foreground max-w-md">
-            파일은 서버로 전송되지 않습니다. 브라우저에서 해시값만 계산된 후
-            <br />
-            TEE 내부에서 원본 분석이 진행됩니다.
-          </p>
+          <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
+          <p className="text-sm text-muted-foreground max-w-md">{t("description")}</p>
         </div>
 
         <FileUploadZone />
 
         <div className="flex flex-col items-center gap-1 text-center">
-          <p className="text-xs text-muted-foreground">지원 형식: GenTok(.txt), VCF(.vcf), CSV(.csv), PDF(.pdf)</p>
-          <p className="text-xs text-muted-foreground">최대 파일 크기: 5MB</p>
+          <p className="text-xs text-muted-foreground">{t("supportedFormats")}</p>
+          <p className="text-xs text-muted-foreground">{t("maxSize")}</p>
         </div>
       </main>
     </div>
   );
 }
-
-const STEPS = ["지갑 연결", "파일 업로드", "TEE 분석", "보험 추천", "결제"];
