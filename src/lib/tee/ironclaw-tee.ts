@@ -69,7 +69,7 @@ export async function runIronClawAnalysis(
 ): Promise<TeeAnalysisOutput> {
   const baseURL = process.env.IRONCLAW_BASE_URL ?? "https://cloud-api.near.ai/v1";
   const apiKey = process.env.IRONCLAW_API_KEY;
-  const model = process.env.IRONCLAW_MODEL ?? "llama-v3p3-70b-instruct";
+  const model = process.env.IRONCLAW_MODEL ?? "Qwen/Qwen3-30B-A3B-Instruct-2507";
 
   if (!apiKey) {
     throw new Error("IRONCLAW_API_KEY 환경 변수가 설정되지 않았습니다");
