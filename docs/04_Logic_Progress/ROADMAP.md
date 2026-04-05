@@ -437,12 +437,15 @@
 - [ ] `npm run build` TypeScript 오류 0건 확인
 
 #### 9-4. 랜딩 페이지 DNA 배경 애니메이션
-- [ ] `src/components/modules/DnaBackground.tsx` — SVG DNA 이중나선 배경 컴포넌트
-- [ ] Framer Motion `rotate: 360` + `repeat: Infinity` 천천히 회전 (duration 약 20초)
-- [ ] 복수 개의 나선을 크기·투명도·위치 다르게 배치하여 자연스러운 배경 연출
-- [ ] `pointer-events: none` 처리 — 버튼/링크 클릭 방해 없음
-- [ ] `prefers-reduced-motion` 미디어 쿼리 대응 — 접근성 설정 시 애니메이션 정지
-- [ ] `src/app/page.tsx` 히어로 섹션 배경에 `DnaBackground` 적용
+- [x] `src/components/modules/DnaBackground.tsx` — React Three Fiber 3D DNA 이중나선
+  - [x] 2.5회전 TubeGeometry 나선 2가닥 (Blue / Emerald 발광)
+  - [x] 염기쌍 CylinderGeometry + 노드 구체 (Violet / 발광)
+  - [x] Y축 천천히 회전 (useFrame, 0.25 rad/s)
+  - [x] `pointer-events: none` 처리
+  - [x] `prefers-reduced-motion` 미디어 쿼리 대응
+  - [x] opacity 0.18 — 텍스트 가독성 유지
+- [x] `src/app/page.tsx`: `next/dynamic` SSR:false lazy import 적용
+- [x] 콘텐츠 `z-10`으로 DNA 위 레이어 분리
 
 ---
 
