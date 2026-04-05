@@ -42,12 +42,12 @@ export async function initiateNearTransaction(
 ): Promise<void> {
   const wallet = await selector.wallet();
 
-  // near-wallet-selector v10 Action 타입 호환을 위해 명시적 캐스팅
+  // near-wallet-selector v10 borsh 직렬화 포맷
+  // { type: "Transfer", params: {...} } 형식이 아닌 { transfer: { deposit: ... } } 형식 사용
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actions: any[] = [
     {
-      type: "Transfer",
-      params: { deposit: DEMO_AMOUNT_YNEAR },
+      transfer: { deposit: DEMO_AMOUNT_YNEAR },
     },
   ];
 
