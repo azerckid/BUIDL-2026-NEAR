@@ -15,7 +15,8 @@ const RADIUS = 2.93;
 const HEIGHT = 15.75;
 const BASE_PAIR_EVERY = 2;
 const NODE_EVERY = 8;
-const ROTATE_SPEED = 0.125;
+const ROTATE_SPEED   = 0.0625; // Y축 자동 회전 (기존 0.125의 절반)
+const ROTATE_SPEED_Z = 0.028;  // Z축 자동 회전 (은은한 텀블링)
 const TILT_X_MAX = 0.28;
 const TILT_Z_MAX = 0.14;
 const LERP_SPEED = 2.5;
@@ -96,8 +97,9 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
   useFrame((state, delta) => {
     if (!groupRef.current) return;
 
-    // Y축 자동 회전
+    // Y축 + Z축 자동 회전
     groupRef.current.rotation.y += delta * ROTATE_SPEED;
+    groupRef.current.rotation.z += delta * ROTATE_SPEED_Z;
 
     // 마우스 틸트
     const mx = mouseRef.current?.x ?? 0;
