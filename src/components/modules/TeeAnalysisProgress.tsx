@@ -135,8 +135,9 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
       {/* 단계 인디케이터 */}
       <div className="flex items-center gap-1 w-full justify-between">
         {STEPS.map((step, i) => {
-          const isDoneStep = currentStageIndex > i;
-          const isActive = currentStageIndex === i && stage !== "error";
+          // purged는 완료 상태 — 마지막 단계도 체크 아이콘으로 표시
+          const isDoneStep = currentStageIndex > i || (stage === "purged" && currentStageIndex === i);
+          const isActive = currentStageIndex === i && stage !== "error" && stage !== "purged";
           return (
             <div key={step.key} className="flex flex-col items-center gap-1.5 flex-1">
               <div
