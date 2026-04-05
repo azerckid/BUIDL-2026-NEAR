@@ -1,7 +1,7 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-05 (Stage 10 NEAR 실연동 + Confidential Intents 인텐트 패널 완료)
+- **최종 수정일**: 2026-04-05 (Stage 11 Phase 2 구현 명세 추가)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v2.0
 
@@ -509,9 +509,79 @@
 
 ---
 
+### Stage 11 — Phase 2: 실연동 3종 (해커톤 이후)
+
+> 해커톤 제출 후 착수. 각 항목은 독립적으로 진행 가능.
+> 상세 구현 명세: `docs/03_Technical_Specs/PHASE2_IMPLEMENTATION_SPEC.md`
+
+---
+
+#### 11-1. Confidential Intents SDK 연동 (권장 착수 순서 1번)
+
+> **선결 조건**: `@defuse-protocol/intents-sdk`의 near-api-js v7 대응 버전 출시
+
+- [ ] `@defuse-protocol/intents-sdk` 설치 (near-api-js 버전 충돌 해소 후)
+- [ ] `src/lib/near/chain-signatures.ts` 교체
+  - [ ] 현재 `Transfer` 액션 → `IntentsClient.submitIntent()` 호출로 교체
+  - [ ] intent payload: `type`, `zkp_proof_hash`, `product_ids`, `amount_usdc`, `network` 포함
+  - [ ] Defuse Protocol Solver 네트워크 응답: `intentId`, `solverTxHash` 수신
+- [ ] `CheckoutClient.tsx` — ConfidentialIntentPanel "Phase 2 예정" 라벨 제거, 실제 intent 결과 표시
+- [ ] `src/lib/db/schema.ts` — `transactions` 테이블 `intentId` 컬럼 추가
+- [ ] `src/actions/confirmCheckout.ts` — `intentId` 저장 로직 추가
+- [ ] `next.config.ts` — CSP `connect-src`에 Defuse Protocol 엔드포인트 추가
+- [ ] E2E 검증: Confidential Intent 제출 → Solver 응답 → 결제 완료 흐름 확인
+
+---
+
+#### 11-2. v1.signer MPC Chain Signatures 실연동 (권장 착수 순서 2번)
+
+> **목적**: NEAR 지갑 하나로 ETH/BTC/SOL 보험료 결제 (멀티체인 보험 결제)
+
+- [ ] `src/lib/near/chain-signatures.ts` — `deriveEthAddress` 함수 추가
+  - [ ] `v1.signer-prod.testnet` view call: `derived_public_key(path, predecessor)` 호출
+  - [ ] compressed secp256k1 공개키 → ETH 주소 변환 (`ethers` 패키지)
+- [ ] `src/lib/near/chain-signatures.ts` — `requestMpcSignature` 함수 추가
+  - [ ] `v1.signer-prod.testnet` FunctionCall: `sign({ payload, path, key_version })` 호출
+  - [ ] 250 Tgas + 1 yoctoNEAR deposit 필요
+  - [ ] MPC 응답: `{ big_r, s }` 추출
+- [ ] `src/lib/near/chain-signatures.ts` — `broadcastEthTransaction` 함수 추가
+  - [ ] MPC 서명 → ETH 트랜잭션 복원 (`ethers.Transaction`)
+  - [ ] Ethereum Sepolia 테스트넷 브로드캐스트
+- [ ] `CheckoutClient.tsx` — 체인 선택 UI 추가 (NEAR / ETH)
+- [ ] `src/lib/db/schema.ts` — `transactions.network` enum에 `ethereum_sepolia` 추가
+- [ ] `next.config.ts` — CSP `connect-src`에 Ethereum RPC 엔드포인트 추가
+- [ ] E2E 검증: NEAR 지갑 서명 → MPC 서명 → ETH 트랜잭션 브로드캐스트 확인
+- [ ] Phase 3 준비: SOL 파생 주소 생성 함수 분리 설계
+
+---
+
+#### 11-3. Noir ultraplonk 온체인 수학적 검증 (권장 착수 순서 3번)
+
+> **난이도 높음** — Aztec Protocol 팀 협력 또는 별도 Rust 구현 필요
+
+**클라이언트 사이드 실제 proof 생성 (상대적으로 낮은 난이도)**:
+- [ ] `npm install @noir-lang/noir_js @aztec/bb.js` 설치
+- [ ] `next.config.ts` — `serverExternalPackages: ["@aztec/bb.js", "@noir-lang/noir_js"]` 추가
+- [ ] `src/lib/zkp/prover.ts` 교체
+  - [ ] `UltraHonkBackend` + `Noir` 인스턴스로 실제 proof 생성
+  - [ ] `circuit.bytecode` 동적 로드 (WASM 번들 30~50MB 대응)
+- [ ] `src/lib/zkp/verifier.ts` — `@aztec/bb.js` 로컬 검증 후 proof bytes 온체인 제출
+- [ ] E2E 검증: risk_score 입력 → proof 생성 → 로컬 검증 → `zkp.rogulus.testnet` 등록
+
+**온체인 ultraplonk 수학적 검증 (높은 난이도)**:
+- [ ] `contracts/zkp_verifier/src/lib.rs` — `verify_proof_onchain` 함수 추가
+  - [ ] `barretenberg-sys` Rust FFI 바인딩 연구 또는 순수 Rust ultraplonk 구현체 도입
+  - [ ] NEAR 런타임 제약(gas limit 300Tgas, WASM 4MB) 내 pairing check 가능 여부 검토
+  - [ ] Aztec Protocol 팀 기술 지원 요청 필요
+- [ ] `zkp.rogulus.testnet` 재배포 (verify_proof_onchain 추가 후)
+- [ ] `nargo verify`와 온체인 검증 결과 일치 E2E 확인
+
+---
+
 ## 관련 문서
 - [비즈니스 기획안](../01_Concept_Design/GENETIC_AI_INSURANCE_AGENT.md)
 - [기술 아키텍처 명세](../03_Technical_Specs/NEAR_PRIVACY_STACK_ARCH.md)
+- [Phase 2 구현 명세서](../03_Technical_Specs/PHASE2_IMPLEMENTATION_SPEC.md)
 - [DB 스키마 명세](../03_Technical_Specs/DB_SCHEMA.md)
 - [AI 매칭 파이프라인](./AI_MATCHING_PIPELINE.md)
 - [구현 계획 (초기 세팅)](./IMPLEMENTATION_PLAN.md)
