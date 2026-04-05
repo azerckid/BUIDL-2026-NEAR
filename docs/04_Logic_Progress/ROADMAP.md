@@ -1,7 +1,7 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-05 (Stage 8-6 보험 가입 확인서 추가)
+- **최종 수정일**: 2026-04-05 (Stage 9 DNA 배경·ZKP 터미널 로그·네비게이션 완료)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v2.0
 
@@ -412,40 +412,47 @@
 
 ---
 
-### Stage 9 — ZKP 프로토콜 흐름 시각화 애니메이션
+### Stage 9 — ZKP 프로토콜 흐름 시각화 + DNA 배경 애니메이션 ✓ 완료 2026-04-05
 
 > 데모 퀄리티 향상용. Stage 8(QA/데모 준비) 완료 후 착수.
 
-#### 9-1. 3-컬럼 흐름 다이어그램 컴포넌트
-- [ ] `src/components/modules/ZkpFlowDiagram.tsx` — Framer Motion 기반 프로토콜 흐름 시각화
-- [ ] 3개 노드: `[브라우저]` → `[TEE 서버 (IronClaw)]` → `[NEAR 온체인]`
-- [ ] 화살표 애니메이션: stage별 방향 + 전송 데이터 레이블 표시
-  - parsing: Browser → TEE (file hash)
-  - tee: TEE 내부 활동 (risk_score 🔒 강조)
-  - zkp: TEE 내부 (private/public input, Noir 회로 실행)
-  - profiling: TEE → Browser (proof bytes)
-  - purged: Browser → NEAR (proof + tx calldata)
-- [ ] TEE 컬럼 활동 로그: stage 진행에 따라 항목 순차 표시
+#### 9-1. 터미널 스타일 ZKP 흐름 로그 컴포넌트 ✓ 완료
+- [x] `src/components/modules/ZkpFlowDiagram.tsx` — Framer Motion 기반 터미널 로그 시각화
+  - [x] macOS 터미널 스타일 헤더 (신호등 버튼 + `tee-analysis — ironclaw runtime`)
+  - [x] 단계별 로그 누적 표시 (200ms 간격 순차 fade-in, 완료 후 사라지지 않음)
+  - [x] 색상 구분: default(green) / success(emerald) / private(yellow) / system(zinc) / error(red)
+  - [x] `[PRIVATE — not exposed to insurer]` 노란색 강조로 프라이버시 가시화
+  - [x] 로그 단계: `file_hash` 전송 → TEE 분석 → Noir ZKP → proof_bytes 반환 → 소각 완료
 
-#### 9-2. TeeAnalysisProgress 통합
-- [ ] `TeeAnalysisProgress.tsx` 중앙 스피너 영역을 `ZkpFlowDiagram`으로 교체
-- [ ] 기존 Progress Bar, 단계 인디케이터, 에러 상태 UI 유지
+#### 9-2. TeeAnalysisProgress 통합 ✓ 완료
+- [x] `TeeAnalysisProgress.tsx` 중앙 스피너 영역 → `ZkpFlowDiagram`으로 교체
+- [x] 기존 Progress Bar, 단계 인디케이터, Memory Purge 파티클, 에러 상태 UI 유지
+- [x] 자동 `router.push` 제거 → `isDone` 상태로 전환
+- [x] 분석 완료 후 "대시보드로 이동" 버튼 표시 (사용자가 로그 확인 후 직접 클릭)
 
-#### 9-3. 검증
-- [ ] 전체 분석 플로우(파싱 → TEE → ZKP → 소각) 애니메이션 동기화 확인
-- [ ] 모바일 반응형 레이아웃 확인
-- [ ] `npm run build` TypeScript 오류 0건 확인
+#### 9-3. 검증 ✓ 완료
+- [x] 전체 분석 플로우(파싱 → TEE → ZKP → 소각) 애니메이션 동기화 확인
+- [x] `npm run build` TypeScript 오류 0건 확인
 
-#### 9-4. 랜딩 페이지 DNA 배경 애니메이션
+#### 9-4. 랜딩 페이지 DNA 배경 애니메이션 ✓ 완료
 - [x] `src/components/modules/DnaBackground.tsx` — React Three Fiber 3D DNA 이중나선
   - [x] 2.5회전 TubeGeometry 나선 2가닥 (Blue / Emerald 발광)
-  - [x] 염기쌍 CylinderGeometry + 노드 구체 (Violet / 발광)
-  - [x] Y축 천천히 회전 (useFrame, 0.25 rad/s)
+  - [x] 염기쌍 CylinderGeometry (40개) + 끝점 구체 + 나선 노드 구체
+  - [x] Y축 + Z축 동시 자동 회전 (텀블링 효과, Y: 0.0625 / Z: 0.028 rad/s)
+  - [x] 마우스 틸트 (X/Z축 lerp, TILT_X_MAX 0.28)
+  - [x] 마우스 근접 시 호버 색상 변경 — p1/p2 양쪽 NDC 투영 감지
+    - [x] 직선 → Amber(#fbbf24), 구체 → 흰색(#ffffff)
   - [x] `pointer-events: none` 처리
   - [x] `prefers-reduced-motion` 미디어 쿼리 대응
-  - [x] opacity 0.18 — 텍스트 가독성 유지
+  - [x] opacity 0.11 — 배경으로서 텍스트 가독성 최적화
+  - [x] `group scale={[3,3,3]}` 비례 확대
 - [x] `src/app/page.tsx`: `next/dynamic` SSR:false lazy import 적용
 - [x] 콘텐츠 `z-10`으로 DNA 위 레이어 분리
+
+#### 9-5. 네비게이션 개선 ✓ 완료
+- [x] 전체 페이지 헤더 `MyDNA Insurance Agent` 로고 → 홈(`/`) 링크 연결
+  - [x] `src/app/page.tsx`, `src/app/upload/page.tsx`, `src/app/analysis/[sessionId]/page.tsx` 공통 적용
+  - [x] `hover:opacity-80 transition-opacity` 인터랙션 추가
 
 ---
 
