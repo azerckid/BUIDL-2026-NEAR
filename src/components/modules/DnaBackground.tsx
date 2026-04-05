@@ -15,10 +15,9 @@ const RADIUS = 2.93;
 const HEIGHT = 15.75;
 const BASE_PAIR_EVERY = 2;
 const NODE_EVERY = 8;
-const ROTATE_SPEED   = 0.0625; // Y축 자동 회전 (기존 0.125의 절반)
-const ROTATE_SPEED_Z = 0.028;  // Z축 자동 회전 (은은한 텀블링)
-const TILT_X_MAX = 0.28;
-const TILT_Z_MAX = 0.14;
+const ROTATE_SPEED   = 0.055;  // X축 자동 회전 (가로 나선이 제자리에서 스핀)
+const TILT_Y_MAX = 0.22;       // 마우스 X → Y축 틸트
+const TILT_Z_MAX = 0.12;       // 마우스 Y → Z축 틸트
 const LERP_SPEED = 2.5;
 const HOVER_THRESHOLD = 0.13; // 스크린 공간 근접 거리 (NDC 단위)
 
@@ -49,10 +48,11 @@ function useHelixData() {
 
     for (let i = 0; i <= SEGMENTS; i++) {
       const t = (i / SEGMENTS) * TURNS * Math.PI * 2;
-      const y = (i / SEGMENTS) * HEIGHT - HEIGHT / 2;
+      const x = (i / SEGMENTS) * HEIGHT - HEIGHT / 2;
 
-      const p1 = new THREE.Vector3(RADIUS * Math.cos(t), y, RADIUS * Math.sin(t));
-      const p2 = new THREE.Vector3(RADIUS * Math.cos(t + Math.PI), y, RADIUS * Math.sin(t + Math.PI));
+      // 나선을 X축(가로) 방향으로 배치
+      const p1 = new THREE.Vector3(x, RADIUS * Math.cos(t), RADIUS * Math.sin(t));
+      const p2 = new THREE.Vector3(x, RADIUS * Math.cos(t + Math.PI), RADIUS * Math.sin(t + Math.PI));
 
       pts1.push(p1);
       pts2.push(p2);
@@ -62,7 +62,7 @@ function useHelixData() {
         const dir = new THREE.Vector3().subVectors(p2, p1);
         const len = dir.length();
         const quat = new THREE.Quaternion().setFromUnitVectors(
-          new THREE.Vector3(0, 1, 0),
+          new THREE.Vector3(0, 1, 0), // cylinderGeometry 기본 축은 Y
           dir.normalize()
         );
         basePairs.push({ mid, quat, len, p1: p1.clone(), p2: p2.clone() });
@@ -97,18 +97,17 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
   useFrame((state, delta) => {
     if (!groupRef.current) return;
 
-    // Y축 + Z축 자동 회전
-    groupRef.current.rotation.y += delta * ROTATE_SPEED;
-    groupRef.current.rotation.z += delta * ROTATE_SPEED_Z;
+    // X축 자동 회전 — 가로로 누운 나선이 제자리에서 스핀
+    groupRef.current.rotation.x += delta * ROTATE_SPEED;
 
     // 마우스 틸트
     const mx = mouseRef.current?.x ?? 0;
     const my = mouseRef.current?.y ?? 0;
-    groupRef.current.rotation.x = THREE.MathUtils.lerp(
-      groupRef.current.rotation.x, my * TILT_X_MAX, delta * LERP_SPEED
+    groupRef.current.rotation.y = THREE.MathUtils.lerp(
+      groupRef.current.rotation.y, mx * TILT_Y_MAX, delta * LERP_SPEED
     );
     groupRef.current.rotation.z = THREE.MathUtils.lerp(
-      groupRef.current.rotation.z, -mx * TILT_Z_MAX, delta * LERP_SPEED
+      groupRef.current.rotation.z, -my * TILT_Z_MAX, delta * LERP_SPEED
     );
 
     // 스크린 공간 근접 감지 — pointer-events 없이 동작
@@ -275,7 +274,7 @@ export function DnaBackground() {
       style={{ zIndex: 0, opacity: 0.11 }}
     >
       <Canvas
-        camera={{ position: [0, 0, 18], fov: 55 }}
+        camera={{ position: [0, 4, 22], fov: 58 }}
         gl={{ alpha: true, antialias: true }}
         style={{ background: "transparent", width: "100%", height: "100%" }}
         dpr={[1, 1.5]}
