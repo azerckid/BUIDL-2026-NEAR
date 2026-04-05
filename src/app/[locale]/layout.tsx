@@ -1,9 +1,21 @@
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { getMessages } from "next-intl/server";
+import { Manrope } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { WalletProvider } from "@/context/WalletContext";
 import { routing } from "@/i18n/routing";
+import "@fontsource/pretendard/400.css";
+import "@fontsource/pretendard/500.css";
+import "@fontsource/pretendard/600.css";
+import "@fontsource/pretendard/700.css";
+
+const manrope = Manrope({
+  variable: "--font-manrope",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
+});
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -20,8 +32,8 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
-      <body>
+    <html lang={locale} className={`${manrope.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col bg-background text-foreground">
         <NextIntlClientProvider messages={messages}>
           <WalletProvider>
             {children}
