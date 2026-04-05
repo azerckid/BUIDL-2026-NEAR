@@ -131,6 +131,15 @@
   html {
     @apply font-sans;
   }
+  button,
+  [role="button"],
+  a,
+  label[for],
+  select,
+  summary,
+  [tabindex]:not([tabindex="-1"]) {
+    cursor: pointer;
+  }
 }
 
 /* ─── NEAR Wallet Selector Modal — Light Theme Override ────────────────────── */
