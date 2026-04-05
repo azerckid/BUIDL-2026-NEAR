@@ -1,7 +1,7 @@
 # [기술 명세] 배포 전략 및 Phase 2 전환 계획
 
 - **작성일**: 2026-04-05
-- **최종 수정일**: 2026-04-05 (NEAR AI Cloud 계정 설정 완료)
+- **최종 수정일**: 2026-04-06 (아키텍처 정합성 교정 — ZKP 생성 위치 TEE 내부 확정)
 - **레이어**: 03_Technical_Specs
 - **상태**: Draft v1.1
 
@@ -10,6 +10,11 @@
 ## 1. 배포 플랫폼 전환 결정 (Vercel → Docker)
 
 ### 1-1. 전환 배경
+
+> **[교정 2026-04-06]** 아래 표의 nargo CLI / `@noir-lang` WASM 항목은 `NEAR_PRIVACY_STACK_ARCH.md` 6-1절과 불일치하여 교정한다.
+> ZKP proof 생성은 **IronClaw TEE 내부**에서 수행되므로, 우리 웹 서버에 nargo CLI나 `@noir-lang` WASM을 설치할 필요가 없다.
+> Vercel의 50MB 함수 크기 제한 및 CLI 실행 불가 제약은 Phase 2에서도 장애가 되지 않는다.
+> Docker 전환이 필요한 유일한 잠재적 사유는 **TEE API 응답 시간이 Vercel의 60초 타임아웃을 초과하는 경우**이며, 이는 Phase 2 성능 테스트 후 판단한다.
 
 Phase 0(해커톤 데모)는 Vercel 서버리스 환경을 사용했으나, Phase 2 실연동을 위해 아래 두 가지 기술적 제약이 확인되어 Docker 기반 컨테이너 배포로 전환한다.
 
@@ -60,7 +65,7 @@ Stage 6 구현 시 Phase 0 제약으로 체크되지 않은 항목들의 해결 
 
 | 항목 | Phase 0 미구현 이유 | 해결 방법 | 선행 조건 |
 |------|-------------------|----------|----------|
-| Noir ZKP proof bytes 실생성 | nargo CLI 불가, WASM 50MB 초과 | Docker + nargo 설치 | Docker 배포 전환 |
+| Noir ZKP proof bytes 실생성 | ~~nargo CLI 불가, WASM 50MB 초과~~ (교정: TEE 내부 생성) | IronClaw TEE API 호출로 proof bytes 수신 | IronClaw TEE 연동 |
 | ZKP proof bytes calldata 첨부 | proof bytes 자체가 없었음 | proof 생성 후 코드 연결 | 위 항목 완료 |
 | ZKP proof 첨부 실패 안내 | proof bytes 없어서 에러 경로 미존재 | proof bytes 생성 후 에러 케이스 처리 | 위 항목 완료 |
 | Chain Signatures MPC 실연동 | Server Action 구조 — 브라우저 서명 불가 | `completeCheckout.ts` 재설계 | 재설계 완료 |
@@ -186,7 +191,9 @@ import { ... } from "@defuse-protocol/intents-sdk";
 
 ### 4-3. Docker 환경 구성 (인프라 작업)
 
-배포 플랫폼 전환 및 nargo CLI 실행을 위한 컨테이너 환경을 구성한다.
+> **[교정 2026-04-06]** nargo CLI는 IronClaw TEE 내부에서 실행되므로 Docker에 설치할 필요 없음. 아래 Dockerfile의 nargo 설치 단계는 제거 대상.
+
+배포 플랫폼 전환 여부를 검토한다. TEE API 응답 시간 측정 후 Docker 전환 필요성을 최종 판단한다.
 
 **작업 목록**:
 
@@ -280,7 +287,7 @@ Chain Signatures MPC 실연동을 위해 Server Action 구조를 변경한다.
 | Phase | 배포 환경 | ZKP | Chain Signatures | Confidential Intents |
 |-------|----------|-----|-----------------|---------------------|
 | Phase 0 (현재) | Vercel | proof hash (더미) | Mock 2초 지연 | Mock |
-| Phase 2 (Stage 7) | Docker (GCP/AWS) | proof bytes (nargo) | v1.signer MPC 실연동 | 가용성 확인 후 결정 |
+| Phase 2 (Stage 7) | Vercel 유지 또는 Docker (성능 테스트 후 결정) | proof bytes (IronClaw TEE 내부 생성) | v1.signer MPC 실연동 | 메인넷 출시 완료 |
 | Phase 3 | Docker | proof bytes | MPC + 멀티체인 | 메인넷 |
 
 ---

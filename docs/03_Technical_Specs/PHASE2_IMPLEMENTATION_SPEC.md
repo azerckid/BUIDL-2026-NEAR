@@ -104,12 +104,42 @@ rogulus.testnet
 
 사용자는 NEAR 지갑만으로 ETH/BTC 보험료를 결제할 수 있다 — 멀티체인 지갑 불필요.
 
-### 2-2. 현재 상태 (Phase 0)
+### 2-2. 결제 흐름 전체 시나리오
+
+사용자 `rogulus.testnet`이 ETH로 보험료를 결제하는 흐름을 단계별로 설명한다.
+
+```
+사용자: rogulus.testnet (NEAR 계정)
+  │
+  ├─ [사전 준비] v1.signer MPC 컨트랙트로 파생 ETH 주소 생성
+  │     deriveEthAddress("rogulus.testnet", "insurance,1")
+  │     → 결과: 0xABC... (rogulus.testnet이 MPC로 제어하는 ETH 주소)
+  │
+  ├─ [사전 준비] 파생 주소(0xABC...)에 ETH 충전 필요
+  │     → Ethereum Sepolia Faucet에서 테스트 ETH 충전
+  │     → 이 주소는 NEAR 지갑으로만 제어 가능 (개인키 없음)
+  │
+  └─ [결제 시] 5단계 흐름
+        1. 앱이 ETH 트랜잭션 구성 (0xABC... → 보험사 주소, 금액)
+        2. ETH 트랜잭션 해시를 v1.signer MPC 컨트랙트에 전달
+        3. NEAR 지갑 팝업 → 사용자가 NEAR 트랜잭션에 서명
+        4. MPC 노드들이 분산 서명 → ETH 트랜잭션 완성
+        5. Ethereum Sepolia에 브로드캐스트 → ETH txHash 반환
+```
+
+**핵심**: 사용자는 NEAR 지갑 하나만으로 ETH 보험료를 결제한다. ETH 개인키나 MetaMask가 필요 없다.
+
+**파생 주소의 특성**
+- `rogulus.testnet` + `"insurance,1"` 경로의 조합으로 항상 동일한 ETH 주소가 결정론적으로 파생됨
+- 해당 ETH 주소의 개인키는 존재하지 않음 — MPC 노드 네트워크만이 서명 가능
+- 경로(`"insurance,1"`)를 바꾸면 다른 ETH 주소가 파생됨 (용도별 주소 분리 가능)
+
+### 2-3. 현재 상태 (Phase 0)
 
 - `chain-signatures.ts`: WalletSelector로 NEAR Testnet Transfer 트랜잭션만 처리.
 - 타 체인 파생 키 생성 및 서명 미구현.
 
-### 2-3. Phase 2 구현 절차
+### 2-4. Phase 2 구현 절차
 
 #### Step 1: 파생 주소 생성
 
@@ -178,14 +208,14 @@ export async function broadcastEthTransaction(
 }
 ```
 
-### 2-4. 필요 패키지
+### 2-5. 필요 패키지
 
 ```bash
 npm install ethers           # ETH 트랜잭션 구성
 npm install @solana/web3.js  # SOL 트랜잭션 구성 (Phase 3)
 ```
 
-### 2-5. 관련 파일
+### 2-6. 관련 파일
 
 | 파일 | 변경 내용 |
 |---|---|
@@ -194,7 +224,7 @@ npm install @solana/web3.js  # SOL 트랜잭션 구성 (Phase 3)
 | `src/lib/db/schema.ts` | transactions.network에 "ethereum_sepolia", "solana_devnet" 추가 |
 | `next.config.ts` | CSP connect-src에 ETH RPC 엔드포인트 추가 |
 
-### 2-6. 참고 자료
+### 2-7. 참고 자료
 
 - MPC 컨트랙트 주소: `v1.signer-prod.testnet` (testnet), `v1.signer.near` (mainnet)
 - NEAR Chain Signatures 공식 문서: https://docs.near.org/concepts/abstraction/chain-signatures
@@ -203,6 +233,12 @@ npm install @solana/web3.js  # SOL 트랜잭션 구성 (Phase 3)
 ---
 
 ## 3. Noir ultraplonk 온체인 수학적 검증
+
+> **[교정 2026-04-06]** 아래 3-3절 "클라이언트 사이드 proof 생성"은 `NEAR_PRIVACY_STACK_ARCH.md` 6-1절/6-2절과 불일치한다.
+> 아키텍처 설계에 따르면 ZKP proof 생성은 **IronClaw TEE 내부**에서 수행되며, `risk_score`가 TEE 외부로 나오지 않아야 한다.
+> `@noir-lang/noir_js` + `@aztec/bb.js`를 우리 웹 서버나 브라우저에 설치하는 방식은 `risk_score`가 TEE 외부에 노출되어 프라이버시 모델을 무력화한다.
+> 올바른 구현: IronClaw TEE 내부에서 Noir 회로 실행 → proof bytes만 API 응답으로 수신 → 온체인 검증 제출.
+> 아래 3-3절의 코드 예시는 **TEE 내부 구현 참고용**으로만 유효하며, 우리 웹 서버 코드(`prover.ts`)에는 TEE API 호출 래퍼로 교체해야 한다.
 
 ### 3-1. 현재 상태 (Phase 0)
 

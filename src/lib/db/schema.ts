@@ -197,7 +197,7 @@ export const transactions = sqliteTable("transactions", {
     .unique()
     .references(() => recommendationCarts.id),
   txHash: text("tx_hash"),
-  network: text("network", { enum: ["near_testnet", "near_mainnet"] }).notNull(),
+  network: text("network", { enum: ["near_testnet", "near_mainnet", "ethereum_sepolia"] }).notNull(),
   amountUsdc: real("amount_usdc").notNull(),
   confidentialIntentsUsed: integer("confidential_intents_used").notNull().default(1),
   status: text("status", {
@@ -215,7 +215,7 @@ export const transactionInsertSchema = z.object({
   walletAddress: z.string().min(2).max(64),
   cartId: z.string().uuid(),
   txHash: z.string().nullable().default(null),
-  network: z.enum(["near_testnet", "near_mainnet"]),
+  network: z.enum(["near_testnet", "near_mainnet", "ethereum_sepolia"]),
   amountUsdc: z.number().positive(),
   confidentialIntentsUsed: z.number().int().min(1).default(1),
   status: z.enum(["pending", "broadcasting", "confirmed", "failed", "reverted"]).default("pending"),

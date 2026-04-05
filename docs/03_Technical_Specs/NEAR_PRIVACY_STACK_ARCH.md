@@ -158,7 +158,7 @@ TEE 내부에서 proof를 생성하면:
 | risk_score 위치 | 서버 메모리 (즉시 소각) | IronClaw TEE 메모리 (즉시 소각) |
 | 브라우저 관여 | 없음 | 없음 |
 | proof bytes 저장 | `analysis_results.zkp_proof_hash` DB 저장 | 동일 + 온체인 검증 결과 hash 추가 저장 |
-| Vercel 배포 | 가능 (더미 구현으로 번들 제한 회피) | 별도 증명 서버 필요 (WASM 50MB 제한 초과) |
+| Vercel 배포 | 가능 (더미 구현으로 번들 제한 회피) | 가능 — proof는 IronClaw TEE 내부에서 생성. 웹 서버에 WASM 미설치 (단, TEE API 60초 타임아웃 초과 시 Docker 전환 검토) |
 
 ### 6-4. Hash vs ZKP Proof bytes — 차이와 역할
 

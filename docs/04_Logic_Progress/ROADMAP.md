@@ -215,7 +215,7 @@
 - [x] `src/lib/zkp/prover.ts` — Phase 0 더미 proof 반환 (Vercel 배포 호환)
 - [x] `src/lib/zkp/verifier.ts` — Phase 0 로컬 검증 (Phase 2: NEAR 온체인 검증 교체)
 - [x] Phase 0 ZKP proof를 `analysis_results.zkp_proof_hash` DB 저장 완료
-- 참고: nargo compile/prove/verify는 Phase 2에서 수행 (Vercel 환경 CLI 미지원)
+- 참고: nargo compile/prove/verify는 Phase 2에서 IronClaw TEE 내부에서 수행 (우리 웹 서버에 설치 불필요 — NEAR_PRIVACY_STACK_ARCH.md 6-1절 참조)
 
 #### 4-4. 분석 진행 UI
 - [x] `src/components/modules/TeeAnalysisProgress.tsx` — 5단계 Progress 컴포넌트
@@ -316,7 +316,7 @@
 - [x] Confidential Intents testnet 엔드포인트 가용성 확인 — **메인넷 출시 완료** (2026-02-25), `@defuse-protocol/intents-sdk` 사용
 
 #### 인프라 작업
-- [x] `Dockerfile` + `.dockerignore` 작성 (nargo CLI 포함, next.config.ts standalone 설정)
+- [x] `Dockerfile` + `.dockerignore` 작성 (next.config.ts standalone 설정) — [교정 2026-04-06] nargo CLI는 TEE 내부 실행이므로 Dockerfile에서 제거 대상
 - [ ] GCP Cloud Run 또는 AWS App Runner 배포 테스트 (환경 변수 Secret 등록 포함)
 
 #### 코드 작업
@@ -509,33 +509,26 @@
 
 ---
 
-### Stage 11 — Phase 2: 실연동 3종 (해커톤 이후)
+### Stage 11 — Phase 2: 실연동 (해커톤 이후)
 
-> 해커톤 제출 후 착수. 각 항목은 독립적으로 진행 가능.
+> 해커톤 제출 후 착수. 2026-04-06 아키텍처 정합성 검토 결과를 반영하여 구현 범위를 확정함.
 > 상세 구현 명세: `docs/03_Technical_Specs/PHASE2_IMPLEMENTATION_SPEC.md`
 
----
+#### 구현 범위 요약 (2026-04-06 확정)
 
-#### 11-1. Confidential Intents SDK 연동 (권장 착수 순서 1번)
-
-> **선결 조건**: `@defuse-protocol/intents-sdk`의 near-api-js v7 대응 버전 출시
-
-- [ ] `@defuse-protocol/intents-sdk` 설치 (near-api-js 버전 충돌 해소 후)
-- [ ] `src/lib/near/chain-signatures.ts` 교체
-  - [ ] 현재 `Transfer` 액션 → `IntentsClient.submitIntent()` 호출로 교체
-  - [ ] intent payload: `type`, `zkp_proof_hash`, `product_ids`, `amount_usdc`, `network` 포함
-  - [ ] Defuse Protocol Solver 네트워크 응답: `intentId`, `solverTxHash` 수신
-- [ ] `CheckoutClient.tsx` — ConfidentialIntentPanel "Phase 2 예정" 라벨 제거, 실제 intent 결과 표시
-- [ ] `src/lib/db/schema.ts` — `transactions` 테이블 `intentId` 컬럼 추가
-- [ ] `src/actions/confirmCheckout.ts` — `intentId` 저장 로직 추가
-- [ ] `next.config.ts` — CSP `connect-src`에 Defuse Protocol 엔드포인트 추가
-- [ ] E2E 검증: Confidential Intent 제출 → Solver 응답 → 결제 완료 흐름 확인
+| # | 항목 | 상태 | 사유 |
+|---|------|------|------|
+| 11-1 | v1.signer MPC Chain Signatures | **구현 예정** | `near-api-js` v7로 직접 컨트랙트 호출. 외부 의존성 없음 |
+| 11-2 | ZKP: IronClaw TEE 실제 proof 생성 + proof hash 온체인 등록 | **구현 예정** | `prover.ts`를 TEE API 호출 래퍼로 교체. `zkp.rogulus.testnet` hash 등록은 이미 완료 |
+| 11-3 | Confidential Intents SDK 연동 | **대기** | `@defuse-protocol/intents-sdk`가 `near-api-js` v5를 요구하여 현재 프로젝트(v7)와 버전 충돌. SDK 업데이트 대기 |
+| 11-4 | Noir ultraplonk 온체인 수학적 검증 | **향후 과제** | NEAR 생태계에 ultraplonk verifier 공식 라이브러리 부재. `barretenberg-sys` Rust FFI 바인딩 또는 순수 Rust 구현 필요. Aztec Protocol 팀 협력 필수 |
 
 ---
 
-#### 11-2. v1.signer MPC Chain Signatures 실연동 (권장 착수 순서 2번)
+#### 11-1. v1.signer MPC Chain Signatures 실연동 [구현 예정]
 
 > **목적**: NEAR 지갑 하나로 ETH/BTC/SOL 보험료 결제 (멀티체인 보험 결제)
+> **외부 의존성**: 없음 — `near-api-js` v7 + `ethers` 패키지로 구현 가능
 
 - [ ] `src/lib/near/chain-signatures.ts` — `deriveEthAddress` 함수 추가
   - [ ] `v1.signer-prod.testnet` view call: `derived_public_key(path, predecessor)` 호출
@@ -555,20 +548,66 @@
 
 ---
 
-#### 11-3. Noir ultraplonk 온체인 수학적 검증 (권장 착수 순서 3번)
+#### 11-2. ZKP: IronClaw TEE 실제 proof 생성 + proof hash 온체인 등록 [구현 예정]
 
-> **난이도 높음** — Aztec Protocol 팀 협력 또는 별도 Rust 구현 필요
+> **목적**: Phase 0 더미 proof를 IronClaw TEE가 생성한 실제 proof bytes로 교체
+> **외부 의존성**: 없음 — IronClaw API 호출 + 기존 `zkp.rogulus.testnet` 컨트랙트 활용
+> **참고**: `@noir-lang/noir_js`, `@aztec/bb.js`는 TEE 런타임 내장. 우리 웹 서버에 설치 불필요 (NEAR_PRIVACY_STACK_ARCH.md 6-1절)
 
-**클라이언트 사이드 실제 proof 생성 (상대적으로 낮은 난이도)**:
-- [ ] `npm install @noir-lang/noir_js @aztec/bb.js` 설치
-- [ ] `next.config.ts` — `serverExternalPackages: ["@aztec/bb.js", "@noir-lang/noir_js"]` 추가
 - [ ] `src/lib/zkp/prover.ts` 교체
-  - [ ] `UltraHonkBackend` + `Noir` 인스턴스로 실제 proof 생성
-  - [ ] `circuit.bytecode` 동적 로드 (WASM 번들 30~50MB 대응)
-- [ ] `src/lib/zkp/verifier.ts` — `@aztec/bb.js` 로컬 검증 후 proof bytes 온체인 제출
-- [ ] E2E 검증: risk_score 입력 → proof 생성 → 로컬 검증 → `zkp.rogulus.testnet` 등록
+  - [ ] 현재: 더미 문자열(`phase0_mock_proof_...`) 직접 반환
+  - [ ] 교체: IronClaw TEE API 호출 → TEE 내부에서 Noir 회로 실행 → proof bytes 수신
+  - [ ] `risk_score`는 TEE 내부에서만 사용, TEE 외부(우리 서버)로 절대 미노출
+- [ ] `src/lib/zkp/verifier.ts` 교체
+  - [ ] 현재: `proofBytes.startsWith("phase0_mock_proof_")` 문자열 검사
+  - [ ] 교체: 수신된 proof bytes의 유효성 확인 + `zkp.rogulus.testnet`에 proof hash 온체인 등록
+- [ ] `src/actions/runAnalysis.ts` — `generateZkpProof` 호출부를 TEE 응답 내 proof bytes 추출로 변경
+- [ ] E2E 검증: 파일 업로드 → IronClaw TEE 분석 + proof 생성 → proof hash 온체인 등록 → 대시보드 표시
 
-**온체인 ultraplonk 수학적 검증 (높은 난이도)**:
+---
+
+#### 11-3. Confidential Intents SDK 연동 [대기]
+
+> **상태**: 대기 — `@defuse-protocol/intents-sdk`의 `near-api-js` v7 대응 버전 출시 후 착수
+>
+> **대기 사유 (2026-04-05 조사)**:
+> - `@defuse-protocol/intents-sdk` v0.58.2는 `near-api-js@5.1.1`을 요구
+> - 현재 프로젝트는 `near-api-js@7.2.0` 사용 중
+> - 다운그레이드 시 `@near-wallet-selector/core@10.x` 타입 충돌, `borsh` 직렬화 버전 충돌,
+>   Stage 10에서 검증된 실거래 트랜잭션 서명 플로우 파손 위험
+> - NEAR 개발자 포럼에서도 공개적으로 논의된 생태계 전반의 이슈
+>
+> **재개 조건**: `intents-sdk`가 `near-api-js` v7을 지원하는 버전 출시 시 착수
+
+- [ ] `@defuse-protocol/intents-sdk` 설치 (near-api-js 버전 충돌 해소 후)
+- [ ] `src/lib/near/chain-signatures.ts` 교체
+  - [ ] 현재 `Transfer` 액션 → `IntentsClient.submitIntent()` 호출로 교체
+  - [ ] intent payload: `type`, `zkp_proof_hash`, `product_ids`, `amount_usdc`, `network` 포함
+  - [ ] Defuse Protocol Solver 네트워크 응답: `intentId`, `solverTxHash` 수신
+- [ ] `CheckoutClient.tsx` — ConfidentialIntentPanel "Phase 2 예정" 라벨 제거, 실제 intent 결과 표시
+- [ ] `src/lib/db/schema.ts` — `transactions` 테이블 `intentId` 컬럼 추가
+- [ ] `src/actions/confirmCheckout.ts` — `intentId` 저장 로직 추가
+- [ ] `next.config.ts` — CSP `connect-src`에 Defuse Protocol 엔드포인트 추가
+- [ ] E2E 검증: Confidential Intent 제출 → Solver 응답 → 결제 완료 흐름 확인
+
+---
+
+#### 11-4. Noir ultraplonk 온체인 수학적 검증 [향후 과제]
+
+> **상태**: 향후 과제 — NEAR 생태계에 공식 지원 라이브러리 부재
+>
+> **보류 사유**:
+> - NEAR 스마트 컨트랙트에서 ultraplonk pairing check를 실행하려면 `barretenberg-sys` Rust FFI 바인딩
+>   또는 순수 Rust ultraplonk 구현체가 필요하나, 현재 NEAR 생태계에 공식 지원 없음
+> - NEAR 런타임 제약(gas limit 300Tgas, WASM 4MB) 내 pairing check 가능 여부 미검증
+> - Aztec Protocol 팀의 기술 지원 또는 공동 개발 필요
+> - 예상 소요: 수주 ~ 수개월
+>
+> **현재 대체 구현**: `zkp.rogulus.testnet` 컨트랙트에 proof hash를 온체인 등록하는 방식으로
+> "이 proof는 TEE 내부에서 검증되었다"는 선언적 증명을 제공 (11-2에서 구현)
+>
+> **재개 조건**: Aztec Protocol의 NEAR 호환 verifier 라이브러리 출시 또는 NEAR 팀의 공식 ZKP verifier 지원
+
 - [ ] `contracts/zkp_verifier/src/lib.rs` — `verify_proof_onchain` 함수 추가
   - [ ] `barretenberg-sys` Rust FFI 바인딩 연구 또는 순수 Rust ultraplonk 구현체 도입
   - [ ] NEAR 런타임 제약(gas limit 300Tgas, WASM 4MB) 내 pairing check 가능 여부 검토

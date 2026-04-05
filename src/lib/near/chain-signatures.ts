@@ -1,20 +1,36 @@
-// Phase 1: WalletSelector 실거래 트랜잭션
-// - InjectedWallet (팝업): signAndSendTransaction → FinalExecutionOutcome 직접 반환
-// - BrowserWallet (리다이렉트): callbackUrl로 복귀 → CheckoutClient useEffect 처리
+// Phase 1: WalletSelector 실거래 트랜잭션 (NEAR Testnet)
+// Phase 2: v1.signer MPC Chain Signatures (ETH Sepolia)
 //
-// Phase 2 교체 대상:
-//   receiverId → 실제 NEAR 보험 컨트랙트 주소
-//   Transfer → FunctionCall: pay_premium({ zkp_proof_hash, product_ids })
-//   Confidential Intents SDK (@defuse-protocol/intents-sdk) 연동
+// Phase 3 교체 대상:
+//   NEAR: wrap.testnet → 실제 보험 컨트랙트
+//   ETH: Sepolia → Mainnet
+//   Confidential Intents SDK 연동 (near-api-js v7 충돌 해소 후)
 
 import type { WalletSelector } from "@near-wallet-selector/core";
+import { ethers } from "ethers";
 
-// 데모 보험료 수신 계정 (항상 존재하는 testnet 계정)
-// Phase 2에서 실제 보험사 컨트랙트로 교체
+// ─── 상수 ────────────────────────────────────────────────────────────────────
+
+// NEAR Testnet — 데모 보험료 수신 계정 (항상 존재)
 const DEMO_INSURANCE_TREASURY = "wrap.testnet";
-
 // 0.001 NEAR (yoctoNEAR) — 데모용 심볼릭 보험료
 const DEMO_AMOUNT_YNEAR = "1000000000000000000000";
+
+// MPC 컨트랙트
+const MPC_CONTRACT_TESTNET = "v1.signer-prod.testnet";
+// const MPC_CONTRACT_MAINNET = "v1.signer.near";
+
+// ETH Sepolia RPC
+const SEPOLIA_RPC = "https://rpc.sepolia.org";
+
+// 보험 결제 전용 파생 경로
+const INSURANCE_DERIVATION_PATH = "insurance,1";
+
+// ─── 타입 ─────────────────────────────────────────────────────────────────────
+
+export type ChainNetwork = "near" | "eth";
+
+// ─── Phase 1: NEAR Testnet 실거래 ────────────────────────────────────────────
 
 /**
  * NEAR Testnet 실거래 트랜잭션 시작
@@ -29,12 +45,9 @@ export async function initiateNearTransaction(
 ): Promise<{ txHash: string } | null> {
   const wallet = await selector.wallet();
 
-  // near-wallet-selector v10 borsh 직렬화 포맷
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actions: any[] = [
-    {
-      transfer: { deposit: DEMO_AMOUNT_YNEAR },
-    },
+    { transfer: { deposit: DEMO_AMOUNT_YNEAR } },
   ];
 
   const result = await wallet.signAndSendTransaction({
@@ -43,13 +56,209 @@ export async function initiateNearTransaction(
     actions,
   });
 
-  // InjectedWallet: FinalExecutionOutcome 직접 반환
   if (result && typeof result === "object" && "transaction" in result) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const txHash = (result as any).transaction?.hash as string | undefined;
     return txHash ? { txHash } : null;
   }
 
-  // BrowserWallet: 리다이렉트 후 null — useEffect에서 ?transactionHashes= 파라미터로 처리
   return null;
+}
+
+// ─── Phase 2: MPC Chain Signatures (ETH) ────────────────────────────────────
+
+/**
+ * NEAR 계정에서 ETH 파생 주소 계산 (view call — 가스 비용 없음)
+ *
+ * rogulus.testnet + "insurance,1" → 항상 동일한 ETH 주소 결정론적 파생
+ * 해당 ETH 주소의 개인키는 존재하지 않음 — MPC 노드만 서명 가능
+ */
+export async function deriveEthAddress(
+  nearAccountId: string,
+  derivationPath: string = INSURANCE_DERIVATION_PATH
+): Promise<string> {
+  // near-api-js v7에서 connect/keyStores 제거됨 → NEAR RPC 직접 호출 (view call)
+  const args = Buffer.from(
+    JSON.stringify({ path: derivationPath, predecessor: nearAccountId })
+  ).toString("base64");
+
+  const response = await fetch("https://rpc.testnet.near.org", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: "dontcare",
+      method: "query",
+      params: {
+        request_type: "call_function",
+        finality: "final",
+        account_id: MPC_CONTRACT_TESTNET,
+        method_name: "derived_public_key",
+        args_base64: args,
+      },
+    }),
+  });
+
+  const json = await response.json() as { result?: { result?: number[] }; error?: unknown };
+  if (!json.result?.result) {
+    throw new Error("MPC view call failed: " + JSON.stringify(json.error ?? json));
+  }
+
+  const resultStr = Buffer.from(json.result.result).toString("utf-8");
+  const compressedHex = JSON.parse(resultStr) as string;
+
+  // compressed secp256k1 공개키(65바이트 hex) → ETH 주소 변환
+  return compressedPublicKeyToEthAddress(compressedHex);
+}
+
+/**
+ * v1.signer MPC 컨트랙트에 서명 요청
+ * NEAR 지갑 팝업 → 사용자 서명 → MPC 노드 분산 서명
+ *
+ * @param wallet    WalletSelector wallet 인스턴스
+ * @param payload   32바이트 해시 (ETH 트랜잭션 해시)
+ * @param derivationPath 파생 경로 (기본값: "insurance,1")
+ */
+export async function requestMpcSignature(
+  wallet: Awaited<ReturnType<WalletSelector["wallet"]>>,
+  payload: Uint8Array,
+  derivationPath: string = INSURANCE_DERIVATION_PATH
+): Promise<{ bigR: string; s: string }> {
+  const result = await wallet.signAndSendTransaction({
+    receiverId: MPC_CONTRACT_TESTNET,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    actions: [
+      {
+        type: "FunctionCall",
+        params: {
+          methodName: "sign",
+          args: {
+            request: {
+              payload: Array.from(payload),
+              path: derivationPath,
+              key_version: 0,
+            },
+          },
+          gas: "250000000000000", // 250 Tgas
+          deposit: "1",           // 1 yoctoNEAR
+        },
+      } as unknown as Parameters<typeof wallet.signAndSendTransaction>[0]["actions"][0],
+    ],
+  });
+
+  return extractMpcSignature(result);
+}
+
+/**
+ * ETH Sepolia 트랜잭션 브로드캐스트
+ *
+ * MPC 서명({ bigR, s }) + 미서명 ETH 트랜잭션 → 완성된 ETH 트랜잭션 브로드캐스트
+ */
+export async function broadcastEthTransaction(
+  mpcSignature: { bigR: string; s: string },
+  unsignedTx: ethers.TransactionRequest,
+  fromAddress: string
+): Promise<string> {
+  const provider = new ethers.JsonRpcProvider(SEPOLIA_RPC);
+
+  // MPC 서명 → ethers v6 Signature 복원
+  const signature = reconstructEthSignature(mpcSignature, unsignedTx, fromAddress);
+
+  const signedTx = ethers.Transaction.from({
+    ...(unsignedTx as ethers.TransactionLike<string>),
+    signature,
+  });
+
+  const broadcastResult = await provider.broadcastTransaction(signedTx.serialized);
+  return broadcastResult.hash;
+}
+
+/**
+ * ETH Sepolia에서 파생 주소의 잔액 조회 (ETH 단위)
+ */
+export async function getEthBalance(ethAddress: string): Promise<string> {
+  const provider = new ethers.JsonRpcProvider(SEPOLIA_RPC);
+  const balance = await provider.getBalance(ethAddress);
+  return ethers.formatEther(balance);
+}
+
+// ─── 유틸 함수 ───────────────────────────────────────────────────────────────
+
+/**
+ * compressed secp256k1 공개키 → ETH 주소 변환
+ * MPC 컨트랙트 응답: 65바이트 hex 문자열
+ */
+function compressedPublicKeyToEthAddress(compressedHex: string): string {
+  // 0x 접두사 정규화
+  const hex = compressedHex.startsWith("0x")
+    ? compressedHex
+    : `0x${compressedHex}`;
+
+  // ethers v6: computeAddress는 compressed / uncompressed 공개키 모두 처리
+  return ethers.computeAddress(hex);
+}
+
+/**
+ * MPC FunctionCall 결과에서 { bigR, s } 추출
+ */
+function extractMpcSignature(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  result: any
+): { bigR: string; s: string } {
+  // FinalExecutionOutcome → receipts_outcome → 마지막 SuccessValue 파싱
+  try {
+    const outcomes = result?.receipts_outcome ?? [];
+    for (const outcome of outcomes.reverse()) {
+      const status = outcome?.outcome?.status;
+      if (status?.SuccessValue) {
+        const decoded = Buffer.from(status.SuccessValue, "base64").toString("utf-8");
+        const parsed = JSON.parse(decoded);
+        if (parsed?.big_r && parsed?.s) {
+          return { bigR: parsed.big_r, s: parsed.s };
+        }
+      }
+    }
+  } catch {
+    // fall through
+  }
+  throw new Error("MPC 서명 결과를 파싱할 수 없습니다");
+}
+
+/**
+ * MPC { bigR, s } → ethers v6 Signature 복원
+ * secp256k1 서명 복구 비트(v) 결정: 0 또는 1 시도
+ */
+function reconstructEthSignature(
+  { bigR, s }: { bigR: string; s: string },
+  unsignedTx: ethers.TransactionRequest,
+  fromAddress: string
+): ethers.Signature {
+  const txHash = ethers.keccak256(
+    ethers.Transaction.from(unsignedTx as ethers.TransactionLike<string>).unsignedSerialized
+  );
+
+  for (const v of [27, 28]) {
+    try {
+      const sig = ethers.Signature.from({
+        r: `0x${bigR}`,
+        s: `0x${s}`,
+        v,
+      });
+      const recovered = ethers.recoverAddress(txHash, sig);
+      if (recovered.toLowerCase() === fromAddress.toLowerCase()) {
+        return sig;
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  throw new Error("ETH 서명 복구 실패 — 파생 주소와 서명이 일치하지 않습니다");
+}
+
+// ─── 주소 표시 유틸 ───────────────────────────────────────────────────────────
+
+export function truncateAddress(address: string): string {
+  if (address.length <= 14) return address;
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }

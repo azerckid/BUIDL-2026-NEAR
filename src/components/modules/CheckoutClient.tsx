@@ -11,7 +11,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { prepareCheckout } from "@/actions/prepareCheckout";
 import { confirmCheckout } from "@/actions/confirmCheckout";
-import { initiateNearTransaction } from "@/lib/near/chain-signatures";
+import {
+  initiateNearTransaction,
+  deriveEthAddress,
+  requestMpcSignature,
+  broadcastEthTransaction,
+  getEthBalance,
+  type ChainNetwork,
+} from "@/lib/near/chain-signatures";
+import { ethers } from "ethers";
 import { truncateAddress } from "@/lib/near/wallet";
 import { ZKP_VERIFIER_CONTRACT } from "@/lib/zkp/verifier";
 import { useWallet } from "@/context/WalletContext";
@@ -178,9 +186,12 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
   const searchParams = useSearchParams();
   const t = useTranslations("checkout");
   const tp = useTranslations("insuranceProduct");
-  const { selector } = useWallet();
+  const { selector, accountId } = useWallet();
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<CheckoutResult | null>(null);
+  const [selectedChain, setSelectedChain] = useState<ChainNetwork>("near");
+  const [derivedEthAddress, setDerivedEthAddress] = useState<string | null>(null);
+  const [ethBalance, setEthBalance] = useState<string | null>(null);
 
   // 지갑 리다이렉트 복귀 시 즉시 confirming 상태로 시작
   const txHashParam = searchParams.get("transactionHashes");
@@ -192,6 +203,22 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
     }
     return sum + p.monthlyPremiumUsdc;
   }, 0);
+
+  // ETH 체인 선택 시 파생 주소 + 잔액 자동 조회
+  useEffect(() => {
+    if (selectedChain !== "eth" || !accountId) return;
+
+    deriveEthAddress(accountId)
+      .then((addr) => {
+        setDerivedEthAddress(addr);
+        return getEthBalance(addr);
+      })
+      .then((bal) => setEthBalance(bal))
+      .catch(() => {
+        toast.error(t("toastEthDeriveError"));
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedChain, accountId]);
 
   // 지갑 서명 후 리다이렉트 복귀 처리
   useEffect(() => {
@@ -226,6 +253,88 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
   }, []);
 
   function handlePayment() {
+    if (selectedChain === "eth") {
+      handleEthPayment();
+      return;
+    }
+    handleNearPayment();
+  }
+
+  function handleEthPayment() {
+    startTransition(async () => {
+      if (!selector || !accountId || !derivedEthAddress) {
+        toast.error(t("toastWalletError"));
+        return;
+      }
+
+      setStep("preparing");
+      const prepared = await prepareCheckout({
+        cartId: data.cartId,
+        walletAddress: data.walletAddress,
+      });
+
+      if (!prepared.success) {
+        toast.error(prepared.error ?? t("toastPrepareError"));
+        setStep("idle");
+        return;
+      }
+
+      try {
+        setStep("signing");
+        const wallet = await selector.wallet();
+
+        // ETH 트랜잭션 구성 (Sepolia — 데모용 0.0001 ETH)
+        const provider = new ethers.JsonRpcProvider("https://rpc.sepolia.org");
+        const nonce = await provider.getTransactionCount(derivedEthAddress);
+        const feeData = await provider.getFeeData();
+
+        const unsignedTx: ethers.TransactionRequest = {
+          to: "0x000000000000000000000000000000000000dEaD", // 데모용 burn 주소
+          value: ethers.parseEther("0.0001"),
+          nonce,
+          chainId: 11155111, // Sepolia
+          gasLimit: BigInt(21000),
+          maxFeePerGas: feeData.maxFeePerGas ?? ethers.parseUnits("20", "gwei"),
+          maxPriorityFeePerGas: feeData.maxPriorityFeePerGas ?? ethers.parseUnits("1", "gwei"),
+          type: 2,
+        };
+
+        // MPC 서명 요청 (NEAR 지갑 팝업)
+        const txHash = ethers.keccak256(
+          ethers.Transaction.from(unsignedTx as ethers.TransactionLike<string>).unsignedSerialized
+        );
+        const payload = ethers.getBytes(txHash);
+
+        const mpcSig = await requestMpcSignature(wallet, payload);
+
+        // ETH 트랜잭션 브로드캐스트
+        setStep("confirming");
+        const ethTxHash = await broadcastEthTransaction(mpcSig, unsignedTx, derivedEthAddress);
+
+        const confirmed = await confirmCheckout({
+          txId: prepared.txId!,
+          txHash: ethTxHash,
+          cartId: data.cartId,
+        });
+
+        if (!confirmed.success) {
+          toast.error(confirmed.error ?? t("toastConfirmError"));
+          setStep("idle");
+          return;
+        }
+
+        setResult({ txId: confirmed.txId!, txHash: ethTxHash });
+        setStep("done");
+        toast.success(t("toastSuccess"));
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        toast.error(t("toastSignError", { message }));
+        setStep("idle");
+      }
+    });
+  }
+
+  function handleNearPayment() {
     startTransition(async () => {
       // 1단계: 결제 준비 (cart 선점 + transaction 레코드 생성)
       setStep("preparing");
@@ -556,13 +665,82 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
         </div>
       </div>
 
+      {/* 체인 선택 */}
+      <div className="flex flex-col gap-2">
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          {t("chainSelect")}
+        </p>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setSelectedChain("near")}
+            className={[
+              "flex-1 rounded-lg border py-2.5 text-sm font-medium transition-colors",
+              selectedChain === "near"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-primary/40",
+            ].join(" ")}
+          >
+            NEAR Testnet
+          </button>
+          <button
+            onClick={() => setSelectedChain("eth")}
+            className={[
+              "flex-1 rounded-lg border py-2.5 text-sm font-medium transition-colors",
+              selectedChain === "eth"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:border-primary/40",
+            ].join(" ")}
+          >
+            ETH Sepolia
+            <Badge className="ml-1.5 text-[10px] px-1 py-0 bg-yellow-100 text-yellow-700 border-yellow-200 hover:bg-yellow-100">
+              Phase 2
+            </Badge>
+          </button>
+        </div>
+
+        {/* ETH 선택 시 파생 주소 표시 */}
+        {selectedChain === "eth" && (
+          <div className="rounded-lg border border-border/60 bg-muted/20 px-3 py-2.5 flex flex-col gap-1.5 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">{t("ethDerivedAddress")}</span>
+              {derivedEthAddress ? (
+                <span className="font-mono text-foreground">
+                  {derivedEthAddress.slice(0, 6)}...{derivedEthAddress.slice(-4)}
+                </span>
+              ) : (
+                <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+              )}
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">{t("ethBalance")}</span>
+              {ethBalance !== null ? (
+                <span className={parseFloat(ethBalance) < 0.001 ? "text-destructive" : "text-foreground"}>
+                  {parseFloat(ethBalance).toFixed(4)} ETH
+                </span>
+              ) : (
+                <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+              )}
+            </div>
+            {ethBalance !== null && parseFloat(ethBalance) < 0.001 && (
+              <p className="text-destructive text-[10px] pt-0.5">
+                {t("ethInsufficientBalance")}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Confidential Intent 미리보기 */}
       <ConfidentialIntentPanel data={data} />
 
       {/* 결제 버튼 */}
       <Button
         className="w-full"
-        disabled={isPending || data.products.length === 0}
+        disabled={
+          isPending ||
+          data.products.length === 0 ||
+          (selectedChain === "eth" && (!derivedEthAddress || (ethBalance !== null && parseFloat(ethBalance) < 0.001)))
+        }
         onClick={handlePayment}
       >
         {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
