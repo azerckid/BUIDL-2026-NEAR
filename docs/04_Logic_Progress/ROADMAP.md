@@ -274,21 +274,19 @@
 - [x] "Confidential Checkout" 배지 + ZKP Proof 검증 완료 표시
 - [x] 결제 완료 후 인라인 성공 화면 (txHash, 결제 지갑, NEAR Testnet 표시)
 
-#### 6-2. Chain Signatures 연동 (신규)
-- [ ] `src/lib/near/chain-signatures.ts` — Chain Signatures 래퍼 함수 작성
-  - [ ] `v1.signer` MPC 컨트랙트 testnet 설정 (`multichain-testnet.near`)
-  - [ ] `deriveAddress` 함수 — NEAR 계정 기반 파생 키 생성
-  - [ ] `requestSignature` 함수 — MPC 서명 요청
-- [ ] 결제 트랜잭션 구성 시 Chain Signatures MPC 서명 플로우 적용
-- [ ] 결제 UI에 "Chain Signatures로 서명됨" 표시
-- [ ] Phase 0: NEAR → NEAR 테스트넷 내 서명 시연 (단일 체인)
+#### 6-2. Chain Signatures 연동
+- [x] `src/lib/near/chain-signatures.ts` — Phase 0 Mock 구현 (2초 지연 + NEAR base58 44자 txHash 생성)
+- [ ] `v1.signer` MPC 컨트랙트 testnet 실연동 — Phase 2 예정 (`multichain-testnet.near`)
+- [ ] `deriveAddress` 함수 — NEAR 계정 기반 파생 키 생성 — Phase 2 예정
+- [ ] `requestSignature` 함수 — MPC 서명 요청 — Phase 2 예정
 - [ ] Phase 3 준비: 타 체인(ETH/SOL) 파생 주소 생성 함수 분리 설계
 
 #### 6-3. Confidential Intents + ZKP proof 결합
-- [ ] Noir ZKP proof bytes를 Confidential Intents 트랜잭션 calldata에 첨부
-- [ ] 트랜잭션 구성: `{ proof: zkpProofBytes, productIds: [...], premium: amount }`
-- [ ] NEAR Testnet Confidential Intents 엔드포인트 설정 (Private Shards testnet)
-- [ ] 트랜잭션 서명 → 제출 → 컨트랙트 검증 단계별 Progress 표시
+- [x] ZKP proof hash를 `submitConfidentialIntent` 파라미터로 전달 (Phase 0)
+- [x] 트랜잭션 상태 전환: pending → broadcasting → confirmed 서버 사이드 처리
+- [ ] Noir ZKP proof bytes를 Confidential Intents 트랜잭션 calldata에 첨부 — Phase 2 예정
+- [ ] NEAR Testnet Confidential Intents 엔드포인트 설정 (Private Shards testnet) — Phase 2 예정
+- [ ] 트랜잭션 서명 → 제출 → 컨트랙트 검증 단계별 Progress UI — Phase 2 예정
 
 #### 6-4. 결제 완료 처리
 - [x] `src/actions/getCartData.ts` — cartId 기반 결제 데이터 조회 Server Action
