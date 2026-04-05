@@ -1,7 +1,7 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-05 (Stage 6 완료)
+- **최종 수정일**: 2026-04-05 (Stage 7-2 완료)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v2.0
 
@@ -335,14 +335,16 @@
 - [ ] IronClaw Agent 인스턴스 생성 (필요 시 — API 호출 방식 사용 시 생략 가능)
 
 #### 7-2. IronClaw 연동 레이어 작성
-- [ ] `src/lib/tee/ironclaw-tee.ts` 작성 — `@nearai/client` 기반 실제 API 호출
-  - [ ] `runIronClawAnalysis` 함수 — Mock TEE와 동일한 입출력 인터페이스
-  - [ ] System Prompt + User Context Prompt 주입 (`AI_MATCHING_PIPELINE.md` 3절 기준)
-  - [ ] 응답 JSON 파싱 + `teeAnalysisOutputSchema` Zod 검증
-- [ ] `src/actions/runAnalysis.ts` 수정 — 환경 변수(`USE_REAL_TEE=true`) 기반 Mock/Real 분기
+- [x] `src/lib/tee/ironclaw-tee.ts` 작성 — `openai` npm + NEAR AI Cloud REST(`/v1/chat/completions`) 직접 호출
+  - [x] `runIronClawAnalysis` 함수 — Mock TEE와 동일한 입출력 인터페이스
+  - [x] System Prompt + User Context Prompt 주입 (`TeeAnalysisOutput` JSON 스키마 명시)
+  - [x] 응답 JSON 파싱 + `teeAnalysisOutputSchema` Zod 검증
+  - [x] 기본 모델: `Qwen/Qwen3-30B-A3B-Instruct-2507` (NEAR AI Cloud `/v1/models` 조회 기준)
+- [x] `src/actions/runAnalysis.ts` 수정 — 환경 변수(`USE_REAL_TEE=true`) 기반 Mock/Real 분기
+- [x] E2E 동작 확인 — 샘플 파일 업로드 → IronClaw 분석 → 데이터 소각 메시지 표시 완료
 
 #### 7-3. 자격증명 및 보안 설정
-- [ ] `NEARAI_API_KEY` 서버 사이드 전용 환경 변수 확인 (`NEXT_PUBLIC_` 접두사 미사용)
+- [x] `IRONCLAW_API_KEY` 서버 사이드 전용 환경 변수 확인 (`NEXT_PUBLIC_` 접두사 미사용)
 - [ ] IronClaw 허용 엔드포인트 화이트리스트 설정
 
 #### 7-4. Chain Signatures 실연동 검증
@@ -357,7 +359,7 @@
 - [ ] Phase 0 로컬 검증 → Phase 2 온체인 검증 전환 포인트 주석 표시
 
 #### 7-6. E2E 검증
-- [ ] Mock 파일 → IronClaw API → `TeeAnalysisOutput` JSON 수신 확인
+- [x] Mock 파일 → IronClaw API → `TeeAnalysisOutput` JSON 수신 확인
 - [ ] Noir ZKP proof 생성 → proof bytes 포함 여부 확인
 - [ ] Chain Signatures MPC 서명 → Confidential Intents 트랜잭션 제출 확인
 - [ ] 전체 플로우 (업로드 → TEE → ZKP → 대시보드 → 서명 → 결제 완료) E2E 완주
