@@ -7,8 +7,7 @@ export type { WalletSelector };
 export type WalletNetwork = "testnet" | "mainnet";
 
 const NEAR_NETWORK: WalletNetwork = "testnet";
-// Phase 0 placeholder — Phase 2에서 실제 컨트랙트 주소로 교체
-const CONTRACT_ID = "wrap.testnet";
+// Phase 2 컨트랙트 주소: "wrap.testnet" → 실제 컨트랙트로 교체 예정
 
 let selectorInstance: WalletSelector | null = null;
 

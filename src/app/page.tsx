@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { WalletConnect } from "@/components/modules/WalletConnect";
 import { Badge } from "@/components/ui/badge";
@@ -10,11 +9,6 @@ import { Button } from "@/components/ui/button";
 export default function Home() {
   const { isConnected } = useWallet();
   const router = useRouter();
-  const [connectedOnce, setConnectedOnce] = useState(false);
-
-  const handleConnected = useCallback(() => {
-    setConnectedOnce(true);
-  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -29,7 +23,7 @@ export default function Home() {
             Insurance Agent
           </Badge>
         </div>
-        <WalletConnect onConnected={handleConnected} />
+        <WalletConnect />
       </header>
 
       {/* Hero */}
@@ -59,7 +53,7 @@ export default function Home() {
         {/* CTA */}
         {!isConnected ? (
           <div className="flex flex-col items-center gap-3">
-            <WalletConnect onConnected={handleConnected} />
+            <WalletConnect />
             <p className="text-xs text-muted-foreground">
               NEAR Testnet 지갑을 연결하여 분석을 시작하세요
             </p>
