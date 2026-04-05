@@ -312,8 +312,8 @@
 > 상세 내용: `docs/03_Technical_Specs/DEPLOYMENT_STRATEGY.md` 섹션 4
 
 #### 외부 조사 (결과에 따라 Stage 7 범위가 달라짐)
-- [ ] `@nearai/client` npm 미등록 문제 — A(REST 직접 호출) / B(git 의존성) / C(팀 문의) 중 방법 결정
-- [ ] Confidential Intents testnet 엔드포인트 가용성 확인 — 미공개 시 Stage 7 범위에서 제외
+- [x] `@nearai/client` npm 미등록 문제 — **A안 확정**: `openai` npm + IronClaw REST(`/v1/chat/completions`) 직접 호출
+- [x] Confidential Intents testnet 엔드포인트 가용성 확인 — **메인넷 출시 완료** (2026-02-25), `@defuse-protocol/intents-sdk` 사용
 
 #### 인프라 작업
 - [ ] `Dockerfile` + `.dockerignore` 작성 및 로컬 빌드 검증 (`nargo --version` 컨테이너 내 확인)
