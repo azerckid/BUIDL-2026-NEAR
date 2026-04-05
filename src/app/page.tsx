@@ -81,7 +81,7 @@ export default function Home() {
               className="flex flex-col items-start gap-2 rounded-xl border border-border bg-card p-5 text-left"
             >
               <span className="text-xs font-mono font-bold text-primary border border-primary/30 rounded px-2 py-0.5">{f.label}</span>
-              <h3 className="font-semibold text-sm text-foreground">{f.title}</h3>
+              <h2 className="font-semibold text-sm text-foreground">{f.title}</h2>
               <p className="text-xs text-muted-foreground leading-relaxed">{f.desc}</p>
             </div>
           ))}
