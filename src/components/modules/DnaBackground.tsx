@@ -11,8 +11,8 @@ import * as THREE from "three";
 // ─── 상수 ────────────────────────────────────────────────────────────────────
 const TURNS = 2.5;
 const SEGMENTS = 80;
-const RADIUS = 1.95;
-const HEIGHT = 10.5;
+const RADIUS = 2.93;
+const HEIGHT = 15.75;
 const BASE_PAIR_EVERY = 8;
 const ROTATE_SPEED = 0.25;   // Y축 자동 회전 (rad/s)
 const TILT_X_MAX = 0.28;     // 마우스 상하 틸트 최대값 (rad, 약 16°)
@@ -206,7 +206,7 @@ export function DnaBackground() {
       style={{ zIndex: 0, opacity: 0.18 }}
     >
       <Canvas
-        camera={{ position: [0, 0, 13], fov: 50 }}
+        camera={{ position: [0, 0, 18], fov: 55 }}
         gl={{ alpha: true, antialias: true }}
         style={{ background: "transparent", width: "100%", height: "100%" }}
         dpr={[1, 1.5]}
