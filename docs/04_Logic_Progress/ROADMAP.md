@@ -1,7 +1,7 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-05 (Stage 7-2 완료)
+- **최종 수정일**: 2026-04-05 (Stage 8 진행 중)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v2.0
 
@@ -369,30 +369,30 @@
 ### Stage 8 — QA + 데모 준비
 
 #### 8-1. 코드 품질
-- [ ] `console.log` 전체 제거
-- [ ] TypeScript 엄격 모드(`strict: true`) 오류 0건
-- [ ] 사용하지 않는 import 제거
-- [ ] `NEXT_PUBLIC_` 접두사 환경 변수 노출 여부 전수 점검
+- [x] `console.log` 전체 제거 (seed.ts CLI 스크립트 제외 — 프로덕션 코드 0건)
+- [x] TypeScript 엄격 모드(`strict: true`) 오류 0건
+- [x] 사용하지 않는 import 제거 (page.tsx, TeeAnalysisProgress.tsx, wallet.ts)
+- [x] `NEXT_PUBLIC_` 접두사 환경 변수 노출 여부 전수 점검 — 민감 변수 미노출 확인
 
 #### 8-2. 보안 체크리스트 검토
-- [ ] `SECURITY_CHECKLIST.md` 전 항목 검토 및 통과 확인
-- [ ] CSP, X-Frame-Options, X-Content-Type-Options 헤더 적용 확인
-- [ ] Turso DB에 유전자 원본 데이터 저장 여부 확인 (카테고리 레벨만 저장)
-- [ ] 파일 업로드 MIME 타입 화이트리스트 동작 확인
+- [x] `SECURITY_CHECKLIST.md` Phase 0 해당 항목 검토 완료
+- [x] CSP, X-Frame-Options, X-Content-Type-Options 헤더 적용 확인 (`next.config.ts`)
+- [x] Turso DB에 유전자 원본 데이터 저장 여부 확인 (카테고리 레벨 JSON만 저장)
+- [x] 파일 업로드 확장자 화이트리스트 동작 확인 (.vcf/.txt/.csv/.pdf, Zod 검증)
 
 #### 8-3. 성능 및 접근성
-- [ ] Lighthouse Performance 점수 70점 이상
-- [ ] Lighthouse Accessibility 점수 85점 이상
-- [ ] Turso DB 쿼리 응답 50ms 이내 확인
+- [ ] Lighthouse Performance 점수 70점 이상 (직접 측정 필요)
+- [ ] Lighthouse Accessibility 점수 85점 이상 (직접 측정 필요)
+- [ ] Turso DB 쿼리 응답 50ms 이내 확인 (직접 측정 필요)
 
 #### 8-4. 데모 시나리오 검증
 - [ ] `DEMO_SCENARIO.md` 기준 5분 시연 시나리오 처음부터 끝까지 막힘 없이 완주
-- [ ] Mock 파일(`mock_genome_gentok.txt`) → End-to-End 전체 플로우 동작 확인
+- [x] Mock 파일(`mock_genome_gentok.txt`) → IronClaw TEE → 데이터 소각 동작 확인
 - [ ] NEAR Testnet 지갑 연결 + 더미 트랜잭션 서명 최종 동작 확인
 - [ ] Memory Purge 애니메이션 데모 시 정상 재생 확인
 
 #### 8-5. 제출 패키지 준비
-- [ ] GitHub 레포지토리 정리 (README, .env.example 작성)
+- [x] GitHub 레포지토리 정리 (README 해커톤용으로 교체, .env.example 작성 완료)
 - [ ] 피치덱 (`PITCH_DECK.md`) 최종 검토
 - [ ] 데모 영상 녹화 (`DEMO_SCENARIO.md` 씬 순서대로)
 - [ ] 해커톤 제출 폼 작성 (GitHub URL, 데모 영상 URL, 피치덱)
