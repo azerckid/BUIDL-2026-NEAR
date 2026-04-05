@@ -1,10 +1,17 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { WalletConnect } from "@/components/modules/WalletConnect";
 import { Badge } from "@/components/ui/badge";
 import { useWallet } from "@/context/WalletContext";
 import { Button } from "@/components/ui/button";
+
+// 3D DNA 배경 — SSR 비활성화 (WebGL은 서버에서 실행 불가)
+const DnaBackground = dynamic(
+  () => import("@/components/modules/DnaBackground").then((m) => ({ default: m.DnaBackground })),
+  { ssr: false }
+);
 
 export default function Home() {
   const { isConnected } = useWallet();
@@ -27,7 +34,11 @@ export default function Home() {
       </header>
 
       {/* Hero */}
-      <main className="flex flex-1 flex-col items-center justify-center px-6 text-center gap-8">
+      <main className="relative flex flex-1 flex-col items-center justify-center px-6 text-center gap-8 overflow-hidden">
+        <DnaBackground />
+        {/* 콘텐츠 — DNA 배경 위에 표시 */}
+        <div className="relative z-10 flex flex-col items-center gap-8">
+
         {/* Status badge */}
         <Badge
           variant="outline"
@@ -86,6 +97,7 @@ export default function Home() {
             </div>
           ))}
         </div>
+        </div> {/* z-10 콘텐츠 래퍼 끝 */}
       </main>
 
       {/* Footer */}
