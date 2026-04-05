@@ -210,6 +210,20 @@ export const transactions = sqliteTable("transactions", {
   confirmedAt: integer("confirmed_at", { mode: "timestamp" }),
 });
 
+export const transactionInsertSchema = z.object({
+  id: z.string().uuid(),
+  walletAddress: z.string().min(2).max(64),
+  cartId: z.string().uuid(),
+  txHash: z.string().nullable().default(null),
+  network: z.enum(["near_testnet", "near_mainnet"]),
+  amountUsdc: z.number().positive(),
+  confidentialIntentsUsed: z.number().int().min(1).default(1),
+  status: z.enum(["pending", "broadcasting", "confirmed", "failed", "reverted"]).default("pending"),
+  failureReason: z.string().nullable().default(null),
+  createdAt: z.number().int().positive(),
+  confirmedAt: z.number().int().positive().nullable().default(null),
+});
+
 // ─── Indexes ─────────────────────────────────────────────────────────────────
 
 export const analysisSessionsIdx = index("analysis_sessions_wallet_idx").on(
