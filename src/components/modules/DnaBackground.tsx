@@ -2,7 +2,7 @@
 
 // 3D DNA 이중나선 배경 애니메이션
 // React Three Fiber (Three.js WebGL) — lazy import로 번들 분리
-// 마우스 틸트 반응 + prefers-reduced-motion 대응 포함
+// 마우스 틸트 + 마우스 근접 시 색상 변경 + prefers-reduced-motion 대응
 
 import { useRef, useMemo, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
@@ -13,21 +13,22 @@ const TURNS = 2.5;
 const SEGMENTS = 80;
 const RADIUS = 2.93;
 const HEIGHT = 15.75;
-const BASE_PAIR_EVERY = 2; // 염기쌍 직선 간격 — 약 40개
-const NODE_EVERY = 8;      // 노드 구체 간격 — 약 10개 (기존 유지)
-const ROTATE_SPEED = 0.125;   // Y축 자동 회전 (rad/s)
-const TILT_X_MAX = 0.28;     // 마우스 상하 틸트 최대값 (rad, 약 16°)
-const TILT_Z_MAX = 0.14;     // 마우스 좌우 틸트 최대값 (rad, 약 8°)
-const LERP_SPEED = 2.5;      // 틸트 부드러움 (클수록 빠르게 반응)
+const BASE_PAIR_EVERY = 2;
+const NODE_EVERY = 8;
+const ROTATE_SPEED = 0.125;
+const TILT_X_MAX = 0.28;
+const TILT_Z_MAX = 0.14;
+const LERP_SPEED = 2.5;
+const HOVER_THRESHOLD = 0.13; // 스크린 공간 근접 거리 (NDC 단위)
 
 const COLOR_STRAND_1  = "#3b82f6";
 const COLOR_STRAND_2  = "#10b981";
 const COLOR_BASE_PAIR = "#a78bfa";
 const COLOR_NODE_1    = "#60a5fa";
 const COLOR_NODE_2    = "#34d399";
+const COLOR_HOVER_NODE = "#ffffff";  // 호버 시 구체 — 흰색
+const COLOR_HOVER_LINE = "#fbbf24";  // 호버 시 직선 — Amber(금색)
 
-// ─── 마우스 위치 공유 ref (Canvas 밖에서 추적) ────────────────────────────────
-// pointer-events:none 이어도 window 이벤트로 추적 가능
 type MouseNorm = { x: number; y: number };
 
 // ─── DNA 나선 계산 ────────────────────────────────────────────────────────────
@@ -35,7 +36,13 @@ function useHelixData() {
   return useMemo(() => {
     const pts1: THREE.Vector3[] = [];
     const pts2: THREE.Vector3[] = [];
-    const basePairs: { mid: THREE.Vector3; quat: THREE.Quaternion; len: number; p1: THREE.Vector3; p2: THREE.Vector3 }[] = [];
+    const basePairs: {
+      mid: THREE.Vector3;
+      quat: THREE.Quaternion;
+      len: number;
+      p1: THREE.Vector3;
+      p2: THREE.Vector3;
+    }[] = [];
     const nodes1: THREE.Vector3[] = [];
     const nodes2: THREE.Vector3[] = [];
 
@@ -49,7 +56,6 @@ function useHelixData() {
       pts1.push(p1);
       pts2.push(p2);
 
-      // 염기쌍 직선 — BASE_PAIR_EVERY 간격
       if (i % BASE_PAIR_EVERY === 0) {
         const mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
         const dir = new THREE.Vector3().subVectors(p2, p1);
@@ -61,7 +67,6 @@ function useHelixData() {
         basePairs.push({ mid, quat, len, p1: p1.clone(), p2: p2.clone() });
       }
 
-      // 노드 구체 — NODE_EVERY 간격 (염기쌍과 독립)
       if (i % NODE_EVERY === 0) {
         nodes1.push(p1.clone());
         nodes2.push(p2.clone());
@@ -82,26 +87,66 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
   const groupRef = useRef<THREE.Group>(null);
   const { geo1, geo2, basePairs, nodes1, nodes2 } = useHelixData();
 
-  useFrame((_, delta) => {
+  // 염기쌍별 material ref (직선 + 구체 1 + 구체 2)
+  const lineMatRefs  = useRef<(THREE.MeshStandardMaterial | null)[]>([]);
+  const node1MatRefs = useRef<(THREE.MeshStandardMaterial | null)[]>([]);
+  const node2MatRefs = useRef<(THREE.MeshStandardMaterial | null)[]>([]);
+  const prevHovered  = useRef<number>(-1);
+
+  useFrame((state, delta) => {
     if (!groupRef.current) return;
 
     // Y축 자동 회전
     groupRef.current.rotation.y += delta * ROTATE_SPEED;
 
-    // 마우스 틸트 — lerp로 부드럽게 보간
+    // 마우스 틸트
     const mx = mouseRef.current?.x ?? 0;
     const my = mouseRef.current?.y ?? 0;
-
     groupRef.current.rotation.x = THREE.MathUtils.lerp(
-      groupRef.current.rotation.x,
-      my * TILT_X_MAX,
-      delta * LERP_SPEED
+      groupRef.current.rotation.x, my * TILT_X_MAX, delta * LERP_SPEED
     );
     groupRef.current.rotation.z = THREE.MathUtils.lerp(
-      groupRef.current.rotation.z,
-      -mx * TILT_Z_MAX,
-      delta * LERP_SPEED
+      groupRef.current.rotation.z, -mx * TILT_Z_MAX, delta * LERP_SPEED
     );
+
+    // 스크린 공간 근접 감지 — pointer-events 없이 동작
+    const mouse = new THREE.Vector2(mx, my);
+    let closestIdx = -1;
+    let closestDist = HOVER_THRESHOLD;
+
+    basePairs.forEach((bp, i) => {
+      // p1 월드 좌표 → 스크린 NDC 투영
+      const worldPos = bp.p1.clone().applyMatrix4(groupRef.current!.matrixWorld);
+      const projected = worldPos.project(state.camera);
+      const dist = Math.hypot(projected.x - mouse.x, projected.y - mouse.y);
+      if (dist < closestDist) {
+        closestDist = dist;
+        closestIdx = i;
+      }
+    });
+
+    // 이전 호버 해제
+    const prev = prevHovered.current;
+    if (prev !== -1 && prev !== closestIdx) {
+      lineMatRefs.current[prev]?.color.set(COLOR_BASE_PAIR);
+      lineMatRefs.current[prev]?.emissive.set(COLOR_BASE_PAIR);
+      node1MatRefs.current[prev]?.color.set(COLOR_NODE_1);
+      node1MatRefs.current[prev]?.emissive.set(COLOR_NODE_1);
+      node2MatRefs.current[prev]?.color.set(COLOR_NODE_2);
+      node2MatRefs.current[prev]?.emissive.set(COLOR_NODE_2);
+    }
+
+    // 현재 호버 적용
+    if (closestIdx !== -1 && closestIdx !== prev) {
+      lineMatRefs.current[closestIdx]?.color.set(COLOR_HOVER_LINE);
+      lineMatRefs.current[closestIdx]?.emissive.set(COLOR_HOVER_LINE);
+      node1MatRefs.current[closestIdx]?.color.set(COLOR_HOVER_NODE);
+      node1MatRefs.current[closestIdx]?.emissive.set(COLOR_HOVER_NODE);
+      node2MatRefs.current[closestIdx]?.color.set(COLOR_HOVER_NODE);
+      node2MatRefs.current[closestIdx]?.emissive.set(COLOR_HOVER_NODE);
+    }
+
+    prevHovered.current = closestIdx;
   });
 
   return (
@@ -112,10 +157,8 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
           color={COLOR_STRAND_1}
           emissive={COLOR_STRAND_1}
           emissiveIntensity={0.4}
-          transparent
-          opacity={0.75}
-          roughness={0.3}
-          metalness={0.1}
+          transparent opacity={0.75}
+          roughness={0.3} metalness={0.1}
         />
       </mesh>
 
@@ -125,10 +168,8 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
           color={COLOR_STRAND_2}
           emissive={COLOR_STRAND_2}
           emissiveIntensity={0.4}
-          transparent
-          opacity={0.75}
-          roughness={0.3}
-          metalness={0.1}
+          transparent opacity={0.75}
+          roughness={0.3} metalness={0.1}
         />
       </mesh>
 
@@ -142,62 +183,56 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
           >
             <cylinderGeometry args={[0.028, 0.028, bp.len, 6]} />
             <meshStandardMaterial
+              ref={(m) => { lineMatRefs.current[i] = m; }}
               color={COLOR_BASE_PAIR}
               emissive={COLOR_BASE_PAIR}
               emissiveIntensity={0.3}
-              transparent
-              opacity={0.55}
+              transparent opacity={0.55}
             />
           </mesh>
           {/* 끝점 구체 — 나선 1 쪽 */}
           <mesh position={bp.p1.toArray()}>
             <sphereGeometry args={[0.1, 10, 10]} />
             <meshStandardMaterial
+              ref={(m) => { node1MatRefs.current[i] = m; }}
               color={COLOR_NODE_1}
               emissive={COLOR_NODE_1}
               emissiveIntensity={0.8}
-              transparent
-              opacity={0.9}
+              transparent opacity={0.9}
             />
           </mesh>
           {/* 끝점 구체 — 나선 2 쪽 */}
           <mesh position={bp.p2.toArray()}>
             <sphereGeometry args={[0.1, 10, 10]} />
             <meshStandardMaterial
+              ref={(m) => { node2MatRefs.current[i] = m; }}
               color={COLOR_NODE_2}
               emissive={COLOR_NODE_2}
               emissiveIntensity={0.8}
-              transparent
-              opacity={0.9}
+              transparent opacity={0.9}
             />
           </mesh>
         </group>
       ))}
 
-      {/* 노드 구체 — 나선 1 */}
+      {/* 나선 노드 구체 — 나선 1 */}
       {nodes1.map((pos, i) => (
         <mesh key={`n1-${i}`} position={pos.toArray()}>
           <sphereGeometry args={[0.1, 10, 10]} />
           <meshStandardMaterial
-            color={COLOR_NODE_1}
-            emissive={COLOR_NODE_1}
-            emissiveIntensity={0.9}
-            transparent
-            opacity={0.95}
+            color={COLOR_NODE_1} emissive={COLOR_NODE_1}
+            emissiveIntensity={0.9} transparent opacity={0.95}
           />
         </mesh>
       ))}
 
-      {/* 노드 구체 — 나선 2 */}
+      {/* 나선 노드 구체 — 나선 2 */}
       {nodes2.map((pos, i) => (
         <mesh key={`n2-${i}`} position={pos.toArray()}>
           <sphereGeometry args={[0.1, 10, 10]} />
           <meshStandardMaterial
-            color={COLOR_NODE_2}
-            emissive={COLOR_NODE_2}
-            emissiveIntensity={0.9}
-            transparent
-            opacity={0.95}
+            color={COLOR_NODE_2} emissive={COLOR_NODE_2}
+            emissiveIntensity={0.9} transparent opacity={0.95}
           />
         </mesh>
       ))}
@@ -207,18 +242,15 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
 
 // ─── 배경 컴포넌트 (export) ───────────────────────────────────────────────────
 export function DnaBackground() {
-  // prefers-reduced-motion 대응
   if (typeof window !== "undefined") {
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) return null;
   }
 
-  // 마우스 위치 ref — Canvas 밖에서 window 이벤트로 추적
   const mouseRef = useRef<MouseNorm>({ x: 0, y: 0 });
 
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
-      // 정규화: -1 ~ 1 (화면 중앙 기준)
       mouseRef.current = {
         x: (e.clientX / window.innerWidth) * 2 - 1,
         y: -((e.clientY / window.innerHeight) * 2 - 1),
