@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { runAnalysis } from "@/actions/runAnalysis";
+import { ZkpFlowDiagram } from "@/components/modules/ZkpFlowDiagram";
+import type { AnalysisStage } from "@/components/modules/ZkpFlowDiagram";
 
 // ─── 단계 정의 ────────────────────────────────────────────────────────────────
-
-type AnalysisStage = "parsing" | "tee" | "zkp" | "profiling" | "purged" | "error";
 
 interface StageConfig {
   label: string;
@@ -37,7 +37,7 @@ const STEPS: Array<{ key: AnalysisStage; label: string }> = [
 
 const STAGE_ORDER: AnalysisStage[] = ["parsing", "tee", "zkp", "profiling", "purged"];
 
-// 애니메이션 타임라인 — runAnalysis 예상 소요 시간(~2.7초)과 동기화
+// 애니메이션 타임라인
 const STAGE_TIMELINE: Array<{ stage: AnalysisStage; delay: number }> = [
   { stage: "parsing",   delay: 0 },
   { stage: "tee",       delay: 600 },
@@ -46,7 +46,7 @@ const STAGE_TIMELINE: Array<{ stage: AnalysisStage; delay: number }> = [
   { stage: "purged",    delay: 3500 },
 ];
 
-// Memory Purge 파티클 설정
+// Memory Purge 파티클
 const PARTICLES = Array.from({ length: 12 }, (_, i) => ({
   id: i,
   angle: (i * 360) / 12,
@@ -58,22 +58,22 @@ interface TeeAnalysisProgressProps {
   sessionId: string;
 }
 
+type LogEntry = { id: string; text: string; type: "default" | "success" | "private" | "system" | "error" };
+
 export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
   const router = useRouter();
   const [stage, setStage] = useState<AnalysisStage>("parsing");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isDone, setIsDone] = useState(false);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const logsRef = useRef<LogEntry[]>([]);
 
   useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = [];
     let isMounted = true;
 
-    // 서버에서 완료 여부 추적용 ref (클로저 공유)
     const resultRef = { value: null as { success: boolean; error?: string } | null };
     const stageRef = { value: "parsing" as AnalysisStage };
-
-    const navigateToDashboard = () => {
-      if (isMounted) router.push(`/dashboard?sid=${sessionId}`);
-    };
 
     // Server Action 실행
     runAnalysis(sessionId).then((result) => {
@@ -88,9 +88,9 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
         return;
       }
 
-      // 애니메이션이 이미 "purged"에 도달한 경우 바로 이동
+      // 애니메이션이 이미 "purged"에 도달한 경우 완료 상태로 전환
       if (stageRef.value === "purged") {
-        setTimeout(navigateToDashboard, 1000);
+        setTimeout(() => { if (isMounted) setIsDone(true); }, 1200);
       }
     });
 
@@ -102,9 +102,8 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
           stageRef.value = s;
           setStage(s);
 
-          // "purged" 도달 시 — 서버 결과가 이미 왔으면 바로 이동
           if (s === "purged" && resultRef.value?.success) {
-            setTimeout(navigateToDashboard, 1000);
+            setTimeout(() => { if (isMounted) setIsDone(true); }, 1200);
           }
         }, delay)
       );
@@ -121,7 +120,7 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
   const config = STAGE_CONFIG[stage];
 
   return (
-    <div className="flex flex-col items-center gap-8 w-full max-w-lg">
+    <div className="flex flex-col items-center gap-6 w-full max-w-lg">
 
       {/* 진행 바 */}
       <div className="w-full h-1 bg-border rounded-full overflow-hidden">
@@ -136,21 +135,21 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
       {/* 단계 인디케이터 */}
       <div className="flex items-center gap-1 w-full justify-between">
         {STEPS.map((step, i) => {
-          const isDone = currentStageIndex > i;
+          const isDoneStep = currentStageIndex > i;
           const isActive = currentStageIndex === i && stage !== "error";
           return (
             <div key={step.key} className="flex flex-col items-center gap-1.5 flex-1">
               <div
                 className={[
                   "flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold transition-colors duration-300",
-                  isDone
+                  isDoneStep
                     ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50"
                     : isActive
                     ? "bg-primary/20 text-primary border border-primary/50"
                     : "bg-muted text-muted-foreground border border-border",
                 ].join(" ")}
               >
-                {isDone ? (
+                {isDoneStep ? (
                   <CheckCircle size={14} />
                 ) : isActive ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -161,7 +160,7 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
               <span
                 className={[
                   "text-xs text-center leading-tight hidden sm:block",
-                  isDone
+                  isDoneStep
                     ? "text-emerald-400"
                     : isActive
                     ? "text-foreground font-medium"
@@ -175,18 +174,18 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
         })}
       </div>
 
-      {/* 중앙 상태 표시 */}
-      <div className="relative flex flex-col items-center gap-3 py-8">
-        {/* Memory Purge 파티클 애니메이션 */}
+      {/* Memory Purge 파티클 */}
+      <div className="relative w-full flex justify-center">
         <AnimatePresence>
           {stage === "purged" &&
             PARTICLES.map(({ id, angle }) => {
               const radian = (angle * Math.PI) / 180;
-              const distance = 72;
+              const distance = 60;
               return (
                 <motion.div
                   key={id}
                   className="absolute w-2 h-2 rounded-full bg-emerald-500"
+                  style={{ top: 0, left: "50%" }}
                   initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
                   animate={{
                     x: Math.cos(radian) * distance,
@@ -199,47 +198,19 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
               );
             })}
         </AnimatePresence>
-
-        {/* 에러 아이콘 */}
-        {stage === "error" ? (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="text-destructive"
-          >
-            <AlertCircle size={48} strokeWidth={1.5} />
-          </motion.div>
-        ) : (
-          <motion.div
-            key={stage}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-            className={stage === "purged" ? "text-emerald-500" : "text-primary"}
-          >
-            {stage === "purged" ? (
-              <CheckCircle size={48} strokeWidth={1.5} />
-            ) : (
-              <Loader2 size={48} strokeWidth={1.5} className="animate-spin" />
-            )}
-          </motion.div>
-        )}
-
-        {/* 단계 텍스트 */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={stage}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25 }}
-            className="flex flex-col items-center gap-1 text-center"
-          >
-            <p className="font-semibold text-foreground">{config.label}</p>
-            <p className="text-sm text-muted-foreground">{config.sublabel}</p>
-          </motion.div>
-        </AnimatePresence>
       </div>
+
+      {/* 터미널 로그 */}
+      {stage !== "error" && (
+        <ZkpFlowDiagram
+          stage={stage}
+          logsRef={logsRef}
+          onLogsChange={setLogs}
+        />
+      )}
+
+      {/* 로그 렌더링 트리거용 — logs state 사용 */}
+      {logs.length === 0 && null}
 
       {/* ZKP 완료 배지 */}
       <AnimatePresence>
@@ -255,6 +226,28 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
         )}
       </AnimatePresence>
 
+      {/* 완료 버튼 — 자동 이동 없이 사용자가 직접 클릭 */}
+      <AnimatePresence>
+        {isDone && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="w-full flex flex-col items-center gap-2"
+          >
+            <p className="text-xs text-muted-foreground">
+              분석이 완료되었습니다. 위 로그를 확인 후 대시보드로 이동하세요.
+            </p>
+            <Button
+              className="w-full"
+              onClick={() => router.push(`/dashboard?sid=${sessionId}`)}
+            >
+              대시보드로 이동
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* 에러 상태 */}
       <AnimatePresence>
         {stage === "error" && errorMessage && (
@@ -263,6 +256,7 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
             animate={{ opacity: 1 }}
             className="flex flex-col items-center gap-3 text-center"
           >
+            <AlertCircle size={36} className="text-destructive" strokeWidth={1.5} />
             <p className="text-sm text-destructive">{errorMessage}</p>
             <Button
               variant="outline"
