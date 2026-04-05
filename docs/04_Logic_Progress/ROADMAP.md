@@ -265,13 +265,14 @@
 
 ---
 
-### Stage 6 — Confidential Intents + Chain Signatures 결제 플로우 (User Flow Step 5)
+### Stage 6 — Confidential Intents + Chain Signatures 결제 플로우 (User Flow Step 5) ✓ 완료 2026-04-05
 
-#### 6-1. 결제 Dialog
-- [ ] `src/components/modules/ConfidentialCheckout.tsx` — 결제 확인 모달 (Shadcn Dialog)
-- [ ] 선택 상품 목록, 총 보험료 요약 표시
-- [ ] "기밀 결제 (Confidential Intents)" 설명 문구
-- [ ] "ZKP 증명 첨부됨 — 유전자 수치는 보험사에 전달되지 않습니다" 배지 표시
+#### 6-1. 결제 페이지 (CheckoutClient)
+- [x] `src/components/modules/CheckoutClient.tsx` — 결제 확인 전용 페이지 (Dialog 대신 페이지 컴포넌트로 구현)
+- [x] `src/app/checkout/[cartId]/page.tsx` — Server Component로 교체 (DashboardPage 패턴)
+- [x] 선택 상품 목록, 총 보험료 요약 표시 (정가 / ZKP 할인 / 최종 USDC 분리)
+- [x] "Confidential Checkout" 배지 + ZKP Proof 검증 완료 표시
+- [x] 결제 완료 후 인라인 성공 화면 (txHash, 결제 지갑, NEAR Testnet 표시)
 
 #### 6-2. Chain Signatures 연동 (신규)
 - [ ] `src/lib/near/chain-signatures.ts` — Chain Signatures 래퍼 함수 작성
@@ -290,16 +291,18 @@
 - [ ] 트랜잭션 서명 → 제출 → 컨트랙트 검증 단계별 Progress 표시
 
 #### 6-4. 결제 완료 처리
-- [ ] 트랜잭션 해시 표시
-- [ ] `insurance_applications` DB 레코드 생성 (`status: 'confirmed'`, `zkpProofRef` 저장)
-- [ ] `platform_earnings` 수수료 레코드 생성 (15% 기준)
-- [ ] 완료 화면 — 축하 메시지 + 트랜잭션 해시 링크 (NEAR Explorer)
-- [ ] "보험사에 전달된 정보: 자격 충족 여부만 (유전자 수치 미포함)" 요약 표시
+- [x] `src/actions/getCartData.ts` — cartId 기반 결제 데이터 조회 Server Action
+- [x] `src/actions/completeCheckout.ts` — 이중 결제 방지 + 상태 머신 전환 Server Action
+- [x] `transactions` DB 레코드 생성 (`status: confirmed`, `txHash`, `confirmedAt` 저장)
+- [x] `recommendation_carts.status` → `checked_out` 업데이트
+- [x] 트랜잭션 해시 표시 (인라인 성공 화면, base58 44자)
+- [x] abandoned / checked_out 카트 재진입 시 `/upload` redirect 처리
+- [ ] NEAR Explorer 링크 — Phase 2 예정 (testnet explorer URL 확정 후 적용)
 
 #### 6-5. 에러 처리
-- [ ] 트랜잭션 실패 시 에러 메시지 + 재시도 버튼
-- [ ] 사용자 서명 거부 시 모달 닫기 처리
-- [ ] ZKP proof 첨부 실패 시 "증명 없는 결제 불가" 안내
+- [x] 트랜잭션 실패 시 `transactions.status = failed` + `recommendation_carts.status = active` 롤백
+- [x] toast.error 피드백 (이미 처리된 카트, 지갑 주소 불일치, DB 오류)
+- [ ] ZKP proof 첨부 실패 시 "증명 없는 결제 불가" 안내 — Phase 2 예정
 
 ---
 
