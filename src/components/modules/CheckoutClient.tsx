@@ -159,13 +159,37 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
       }
 
       setStep("signing");
+      let signResult: { txHash: string } | null = null;
       try {
-        await initiateNearTransaction(data.cartId, selector);
-        // 이 아래는 실행되지 않음 — 브라우저가 지갑 페이지로 이동
+        signResult = await initiateNearTransaction(data.cartId, selector);
+        // signResult === null: BrowserWallet 리다이렉트 → 여기서 실행 중단
+        // signResult !== null: InjectedWallet(팝업) → 바로 아래에서 처리
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         toast.error("지갑 서명 오류: " + message);
         setStep("idle");
+        return;
+      }
+
+      // InjectedWallet: txHash 직접 수신 → 결제 확정
+      if (signResult) {
+        setStep("confirming");
+        const confirmed = await confirmCheckout({
+          txId: prepared.txId!,
+          txHash: signResult.txHash,
+          cartId: data.cartId,
+        });
+
+        if (!confirmed.success) {
+          toast.error(confirmed.error ?? "결제 확정에 실패했습니다");
+          setStep("idle");
+          return;
+        }
+
+        sessionStorage.removeItem(`pending-checkout-${data.cartId}`);
+        setResult({ txId: confirmed.txId!, txHash: confirmed.txHash! });
+        setStep("done");
+        toast.success("결제가 완료되었습니다");
       }
     });
   }

@@ -1,6 +1,6 @@
 // Phase 1: WalletSelector 실거래 트랜잭션
-// BrowserWallet(MyNearWallet)은 서명 시 외부 페이지로 리다이렉트 →
-// callbackUrl(?transactionHashes=HASH)로 복귀 → CheckoutClient에서 확정 처리
+// - InjectedWallet (팝업): signAndSendTransaction → FinalExecutionOutcome 직접 반환
+// - BrowserWallet (리다이렉트): callbackUrl로 복귀 → CheckoutClient useEffect 처리
 //
 // Phase 2 교체 대상:
 //   receiverId → 실제 NEAR 보험 컨트랙트 주소
@@ -16,34 +16,20 @@ const DEMO_INSURANCE_TREASURY = "wrap.testnet";
 // 0.001 NEAR (yoctoNEAR) — 데모용 심볼릭 보험료
 const DEMO_AMOUNT_YNEAR = "1000000000000000000000";
 
-export interface SignIntentParams {
-  walletAddress: string;
-  amountUsdc: number;
-  zkpProofHash: string | null;
-  productIds: string[];
-  txId: string;
-}
-
-export interface SignIntentResult {
-  txHash: string;
-  network: "near_testnet";
-}
-
 /**
  * NEAR Testnet 실거래 트랜잭션 시작
  *
- * BrowserWallet은 이 함수 호출 시 MyNearWallet 페이지로 리다이렉트.
- * 서명 완료 후 /checkout/[cartId]?transactionHashes=REAL_HASH 로 복귀.
- * 복귀 후 CheckoutClient의 useEffect가 confirmCheckout을 호출하여 완료 처리.
+ * 반환값:
+ * - { txHash } : InjectedWallet(팝업) — 서명 결과가 직접 반환됨
+ * - null       : BrowserWallet(리다이렉트) — callbackUrl로 복귀 후 useEffect 처리
  */
 export async function initiateNearTransaction(
   cartId: string,
   selector: WalletSelector
-): Promise<void> {
+): Promise<{ txHash: string } | null> {
   const wallet = await selector.wallet();
 
   // near-wallet-selector v10 borsh 직렬화 포맷
-  // { type: "Transfer", params: {...} } 형식이 아닌 { transfer: { deposit: ... } } 형식 사용
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actions: any[] = [
     {
@@ -51,9 +37,19 @@ export async function initiateNearTransaction(
     },
   ];
 
-  await wallet.signAndSendTransaction({
+  const result = await wallet.signAndSendTransaction({
     receiverId: DEMO_INSURANCE_TREASURY,
     callbackUrl: `${window.location.origin}/checkout/${cartId}`,
     actions,
   });
+
+  // InjectedWallet: FinalExecutionOutcome 직접 반환
+  if (result && typeof result === "object" && "transaction" in result) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const txHash = (result as any).transaction?.hash as string | undefined;
+    return txHash ? { txHash } : null;
+  }
+
+  // BrowserWallet: 리다이렉트 후 null — useEffect에서 ?transactionHashes= 파라미터로 처리
+  return null;
 }
