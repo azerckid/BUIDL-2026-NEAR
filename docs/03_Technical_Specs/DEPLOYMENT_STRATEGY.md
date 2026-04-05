@@ -119,32 +119,143 @@ Server Action을 두 개로 분리한다.
 
 ---
 
-## 4. 선행 확인 항목 (Stage 7 착수 전 필수)
+## 4. Stage 7 착수 전 전체 체크리스트
 
-Stage 7 코드 작업 전에 아래 두 가지를 반드시 확인해야 한다. 이 항목이 불확실한 상태에서 구현을 진행하면 다시 막히게 된다.
+Stage 7 코드 작업 전에 아래 4가지를 완료해야 한다. 항목 성격에 따라 **외부 확인(조사)** 과 **코드/인프라 작업** 으로 구분한다.
 
-### 4-1. `@nearai/client` 패키지 문제
+| # | 항목 | 성격 | 완료 여부 |
+|---|------|------|----------|
+| 4-1 | `@nearai/client` 대안 결정 | 외부 조사 → 결정 | [ ] |
+| 4-2 | Confidential Intents 엔드포인트 가용성 확인 | 외부 조사 | [ ] |
+| 4-3 | Docker 환경 구성 | 인프라 작업 | [ ] |
+| 4-4 | `completeCheckout.ts` 재설계 | 코드 작업 | [ ] |
+
+---
+
+### 4-1. `@nearai/client` 패키지 문제 (외부 조사 → 결정)
 
 Stage 1에서 npm 미등록으로 확인된 패키지. IronClaw 실연동(Stage 7-2)에 필요하다.
+**Stage 7 착수 전 반드시 방법을 결정해야 한다.**
 
-**확인 및 해결 방법 (택1)**:
+**해결 방법 (택1)**:
 
-| 방법 | 설명 |
-|------|------|
-| A. REST API 직접 호출 | `@nearai/client` 없이 `near-api-js` + `fetch`로 NEAR AI API 직접 호출 |
-| B. git 의존성 설치 | `"@nearai/client": "github:near/nearai"` 형식으로 package.json 지정 |
-| C. NEAR AI 팀 문의 | npm 공개 패키지 또는 대체 SDK 제공 요청 |
+| 방법 | 설명 | 장단점 |
+|------|------|--------|
+| A. REST API 직접 호출 | `near-api-js` + `fetch`로 NEAR AI API 직접 호출 | 외부 의존성 없음, Docker 이미지 경량 — 권장 |
+| B. git 의존성 설치 | `"@nearai/client": "github:near/nearai"` 형식으로 package.json 지정 | 패키지 구조 변경 시 불안정 |
+| C. NEAR AI 팀 문의 | npm 공개 패키지 또는 대체 SDK 제공 요청 | 대기 시간 발생 가능 |
 
-**권장**: A안(REST 직접 호출) — 외부 의존성 최소화, Docker 이미지 크기 감소.
+**권장**: A안 — 외부 의존성 최소화, Docker 이미지 크기 감소.
 
-### 4-2. Confidential Intents 엔드포인트 가용성
+---
+
+### 4-2. Confidential Intents 엔드포인트 가용성 (외부 조사)
 
 NEAR Private Shards testnet이 실제로 외부 접근 가능한 상태인지 확인이 필요하다.
+결과에 따라 Stage 7 범위가 달라진다.
 
 **확인 방법**:
 - NEAR 공식 문서 / Discord에서 Private Shards testnet 엔드포인트 URL 확인
 - 접근 권한(API 키, 화이트리스트) 필요 여부 확인
-- 가용하지 않을 경우: Confidential Intents 항목은 Phase 2 이후로 이전
+
+**결과별 대응**:
+
+| 결과 | 대응 |
+|------|------|
+| 엔드포인트 공개 사용 가능 | Stage 7에서 Confidential Intents 실연동 진행 |
+| API 키 / 화이트리스트 필요 | NEAR 팀에 접근 권한 신청 후 진행 |
+| 아직 미공개 | Confidential Intents 항목 전체를 Phase 2 이후로 이전, Stage 7에서 제외 |
+
+---
+
+### 4-3. Docker 환경 구성 (인프라 작업)
+
+배포 플랫폼 전환 및 nargo CLI 실행을 위한 컨테이너 환경을 구성한다.
+
+**작업 목록**:
+
+```
+[ ] Dockerfile 작성
+    - node:20-slim 베이스 이미지
+    - noirup 설치 스크립트 실행 (nargo CLI)
+    - npm ci + next build
+    - EXPOSE 3000 + CMD ["npm", "start"]
+
+[ ] .dockerignore 작성
+    - node_modules, .next, .env.local 제외
+
+[ ] 로컬 Docker 빌드 + 실행 검증
+    - docker build -t mydna-app .
+    - docker run -p 3000:3000 --env-file .env.local mydna-app
+    - nargo --version 컨테이너 내 실행 확인
+
+[ ] GCP Cloud Run 또는 AWS App Runner 배포 테스트
+    - 환경 변수 (TURSO_DATABASE_URL, TURSO_AUTH_TOKEN) 클라우드 Secret 등록
+    - 배포 후 /upload 페이지 정상 접근 확인
+```
+
+**예상 Dockerfile**:
+
+```dockerfile
+FROM node:20-slim
+
+# noirup 의존성
+RUN apt-get update && apt-get install -y curl bash git && rm -rf /var/lib/apt/lists/*
+
+# nargo 설치 (Noir ZKP proof 생성용)
+RUN curl -L https://raw.githubusercontent.com/noir-lang/noirup/main/install | bash
+ENV PATH="/root/.nargo/bin:$PATH"
+RUN noirup
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+---
+
+### 4-4. `completeCheckout.ts` 재설계 (코드 작업)
+
+Chain Signatures MPC 실연동을 위해 Server Action 구조를 변경한다.
+현재 서버에서 전체 결제 흐름을 처리하는 방식을 브라우저 지갑 서명 중심으로 재설계한다.
+
+**변경 전 (Phase 0)**:
+```
+브라우저 → completeCheckout() Server Action
+               └─ Mock txHash 생성 → DB 저장 → 반환
+```
+
+**변경 후 (Phase 2)**:
+```
+브라우저
+  ├─ 1단계: prepareCheckout() Server Action
+  │         └─ cart → pending_checkout (이중 결제 방지 선점)
+  │         └─ transactions INSERT (status: pending)
+  │
+  ├─ 2단계: WalletSelector.signAndSendTransaction() [브라우저]
+  │         └─ ZKP proof bytes calldata 첨부
+  │         └─ NEAR v1.signer MPC 컨트랙트 호출
+  │         └─ txHash 반환
+  │
+  └─ 3단계: confirmCheckout(txId, txHash) Server Action
+            └─ transactions → confirmed + txHash + confirmedAt 저장
+            └─ cart → checked_out
+```
+
+**변경 파일**:
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `src/actions/completeCheckout.ts` | `prepareCheckout` + `confirmCheckout` 두 함수로 분리 |
+| `src/components/modules/CheckoutClient.tsx` | 2단계 `signAndSendTransaction` 호출 + 단계별 Progress 상태 추가 |
+| `src/lib/near/chain-signatures.ts` | Mock 제거, 실제 v1.signer MPC 호출 구현 |
+
+**주의**: 이 재설계는 4-1(`@nearai/client` 대안 결정)과 4-2(Confidential Intents 가용성 확인) 결과에 따라 구현 범위가 달라진다. 두 항목 확인 후 착수할 것.
 
 ---
 
