@@ -14,7 +14,6 @@ const SEGMENTS = 80;
 const RADIUS = 2.93;
 const HEIGHT = 15.75;
 const BASE_PAIR_EVERY = 5;
-const NODE_EVERY = 8;
 const ROTATE_SPEED   = 0.055;  // X축 자동 회전 (가로 나선이 제자리에서 스핀)
 const TILT_Y_MAX = 0.22;       // 마우스 X → Y축 틸트
 const TILT_Z_MAX = 0.12;       // 마우스 Y → Z축 틸트
@@ -43,8 +42,6 @@ function useHelixData() {
       p1: THREE.Vector3;
       p2: THREE.Vector3;
     }[] = [];
-    const nodes1: THREE.Vector3[] = [];
-    const nodes2: THREE.Vector3[] = [];
 
     for (let i = 0; i <= SEGMENTS; i++) {
       const t = (i / SEGMENTS) * TURNS * Math.PI * 2;
@@ -68,10 +65,6 @@ function useHelixData() {
         basePairs.push({ mid, quat, len, p1: p1.clone(), p2: p2.clone() });
       }
 
-      if (i % NODE_EVERY === 0) {
-        nodes1.push(p1.clone());
-        nodes2.push(p2.clone());
-      }
     }
 
     const curve1 = new THREE.CatmullRomCurve3(pts1);
@@ -79,14 +72,14 @@ function useHelixData() {
     const geo1 = new THREE.TubeGeometry(curve1, SEGMENTS, 0.055, 8, false);
     const geo2 = new THREE.TubeGeometry(curve2, SEGMENTS, 0.055, 8, false);
 
-    return { geo1, geo2, basePairs, nodes1, nodes2 };
+    return { geo1, geo2, basePairs };
   }, []);
 }
 
 // ─── DNA 메시 컴포넌트 ────────────────────────────────────────────────────────
 function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
   const groupRef = useRef<THREE.Group>(null);
-  const { geo1, geo2, basePairs, nodes1, nodes2 } = useHelixData();
+  const { geo1, geo2, basePairs } = useHelixData();
 
   // 염기쌍별 material ref (직선 + 구체 1 + 구체 2)
   const lineMatRefs  = useRef<(THREE.MeshStandardMaterial | null)[]>([]);
@@ -222,27 +215,6 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
         </group>
       ))}
 
-      {/* 나선 노드 구체 — 나선 1 */}
-      {nodes1.map((pos, i) => (
-        <mesh key={`n1-${i}`} position={pos.toArray()}>
-          <sphereGeometry args={[0.1, 10, 10]} />
-          <meshStandardMaterial
-            color={COLOR_NODE_1} emissive={COLOR_NODE_1}
-            emissiveIntensity={0.5} transparent opacity={0.75}
-          />
-        </mesh>
-      ))}
-
-      {/* 나선 노드 구체 — 나선 2 */}
-      {nodes2.map((pos, i) => (
-        <mesh key={`n2-${i}`} position={pos.toArray()}>
-          <sphereGeometry args={[0.1, 10, 10]} />
-          <meshStandardMaterial
-            color={COLOR_NODE_2} emissive={COLOR_NODE_2}
-            emissiveIntensity={0.5} transparent opacity={0.75}
-          />
-        </mesh>
-      ))}
     </group>
   );
 }
