@@ -1,0 +1,14 @@
+node_modules
+.next
+.env.local
+.env.development
+.env*.local
+.git
+.gitignore
+*.png
+*.jpg
+*.jpeg
+drizzle
+README.md
+AGENTS.md
+docs
