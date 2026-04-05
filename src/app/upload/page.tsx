@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useWallet } from "@/context/WalletContext";
 import { WalletConnect } from "@/components/modules/WalletConnect";
@@ -26,12 +27,12 @@ export default function UploadPage() {
     <div className="flex flex-col min-h-screen bg-background">
       {/* Nav */}
       <header className="flex items-center justify-between px-8 py-5 border-b border-border">
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           <span className="text-primary font-bold text-xl tracking-tight">MyDNA</span>
           <Badge variant="outline" className="border-primary/40 text-primary text-xs">
             Insurance Agent
           </Badge>
-        </div>
+        </Link>
         <WalletConnect />
       </header>
 
