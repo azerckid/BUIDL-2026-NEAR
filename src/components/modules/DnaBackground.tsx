@@ -2,25 +2,32 @@
 
 // 3D DNA 이중나선 배경 애니메이션
 // React Three Fiber (Three.js WebGL) — lazy import로 번들 분리
-// prefers-reduced-motion 대응 포함
+// 마우스 틸트 반응 + prefers-reduced-motion 대응 포함
 
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 // ─── 상수 ────────────────────────────────────────────────────────────────────
-const TURNS = 2.5;          // 나선 회전 수
-const SEGMENTS = 80;        // 나선 세밀도
-const RADIUS = 1.3;         // 나선 반지름
-const HEIGHT = 7;           // 나선 전체 높이
-const BASE_PAIR_EVERY = 8;  // 염기쌍 간격 (segment 단위)
-const ROTATE_SPEED = 0.25;  // Y축 회전 속도 (rad/s)
+const TURNS = 2.5;
+const SEGMENTS = 80;
+const RADIUS = 1.3;
+const HEIGHT = 7;
+const BASE_PAIR_EVERY = 8;
+const ROTATE_SPEED = 0.25;   // Y축 자동 회전 (rad/s)
+const TILT_X_MAX = 0.28;     // 마우스 상하 틸트 최대값 (rad, 약 16°)
+const TILT_Z_MAX = 0.14;     // 마우스 좌우 틸트 최대값 (rad, 약 8°)
+const LERP_SPEED = 2.5;      // 틸트 부드러움 (클수록 빠르게 반응)
 
-const COLOR_STRAND_1  = "#3b82f6"; // Electric Blue (NEAR 포인트)
-const COLOR_STRAND_2  = "#10b981"; // Emerald Green
-const COLOR_BASE_PAIR = "#a78bfa"; // Violet
+const COLOR_STRAND_1  = "#3b82f6";
+const COLOR_STRAND_2  = "#10b981";
+const COLOR_BASE_PAIR = "#a78bfa";
 const COLOR_NODE_1    = "#60a5fa";
 const COLOR_NODE_2    = "#34d399";
+
+// ─── 마우스 위치 공유 ref (Canvas 밖에서 추적) ────────────────────────────────
+// pointer-events:none 이어도 window 이벤트로 추적 가능
+type MouseNorm = { x: number; y: number };
 
 // ─── DNA 나선 계산 ────────────────────────────────────────────────────────────
 function useHelixData() {
@@ -66,14 +73,30 @@ function useHelixData() {
 }
 
 // ─── DNA 메시 컴포넌트 ────────────────────────────────────────────────────────
-function DnaHelix() {
+function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
   const groupRef = useRef<THREE.Group>(null);
   const { geo1, geo2, basePairs, nodes1, nodes2 } = useHelixData();
 
   useFrame((_, delta) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += delta * ROTATE_SPEED;
-    }
+    if (!groupRef.current) return;
+
+    // Y축 자동 회전
+    groupRef.current.rotation.y += delta * ROTATE_SPEED;
+
+    // 마우스 틸트 — lerp로 부드럽게 보간
+    const mx = mouseRef.current?.x ?? 0;
+    const my = mouseRef.current?.y ?? 0;
+
+    groupRef.current.rotation.x = THREE.MathUtils.lerp(
+      groupRef.current.rotation.x,
+      my * TILT_X_MAX,
+      delta * LERP_SPEED
+    );
+    groupRef.current.rotation.z = THREE.MathUtils.lerp(
+      groupRef.current.rotation.z,
+      -mx * TILT_Z_MAX,
+      delta * LERP_SPEED
+    );
   });
 
   return (
@@ -104,7 +127,7 @@ function DnaHelix() {
         />
       </mesh>
 
-      {/* 염기쌍 (base pairs) */}
+      {/* 염기쌍 */}
       {basePairs.map((bp, i) => (
         <mesh
           key={`bp-${i}`}
@@ -155,11 +178,26 @@ function DnaHelix() {
 
 // ─── 배경 컴포넌트 (export) ───────────────────────────────────────────────────
 export function DnaBackground() {
-  // prefers-reduced-motion 대응 — 접근성 설정 시 렌더링 생략
+  // prefers-reduced-motion 대응
   if (typeof window !== "undefined") {
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) return null;
   }
+
+  // 마우스 위치 ref — Canvas 밖에서 window 이벤트로 추적
+  const mouseRef = useRef<MouseNorm>({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      // 정규화: -1 ~ 1 (화면 중앙 기준)
+      mouseRef.current = {
+        x: (e.clientX / window.innerWidth) * 2 - 1,
+        y: -((e.clientY / window.innerHeight) * 2 - 1),
+      };
+    };
+    window.addEventListener("mousemove", onMouseMove);
+    return () => window.removeEventListener("mousemove", onMouseMove);
+  }, []);
 
   return (
     <div
@@ -177,7 +215,7 @@ export function DnaBackground() {
         <pointLight position={[4, 4, 4]} intensity={2} color={COLOR_STRAND_1} />
         <pointLight position={[-4, -4, -4]} intensity={1.2} color={COLOR_STRAND_2} />
         <pointLight position={[0, 6, 2]} intensity={0.8} color="#ffffff" />
-        <DnaHelix />
+        <DnaHelix mouseRef={mouseRef} />
       </Canvas>
     </div>
   );
