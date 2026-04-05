@@ -151,7 +151,7 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
           </mesh>
           {/* 끝점 구체 — 나선 1 쪽 */}
           <mesh position={bp.p1.toArray()}>
-            <sphereGeometry args={[0.07, 8, 8]} />
+            <sphereGeometry args={[0.1, 10, 10]} />
             <meshStandardMaterial
               color={COLOR_NODE_1}
               emissive={COLOR_NODE_1}
@@ -162,7 +162,7 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
           </mesh>
           {/* 끝점 구체 — 나선 2 쪽 */}
           <mesh position={bp.p2.toArray()}>
-            <sphereGeometry args={[0.07, 8, 8]} />
+            <sphereGeometry args={[0.1, 10, 10]} />
             <meshStandardMaterial
               color={COLOR_NODE_2}
               emissive={COLOR_NODE_2}
