@@ -492,6 +492,17 @@
 - [ ] Defuse Protocol Solver 네트워크 실연동 — Phase 2 예정 (intents-sdk near-api-js 버전 충돌 해소 후)
 - [ ] Private Shard 기반 Confidential 정산 — Phase 2 예정
 
+> **`@defuse-protocol/intents-sdk` 다운그레이드 미설치 사유 (2026-04-05 조사)**
+>
+> `npm install @defuse-protocol/intents-sdk --dry-run` 결과, 해당 SDK는 `near-api-js@5.1.1`을 요구하며 현재 프로젝트의 `near-api-js@7.2.0`을 v5로 다운그레이드한다.
+> 다운그레이드 시 예상되는 문제점:
+>
+> 1. **`@near-js/*` 하위 패키지 버전 충돌** — `@near-wallet-selector/core@10.x`는 `@near-js/types@^2.x`, `@near-js/transactions@^2.x`를 요구한다. intents-sdk가 끌어오는 v5 계열은 `@near-js/*@1.x`를 설치하여 node_modules 내에 동일 패키지의 두 버전이 공존하게 된다. 같은 타입이 다른 인스턴스로 인식되어 TypeScript에서 `Type 'Transaction' is not assignable to type 'Transaction'` 류의 타입 에러가 발생한다.
+> 2. **borsh 직렬화 버전 충돌** — `near-api-js@7`은 `borsh@2.0.0`, intents-sdk 의존 계열은 `borsh@1.0.0`을 사용한다. 트랜잭션 직렬화 포맷이 달라 현재 동작 중인 지갑 서명 플로우(InjectedWallet/BrowserWallet)가 깨질 수 있다.
+> 3. **현재 동작하는 결제 플로우 파손 위험** — 위 두 가지 이유로 다운그레이드 시 Stage 10에서 구현·검증된 실거래 트랜잭션 서명이 정상 동작하지 않을 가능성이 높다.
+>
+> **결론**: near-api-js v7 대응 버전의 intents-sdk 출시 또는 NEAR 생태계의 버전 통일 이후 Phase 2에서 재검토한다. 이 문제는 NEAR 개발자 포럼에서도 공개적으로 논의된 생태계 전반의 이슈이며, 우리 프로젝트만의 특수 상황이 아니다.
+
 #### 10-4. NEAR Explorer 링크 ✓ 완료
 - [x] `CheckoutClient.tsx` 결제 완료 화면에 `https://testnet.nearblocks.io/txns/{txHash}` 링크 표시
 - [x] `target="_blank" rel="noopener noreferrer"` 적용
