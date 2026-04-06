@@ -5,6 +5,8 @@ import { Manrope } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { WalletProvider } from "@/context/WalletContext";
 import { routing } from "@/i18n/routing";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "@fontsource/pretendard/400.css";
 import "@fontsource/pretendard/500.css";
 import "@fontsource/pretendard/600.css";
@@ -40,6 +42,8 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
           </WalletProvider>
           <Toaster richColors position="top-right" />
         </NextIntlClientProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
