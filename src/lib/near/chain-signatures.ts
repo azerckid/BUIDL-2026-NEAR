@@ -8,6 +8,7 @@
 
 import type { WalletSelector } from "@near-wallet-selector/core";
 import { ethers } from "ethers";
+import bs58 from "bs58";
 
 // ─── 상수 ────────────────────────────────────────────────────────────────────
 
@@ -105,10 +106,10 @@ export async function deriveEthAddress(
   }
 
   const resultStr = Buffer.from(json.result.result).toString("utf-8");
-  const compressedHex = JSON.parse(resultStr) as string;
+  // MPC 컨트랙트 반환 형식: "secp256k1:<base58-encoded-64-bytes>"
+  const keyStr = JSON.parse(resultStr) as string;
 
-  // compressed secp256k1 공개키(65바이트 hex) → ETH 주소 변환
-  return compressedPublicKeyToEthAddress(compressedHex);
+  return secp256k1KeyToEthAddress(keyStr);
 }
 
 /**
@@ -185,17 +186,31 @@ export async function getEthBalance(ethAddress: string): Promise<string> {
 // ─── 유틸 함수 ───────────────────────────────────────────────────────────────
 
 /**
- * compressed secp256k1 공개키 → ETH 주소 변환
- * MPC 컨트랙트 응답: 65바이트 hex 문자열
+ * MPC 컨트랙트 반환 공개키 → ETH 주소 변환
+ *
+ * v1.signer-prod.testnet derived_public_key 반환 형식:
+ *   "secp256k1:<base58-encoded-64-bytes>"  (X||Y 좌표, 04 prefix 없음)
+ *
+ * hex 0x 형식도 지원 (레거시)
+ */
+function secp256k1KeyToEthAddress(keyStr: string): string {
+  if (keyStr.startsWith("secp256k1:")) {
+    const b58 = keyStr.slice("secp256k1:".length);
+    const bytes = bs58.decode(b58); // 64바이트 (X||Y)
+    const hex = "0x" + Buffer.from(bytes).toString("hex");
+    return ethers.computeAddress(hex);
+  }
+  // hex 형식 폴백
+  const hex = keyStr.startsWith("0x") ? keyStr : `0x${keyStr}`;
+  return ethers.computeAddress(hex);
+}
+
+/**
+ * @deprecated secp256k1KeyToEthAddress 사용
+ * compressed secp256k1 공개키 → ETH 주소 변환 (레거시)
  */
 function compressedPublicKeyToEthAddress(compressedHex: string): string {
-  // 0x 접두사 정규화
-  const hex = compressedHex.startsWith("0x")
-    ? compressedHex
-    : `0x${compressedHex}`;
-
-  // ethers v6: computeAddress는 compressed / uncompressed 공개키 모두 처리
-  return ethers.computeAddress(hex);
+  return secp256k1KeyToEthAddress(compressedHex);
 }
 
 /**
