@@ -65,7 +65,17 @@
     "checkout": "결제하기",
     "selectPrompt": "상품을 하나 이상 선택해 주세요",
     "cartError": "카트 생성에 실패했습니다",
-    "cartCreated": "카트가 생성되었습니다"
+    "cartCreated": "카트가 생성되었습니다",
+    "reveal": {
+      "step1Title": "유전자 위험 프로파일",
+      "step1Desc": "TEE 분석에서 감지된 위험 항목입니다. AI가 어떤 근거로 보험을 추천했는지 확인하세요.",
+      "step1Button": "AI 추천 근거 보기",
+      "step2Title": "AI 추천 근거",
+      "step2ReasoningLabel": "AI 분석 요약",
+      "step2Button": "추천 보험 보기",
+      "step3Title": "맞춤 추천 보험",
+      "recommendReason": "추천 이유"
+    }
   },
   "checkout": {
     "backLabel": "대시보드로",
