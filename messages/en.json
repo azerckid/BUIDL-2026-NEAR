@@ -229,5 +229,106 @@
     },
     "zkpDiscount": "ZKP Discount",
     "perMonth": "/mo"
+  },
+  "pitch": {
+    "brand": "MyDNA InsurTech",
+    "s1": {
+      "title": "MyDNA Insurance Agent",
+      "subtitle": "Gaining better insurance through your DNA, without exposing it to the world.",
+      "hackathon": "NEAR Buidl 2026 Hackathon",
+      "tag1": "Healthcare", "tag2": "Web3 Privacy", "tag3": "AI Agents"
+    },
+    "s2": {
+      "title": "The Problem: Three Primal Fears",
+      "subtitle": "Why genetic transparency is currently broken.",
+      "p1Title": "Genetic Discrimination",
+      "p1Desc": "Insurers use raw DNA to maximize risk profiling, leading to rejected policies or exorbitant premiums.",
+      "p2Title": "Loss of Sovereignty",
+      "p2Desc": "Centralized systems are vulnerable to catastrophic breaches (e.g., the 23andMe disaster). Once submitted, data is out of control.",
+      "p3Title": "Coverage Mismatch",
+      "p3Desc": "Current insurance relies on generic averages, offering no precision defense against specific individual genetic vulnerabilities."
+    },
+    "s3": {
+      "title": "The Solution: A Privacy Paradigm Shift",
+      "subtitle": "Gain the benefits without surrendering the data.",
+      "c1Title": "ZKP Authentication",
+      "c1Desc": "Mathematically proves health eligibility without revealing any raw DNA values to the insurer.",
+      "c2Title": "IronClaw TEE",
+      "c2Desc": "A physically hardened execution enclave that purges memory instantly after parsing the genome.",
+      "c3Title": "Agent AI",
+      "c3Desc": "An autonomous broker that isolates your risk profile to find the optimal pinpoint coverage."
+    },
+    "s4": {
+      "title": "Product Journey",
+      "subtitle": "The 5-Step Seamless UX",
+      "step1": "Wallet Connection (NEAR Wallet Integration)",
+      "step2": "DNA Data Upload (Encrypted Pipeline Entry)",
+      "step3": "IronClaw TEE Isolated Analysis & Instant Memory Purge",
+      "step4": "AI Recommended Coverage Dashboard (ZKP Certified Seal)",
+      "step5": "Confidential Intents Payment (On-chain shielded execution)"
+    },
+    "s5": {
+      "title": "Hackathon MVP: What We Built",
+      "subtitle": "An End-to-End Privacy Execution Pipeline",
+      "b1Title": "IronClaw TEE Integration",
+      "b1Desc": "Integrated with NEAR AI and Qwen models for isolated parsing.",
+      "b2Title": "ZKP & Smart Contracts",
+      "b2Desc": "Noir insurance_eligibility circuit compiled and recorded on NEAR Testnet.",
+      "b3Title": "Confidential Transactions",
+      "b3Desc": "End-to-end execution of private payments via Intents and MyNearWallet."
+    },
+    "s6": {
+      "title": "Why NEAR, Why Now?",
+      "subtitle": "The Genesis of the 2026 Privacy Stack",
+      "p": "The simultaneous availability of IronClaw Runtime, Confidential Intents, and Chain Signatures makes this architecture possible today.",
+      "boxTitle": "Why not AWS Nitro?",
+      "boxDesc": "AWS relies on a centralized Trust-Me model. MyDNA merges the physical security of TEEs with the cryptographic perfection of public blockchains, creating an absolute Trustless moat that mega-corporations cannot replicate."
+    },
+    "s7": {
+      "title": "Business Model & Target Market",
+      "subtitle": "Subverting traditional insurance inefficiencies.",
+      "r1Title": "Core Cash-Flow",
+      "r1Desc": "Absorbing the ~15% brokerage commission traditionally scalped by offline insurance agents directly into the protocol.",
+      "r2Title": "Recurring Revenue",
+      "r2Desc": "AI Private Membership providing continuous anti-aging and risk-management updates based on shifting health states.",
+      "tamLabel": "TAM (Total Addressable Market)",
+      "tamValue": "$4.5 Trillion",
+      "tamDesc": "Global Health & Life Insurance",
+      "somLabel": "SOM (Serviceable Obtainable Market)",
+      "somValue": "$45 Million",
+      "somDesc": "Tech-savvy Gen Z/Millennials in Asia with prior DTC genetic testing experience"
+    },
+    "s8": {
+      "title": "Feature Freeze Rationale",
+      "subtitle": "Execution Discipline at V1",
+      "quote": "\"Why didn't we integrate Agent OS and L2Pass immediately?\"",
+      "r1Title": "Uncompromising Stability",
+      "r1Desc": "Financial protocols demand pristine signature integrity. Overloading the TEE enclave with massive Javascript frameworks or resolving off-chain SDK dependency hells jeopardizes core transaction execution.",
+      "r2Title": "Focus on Primitives",
+      "r2Desc": "We rigorously focused V1 entirely on proving the absolute foundational security primitive — TEE isolation and ZKP processing. Once the foundation is impenetrable, we scale."
+    },
+    "s9": {
+      "title": "V2 Advanced Expansion",
+      "subtitle": "Scaling from a Tool to an Ecosystem (Q3 2026)",
+      "f1Title": "Autonomous Agent OS",
+      "f1Desc": "AI evolves from a passive responder to an active broker, managing your health state long-term and hunting for better policies.",
+      "f2Title": "L2Pass Liquidity Routing",
+      "f2Desc": "Unleashing multi-chain stablecoin liquidity (USDC) from Ethereum and Solana with 1-tap bridging to aggregate massive institutional pools.",
+      "f3Title": "Confidential Dark-Pool Swaps",
+      "f3Desc": "Executing high-net-worth policy premiums totally obscured from public mempools, terminating frontrunning vectors entirely."
+    },
+    "s10": {
+      "title": "Open Source & Leverage",
+      "subtitle": "Giving back to the NEAR Ecosystem",
+      "p1": "We are open-sourcing our TEE-App Wrapper Boilerplate and Noir ZKP Logic Templates.",
+      "p2": "This drops the barrier to entry for building Web3 Privacy apps from weeks to just 10 minutes, fostering a fertile ground for the next generation of healthcare DApps on NEAR."
+    },
+    "s11": {
+      "title": "Team & Vision",
+      "subtitle": "The endgame of Privacy & Finance",
+      "role": "Solo Founder — Full-Stack E2E Delivery",
+      "roleDesc": "Product Architecture, Next.js, Drizzle Edge DB, TEE Runtime & ZKP Contracts",
+      "quote": "\"Our core proof: Deep personalization in finance is 100% possible entirely through blockchain privacy primitives, without ever sacrificing human sovereignty.\""
+    }
   }
 }

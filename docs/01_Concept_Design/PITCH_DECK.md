@@ -1,274 +1,176 @@
 # [피치덱] MyDNA Insurance Agent — NEAR Buidl 2026
 
 - **작성일**: 2026-04-01
-- **최종 수정일**: 2026-04-06
+- **최종 수정일**: 2026-04-09
 - **레이어**: 01_Concept_Design
-- **상태**: Final v2.0
+- **상태**: Final v3.0 (Script Included)
 
 ---
 
 ## Slide 1 — Cover
 
 **MyDNA Insurance Agent**
+> 유전자를 노출하지 않고, 유전자 덕분에 더 나은 보험에 가입하는 혁신.
 
-> 유전자를 노출하지 않고, 유전자 덕분에 더 나은 보험에 가입하는 유일한 방법.
+- **발표 분량**: 약 5분
+- **타겟 도메인**: Healthcare x Web3 Privacy x AI
 
-- NEAR Buidl 2026 Hackathon
-- Submission Deadline: 2026-04-20
-- Live Demo: [배포 URL]
-- GitHub: [레포지토리 URL]
+🎤 **발표자 대본 (Speaker Script)**:
+"안녕하세요, NEAR Buidl 2026 해커톤에 참가한 MyDNA Insurance Agent입니다. 저희는 가장 민감한 개인정보인 '유전자 데이터'를 블록체인상에서 안전하게 격리 보호하면서도, AI를 활용해 개인 맞춤형 보험 서비스를 누릴 수 있는 유일한 솔루션을 제안합니다."
 
 ---
 
 ## Slide 2 — Problem: 세 가지 공포
 
-유전자 검사 결과를 보험에 연결하는 것은 현재 불가능하다. 이유는 세 가지다.
+유전자 검사 결과를 보험 및 금융 심사에 활용하는 것은 금기시되고 있습니다. 그 이유는 명확합니다.
 
-**1. 유전자 차별 (Genetic Discrimination)**
-보험사는 유전자 원본을 받는 순간 리스크를 극대화하고 보장을 최소화하는 방향으로 활용한다. 개인이 태어날 때부터 갖고 있는 정보가 불이익의 근거가 된다.
+**1. 유전자 차별 (Genetic Discrimination)**: 보험사는 유전자 원본을 질병 리스크 극대화의 근거로 사용해 가입을 거절하거나 할증합니다.
+**2. 데이터 주권 상실 (Loss of Sovereignty)**: 중앙화된 시스템은 심각한 보안 위협에 취약합니다. (예: 23andMe 사례)
+**3. 획일적인 보장 구조 (Coverage Mismatch)**: 현재 시장엔 나의 유전적 취약점을 핀포인트로 방어해주는 상품이 없습니다.
 
-**2. 데이터 주권 상실 (Loss of Data Sovereignty)**
-기존 시스템에 유전자 원본을 제출하면 통제권을 영구히 잃는다. 23andMe는 2023년 1,400만 건의 유전자 데이터를 유출했다. 2025년에는 파산 후 데이터 자산이 경매에 부쳐졌다.
-
-**3. 보장 불일치 (Coverage Mismatch)**
-현재 보험 상품은 통계적 집단 평균에 기반한다. 개인의 특수한 유전적 취약점을 정밀하게 커버하는 상품은 존재하지 않는다.
-
-**결과**: 전 세계 수천만 명이 유전자 검사 결과를 보유하고 있음에도 보험 최적화에 활용하지 못하고 서랍에 방치하고 있다.
+🎤 **발표자 대본 (Speaker Script)**:
+"전 세계 수천만 명의 사람들이 유전자 검사 데이터를 서랍 속에 방치하고 있습니다. 유전자 차별에 대한 두려움과 데이터 유출의 공포 때문입니다. 이는 개인에게도 손해일 뿐더러, 데이터의 유동성을 가로막아 거대한 헬스케어 시장의 비효율을 낳고 있습니다."
 
 ---
 
-## Slide 3 — Solution: 프라이버시 역설을 뒤집다
+## Slide 3 — Solution: 프라이버시 패러다임 전환
 
-**"정보를 노출하지 않고, 정보 덕분에 혜택을 얻는다."**
+**"데이터를 건네주지 않고 증명만으로 혜택을 얻는다."**
 
-MyDNA Insurance Agent는 NEAR Protocol의 2026 프라이버시 스택을 활용하여 세 가지 문제를 동시에 해결한다.
-
-| 문제 | 해결 방법 |
+| 문제 | NEAR 2026 프라이버시 스택 도입 |
 |---|---|
-| 유전자 차별 | ZKP(영지식 증명) — 보험사에 수치를 전달하지 않고 "조건 충족"만 증명 |
-| 데이터 주권 상실 | IronClaw TEE — 분석 후 즉시 메모리 삭제. 운영자도 열람 불가 |
-| 보장 불일치 | AI 에이전트 — 개인 유전자 프로파일 기반 핀포인트 보장 설계 |
+| 유전자 차별 방어 | **ZKP(영지식 증명)** — 보험사에 수치를 전달하지 않고 "안전 조건 충족" 여부만 수학적으로 증명 |
+| 데이터 완전 소멸 | **IronClaw TEE** — 외부와 통신이 단절된 하드웨어 내 분석 완료 후 즉시 메모리 영구 소각 |
+| 맞춤형 최적 설계 | **Agent AI 추천** — 철저히 격리된 유전자 프로파일을 기반으로 가장 유리한 보장 자동 탐색 |
 
-보험사는 "유전자 A 조건을 충족한 사용자"라는 사실만 알 수 있다. 수치는 절대 전달되지 않는다.
-
----
-
-## Slide 4 — Product: 5단계 사용자 여정
-
-**Step 1 — 지갑 연결 (NEAR Wallet Selector)**
-
-- **Web3 사용자**: NEAR Wallet Selector(MyNearWallet)로 즉시 연결.
-- **Web2 일반 사용자**: FastAuth 기반 이메일 로그인 지원 (Phase 1 로드맵). 암호화폐 경험 없는 40대 보험 가입자도 진입 가능한 구조.
-- 지갑 연결 시 사용자 프로파일 자동 생성 (Turso Edge DB).
-
-**Step 2 — 유전자 데이터 업로드**
-
-DTC 서비스(젠톡, 진스타일, 뱅크샐러드)에서 내보낸 Raw 파일(VCF, TXT, CSV, PDF)을 업로드한다. 드래그앤드롭 + 파일 잠금 애니메이션으로 "보안 처리 시작"을 직관적으로 전달한다.
-
-- **Phase 0 (데모)**: 파일에서 SHA-256 해시만 계산하여 세션 무결성 증거로 저장. 파이프라인 전체 동작 검증을 위해 표준 샘플 파일로 분석을 수행한다.
-- **정식 서비스**: 브라우저에서 파일을 읽어 TEE Attestation 검증 후 TEE 공개키로 ECIES+AES-256-GCM 암호화하여 전송. 평문은 네트워크를 통과하지 않으며 복호화는 TEE 내부에서만 이루어진다.
-
-**Step 3 — IronClaw TEE 격리 분석 (핵심 UX)**
-
-NEAR AI Cloud의 IronClaw Runtime이 실제로 유전자 파일을 분석한다. Trusted Execution Environment 내부에서만 데이터가 복호화·처리되며, 분석 완료 즉시 메모리를 삭제한다.
-
-- 5단계 진행 표시: 파싱 → TEE 분석 → ZKP 증명 생성 → 위험 프로파일 생성 → 데이터 소각
-- 터미널 스타일 ZKP 흐름 로그: `[PRIVATE — not exposed to insurer]` 노란색 강조
-- Memory Purge 파티클 애니메이션: 소각 완료를 시각적으로 확인
-- Noir ZKP 회로 실행 → 증명 해시를 NEAR 스마트 컨트랙트(`zkp.rogulus.testnet`)에 온체인 등록
-
-**Step 4 — AI 보험 추천 대시보드**
-
-IronClaw가 생성한 위험 프로파일(종양·암 / 심혈관 / 대사 / 신경·뇌)을 기반으로 최적 보험 상품이 추천된다. ZKP 자격 증명이 확인된 사용자에게는 할인 뱃지가 자동 적용된다. 보험사에는 수치가 아닌 "해당 건강 지표 기준 충족" 여부만 전달된다.
-
-**Step 5 — Confidential Intents 기밀 결제**
-
-NEAR Testnet 실거래 트랜잭션으로 결제가 완료된다. Confidential Intent 구조(intent_type, zkp_proof_hash, product_ids)가 결제 화면에 시각화된다. 결제 완료 후 보험 가입 확인서(증서 번호, Tx Hash, NEAR Explorer 링크)가 발급된다.
+🎤 **발표자 대본 (Speaker Script)**:
+"우리는 NEAR의 2026 웹3 프라이버시 스택을 이용해 이 문제를 근본적으로 타파합니다. 데이터를 중앙 서버에 넘기는 대신, IronClaw TEE라는 봉인된 구역에서 AI가 은밀히 분석을 끝낸 뒤 흔적 하나 없이 삭제합니다. 나를 판단할 보험사에게는 단지 ZKP, 영지식 증명만이 전달됩니다."
 
 ---
 
-## Slide 5 — What We Built (Phase 0 Demo)
+## Slide 4 — Product Journey (5단계 시연)
 
-> 해커톤 기간 내에 실제 작동하는 엔드-투-엔드 데모를 구현했다.
+STEP 1. 지갑 연결 (NEAR Wallet 연동 확립)
+STEP 2. 유전자 데이터 드래그 앤 드롭 업로드 (암호화 파이프라인 진입)
+STEP 3. IronClaw TEE 격리 분석 & 즉각적인 소각 처리
+STEP 4. AI 보험 추천 대시보드 (ZKP 인증 인장 부여)
+STEP 5. Confidential Intents 기밀 결제 (온체인 트랜잭션 수립)
 
-### 기술 구현 현황
+🎤 **발표자 대본 (Speaker Script)**:
+"사용자 여정은 아주 자연스럽고 심플합니다. 유전자 파일을 업로드하면, 화면 너머의 TEE 내부에서 AI 분석이 일어납니다. 나에게 딱 맞는 질병 보장 상품을 추천받게 되고, 인텐트 기반 기밀 결제를 통해 다른 주소가 내가 어떤 보험을 계약했는지 추적할 수 없게끔 거래를 안전하게 확정합니다."
 
-| 레이어 | 구현 내용 | 상태 |
+---
+
+## Slide 5 — V1 개발 완료 성과 (What We Built)
+
+> **"해커톤 기간 내 엔드-투-엔드 파이프라인 MVP 구동 성공"**
+
+| 구현 레이어 | 해커톤 성과 요약 | 상태 |
 |---|---|---|
-| **IronClaw TEE** | NEAR AI Cloud REST API 연동, Qwen3-30B 모델 기반 유전자 분석 파이프라인 | 실연동 완료 |
-| **Noir ZKP 회로** | `insurance_eligibility` 회로 컴파일 + proof hash 생성 | 완료 |
-| **온체인 ZKP 등록** | `zkp.rogulus.testnet` NEAR Rust 컨트랙트 배포 + proof hash 등록 | 완료 |
-| **NEAR Testnet 트랜잭션** | MyNearWallet 서명 + 0.001 NEAR 실거래 + Explorer 링크 | 완료 |
-| **Confidential Intent 패널** | intent 구조 시각화, `[PRIVATE]` 필드 구분 표시 | 완료 |
-| **보험 가입 확인서** | 증서 번호, 가입일, ZKP 검증 뱃지, 인쇄 버튼 | 완료 |
-| **데이터 영구 소각** | 분석 완료 후 DB에 유전자 원본 0바이트 저장 | 아키텍처 보장 |
-| **다국어 지원** | 한국어 / 영어 실시간 전환 (next-intl) | 완료 |
+| **IronClaw TEE** | NEAR AI 연동, Qwen 모델을 통한 격리구역 내 데이터 파싱 | **구현 완료** |
+| **ZKP & Contract** | Noir `insurance_eligibility` 회로 컴파일 및 NEAR 테스트넷 등록(zkp.rogulus.testnet) | **구현 완료** |
+| **Confidential Tx** | MyNearWallet 연동, 기밀 서명 구조를 통한 실거래 결제 흐름 완수 | **구현 완료** |
+| **Frontend UI/UX** | DApp 구축, 다국어 지원, 메모리 파티클 데이터 소각 시각화 애니메이션 구현 | **구현 완료** |
 
-> **Phase 0 데모 범위**: 전체 파이프라인(업로드 → TEE 분석 → ZKP → 결제 → 확인서)의 동작을 표준 샘플 파일로 검증했다. 정식 서비스에서는 사용자가 올린 실제 파일을 브라우저에서 ECIES 암호화하여 TEE로 전송하고, TEE 내부에서 복호화·파싱·분석·소각이 이루어진다. 파이프라인 구조는 동일하며 파일 전송 경로와 TEE Attestation 단계가 추가된다.
-
-### 기술 스택
-
-- **Frontend**: Next.js 16 (App Router) + React 19 + TypeScript + Tailwind CSS v4 + Shadcn/ui + Framer Motion + React Three Fiber
-- **Backend**: Next.js Server Actions + Drizzle ORM + Turso (Edge SQLite)
-- **Web3**: NEAR Protocol + near-api-js v7 + @near-wallet-selector + Noir ZKP
-- **AI/TEE**: NEAR AI Cloud (IronClaw Runtime) + OpenAI-compatible REST API
+🎤 **발표자 대본 (Speaker Script)**:
+"이번 해커톤에서 저희는 단순한 아이디어를 넘어 동작하는 코드를 완성했습니다. IronClaw TEE 연동 기능, 영지식 증명의 생성과 온체인 스마트 컨트랙트 등록 기록, 그리고 NEAR 테스트넷에서의 실제 결제 과정에 이르기까지 이 복잡한 프라이버시 스레드를 하나로 관통하는 엔드투엔드 파이프라인을 성공적으로 빌드업했습니다."
 
 ---
 
-## Slide 6 — Why NEAR, Why Now
+## Slide 6 — 왜 지금, 왜 NEAR 기반이어야 하는가?
 
-NEAR Protocol의 세 기술이 **2026년 상반기에 동시에 가용**해진 시점이 이 서비스의 존재 조건이다. 2025년까지는 불가능했고, 다른 체인에서는 지금도 불가능하다.
+**IronClaw Runtime** + **Confidential Intents** + **Chain Signatures** 의 동시 가용 시점
 
-**IronClaw Runtime**
-하드웨어 TEE(신뢰 실행 환경) 내부에서 AI 에이전트를 격리 실행. 유전자 데이터 분석 후 즉시 소각. 서비스 운영자도 열람 불가. **MyDNA는 IronClaw의 첫 번째 소비자 향 B2C 레퍼런스다.**
+기존 클라우드(AWS Nitro 등) 서비스와의 차이:
+클라우드는 강력하지만 여전히 운영 주체를 믿어야만 하는 중앙화 모델(Trust-Me)입니다. 
+반면 MyDNA는 TEE의 물리적 안정성과 블록체인의 암호학적 무결성(Trustless)을 결합하여, 거대 기업의 막대한 자본으로도 뚫을 수 없는 근본적인 해자(Moat)를 가집니다.
 
-**Confidential Intents** (2026.02 출시)
-트랜잭션 상세가 퍼블릭 멤풀에 노출되지 않음. 보험 계약 내용이 온체인에 가려진 채로 결제가 확정됨. MEV/프런트러닝 원천 차단.
-
-**Chain Signatures**
-NEAR 계정 하나로 이더리움, 솔라나 등 타 체인의 보험 스마트 컨트랙트에 직접 서명. 체인 사일로에 갇혀 있던 글로벌 보험 유동성을 단일 플랫폼으로 통합 (Phase 2).
-
-> "우리는 NEAR를 기록용 레이어로 쓰지 않는다. NEAR의 Privacy Compute, Private Settlement, Chain Abstraction을 유전자 보험이라는 가장 민감한 금융 서비스에 적용하는 첫 번째 프로젝트다."
-
-**생태계 동반 성장 (Leverage)**
-
-MyDNA의 성장은 세 개의 플라이휠을 동시에 구동한다.
-
-- **NEAR 생태계**: 사용자 증가 → IronClaw·Confidential Intents 실사용 수요 창출 → NEAR의 "프라이버시 컴퓨팅 체인" 포지셔닝 강화.
-- **글로벌 보험 유동성**: 플랫폼 성장 → 보험사의 NEAR 체인 상품 출시 수익성 검증 → MyDNA = 글로벌 보험 단일 진입점(Super-GA).
-- **의료 데이터 산업**: 데이터 Pool 확대 → 제약사·연구소 데이터 구매 → 수익 70% 사용자 환원 → 자기 강화 루프.
+🎤 **발표자 대본 (Speaker Script)**:
+"오직 지금 시점, NEAR 생태계에서만 이것이 가능합니다. TEE 격리 시스템, 인텐트 기술, 나아가 체인 간 서명이 하나의 개발 생태계로 묶여져 나왔기 때문입니다. 기존 빅테크 기업들과의 차이요? 저희는 '우리를 믿으라'고 말할 필요가 없습니다. 철저한 'Trustless' 코드가 신뢰를 대체하기 때문입니다."
 
 ---
 
-## Slide 7 — Competitive Landscape
+## Slide 7 — Business Model & Market Targeting
 
-| 평가 기준 | 전통 GA (보맵 등) | Web3 보험 (Nexus Mutual 등) | DTC 유전자 (23andMe 등) | **MyDNA** |
-|---|:---:|:---:|:---:|:---:|
-| 유전자 기반 보험 추천 | X | X | △ | **O** |
-| 유전자 원본 미보관 | X | X | X | **O** |
-| 보험사에 수치 미공개 (ZKP) | X | X | X | **O** |
-| 멀티체인 글로벌 상품 | X | △ | X | **O** |
-| AI 자동 설계 | △ | X | X | **O** |
-| 개인 건강보험 취급 | O | X | X | **O** |
+- **핵심 수익원 (강력한 현금흐름)**: 오프라인 에이전트(설계사)가 독식하던 15% 규모의 중개 수수료를 시스템 수수료로 플랫폼 흡수
+- **반복 수익원 (리텐션)**: 변화하는 신체 데이터에 맞춘 안티에이징/건강관리 AI 프라이빗 멤버십
+- **TAM**: 4.5조 달러의 거대한 글로벌 건강/디지털 보험 영역
+- **SOM**: 아시아 시장 내에서 자발적 DTC 유전자 검사 경험이 충분히 확보된 MZ 세대부터 1차 공략
 
-**"대기업이 AWS Nitro TEE로 똑같이 만들면?" — 해자의 본질**
-
-MyDNA의 해자는 TEE 단독이 아니다. **TEE(격리 분석) + NEAR Private Cloud(사용자 소유 스토리지) + 온체인 소각 증명(Trustless 검증)** 세 가지의 결합이다. AWS Nitro는 분석을 격리할 수 있지만 소각 증명을 퍼블릭 체인에 올릴 수 없다. 결국 "우리를 믿어달라"는 중앙화 신뢰 모델로 귀결된다. 유전자 데이터 서비스에서 "신뢰"와 "검증" 중 어느 쪽이 선택받는가는 자명하다.
+🎤 **발표자 대본 (Speaker Script)**:
+"수익성에 대해서도 자신 있습니다. 전통 보험 산업에서 보험 설계사가 챙겨가던 막대한 판매 이윤을 웹3 플랫폼으로 우회 시킵니다. 또한 새로운 디지털 헬스케어에 거부감이 없는 아시아 권의 MZ 세대를 초기 고객층으로 설정하여 스마트하게 시장에 안착할 계획입니다."
 
 ---
 
-## Slide 8 — Business Model
+## Slide 8 — V1 & V2 마일스톤 및 로드맵
 
-오프라인 GA 설계사 네트워크가 독점하던 중개 수수료를 AI와 스마트 컨트랙트로 대체한다.
-
-### Revenue Stream 1 — 중개 수수료 (Core Cash Cow)
-- 사용자가 AI 추천 보험을 결제하면 보험사로부터 초회 보험료의 **15%**를 수취.
-- 월 보험료 10만 원 → 플랫폼 수익 1.5만 원.
-- 인건비 0원 수렴. 기존 오프라인 GA 대비 폭발적 영업이익률.
-- **초기 제휴 GTM**: 중소형 GA(독립대리점) 대상 화이트레이블 공급으로 초기 캐시플로우 확보. Q4 2026: 자체 GA 라이선스 독자 확보.
-
-### Revenue Stream 2 — 우량 고객 리스크 할인 차익 (Arbitrage)
-- 건강 관리가 입증된 사용자는 보험사 손해율이 낮은 초우량 고객군.
-- B2B 도매가로 확보한 특판 상품을 소비자가에 큐레이션 판매. **마진 차액 수취**.
-
-### Revenue Stream 3 — AI 구독 (Recurring Revenue)
-- 월 4,900원. 유전자 프로파일과 신규 보험 상품을 실시간 대조하여 리밸런싱 추천.
-- 예측 가능한 반복 수익 기반.
-
-### Revenue Stream 4 — 데이터 리워드 (Data-to-Earn, Phase 3)
-- 익명화 통계 데이터 제공 동의 시 NEAR 토큰 보상.
-- 제약/연구 기관 데이터 구매 대금의 70%를 사용자에게 환원.
-
----
-
-## Slide 9 — Market Size
-
-| 구분 | 정의 | 규모 |
+| Phase | 시점 | 핵심 마일스톤 |
 |---|---|---|
-| **TAM** | 글로벌 생명/건강보험 시장 + DTC 유전자 검사 시장 | ~$4.5조 |
-| **SAM** | 유전자 검사 경험 보유 MZ 세대 디지털 보험 시장 (한국/싱가포르/EU) | ~$180억 |
-| **SOM** | 3년 내 확보 목표 — DTC 제휴(뱅크샐러드 등) 통한 10만 사용자 | ~$4,500만 |
+| **Phase 0 (V1)** | 해커톤 종료 시점 | 기술 MVP 실증 구축 완료 — "프라이빗 분석과 파이프라인의 완성" |
+| **Phase 1** | Q2 2026 | 오프체인 API 교체 안정화, 국내외 DTC 유전자 검사 업체 협력안 발제 |
+| **Phase 2 (V2)** | **Q3 2026** | **자율 운영 Agent OS 스택 도입 및 글로벌 크로스체인 금융 유동성 통합 확대** |
+| **Phase 3** | Q4 2026 ~ | 정식 글로벌 B2B 매치 메이킹 모델 및 메인넷 정식 런칭 |
 
-> 출처: 금융감독원 2025 보험업 연간 보고서 / Grand View Research DTC Genetic Testing Market Report 2025
-
-**국내 시장 진입 근거**
-- 국내 DTC 유전자 검사 사용자 수: 연간 급성장세 (젠톡, 진스타일, 뱅크샐러드 합산)
-- MZ 세대의 보험 디지털 채널 전환율 가속화
-- 뱅크샐러드 무료 검사 이벤트 등 유전자 검사 대중화 진입점 확보 용이
+🎤 **발표자 대본 (Speaker Script)**:
+"저희의 마일스톤은 이렇습니다. V1 해커톤 기간 동안은 기술이 파편이 아닌 매끄러운 사용성으로 적용될 수 있는 '실현 가능성'을 증명했습니다. 향후 Q3, Phase 2를 기점으로는 자율성을 갖춘 차세대 플랫폼, 하나의 거대한 생태계 스케일업 파트(V2)를 준비하고 있습니다."
 
 ---
 
-## Slide 10 — Roadmap
+## Slide 9 — V2 확장을 위한 V1 전략적 동결 기준 (Feature Freeze Rationale)
 
-| Phase | 기간 | 목표 | 주요 산출물 |
-|---|---|---|---|
-| **Phase 0** ✅ | 2026-04 (3주) | 해커톤 데모 완성 | Next.js DApp, IronClaw TEE 실연동, NEAR Testnet 실거래, Noir ZKP 온체인 등록, 보험 가입 확인서 |
-| **Phase 1** | Q2 2026 (3개월) | MVP / PoC | Confidential Intents SDK 실연동, DTC API 제휴, 보험 매칭 엔진 고도화 |
-| **Phase 2** | Q3 2026 (2개월) | 실연동 고도화 | Chain Signatures MPC 멀티체인, Noir 온체인 수학적 검증, 보안 감사 |
-| **Phase 3** | Q4 2026 ~ Q1 2027 | 정식 런칭 | GA 라이선스 확보, Confidential Intents 메인넷 전환, 토크노믹스 |
+**"왜 V1 MVP 단계에 현존하는 최신 트렌드를 모두 붙이지 않았는가?"**
 
-**Phase 0에서 검증한 핵심 가설**
-- IronClaw TEE API가 유전자 프로파일을 입력받아 riskProfile JSON을 격리 반환하는가 → **검증 완료**
-- Noir ZKP 증명이 NEAR 스마트 컨트랙트에 온체인 등록되는가 → **검증 완료**
-- NEAR Testnet에서 실거래 트랜잭션 서명 및 확정이 가능한가 → **검증 완료**
+- **안정성 타협 불가**: L2Pass 및 복합 Solver SDK(`@defuse-protocol`)는 라이브러리 버전 의존성을 가지며, 과도한 연동은 지갑 서명 에러 리스크를 수반합니다.
+- **하드웨어 런타임 제약**: 통신 격리라는 강력한 봉인을 가진 TEE 속성상 무거운 자바스크립트 기반 Agent OS 프레임워크를 억지로 구동하는 것은 역효과입니다. 
+- **결론적 판단**: 금융 트랜잭션의 생명은 '서명의 무결성'입니다. TEE와 ZKP라는 본연의 절대 보안 원칙을 최우선적으로 증명하기 위해 거시적 기능 확장은 단계적으로 분리하여 V2로 넘겼습니다.
 
-**Phase 1에서 추가 검증할 가설**
-- 사용자 실제 파일(VCF/TXT/PDF)을 ECIES 암호화하여 TEE로 전송하고 TEE 내부에서 복호화·파싱·분석이 이루어지는가
-- TEE Attestation으로 사용자가 진짜 TEE임을 브라우저에서 검증할 수 있는가
-- Noir ZKP proof가 TEE 내부에서 실컴파일·생성되어 온체인 수학적 검증을 통과하는가
+🎤 **발표자 대본 (Speaker Script)**:
+"혹자는 이렇게 물으실 수 있습니다. '요즘 화제가 되는 Agent OS 유틸리티나 L2 브릿지 프로토콜을 다 끌어오지 왜 단순화 했는가?' 저희 답변은 명확합니다. 금융 프로덕트의 기본은 타협 불가능한 서명의 안정성에 있습니다. TEE 인클레이브의 물리적인 메모리 한계와 복합 라이브러리(SDK) 간의 충돌 우려를 선제적으로 검토하여 기반 파이프라인의 안전성을 지탱하는 데에 V1의 전력을 다했습니다."
 
 ---
 
-## Slide 11 — Team
+## Slide 10 — V2 넥스트 제너레이션 비전 (Advanced Expansion)
 
-**솔로 파운더 — 1인 풀스택 해커톤 빌드**
+기본 신뢰망 위에 피어나는 진정한 **거시적 웹3 확장 (V2)**의 미래 모습.
 
-| 역할 | 내용 |
-|---|---|
-| Product & Strategy | 비즈니스 기획, 사용자 여정 설계, 해커톤 시연 시나리오 |
-| Full-Stack Development | Next.js 16 DApp, Server Actions, Drizzle ORM, Turso DB |
-| Web3 Integration | NEAR 지갑 연동, Chain Signatures, Noir ZKP 회로, NEAR Rust 스마트 컨트랙트 배포 |
-| AI/TEE Integration | IronClaw Runtime REST 연동, 유전자 분석 프롬프트 설계, TEE 소각 파이프라인 |
-| Design | 디자인 시스템, Framer Motion 애니메이션, React Three Fiber 3D DNA 배경 |
+1. **Agent OS 탑재 (능동형 브로커 자율화)**: 단순 일회성 질의응답 모델을 넘어서, 유전자 데이터(Memory)와 건강 상태 변화를 장기 추적하여, 사용자가 요청하지 않아도 스스로 가장 효율적인 상품 조건을 찾아 계약을 재정의 하는 주체로 거듭납니다.
+2. **L2Pass 글로벌 금융 유동성 통합**: 이더리움, 솔라나 등 여러 체인에 흩어져 있는 거대 스테이블 코인(USDC 등) 유동성을 마우스 원클릭, 단 1번의 트랜잭션으로 유치해냅니다.
+3. **완벽한 Confidential Swaps 도입**: 기관 거래나 수십억 원 단위의 특수 자산 계약 시 맴풀에 흔적조차 남기지 않는 스왑으로 자격 검증부터 거래 대금 스왑까지 완벽하게 밀실을 보장합니다.
 
-> Phase 1 이후: AI/백엔드 개발자 1명, 디자이너 1명 합류 계획. 보험 도메인 자문 GA 파트너 협의 중.
+🎤 **발표자 대본 (Speaker Script)**:
+"하지만 V1의 견고한 벽체가 세워지면 곧바로 V2의 날개를 달게 됩니다. 사용자의 상태를 자율 추적하여 혜택을 퍼주는 능동형 Agent OS, 흩어진 다른 메인넷 자본을 막힘없이 끌어오는 L2Pass 기반 구조, 그리고 흔적 자산의 환치기를 보호하는 프라이버트 스왑까지, 우리가 그리는 종착점은 수십, 수백억의 기관 자산도 믿고 맡길 수 있는 안전한 크로스체인 금융 피난처입니다."
 
 ---
 
-## Slide 12 — Ask / Why This Matters
+## Slide 11 — Open-source & 생태계 기여 (Leverage)
 
-**해커톤에서 검증하고자 했던 것 — 그리고 검증한 것**
+**NEAR 빌더들을 위한 공공 인프라 헌납**
+- **TEE-App Wrapper 오픈소스화**: 누구나 10분 만에 강력한 프라이버시 앱을 지을 수 있도록, IronClaw 연동이 최적화된 Next.js + TEE 보일러플레이트를 대중에 공개합니다.
+- **Noir ZKP 템플릿 제공**: 민감 헬스케어 정보 검증을 위한 표준 회로(Circuit) 템플릿을 제공하여, 향후 프라이버시 DApp 생태계 확장의 기틀을 마련합니다.
 
-| 가설 | 검증 결과 |
-|---|---|
-| IronClaw + Confidential Intents로 "밀실 연산 → 기밀 결제" 엔드-투-엔드 구현 가능한가 | **완료** — 실제 동작하는 데모 |
-| 15% 중개 수수료 모델이 오프라인 GA를 대체하는 실질적 사업성을 설득할 수 있는가 | 해커톤 심사로 검증 중 |
-
-**NEAR 생태계 기여**
-
-- **오픈소스 헌납**: TEE-App 래퍼 구조 + 보험 제출용 Noir ZKP 회로 템플릿을 오픈소스로 공개. 헬스케어 빌더가 NEAR에서 프라이버시 DApp을 10분 내 구축 가능한 인프라.
-- **기술 스택 통합 레퍼런스**: IronClaw + Confidential Intents + Chain Signatures를 단일 B2C 서비스로 엮은 첫 번째 실제 사용 사례.
-- **비전 증명**: "User-Owned AI"가 유전자 보험이라는 가장 현실적인 금융 서비스 위에서 어떻게 작동하는지 구체적 제품으로 증명.
-
-**이 플랫폼이 구동하는 세 개의 플라이휠**
-
-| 플라이휠 | 파급 대상 | 메커니즘 |
-|---|---|---|
-| NEAR 생태계 | NEAR Protocol, 검증자, 개발자 | MyDNA 성장 → IronClaw·Confidential Intents 수요 → 프라이버시 DApp 생태계 가속 |
-| 글로벌 보험 유동성 | 국내외 보험사, Web3 보험 프로토콜 | 플랫폼 성장 → 보험사 NEAR 진입 → MyDNA = 글로벌 보험 단일 진입점 |
-| 의료 데이터 산업 | 제약사, 연구소, 사용자 | 데이터 Pool 확대 → 수익 70% 사용자 환원 → 자기 강화 루프 |
-
-> 규제 강화는 오히려 해자(Moat)를 높인다. 중앙화 경쟁자들은 데이터 보관 자체가 불법이 되지만, MyDNA는 애초에 데이터를 보관하지 않는 구조이므로 규제 강화 시 유일한 합법 대안이 된다.
+🎤 **발표자 대본 (Speaker Script)**:
+"단순히 저희 프로덕트 하나의 성공만 바라보지 않습니다. 이번 프로젝트에서 겪었던 TEE 연동의 난해함과 ZKP 적용의 허들을 낮추기 위해, 저희가 만든 TEE 래퍼 구조와 Noir 회로 템플릿을 해커톤 생태계에 오픈소스로 전면 공개합니다. 이는 NEAR 내 수많은 헬스케어 및 프라이버시 DApp들이 폭발적으로 싹틀 수 있는 강력한 토양이 될 것입니다."
 
 ---
 
-## 관련 문서
+## Slide 12 — Team & Ask (Vision Demo)
 
-- [비즈니스 기획안](./GENETIC_AI_INSURANCE_AGENT.md)
-- [수익 모델 상세](./MONEY_FLOW.md)
-- [경쟁 분석](./COMPETITIVE_ANALYSIS.md)
-- [생태계 파급력 전략](./VISION_CORE_LEVERAGE.md)
-- [사용자 플로우](../02_UI_Screens/USER_FLOW.md)
-- [기술 아키텍처](../03_Technical_Specs/NEAR_PRIVACY_STACK_ARCH.md)
-- [NEAR 기술 스택](../03_Technical_Specs/LATEST_NEAR_TECH_STACK.md)
-- [로드맵](../04_Logic_Progress/ROADMAP.md)
+**Solo Founder — Full-Stack Build E2E Structure**
+- 기획 사업, Next.js 프론트엔드, Drizzle DB, TEE, ZKP 컨트랙트 배포 등 전체 워크플로우 1인 체제 돌파
+*(Phase 1 이후 제품 디자인 및 추가 시스템 엔지니어 충원 계획 수립)*
+
+**우리가 증명한 단 하나 (Vision)**
+> 유전자를 오픈하지 않고도, 블록체인의 프라이버시 기술만으로 초개인화된 금융 혜택을 100% 누릴 수 있습니다.
+
+🎤 **발표자 대본 (Speaker Script)**:
+"이번 해커톤 내내 저는 단독으로 제품의 프랜차이즈 기획부터 데이터베이스, 인프라 배포 등 전 구조물을 올렸습니다. 제가 이 힘든 과정에서 증명하고자 했던 핵심 철학은 하나입니다. 사용자의 가장 예민한 데이터를 지키는 기술이, 곧 새로운 수익 모델이 될 수 있다는 점입니다. 프라이버시와 개인 정보 활용, 두 개의 역설적 진리가 조화롭게 만나는 새로운 웹3 보험 생태계를 기대해 주시기 바랍니다. 경청해 주셔서 감사합니다."
+
+---
+
+## X. Related Documents
+- **Concept_Design**: [비즈니스 기획안](./GENETIC_AI_INSURANCE_AGENT.md) - 전체 서비스 철학 및 기능 명세 참조
+- **Concept_Design**: [B2B 브로커 모델](./B2B_BROKER_CONCEPT.md) - 중개 수수료 수익 구조(Business Plan) 참조
+- **Concept_Design**: [V2 고급 확장 제안서](./V2_ADVANCED_EXPANSION_PROPOSAL.md) - 향후 Agent OS 및 L2Pass 상세 스펙 구상 참조
+- **UI_Screens**: [사용자 플로우](../02_UI_Screens/USER_FLOW.md) - 앱 진입부터 결제 완료까지 5단계 시각적 경로 연결
+- **Technical_Specs**: [최신 NEAR 기술 스택](../03_Technical_Specs/LATEST_NEAR_TECH_STACK.md) - 활용된 라이브러리 및 TEE 인클레이브 버전 명세
+- **Logic_Progress**: [마일스톤 로드맵](../04_Logic_Progress/ROADMAP.md) - Phase별 검증 현황(Functionality) 및 향후 실행 계획 연결
