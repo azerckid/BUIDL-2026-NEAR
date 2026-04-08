@@ -192,6 +192,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
   const [selectedChain, setSelectedChain] = useState<ChainNetwork>("near");
   const [derivedEthAddress, setDerivedEthAddress] = useState<string | null>(null);
   const [ethBalance, setEthBalance] = useState<string | null>(null);
+  const [ethBalanceError, setEthBalanceError] = useState(false);
 
   // 지갑 리다이렉트 복귀 시 즉시 confirming 상태로 시작
   const txHashParam = searchParams.get("transactionHashes");
@@ -208,14 +209,17 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
   useEffect(() => {
     if (selectedChain !== "eth" || !accountId) return;
 
+    setEthBalance(null);
+    setEthBalanceError(false);
+
     deriveEthAddress(accountId)
-      .then((addr) => {
+      .then(async (addr) => {
         setDerivedEthAddress(addr);
-        return getEthBalance(addr);
+        const bal = await getEthBalance(addr);
+        setEthBalance(bal);
       })
-      .then((bal) => setEthBalance(bal))
       .catch(() => {
-        toast.error(t("toastEthDeriveError"));
+        setEthBalanceError(true);
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedChain, accountId]);
@@ -721,7 +725,28 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">{t("ethBalance")}</span>
-              {ethBalance !== null ? (
+              {ethBalanceError ? (
+                <button
+                  type="button"
+                  className="text-destructive text-[10px] underline underline-offset-2"
+                  onClick={() => {
+                    setEthBalanceError(false);
+                    setEthBalance(null);
+                    setDerivedEthAddress(null);
+                    if (accountId) {
+                      deriveEthAddress(accountId)
+                        .then(async (addr) => {
+                          setDerivedEthAddress(addr);
+                          const bal = await getEthBalance(addr);
+                          setEthBalance(bal);
+                        })
+                        .catch(() => setEthBalanceError(true));
+                    }
+                  }}
+                >
+                  {t("ethBalanceRetry")}
+                </button>
+              ) : ethBalance !== null ? (
                 <span className={parseFloat(ethBalance) < 0.001 ? "text-destructive" : "text-foreground"}>
                   {parseFloat(ethBalance).toFixed(4)} ETH
                 </span>
@@ -747,7 +772,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
         disabled={
           isPending ||
           data.products.length === 0 ||
-          (selectedChain === "eth" && (!derivedEthAddress || (ethBalance !== null && parseFloat(ethBalance) < 0.001)))
+          (selectedChain === "eth" && (!derivedEthAddress || ethBalance === null || ethBalanceError || parseFloat(ethBalance) < 0.001))
         }
         onClick={handlePayment}
       >

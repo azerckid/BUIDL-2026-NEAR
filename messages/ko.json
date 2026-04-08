@@ -87,6 +87,7 @@
     "ethBalance": "ETH 잔액",
     "ethInsufficientBalance": "잔액 부족. Sepolia Faucet에서 이 주소로 ETH를 충전하세요.",
     "ethAddressCopied": "ETH 주소가 복사되었습니다.",
+    "ethBalanceRetry": "조회 실패 — 재시도",
     "toastEthDeriveError": "ETH 주소 파생에 실패했습니다. 다시 시도해 주세요.",
     "btnPreparing": "결제 준비 중...",
     "btnSigning": "지갑으로 이동 중...",

@@ -87,6 +87,7 @@
     "ethBalance": "ETH Balance",
     "ethInsufficientBalance": "Insufficient balance. Please fund this address via Sepolia Faucet.",
     "ethAddressCopied": "ETH address copied.",
+    "ethBalanceRetry": "Failed to load — Retry",
     "toastEthDeriveError": "Failed to derive ETH address. Please try again.",
     "btnPreparing": "Preparing...",
     "btnSigning": "Redirecting to Wallet...",
