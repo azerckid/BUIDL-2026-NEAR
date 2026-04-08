@@ -25,6 +25,9 @@ const STAGE_PROGRESS: Record<AnalysisStage, number> = {
 
 const STAGE_ORDER: AnalysisStage[] = ["parsing", "tee", "zkp", "profiling", "purged"];
 
+// TEE 분석 최대 대기 시간 (60초)
+const ANALYSIS_TIMEOUT_MS = 60_000;
+
 // 애니메이션 타임라인
 const STAGE_TIMELINE: Array<{ stage: AnalysisStage; delay: number }> = [
   { stage: "parsing",   delay: 0 },
@@ -82,16 +85,22 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
     const resultRef = { value: null as { success: boolean; error?: string } | null };
     const stageRef = { value: "parsing" as AnalysisStage };
 
-    // Server Action 실행
-    runAnalysis(sessionId).then((result) => {
+    // Server Action 실행 (60초 타임아웃 적용)
+    const timeoutPromise = new Promise<{ success: false; error: string }>((resolve) => {
+      setTimeout(() => resolve({ success: false, error: "__TIMEOUT__" }), ANALYSIS_TIMEOUT_MS);
+    });
+
+    Promise.race([runAnalysis(sessionId), timeoutPromise]).then((result) => {
       if (!isMounted) return;
       resultRef.value = result;
 
       if (!result.success) {
         timers.forEach(clearTimeout);
         setStage("error");
-        setErrorMessage(result.error ?? t("analysisError"));
-        toast.error(t("errorTitle") + ": " + (result.error ?? t("analysisError")));
+        const isTimeout = result.error === "__TIMEOUT__";
+        const message = isTimeout ? t("timeoutError") : (result.error ?? t("analysisError"));
+        setErrorMessage(message);
+        toast.error(t("errorTitle") + ": " + message);
         return;
       }
 
