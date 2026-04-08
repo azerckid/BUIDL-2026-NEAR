@@ -21,8 +21,8 @@ const DEMO_AMOUNT_YNEAR = "1000000000000000000000";
 const MPC_CONTRACT_TESTNET = "v1.signer-prod.testnet";
 // const MPC_CONTRACT_MAINNET = "v1.signer.near";
 
-// ETH Sepolia RPC
-const SEPOLIA_RPC = "https://rpc.sepolia.org";
+// ETH Sepolia RPC (1rpc.io — 무료, CORS *, 브라우저 호환)
+const SEPOLIA_RPC = "https://1rpc.io/sepolia";
 
 // 보험 결제 전용 파생 경로
 const INSURANCE_DERIVATION_PATH = "insurance,1";
@@ -175,11 +175,24 @@ export async function broadcastEthTransaction(
 
 /**
  * ETH Sepolia에서 파생 주소의 잔액 조회 (ETH 단위)
+ * ethers Provider 대신 fetch 직접 호출 — 네트워크 자동 감지 없이 단일 요청으로 완료
  */
 export async function getEthBalance(ethAddress: string): Promise<string> {
-  const provider = new ethers.JsonRpcProvider(SEPOLIA_RPC);
-  const balance = await provider.getBalance(ethAddress);
-  return ethers.formatEther(balance);
+  const response = await fetch(SEPOLIA_RPC, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "eth_getBalance",
+      params: [ethAddress, "latest"],
+    }),
+  });
+  const json = await response.json() as { result?: string; error?: unknown };
+  if (!json.result) {
+    throw new Error("ETH 잔액 조회 실패: " + JSON.stringify(json.error ?? json));
+  }
+  return ethers.formatEther(BigInt(json.result));
 }
 
 // ─── 유틸 함수 ───────────────────────────────────────────────────────────────
