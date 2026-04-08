@@ -17,8 +17,16 @@ import {
   requestMpcSignature,
   broadcastEthTransaction,
   getEthBalance,
+  reconstructEthSignature as reconstructSignature,
   type ChainNetwork,
 } from "@/lib/near/chain-signatures";
+import {
+  deriveEthAddressAction,
+  getEthBalanceAction,
+  getTransactionCountAction,
+  getFeeDataAction,
+  broadcastRawTxAction,
+} from "@/actions/ethRpc";
 import { ethers } from "ethers";
 import { truncateAddress } from "@/lib/near/wallet";
 import { ZKP_VERIFIER_CONTRACT } from "@/lib/zkp/verifier";
@@ -212,11 +220,13 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
     setEthBalance(null);
     setEthBalanceError(false);
 
-    deriveEthAddress(accountId)
-      .then(async (addr) => {
-        setDerivedEthAddress(addr);
-        const bal = await getEthBalance(addr);
-        setEthBalance(bal);
+    deriveEthAddressAction(accountId)
+      .then(async (addrResult) => {
+        if ("error" in addrResult) throw new Error(addrResult.error);
+        setDerivedEthAddress(addrResult.address);
+        const balResult = await getEthBalanceAction(addrResult.address);
+        if ("error" in balResult) throw new Error(balResult.error);
+        setEthBalance(balResult.balance);
       })
       .catch(() => {
         setEthBalanceError(true);
@@ -288,22 +298,42 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
         const wallet = await selector.wallet();
 
         // ETH 트랜잭션 구성 (Sepolia — 데모용 0.0001 ETH)
-        const provider = new ethers.JsonRpcProvider("https://rpc.sepolia.org");
-        const nonce = await provider.getTransactionCount(derivedEthAddress);
-        const feeData = await provider.getFeeData();
+        // Server Action으로 nonce, feeData 조회 (CORS 우회)
+        const [nonceResult, feeResult] = await Promise.all([
+          getTransactionCountAction(derivedEthAddress),
+          getFeeDataAction(),
+        ]);
+
+        if ("error" in nonceResult) throw new Error(nonceResult.error);
+        if ("error" in feeResult) throw new Error(feeResult.error);
 
         const unsignedTx: ethers.TransactionRequest = {
           to: "0x000000000000000000000000000000000000dEaD", // 데모용 burn 주소
           value: ethers.parseEther("0.0001"),
-          nonce,
+          nonce: nonceResult.nonce,
           chainId: 11155111, // Sepolia
           gasLimit: BigInt(21000),
-          maxFeePerGas: feeData.maxFeePerGas ?? ethers.parseUnits("20", "gwei"),
-          maxPriorityFeePerGas: feeData.maxPriorityFeePerGas ?? ethers.parseUnits("1", "gwei"),
+          maxFeePerGas: BigInt(feeResult.maxFeePerGas),
+          maxPriorityFeePerGas: BigInt(feeResult.maxPriorityFeePerGas),
           type: 2,
         };
 
-        // MPC 서명 요청 (NEAR 지갑 팝업)
+        // MPC 서명 요청 전 — BrowserWallet 리다이렉트 복귀 대비 sessionStorage 저장
+        sessionStorage.setItem(
+          `pending-checkout-${data.cartId}`,
+          JSON.stringify({
+            txId: prepared.txId!,
+            mode: "eth",
+            unsignedTxJson: JSON.stringify(
+              unsignedTx,
+              (_, v) => (typeof v === "bigint" ? { __bigint: v.toString() } : v)
+            ),
+            derivedEthAddress,
+            signerAccountId: accountId,
+          })
+        );
+
+        // MPC 서명 요청 (NEAR 지갑 팝업 또는 리다이렉트)
         const txHash = ethers.keccak256(
           ethers.Transaction.from(unsignedTx as ethers.TransactionLike<string>).unsignedSerialized
         );
@@ -311,9 +341,16 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
 
         const mpcSig = await requestMpcSignature(wallet, payload);
 
-        // ETH 트랜잭션 브로드캐스트
+        // ETH 서명 복원 + 브로드캐스트 (Server Action)
         setStep("confirming");
-        const ethTxHash = await broadcastEthTransaction(mpcSig, unsignedTx, derivedEthAddress);
+        const signature = reconstructSignature(mpcSig, unsignedTx, derivedEthAddress);
+        const signedTx = ethers.Transaction.from({
+          ...(unsignedTx as ethers.TransactionLike<string>),
+          signature,
+        });
+        const broadcastResult = await broadcastRawTxAction(signedTx.serialized);
+        if ("error" in broadcastResult) throw new Error(broadcastResult.error);
+        const ethTxHash = broadcastResult.txHash;
 
         const confirmed = await confirmCheckout({
           txId: prepared.txId!,
@@ -327,7 +364,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
           return;
         }
 
-        setResult({ txId: confirmed.txId!, txHash: ethTxHash });
+        setResult({ txId: confirmed.txId!, txHash: ethTxHash, chain: "eth", paidAmount: "0.0001", paidCurrency: "ETH" });
         setStep("done");
         toast.success(t("toastSuccess"));
       } catch (err) {
@@ -734,11 +771,13 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
                     setEthBalance(null);
                     setDerivedEthAddress(null);
                     if (accountId) {
-                      deriveEthAddress(accountId)
-                        .then(async (addr) => {
-                          setDerivedEthAddress(addr);
-                          const bal = await getEthBalance(addr);
-                          setEthBalance(bal);
+                      deriveEthAddressAction(accountId)
+                        .then(async (addrResult) => {
+                          if ("error" in addrResult) throw new Error(addrResult.error);
+                          setDerivedEthAddress(addrResult.address);
+                          const balResult = await getEthBalanceAction(addrResult.address);
+                          if ("error" in balResult) throw new Error(balResult.error);
+                          setEthBalance(balResult.balance);
                         })
                         .catch(() => setEthBalanceError(true));
                     }
