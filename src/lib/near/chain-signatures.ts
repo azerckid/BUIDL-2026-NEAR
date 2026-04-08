@@ -124,26 +124,25 @@ export async function requestMpcSignature(
   wallet: Awaited<ReturnType<WalletSelector["wallet"]>>,
   payload: Uint8Array,
   derivationPath: string = INSURANCE_DERIVATION_PATH
-): Promise<{ bigR: string; s: string }> {
-  const result = await wallet.signAndSendTransaction({
+): Promise<{ bigR: string; s: string; recoveryId?: number }> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result = await (wallet as any).signAndSendTransaction({
     receiverId: MPC_CONTRACT_TESTNET,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     actions: [
       {
-        type: "FunctionCall",
-        params: {
+        functionCall: {
           methodName: "sign",
-          args: {
+          args: new TextEncoder().encode(JSON.stringify({
             request: {
               payload: Array.from(payload),
               path: derivationPath,
               key_version: 0,
             },
-          },
+          })),
           gas: "250000000000000", // 250 Tgas
           deposit: "1",           // 1 yoctoNEAR
         },
-      } as unknown as Parameters<typeof wallet.signAndSendTransaction>[0]["actions"][0],
+      },
     ],
   });
 
@@ -156,7 +155,7 @@ export async function requestMpcSignature(
  * MPC 서명({ bigR, s }) + 미서명 ETH 트랜잭션 → 완성된 ETH 트랜잭션 브로드캐스트
  */
 export async function broadcastEthTransaction(
-  mpcSignature: { bigR: string; s: string },
+  mpcSignature: { bigR: string; s: string; recoveryId?: number },
   unsignedTx: ethers.TransactionRequest,
   fromAddress: string
 ): Promise<string> {
