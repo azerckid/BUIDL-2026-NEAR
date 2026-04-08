@@ -328,6 +328,44 @@ export async function fetchMpcSignatureFromTxHash(
   return extractMpcSignature(json.result);
 }
 
+// ─── Phase 3: SOL 파생 주소 (Stub) ──────────────────────────────────────────
+
+/**
+ * NEAR 계정에서 Solana 파생 주소 계산 — Phase 3 구현 대상
+ *
+ * [설계 메모]
+ * - NEAR MPC는 ed25519 키 파생도 지원 (SOL은 ed25519 서명 체계)
+ * - 파생 경로: "insurance,sol,1" (ETH "insurance,1"과 구분)
+ * - v1.signer-prod.testnet에서 ed25519 파생 활성화 여부 별도 확인 필요
+ *
+ * [HD 파생 경로 설계]
+ *   ETH: "insurance,1"     → secp256k1 키 파생 (Phase 2 완료)
+ *   SOL: "insurance,sol,1" → ed25519 키 파생  (Phase 3 예정)
+ *
+ * [Borsh 직렬화 설계]
+ *   SOL 트랜잭션은 @solana/web3.js Transaction 객체 사용:
+ *   const tx = new Transaction().add(SystemProgram.transfer({ fromPubkey, toPubkey, lamports }));
+ *   const message = tx.compileMessage();
+ *   const serialized = message.serialize(); // Borsh 호환 바이트 배열
+ *
+ * [구현 순서 (Phase 3)]
+ *   1. MPC "derived_public_key" view call — ed25519 mode 파라미터 확인
+ *   2. ed25519 공개키(32바이트) → Solana Base58 주소 변환 (bs58.encode)
+ *   3. @solana/web3.js PublicKey로 주소 유효성 검증
+ *   4. requestMpcSignature에 SOL 트랜잭션 직렬화 바이트 전달
+ *
+ * @throws Phase 3 미구현
+ */
+export async function deriveSolAddress(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  nearAccountId: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  derivationPath: string = "insurance,sol,1"
+): Promise<string> {
+  // TODO [Phase 3]: NEAR MPC ed25519 파생 구현 후 아래 에러 제거
+  throw new Error("[Phase 3 미구현] Solana 파생 주소 생성은 Phase 3에서 구현됩니다");
+}
+
 // ─── 주소 표시 유틸 ───────────────────────────────────────────────────────────
 
 export function truncateAddress(address: string): string {
