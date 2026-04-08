@@ -303,6 +303,31 @@ export function reconstructEthSignature(
   throw new Error("ETH 서명 복구 실패 — 파생 주소와 서명이 일치하지 않습니다");
 }
 
+/**
+ * NEAR 트랜잭션 해시로 MPC 서명 결과 재조회
+ * BrowserWallet(MyNearWallet) 리다이렉트 복귀 후 사용
+ */
+export async function fetchMpcSignatureFromTxHash(
+  txHash: string,
+  signerAccountId: string
+): Promise<{ bigR: string; s: string; recoveryId?: number }> {
+  const response = await fetch("https://rpc.testnet.near.org", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: "dontcare",
+      method: "tx",
+      params: [txHash, signerAccountId],
+    }),
+  });
+  const json = await response.json() as { result?: unknown; error?: unknown };
+  if (!json.result) {
+    throw new Error("NEAR 트랜잭션 조회 실패: " + JSON.stringify(json.error ?? json));
+  }
+  return extractMpcSignature(json.result);
+}
+
 // ─── 주소 표시 유틸 ───────────────────────────────────────────────────────────
 
 export function truncateAddress(address: string): string {

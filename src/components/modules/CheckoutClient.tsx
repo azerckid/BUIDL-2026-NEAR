@@ -16,6 +16,7 @@ import {
   deriveEthAddress,
   requestMpcSignature,
   broadcastEthTransaction,
+  fetchMpcSignatureFromTxHash,
   getEthBalance,
   reconstructEthSignature as reconstructSignature,
   type ChainNetwork,
@@ -61,6 +62,9 @@ interface CheckoutClientProps {
 interface CheckoutResult {
   txId: string;
   txHash: string;
+  chain: ChainNetwork;
+  paidAmount: string;
+  paidCurrency: string;
 }
 
 function ProductRow({ product }: { product: InsuranceProduct }) {
@@ -234,7 +238,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedChain, accountId]);
 
-  // 지갑 서명 후 리다이렉트 복귀 처리
+  // 지갑 서명 후 리다이렉트 복귀 처리 (NEAR / ETH MPC 공통)
   useEffect(() => {
     if (!txHashParam) return;
 
@@ -242,12 +246,71 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
     const pending = sessionStorage.getItem(key);
     if (!pending) return;
 
-    const { txId } = JSON.parse(pending) as { txId: string };
+    const parsed = JSON.parse(pending) as {
+      txId: string;
+      mode?: string;
+      unsignedTxJson?: string;
+      derivedEthAddress?: string;
+      signerAccountId?: string;
+    };
 
     startTransition(async () => {
       setStep("confirming");
+
+      // ── ETH MPC 서명 복귀 처리 ──────────────────────────────────────────────
+      if (parsed.mode === "eth") {
+        try {
+          const nearTxHash = txHashParam.split(",")[0];
+          const mpcSig = await fetchMpcSignatureFromTxHash(
+            nearTxHash,
+            parsed.signerAccountId!
+          );
+
+          const unsignedTx = JSON.parse(
+            parsed.unsignedTxJson!,
+            (_, v) => (v?.__bigint !== undefined ? BigInt(v.__bigint) : v)
+          ) as ethers.TransactionRequest;
+
+          const signature = reconstructSignature(
+            mpcSig,
+            unsignedTx,
+            parsed.derivedEthAddress!
+          );
+          const signedTx = ethers.Transaction.from({
+            ...(unsignedTx as ethers.TransactionLike<string>),
+            signature,
+          });
+          const broadcastResult = await broadcastRawTxAction(signedTx.serialized);
+          if ("error" in broadcastResult) throw new Error(broadcastResult.error);
+          const ethTxHash = broadcastResult.txHash;
+
+          const confirmed = await confirmCheckout({
+            txId: parsed.txId,
+            txHash: ethTxHash,
+            cartId: data.cartId,
+          });
+
+          if (!confirmed.success) {
+            toast.error(confirmed.error ?? t("toastConfirmError"));
+            setStep("idle");
+            return;
+          }
+
+          sessionStorage.removeItem(key);
+          setResult({ txId: confirmed.txId!, txHash: ethTxHash, chain: "eth", paidAmount: "0.0001", paidCurrency: "ETH" });
+          setStep("done");
+          toast.success(t("toastSuccess"));
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          toast.error(t("toastSignError", { message }));
+          setStep("idle");
+        }
+        return;
+      }
+
+      // ── NEAR 결제 복귀 처리 ─────────────────────────────────────────────────
       const confirmed = await confirmCheckout({
-        txId,
+        txId: parsed.txId,
         txHash: txHashParam.split(",")[0],
         cartId: data.cartId,
       });
@@ -259,7 +322,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
       }
 
       sessionStorage.removeItem(key);
-      setResult({ txId: confirmed.txId!, txHash: confirmed.txHash! });
+      setResult({ txId: confirmed.txId!, txHash: confirmed.txHash!, chain: "near", paidAmount: "0.001", paidCurrency: "NEAR" });
       setStep("done");
       toast.success(t("toastSuccess"));
     });
@@ -459,7 +522,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
         }
 
         sessionStorage.removeItem(`pending-checkout-${data.cartId}`);
-        setResult({ txId: confirmed.txId!, txHash: confirmed.txHash! });
+        setResult({ txId: confirmed.txId!, txHash: confirmed.txHash!, chain: "near", paidAmount: "0.001", paidCurrency: "NEAR" });
         setStep("done");
         toast.success(t("toastSuccess"));
       }
