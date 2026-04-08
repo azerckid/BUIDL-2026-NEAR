@@ -231,9 +231,9 @@
     "perMonth": "/mo"
   },
   "pitch": {
-    "brand": "MyDNA InsurTech",
+    "brand": "OHmyDNA",
     "s1": {
-      "title": "MyDNA Insurance Agent",
+      "title": "OHmyDNA Insurance Agent",
       "subtitle": "Gaining better insurance through your DNA, without exposing it to the world.",
       "hackathon": "NEAR Buidl 2026 Hackathon",
       "tag1": "Healthcare", "tag2": "Web3 Privacy", "tag3": "AI Agents"
@@ -284,7 +284,7 @@
       "subtitle": "The Genesis of the 2026 Privacy Stack",
       "p": "The simultaneous availability of IronClaw Runtime, Confidential Intents, and Chain Signatures makes this architecture possible today.",
       "boxTitle": "Why not AWS Nitro?",
-      "boxDesc": "AWS relies on a centralized Trust-Me model. MyDNA merges the physical security of TEEs with the cryptographic perfection of public blockchains, creating an absolute Trustless moat that mega-corporations cannot replicate."
+      "boxDesc": "AWS relies on a centralized Trust-Me model. OHmyDNA merges the physical security of TEEs with the cryptographic perfection of public blockchains, creating an absolute Trustless moat that mega-corporations cannot replicate."
     },
     "s7": {
       "title": "Business Model & Target Market",

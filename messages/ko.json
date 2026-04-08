@@ -231,9 +231,9 @@
     "perMonth": "/mo"
   },
   "pitch": {
-    "brand": "MyDNA InsurTech",
+    "brand": "OHmyDNA",
     "s1": {
-      "title": "MyDNA Insurance Agent",
+      "title": "OHmyDNA Insurance Agent",
       "subtitle": "유전자를 노출하지 않고, 유전자 덕분에 더 나은 보험에 가입하는 유일한 방법.",
       "hackathon": "NEAR Buidl 2026 해커톤",
       "tag1": "헬스케어", "tag2": "Web3 프라이버시", "tag3": "AI 에이전트"
@@ -284,7 +284,7 @@
       "subtitle": "2026년 프라이버시 스택의 탄생",
       "p": "IronClaw Runtime, Confidential Intents, Chain Signatures의 동시 가용성이 이 아키텍처를 오늘 가능하게 합니다.",
       "boxTitle": "왜 AWS Nitro가 아닌가?",
-      "boxDesc": "AWS는 중앙화된 '날 믿어줘' 모델에 의존합니다. MyDNA는 TEE의 물리적 보안과 블록체인의 암호학적 완전성을 결합해, 대기업도 복제할 수 없는 절대적 Trustless 해자를 구축합니다."
+      "boxDesc": "AWS는 중앙화된 '날 믿어줘' 모델에 의존합니다. OHmyDNA는 TEE의 물리적 보안과 블록체인의 암호학적 완전성을 결합해, 대기업도 복제할 수 없는 절대적 Trustless 해자를 구축합니다."
     },
     "s7": {
       "title": "비즈니스 모델 및 타겟 시장",
