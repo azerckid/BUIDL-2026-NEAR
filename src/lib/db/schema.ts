@@ -145,6 +145,10 @@ export const analysisResults = sqliteTable("analysis_results", {
   riskProfile: text("risk_profile").notNull(),
   recommendedProductIds: text("recommended_product_ids").notNull(),
   zkpProofHash: text("zkp_proof_hash"),
+  advisoryMessages: text("advisory_messages"),
+  reasoning: text("reasoning"),
+  coverageGapSummary: text("coverage_gap_summary"),
+  priorityOrder: text("priority_order"),
   generatedAt: integer("generated_at", { mode: "timestamp" }).notNull(),
   expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
 });
