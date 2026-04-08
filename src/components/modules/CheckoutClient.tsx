@@ -550,7 +550,10 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
   if (result) {
     const policyNumber = "MYD-" + result.txId.replace(/-/g, "").slice(0, 8).toUpperCase();
     const enrolledAt = DateTime.now().toFormat("yyyy-MM-dd");
-    const explorerUrl = `${NEAR_EXPLORER_BASE}/${result.txHash}`;
+    const isEth = result.chain === "eth";
+    const explorerUrl = isEth
+      ? `https://sepolia.etherscan.io/tx/${result.txHash}`
+      : `${NEAR_EXPLORER_BASE}/${result.txHash}`;
 
     return (
       <div className="mx-auto w-full max-w-lg px-4 py-10 flex flex-col gap-6">
@@ -609,7 +612,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">{t("success.network")}</span>
-              <span className="text-foreground">NEAR Testnet</span>
+              <span className="text-foreground">{isEth ? "ETH Sepolia (MPC)" : "NEAR Testnet"}</span>
             </div>
           </div>
 
@@ -654,7 +657,14 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">{t("success.paymentMethod")}</span>
-              <span className="text-foreground">NEAR Testnet</span>
+              <span className="text-foreground">{isEth ? "ETH Sepolia (MPC Chain Signatures)" : "NEAR Testnet"}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">{t("success.onChainAmount")}</span>
+              <span className="font-mono font-semibold text-foreground">
+                {result.paidAmount} {result.paidCurrency}
+                <span className="text-[10px] text-muted-foreground ml-1">(+ gas)</span>
+              </span>
             </div>
             <div className="flex flex-col gap-1 pt-1">
               <span className="text-xs text-muted-foreground">{t("success.txHash")}</span>
@@ -860,6 +870,16 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
               <p className="text-destructive text-[10px] pt-0.5">
                 {t("ethInsufficientBalance")}
               </p>
+            )}
+            {derivedEthAddress && (
+              <a
+                href={`https://sepolia.etherscan.io/address/${derivedEthAddress}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary text-[10px] underline underline-offset-2 pt-0.5"
+              >
+                {t("ethViewOnEtherscan")}
+              </a>
             )}
           </div>
         )}
