@@ -265,7 +265,7 @@ export default function PitchDeck() {
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             exit={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
             transition={{ duration: 0.4, ease: 'easeInOut' }}
-            className="w-full flex flex-col pt-12"
+            className="w-full flex flex-col pt-12 pb-28"
           >
             <div className="flex items-center space-x-6 mb-6">
               {slides[current].icon}
