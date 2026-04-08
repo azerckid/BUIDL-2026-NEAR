@@ -65,7 +65,17 @@
     "checkout": "Proceed to Checkout",
     "selectPrompt": "Please select at least one product",
     "cartError": "Failed to create cart",
-    "cartCreated": "Cart created"
+    "cartCreated": "Cart created",
+    "reveal": {
+      "step1Title": "Genetic Risk Profile",
+      "step1Desc": "These are the risk factors detected by TEE analysis. See why AI recommended these insurance products.",
+      "step1Button": "View AI Reasoning",
+      "step2Title": "AI Recommendation Reasoning",
+      "step2ReasoningLabel": "AI Analysis Summary",
+      "step2Button": "View Recommended Products",
+      "step3Title": "Personalized Insurance Matches",
+      "recommendReason": "Why recommended"
+    }
   },
   "checkout": {
     "backLabel": "Back to Dashboard",
