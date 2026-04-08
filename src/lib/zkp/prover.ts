@@ -24,14 +24,28 @@ export function derivePrimaryRiskScore(
   );
 }
 
-// ─── ZKP Proof 생성 ───────────────────────────────────────────────────────────
-// Phase 0: 더미 proof 반환 (nargo CLI / @noir-lang 패키지 미사용)
+// ─── [Phase 2 교체 지점] generateZkpProof ────────────────────────────────────
+// 현재(Phase 0): 더미 proof 문자열 반환 (nargo CLI / @noir-lang 패키지 미사용)
 //   - Vercel 배포 환경 호환 (바이너리 실행 불가, WASM 번들 50MB 제한)
 //   - circuits/insurance_eligibility/src/main.nr 회로는 실제 작성됨
-// Phase 2: @noir-lang/noir_js + BarretenbergBackend로 교체
-//   - const backend = new BarretenbergBackend(circuit);
-//   - const noir = new Noir(circuit, backend);
-//   - return await noir.generateProof({ risk_score, threshold });
+//
+// Phase 2 교체 내용:
+//   import circuit from "@/../circuits/insurance_eligibility/target/insurance_eligibility.json";
+//   import { BarretenbergBackend } from "@noir-lang/backend_barretenberg";
+//   import { Noir } from "@noir-lang/noir_js";
+//
+//   const backend = new BarretenbergBackend(circuit);
+//   const noir = new Noir(circuit, backend);
+//   const { proof, publicInputs } = await noir.generateProof({
+//     risk_score: input.riskScore,
+//     threshold: threshold,
+//   });
+//   return { proofBytes: Buffer.from(proof).toString("hex"), publicInputs, verificationKey: "..." };
+//
+// 주의: proof 생성은 TEE 내부에서 실행되어야 함 (risk_score가 private input)
+//       Phase 0에서는 runAnalysis.ts Server Action 내에서 호출되므로 서버 사이드 실행
+//       Phase 2에서 IronClaw 환경 내부로 이동 필요
+// ─────────────────────────────────────────────────────────────────────────────
 
 export async function generateZkpProof(input: {
   riskScore: number;
