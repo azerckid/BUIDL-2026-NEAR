@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -135,6 +135,14 @@ function RevealFlow({ data, selectedIds, onToggle, onCheckout, isPending }: Reve
   const t = useTranslations("dashboard");
   const tRisk = useTranslations("riskProfile");
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const scrollTargetRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      scrollTargetRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [step]);
 
   const orderedCategories = sortedCategories(riskProfile, priorityOrder);
   const nonNormalCategories = orderedCategories.filter(
@@ -291,6 +299,7 @@ function RevealFlow({ data, selectedIds, onToggle, onCheckout, isPending }: Reve
           </motion.div>
         )}
       </AnimatePresence>
+      <div ref={scrollTargetRef} />
     </div>
   );
 }

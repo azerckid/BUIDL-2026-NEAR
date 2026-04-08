@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
@@ -201,6 +201,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
   const { selector, accountId } = useWallet();
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<CheckoutResult | null>(null);
+  const successRef = useRef<HTMLDivElement>(null);
   const [selectedChain, setSelectedChain] = useState<ChainNetwork>("near");
   const [derivedEthAddress, setDerivedEthAddress] = useState<string | null>(null);
   const [ethBalance, setEthBalance] = useState<string | null>(null);
@@ -216,6 +217,12 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
     }
     return sum + p.monthlyPremiumUsdc;
   }, 0);
+
+  useEffect(() => {
+    if (result) {
+      successRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [result]);
 
   // ETH 체인 선택 시 파생 주소 + 잔액 자동 조회
   useEffect(() => {
@@ -556,7 +563,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
       : `${NEAR_EXPLORER_BASE}/${result.txHash}`;
 
     return (
-      <div className="mx-auto w-full max-w-lg px-4 py-10 flex flex-col gap-6">
+      <div ref={successRef} className="mx-auto w-full max-w-lg px-4 py-10 flex flex-col gap-6">
         {/* 헤더 */}
         <div className="flex flex-col items-center gap-3 text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -67,6 +67,7 @@ export function FileUploadZone() {
     done: t("done"),
   };
   const inputRef = useRef<HTMLInputElement>(null);
+  const startBtnRef = useRef<HTMLDivElement>(null);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -74,6 +75,12 @@ export function FileUploadZone() {
   const [isLocked, setIsLocked] = useState(false);
   const [stage, setStage] = useState<ProcessStage>("idle");
   const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    if (selectedFile) {
+      startBtnRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [selectedFile]);
 
   const validateAndSetFile = useCallback((file: File) => {
     setValidationError(null);
@@ -289,7 +296,7 @@ export function FileUploadZone() {
 
       {/* 프로그레스 바 + 분석 시작 버튼 */}
       {selectedFile && (
-        <div className="w-full flex flex-col gap-3">
+        <div ref={startBtnRef} className="w-full flex flex-col gap-3">
           <AnimatePresence>
             {isProcessing && (
               <motion.div

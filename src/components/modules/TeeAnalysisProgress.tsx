@@ -77,6 +77,20 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
   const [isDone, setIsDone] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const logsRef = useRef<LogEntry[]>([]);
+  const doneBtnRef = useRef<HTMLDivElement>(null);
+  const errorBtnRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isDone) {
+      doneBtnRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [isDone]);
+
+  useEffect(() => {
+    if (stage === "error") {
+      errorBtnRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [stage]);
 
   useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = [];
@@ -247,6 +261,7 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
       <AnimatePresence>
         {isDone && (
           <motion.div
+            ref={doneBtnRef}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
@@ -269,6 +284,7 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
       <AnimatePresence>
         {stage === "error" && errorMessage && (
           <motion.div
+            ref={errorBtnRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="flex flex-col items-center gap-3 text-center"
