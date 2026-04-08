@@ -214,21 +214,38 @@ function compressedPublicKeyToEthAddress(compressedHex: string): string {
 }
 
 /**
- * MPC FunctionCall 결과에서 { bigR, s } 추출
+ * MPC FunctionCall 결과에서 { bigR, s, recoveryId } 추출
+ *
+ * v1.signer-prod.testnet 신규 응답 형식:
+ *   { big_r: { affine_point: "03..." }, s: { scalar: "..." }, recovery_id: 0|1 }
+ * 구형 폴백:
+ *   { big_r: "hexstring", s: "hexstring" }
  */
 function extractMpcSignature(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   result: any
-): { bigR: string; s: string } {
+): { bigR: string; s: string; recoveryId?: number } {
   // FinalExecutionOutcome → receipts_outcome → 마지막 SuccessValue 파싱
   try {
     const outcomes = result?.receipts_outcome ?? [];
-    for (const outcome of outcomes.reverse()) {
+    for (const outcome of [...outcomes].reverse()) {
       const status = outcome?.outcome?.status;
       if (status?.SuccessValue) {
         const decoded = Buffer.from(status.SuccessValue, "base64").toString("utf-8");
         const parsed = JSON.parse(decoded);
-        if (parsed?.big_r && parsed?.s) {
+
+        // 신규 형식: big_r.affine_point, s.scalar, recovery_id
+        if (parsed?.big_r?.affine_point && parsed?.s?.scalar) {
+          // affine_point는 압축 공개키 hex (02/03 prefix + 32바이트 x좌표)
+          // ECDSA r 값 = x좌표 (prefix 2자리 제거)
+          const bigR = (parsed.big_r.affine_point as string).slice(2);
+          const s = parsed.s.scalar as string;
+          const recoveryId = typeof parsed.recovery_id === "number" ? parsed.recovery_id : undefined;
+          return { bigR, s, recoveryId };
+        }
+
+        // 구형 형식: big_r, s 모두 문자열
+        if (typeof parsed?.big_r === "string" && typeof parsed?.s === "string") {
           return { bigR: parsed.big_r, s: parsed.s };
         }
       }
@@ -240,11 +257,11 @@ function extractMpcSignature(
 }
 
 /**
- * MPC { bigR, s } → ethers v6 Signature 복원
- * secp256k1 서명 복구 비트(v) 결정: 0 또는 1 시도
+ * MPC { bigR, s, recoveryId } → ethers v6 Signature 복원
+ * recovery_id가 있으면 직접 사용, 없으면 0/1 순차 시도
  */
-function reconstructEthSignature(
-  { bigR, s }: { bigR: string; s: string },
+export function reconstructEthSignature(
+  { bigR, s, recoveryId }: { bigR: string; s: string; recoveryId?: number },
   unsignedTx: ethers.TransactionRequest,
   fromAddress: string
 ): ethers.Signature {
@@ -252,7 +269,10 @@ function reconstructEthSignature(
     ethers.Transaction.from(unsignedTx as ethers.TransactionLike<string>).unsignedSerialized
   );
 
-  for (const v of [27, 28]) {
+  const vCandidates: number[] =
+    recoveryId !== undefined ? [recoveryId + 27] : [27, 28];
+
+  for (const v of vCandidates) {
     try {
       const sig = ethers.Signature.from({
         r: `0x${bigR}`,
