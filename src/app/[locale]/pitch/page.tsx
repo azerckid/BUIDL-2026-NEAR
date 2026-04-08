@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, ChevronRight, ShieldCheck, DatabaseZap, Workflow,
-  Activity, Cpu, Sparkles, TrendingUp, Layers, Milestone, Presentation,
+  Activity, Cpu, Sparkles, TrendingUp, Layers, Milestone, Presentation, Map,
 } from 'lucide-react';
 
 export default function PitchDeck() {
@@ -84,7 +84,7 @@ export default function PitchDeck() {
       icon: <Cpu className="w-12 h-12 text-amber-400" />,
       content: (
         <div className="space-y-4 mt-8">
-          {(['b1', 'b2', 'b3'] as const).map((key) => (
+          {(['b1', 'b2', 'b3', 'b4'] as const).map((key) => (
             <div key={key} className="p-5 border-l-4 border-amber-500 bg-slate-800/30">
               <h4 className="text-amber-400 font-bold mb-1">{t(`s5.${key}Title`)}</h4>
               <p className="text-slate-300">{t(`s5.${key}Desc`)}</p>
@@ -141,26 +141,42 @@ export default function PitchDeck() {
     {
       title: t('s8.title'),
       subtitle: t('s8.subtitle'),
-      icon: <Layers className="w-12 h-12 text-rose-400" />,
+      icon: <Map className="w-12 h-12 text-teal-400" />,
       content: (
-        <div className="mt-8 space-y-6 text-lg text-slate-300">
-          <blockquote className="border-l-4 border-slate-600 pl-4 py-2 italic text-slate-400 text-xl font-light">
-            {t('s8.quote')}
-          </blockquote>
-          <p>
-            <strong className="text-rose-400 block mb-1">{t('s8.r1Title')}</strong>
-            {t('s8.r1Desc')}
-          </p>
-          <p>
-            <strong className="text-rose-400 block mb-1">{t('s8.r2Title')}</strong>
-            {t('s8.r2Desc')}
-          </p>
+        <div className="flex flex-col space-y-3 mt-8">
+          {(['p1', 'p2', 'p3', 'p4'] as const).map((key) => (
+            <div key={key} className="flex items-start p-4 bg-slate-800/40 rounded-xl border border-slate-700/50">
+              <div className="flex flex-col mr-5 shrink-0 w-28">
+                <span className="text-teal-400 font-bold text-sm">{t(`s8.${key}Phase`)}</span>
+                <span className="text-slate-500 text-xs mt-0.5">{t(`s8.${key}When`)}</span>
+              </div>
+              <span className="text-slate-200 text-sm leading-relaxed">{t(`s8.${key}Desc`)}</span>
+            </div>
+          ))}
         </div>
       ),
     },
     {
       title: t('s9.title'),
       subtitle: t('s9.subtitle'),
+      icon: <Layers className="w-12 h-12 text-rose-400" />,
+      content: (
+        <div className="mt-8 space-y-5 text-lg text-slate-300">
+          <blockquote className="border-l-4 border-slate-600 pl-4 py-2 italic text-slate-400 text-xl font-light">
+            {t('s9.quote')}
+          </blockquote>
+          {(['r1', 'r2', 'r3'] as const).map((key) => (
+            <p key={key}>
+              <strong className="text-rose-400 block mb-1">{t(`s9.${key}Title`)}</strong>
+              {t(`s9.${key}Desc`)}
+            </p>
+          ))}
+        </div>
+      ),
+    },
+    {
+      title: t('s10.title'),
+      subtitle: t('s10.subtitle'),
       icon: <Milestone className="w-12 h-12 text-cyan-400" />,
       content: (
         <div className="space-y-6 mt-8">
@@ -174,8 +190,8 @@ export default function PitchDeck() {
             <div key={key} className="flex bg-slate-800/40 p-5 rounded-xl border border-slate-700/50 relative overflow-hidden">
               <div className={`absolute top-0 left-0 w-1 h-full ${color}`} />
               <div>
-                <h4 className={`${titleClass} font-bold mb-1 text-lg`}>{t(`s9.${key}Title`)}</h4>
-                <p className="text-slate-300">{t(`s9.${key}Desc`)}</p>
+                <h4 className={`${titleClass} font-bold mb-1 text-lg`}>{t(`s10.${key}Title`)}</h4>
+                <p className="text-slate-300">{t(`s10.${key}Desc`)}</p>
               </div>
             </div>
           ))}
@@ -183,28 +199,29 @@ export default function PitchDeck() {
       ),
     },
     {
-      title: t('s10.title'),
-      subtitle: t('s10.subtitle'),
+      title: t('s11.title'),
+      subtitle: t('s11.subtitle'),
       icon: <Presentation className="w-12 h-12 text-fuchsia-400" />,
       content: (
         <div className="mt-12 text-center max-w-2xl mx-auto space-y-8">
-          <p className="text-xl text-slate-300 leading-relaxed">{t('s10.p1')}</p>
-          <p className="text-lg text-slate-400">{t('s10.p2')}</p>
+          <p className="text-xl text-slate-300 leading-relaxed">{t('s11.p1')}</p>
+          <p className="text-lg text-slate-400">{t('s11.p2')}</p>
         </div>
       ),
     },
     {
-      title: t('s11.title'),
-      subtitle: t('s11.subtitle'),
+      title: t('s12.title'),
+      subtitle: t('s12.subtitle'),
       icon: <ShieldCheck className="w-12 h-12 text-white" />,
       content: (
         <div className="mt-8 flex flex-col items-center justify-center space-y-8 text-center px-4">
           <div className="pb-6 border-b border-slate-800 w-full">
-            <h3 className="text-xl text-slate-300 font-medium">{t('s11.role')}</h3>
-            <p className="text-slate-500 mt-2">{t('s11.roleDesc')}</p>
+            <h3 className="text-xl text-slate-300 font-medium">{t('s12.role')}</h3>
+            <p className="text-slate-500 mt-2">{t('s12.roleDesc')}</p>
+            <p className="text-slate-600 text-sm mt-1 italic">{t('s12.hireNote')}</p>
           </div>
           <blockquote className="text-2xl font-light text-white leading-relaxed max-w-3xl italic">
-            {t('s11.quote')}
+            {t('s12.quote')}
           </blockquote>
         </div>
       ),

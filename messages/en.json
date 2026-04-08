@@ -275,7 +275,9 @@
       "b2Title": "ZKP & Smart Contracts",
       "b2Desc": "Noir insurance_eligibility circuit compiled and recorded on NEAR Testnet.",
       "b3Title": "Confidential Transactions",
-      "b3Desc": "End-to-end execution of private payments via Intents and MyNearWallet."
+      "b3Desc": "End-to-end execution of private payments via Intents and MyNearWallet.",
+      "b4Title": "Frontend DApp",
+      "b4Desc": "Multi-language DApp with memory-purge particle animation, 3-step reveal UX, and on-chain receipt."
     },
     "s6": {
       "title": "Why NEAR, Why Now?",
@@ -299,15 +301,33 @@
       "somDesc": "Tech-savvy Gen Z/Millennials in Asia with prior DTC genetic testing experience"
     },
     "s8": {
+      "title": "Roadmap & Milestones",
+      "subtitle": "From Hackathon MVP to Global Platform",
+      "p1Phase": "Phase 0 (V1)",
+      "p1When": "Hackathon End",
+      "p1Desc": "Technical MVP proven — end-to-end private analysis pipeline complete.",
+      "p2Phase": "Phase 1",
+      "p2When": "Q2 2026",
+      "p2Desc": "Off-chain API stabilization, outreach to DTC genetic testing partners.",
+      "p3Phase": "Phase 2 (V2)",
+      "p3When": "Q3 2026",
+      "p3Desc": "Autonomous Agent OS launch & global cross-chain liquidity integration.",
+      "p4Phase": "Phase 3",
+      "p4When": "Q4 2026+",
+      "p4Desc": "Official global B2B matchmaking model & mainnet launch."
+    },
+    "s9": {
       "title": "Feature Freeze Rationale",
       "subtitle": "Execution Discipline at V1",
       "quote": "\"Why didn't we integrate Agent OS and L2Pass immediately?\"",
       "r1Title": "Uncompromising Stability",
       "r1Desc": "Financial protocols demand pristine signature integrity. Overloading the TEE enclave with massive Javascript frameworks or resolving off-chain SDK dependency hells jeopardizes core transaction execution.",
-      "r2Title": "Focus on Primitives",
-      "r2Desc": "We rigorously focused V1 entirely on proving the absolute foundational security primitive — TEE isolation and ZKP processing. Once the foundation is impenetrable, we scale."
+      "r2Title": "Hardware Runtime Constraints",
+      "r2Desc": "TEE's communication-isolated enclave makes forcing heavy JavaScript Agent OS frameworks counterproductive. Physical memory ceilings and complex SDK conflicts were proactively assessed.",
+      "r3Title": "Focus on Primitives",
+      "r3Desc": "We rigorously focused V1 entirely on proving the absolute foundational security primitive — TEE isolation and ZKP processing. Once the foundation is impenetrable, we scale."
     },
-    "s9": {
+    "s10": {
       "title": "V2 Advanced Expansion",
       "subtitle": "Scaling from a Tool to an Ecosystem (Q3 2026)",
       "f1Title": "Autonomous Agent OS",
@@ -317,17 +337,18 @@
       "f3Title": "Confidential Dark-Pool Swaps",
       "f3Desc": "Executing high-net-worth policy premiums totally obscured from public mempools, terminating frontrunning vectors entirely."
     },
-    "s10": {
+    "s11": {
       "title": "Open Source & Leverage",
       "subtitle": "Giving back to the NEAR Ecosystem",
       "p1": "We are open-sourcing our TEE-App Wrapper Boilerplate and Noir ZKP Logic Templates.",
       "p2": "This drops the barrier to entry for building Web3 Privacy apps from weeks to just 10 minutes, fostering a fertile ground for the next generation of healthcare DApps on NEAR."
     },
-    "s11": {
+    "s12": {
       "title": "Team & Vision",
       "subtitle": "The endgame of Privacy & Finance",
       "role": "Solo Founder — Full-Stack E2E Delivery",
       "roleDesc": "Product Architecture, Next.js, Drizzle Edge DB, TEE Runtime & ZKP Contracts",
+      "hireNote": "Phase 1+: Product design & systems engineering hires planned",
       "quote": "\"Our core proof: Deep personalization in finance is 100% possible entirely through blockchain privacy primitives, without ever sacrificing human sovereignty.\""
     }
   }
