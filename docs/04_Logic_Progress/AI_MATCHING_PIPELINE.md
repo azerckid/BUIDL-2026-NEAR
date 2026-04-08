@@ -521,9 +521,64 @@ export async function runAnalysis(sessionId: string, fileBuffer: ArrayBuffer): P
 
 ---
 
+## 8. 매칭 결과 UI 표현 방식 — "왜 이 상품인가"를 사용자에게 보여주기
+
+### 8-1. 문제 정의
+
+현재 분석 완료 후 대시보드로 이동하면 보험 상품 2개가 즉시 노출된다.
+사용자 입장에서는 "어디서 왜 이 상품이 나왔는지" 맥락이 없어 신뢰도가 낮다.
+`TeeAnalysisOutput`의 `advisoryMessages`, `reasoning`, `coverageGapSummary` 필드가 설계되어 있지만 UI에서 활용되지 않고 있다.
+
+### 8-2. 목표 UX 흐름
+
+분석 완료 후 대시보드 진입 전, 단계적으로 결과를 공개하여 사용자가 추천 근거를 납득한 뒤 상품을 보도록 한다.
+
+```
+[분석 완료 화면]
+  "대시보드로 이동" 버튼 클릭
+        │
+        ▼
+[Step 1 — 위험 프로파일 요약]
+  4개 카테고리 (oncology / cardiovascular / metabolic / neurological)
+  각 카테고리에 위험 등급(high / moderate / normal) 배지 표시
+  → 사용자: "내 유전자에서 이런 위험이 감지됐구나"
+        │
+        ▼
+[Step 2 — AI 추천 근거 공개]
+  `coverageGapSummary` — 상단 한 줄 요약 배너
+  `reasoning` — AI가 왜 이 순서로 우선순위를 결정했는지 설명 텍스트
+  `advisoryMessages` — 위험 등급이 높은 카테고리 1~2개의 메시지 표시
+  → 사용자: "AI가 이런 이유로 이 카테고리를 먼저 보장하라고 했구나"
+        │
+        ▼
+[Step 3 — 추천 상품 등장]
+  매칭된 상품 카드가 순차적으로 (staggered animation) 등장
+  각 카드에 "이 상품이 추천된 이유: {해당 카테고리 advisoryMessage 요약}" 한 줄 표시
+  → 사용자: "납득된 상태에서 상품을 선택"
+```
+
+### 8-3. 각 필드의 UI 매핑
+
+| TeeAnalysisOutput 필드 | 표시 위치 | 표시 방식 |
+|---|---|---|
+| `coverageGapSummary` | 대시보드 상단 배너 | 노란색 경고 배너, 한 줄 텍스트 |
+| `reasoning` | Step 2 본문 | 회색 박스, 2~3줄 텍스트 |
+| `advisoryMessages[category]` | Step 2 카테고리 카드 + 상품 카드 서브텍스트 | 카테고리별 접이식 표시 |
+| `priorityOrder` | 카테고리 정렬 순서 | 1순위 카테고리 강조 표시 |
+| `riskProfile[category].level` | 카테고리 배지 색상 | high=빨강, moderate=노랑, normal=초록 |
+
+### 8-4. 구현 시 고려사항
+
+- `advisoryMessages`와 `reasoning`은 현재 Mock TEE가 고정 문자열을 반환한다. 이 값이 실제 사용자 위험 프로파일에 맞게 동적으로 생성되는지 확인 후 UI 연결할 것.
+- Step 1 → Step 2 → Step 3 전환은 자동 진행이 아닌 "다음" 버튼으로 사용자가 직접 확인하는 방식을 권장한다 (납득 시간 확보).
+- 상품 카드에 표시하는 "추천 이유" 한 줄은 `advisoryMessages[product.coverageCategory]`에서 앞 50자를 잘라 사용한다.
+
+---
+
 ## 관련 문서
 
 - [DB 스키마 명세](../03_Technical_Specs/DB_SCHEMA.md)
 - [NEAR 프라이버시 아키텍처](../03_Technical_Specs/NEAR_PRIVACY_STACK_ARCH.md)
 - [사용자 플로우](../02_UI_Screens/USER_FLOW.md)
 - [로드맵](./ROADMAP.md)
+- [비즈니스 모델](../01_Concept_Design/B2B_BROKER_CONCEPT.md)
