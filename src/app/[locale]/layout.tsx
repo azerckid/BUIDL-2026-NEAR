@@ -40,7 +40,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
           <WalletProvider>
             {children}
           </WalletProvider>
-          <Toaster richColors position="top-right" />
+          <Toaster richColors position="top-right" expand visibleToasts={3} />
         </NextIntlClientProvider>
         <Analytics />
         <SpeedInsights />
