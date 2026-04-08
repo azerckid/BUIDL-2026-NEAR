@@ -49,3 +49,6 @@ next-env.d.ts
 contracts/*/target/
 circuits/*/target/*.gz
 circuits/*/target/proof
+
+# agent
+.agent/*
