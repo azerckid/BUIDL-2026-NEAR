@@ -185,6 +185,7 @@
     "errorTitle": "Analysis Failed",
     "errorDesc": "An error occurred",
     "analysisError": "An error occurred during analysis",
+    "timeoutError": "Analysis timed out (60s). Please try again in a moment.",
     "zkpBadge": "Credential generated — scores are not shared with insurers",
     "doneMessage": "Analysis complete. Review the log above and proceed to dashboard.",
     "goToDashboard": "Go to Dashboard",
