@@ -8,7 +8,7 @@ import { DateTime } from "luxon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, Copy } from "lucide-react";
 import { prepareCheckout } from "@/actions/prepareCheckout";
 import { confirmCheckout } from "@/actions/confirmCheckout";
 import {
@@ -704,9 +704,17 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">{t("ethDerivedAddress")}</span>
               {derivedEthAddress ? (
-                <span className="font-mono text-foreground">
-                  {derivedEthAddress.slice(0, 6)}...{derivedEthAddress.slice(-4)}
-                </span>
+                <button
+                  type="button"
+                  className="flex items-center gap-1.5 font-mono text-foreground hover:text-primary transition-colors"
+                  onClick={() => {
+                    navigator.clipboard.writeText(derivedEthAddress);
+                    toast.success(t("ethAddressCopied"));
+                  }}
+                >
+                  <span>{derivedEthAddress.slice(0, 6)}...{derivedEthAddress.slice(-4)}</span>
+                  <Copy className="h-3 w-3 flex-shrink-0" />
+                </button>
               ) : (
                 <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
               )}
