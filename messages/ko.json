@@ -185,6 +185,7 @@
     "errorTitle": "분석 실패",
     "errorDesc": "오류가 발생했습니다",
     "analysisError": "분석 중 오류가 발생했습니다",
+    "timeoutError": "분석 시간이 초과되었습니다 (60초). 잠시 후 다시 시도해 주세요.",
     "zkpBadge": "자격 증명 생성 완료 — 수치는 보험사에 전달되지 않습니다",
     "doneMessage": "분석이 완료되었습니다. 위 로그를 확인 후 대시보드로 이동하세요.",
     "goToDashboard": "대시보드로 이동",
