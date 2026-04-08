@@ -83,6 +83,10 @@ export async function runAnalysis(sessionId: string): Promise<RunAnalysisResult>
       riskProfile: JSON.stringify(validated.riskProfile),
       recommendedProductIds: JSON.stringify(matchedIds),
       zkpProofHash: zkpProof.proofBytes,
+      advisoryMessages: JSON.stringify(validated.advisoryMessages),
+      reasoning: validated.reasoning,
+      coverageGapSummary: validated.coverageGapSummary,
+      priorityOrder: JSON.stringify(validated.priorityOrder),
       generatedAt: now.toJSDate(),
       expiresAt: now.plus({ days: 30 }).toJSDate(),
     });
