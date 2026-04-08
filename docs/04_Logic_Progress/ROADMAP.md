@@ -1,7 +1,7 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-06 (Stage 11-1 MPC Chain Signatures 구현 완료)
+- **최종 수정일**: 2026-04-08 (Stage 13 AI 매칭 결과 단계별 공개 UX 완료)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v2.0
 
@@ -619,6 +619,52 @@
   - [ ] Aztec Protocol 팀 기술 지원 요청 필요
 - [ ] `zkp.rogulus.testnet` 재배포 (verify_proof_onchain 추가 후)
 - [ ] `nargo verify`와 온체인 검증 결과 일치 E2E 확인
+
+---
+
+---
+
+### Stage 13 — AI 매칭 결과 단계별 공개 UX ✓ 완료 2026-04-08
+
+> **목적**: 분석 완료 후 대시보드에서 보험 상품이 갑자기 등장하는 문제 해결.
+> AI가 왜 이 상품을 추천했는지 사용자가 납득한 상태에서 상품을 보도록 3단계 공개 흐름 구현.
+>
+> **참고 설계 문서**: [AI_MATCHING_PIPELINE.md Section 8](./AI_MATCHING_PIPELINE.md)
+
+#### 13-1. DB 스키마 변경
+
+- [x] `src/lib/db/schema.ts` — `analysisResults` 테이블에 컬럼 4개 추가
+  - [x] `advisoryMessages TEXT` — 카테고리별 AI 권고 메시지 (JSON)
+  - [x] `reasoning TEXT` — AI 추천 근거 요약 문장
+  - [x] `coverageGapSummary TEXT` — 보장 공백 한 줄 요약
+  - [x] `priorityOrder TEXT` — 카테고리 우선순위 배열 (JSON)
+
+#### 13-2. DB 마이그레이션
+
+- [x] `npx drizzle-kit generate` — `drizzle/0001_slimy_whistler.sql` 생성
+- [x] `npx drizzle-kit migrate` — Turso DB 적용 완료
+
+#### 13-3. runAnalysis.ts 업데이트
+
+- [x] `db.insert(analysisResults)` 호출 시 신규 4개 필드 저장
+
+#### 13-4. getDashboardData.ts 업데이트
+
+- [x] `DashboardData` 인터페이스에 `advisoryMessages`, `reasoning`, `coverageGapSummary`, `priorityOrder` 추가
+- [x] DB 조회 결과에서 JSON 파싱 + Zod 검증 후 반환
+- [x] 기존 레코드(컬럼 값 null) graceful fallback 처리
+
+#### 13-5. DashboardClient.tsx UI 구현
+
+- [x] **Step 1 — 위험 프로파일 요약**: `priorityOrder` 기준 카드 정렬, 위험 등급 배지
+- [x] **Step 2 — AI 추천 근거**: `coverageGapSummary` 경고 배너 + `reasoning` 박스 + 카테고리별 `advisoryMessages`
+- [x] **Step 3 — 추천 상품**: staggered animation + 카드별 "추천 이유" 한 줄 표시
+- [x] `advisoryMessages`/`reasoning`/`coverageGapSummary` null 시 기존 Tabs UI로 자동 fallback
+- [x] `messages/ko.json`, `messages/en.json` — `dashboard.reveal.*` 번역 키 추가
+
+#### 13-6. 빌드 검증
+
+- [x] `npm run build` TypeScript 오류 0건 확인
 
 ---
 
