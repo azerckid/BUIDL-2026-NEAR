@@ -1,10 +1,14 @@
-# MyDNA Insurance Agent
+# OHmyDNA Insurance Agent
 
 **Privacy-first genetic insurance DApp powered by NEAR Protocol**
 
 유전자를 노출하지 않고, 유전자 덕분에 더 나은 보험에 가입하는 유일한 방법.
 
 > NEAR Buidl 2026 Hackathon submission
+
+**Live Demo**: https://buidl-2026-near.vercel.app/en  
+**Pitch Deck**: https://buidl-2026-near.vercel.app/en/pitch  
+**NEAR Testnet Contract**: `zkp.rogulus.testnet`
 
 ---
 

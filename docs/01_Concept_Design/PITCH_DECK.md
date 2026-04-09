@@ -1,22 +1,144 @@
-# [피치덱] MyDNA Insurance Agent — NEAR Buidl 2026
+# [피치덱] OHmyDNA Insurance Agent — NEAR Buidl 2026
 
 - **작성일**: 2026-04-01
-- **최종 수정일**: 2026-04-09
+- **최종 수정일**: 2026-04-10
 - **레이어**: 01_Concept_Design
-- **상태**: Final v3.0 (Script Included)
+- **상태**: Final v4.0 (5분 대본 + 3분 데모 영상 스크립트 포함)
+
+---
+
+## 발표 버전 가이드
+
+| 버전 | 시간 | 대상 | 슬라이드 |
+|---|---|---|---|
+| **5분 발표** | 300초 | 2026-04-18 Final Pitch Day (오프라인) | S1~S8, S12 (S9/S10/S11 생략) |
+| **3분 데모 영상** | 180초 | 2026-04-17 Ludium 포털 제출 | S1~S3 압축, 앱 시연 90초, S5, S12 |
+
+---
+
+## 3분 데모 영상 스크립트 (제출용)
+
+> QuickTime 화면 녹화 기준. 총 180초 목표.
+
+**[0:00~0:15] 오프닝 (S1)**
+"안녕하세요. OHmyDNA입니다. 유전자를 노출하지 않고, 유전자 덕분에 더 나은 보험에 가입하는 유일한 솔루션입니다."
+
+**[0:15~0:40] 문제와 해답 (S2+S3 압축)**
+"수천만 명이 유전자 데이터를 서랍에 방치합니다. 차별과 유출의 공포 때문입니다. OHmyDNA는 데이터를 건네주지 않고 증명만으로 혜택을 줍니다. IronClaw TEE에서 분석 즉시 소각, 보험사엔 ZKP만 전달됩니다."
+
+**[0:40~2:10] 앱 라이브 시연 (화면 녹화)**
+- 지갑 연결 → 샘플 파일 업로드 → TEE 분석 진행 애니메이션 → 데이터 소각 확인
+- AI 추천 대시보드 3단계 공개 → 상품 선택 → Confidential Intents 결제 완료
+
+**[2:10~2:40] 구현 성과 (S5)**
+"IronClaw TEE 연동, Noir ZKP NEAR 테스트넷 등록, Confidential Intents 실결제까지 엔드투엔드 파이프라인을 모두 동작하는 코드로 완성했습니다."
+
+**[2:40~3:00] 클로징 (S12)**
+"사용자의 가장 예민한 데이터를 지키는 기술이 곧 새로운 수익 모델입니다. 감사합니다."
+
+---
+
+## 3-Min Demo Video Script (Submission — English)
+
+> QuickTime screen recording. Target: 180 seconds.
+> Narration ~90s + App demo screen recording ~90s.
+
+**[0:00~0:15] Opening (S1)**
+"Hi, I'm the founder of OHmyDNA — the only solution that lets you benefit from your genetic data without ever exposing it."
+
+**[0:15~0:45] Problem & Solution (S2+S3)**
+"Tens of millions of people keep their DNA test results locked away — afraid of discrimination and data leaks. When 23andMe was hacked, 6.9 million profiles ended up on the dark web. Your DNA can never be reset. OHmyDNA solves this by never storing your data at all. We analyze inside an IronClaw TEE, purge it instantly, and send only a ZKP proof to the insurer — no raw data, ever."
+
+**[0:45~2:15] Live App Demo (Screen Recording)**
+- Wallet connect → sample file upload → TEE analysis animation → data purge confirmation
+- AI recommendation dashboard 3-step reveal → product selection → Confidential Intents payment complete
+
+**[2:15~2:45] What We Built (S5)**
+"We shipped full working code: IronClaw TEE integration, a Noir ZKP circuit deployed to NEAR testnet, and Confidential Intents payment — a complete end-to-end privacy pipeline, all built during this hackathon."
+
+**[2:45~3:00] Closing (S12)**
+"The technology that protects your most sensitive data is the new competitive moat. What if you could verify it cryptographically? OHmyDNA just did. Thank you."
+
+---
+
+## 5분 발표 스크립트 (Final Pitch Day — 2026-04-18)
+
+> 슬라이드 순서대로 읽는 전체 대본. S9/S10/S11은 생략 (발표 중 빠르게 넘김).
+> 목표: 9슬라이드 × 평균 35초 = 약 5분
+
+**[S1 — Cover / ~25초]**
+"안녕하세요. OHmyDNA입니다. 유전자를 노출하지 않고, 유전자 덕분에 더 나은 보험에 가입하는 혁신을 NEAR 위에서 구현했습니다."
+
+**[S2 — Problem / ~38초]**
+"수천만 명이 유전자 데이터를 서랍에 방치합니다. 차별의 두려움, 데이터 유출의 공포 때문입니다. 23andMe 해킹처럼 한 번 털리면 DNA는 평생 복구 불가합니다. 이것이 헬스케어 보험 시장의 가장 큰 비효율입니다."
+
+**[S3 — Solution / ~33초]**
+"해답은 데이터를 건네주지 않고 증명만으로 혜택을 얻는 것입니다. IronClaw TEE 안에서 분석 후 즉시 소각, 보험사에는 ZKP 증명만 전달됩니다. 이것이 Trustless입니다."
+
+**[S4 — Product Journey / ~38초]**
+"다섯 단계입니다. 지갑 연결, 파일 업로드, TEE 격리 분석 후 즉시 소각, AI 추천 대시보드, Confidential Intents 기밀 결제. 사용자는 어떤 데이터도 외부에 노출하지 않고 전 과정을 완료합니다."
+
+**[S5 — What We Built / ~42초]**
+"저희는 동작하는 코드를 완성했습니다. IronClaw TEE 연동, Noir ZKP NEAR 테스트넷 등록, Confidential Intents 실결제. 이 프라이버시 파이프라인 전체를 해커톤 기간 내에 엔드투엔드로 구동했습니다."
+
+**[S6 — 왜 NEAR인가 / ~42초]**
+"오직 지금, NEAR에서만 가능합니다. TEE와 인텐트와 체인 서명이 하나의 생태계로 묶인 것은 지금이 처음입니다. 저희는 '우리를 믿으라'고 말할 필요가 없습니다. Trustless 코드가 신뢰를 대체하고, 이 구조를 오픈소스로 공개합니다."
+
+**[S7 — Business Model / ~26초]**
+"수익 모델은 명확합니다. 설계사가 독식하던 15% 중개 수수료를 플랫폼이 흡수합니다. TAM 4.5조 달러, 초기 타겟은 아시아 MZ 세대입니다."
+
+**[S8 — Roadmap / ~28초]**
+"Phase 0 MVP, 증명됐습니다. Q2 DTC 협력, Q3 Agent OS와 크로스체인 유동성 통합. 수십억 기관 자산도 맡길 수 있는 금융 인프라가 목표입니다."
+
+**[S12 — Team & Closing / ~43초]**
+"저는 1인으로 전 파이프라인을 구축했습니다. What if you could verify it cryptographically? OHmyDNA는 그 답을 코드로 증명했습니다. 프라이버시를 지키는 기술이 곧 수익 모델입니다. 감사합니다."
+
+---
+
+## 5-Min Pitch Script (Final Pitch Day — English)
+
+> 9 slides × ~33 sec average = ~5 min. Skip S9 / S10 / S11.
+> Target: ~600 words at 130 WPM = ~277 seconds + ~27s transitions = ~305 seconds.
+
+**[S1 — Cover / ~20s]**
+"Hello, everyone. We're OHmyDNA — a privacy-first genetic insurance DApp built on NEAR Protocol. We've built the only solution that lets you benefit from your personal genetic data without ever exposing it to insurers, hospitals, or anyone else."
+
+**[S2 — Problem / ~40s]**
+"Tens of millions of people have taken DTC genetic tests — 23andMe, AncestryDNA. But those results sit unused in a drawer. Why? Because people are terrified. Terrified of genetic discrimination — insurers using their DNA to deny coverage or spike premiums. And terrified of data breaches. When 23andMe was hacked in 2023, 6.9 million people's genetic profiles ended up on the dark web. Unlike a password, your DNA can never be reset. This is the biggest unsolved problem in healthcare insurance today."
+
+**[S3 — Solution / ~35s]**
+"Our answer is a fundamental paradigm shift: you get all the benefits of personalized insurance without handing over your data. Your genetic file is analyzed inside an IronClaw Trusted Execution Environment — a hardware-isolated black box. The moment analysis is complete, the raw data is permanently purged from memory. The insurer receives nothing except a zero-knowledge proof — a mathematical certificate that says 'eligibility confirmed' without revealing a single data point."
+
+**[S4 — Product Journey / ~30s]**
+"The user journey is five steps. Connect your NEAR wallet. Upload your genetic file. IronClaw TEE performs isolated analysis and the data is immediately burned. Our AI surfaces the most relevant insurance products for your genetic profile. You complete payment through NEAR Confidential Intents — a private on-chain transaction that leaves no traceable trail."
+
+**[S5 — What We Built / ~35s]**
+"We didn't just design this — we built it and it runs. During this hackathon, we completed a full end-to-end pipeline. IronClaw TEE integrated with NEAR AI Cloud, running real inference on the Qwen model. A Noir ZKP circuit compiled and deployed to NEAR testnet at zkp.rogulus.testnet. Confidential Intents payment completed on testnet. Every layer of the privacy stack is working code."
+
+**[S6 — Why NEAR / ~35s]**
+"Why is this only possible on NEAR, right now? Because NEAR is the only ecosystem where IronClaw TEE, Confidential Intents, and Chain Signatures are all available under one developer roof. AWS Nitro is powerful — but it's still a Trust-Me model. You're trusting Amazon. We don't ask you to trust us. Every step is cryptographically verifiable on-chain. And we're open-sourcing the entire TEE wrapper and ZKP templates for the NEAR community."
+
+**[S7 — Business Model / ~25s]**
+"The business model is direct. Traditional insurance brokers take a 15% commission on every policy sold. We replace that with a smart contract fee. TAM is $4.5 trillion in global health and digital insurance. Our beachhead is Asia's Gen MZ — already comfortable with DTC genetic testing and digital health."
+
+**[S8 — Roadmap / ~25s]**
+"Phase Zero is proven today. Q2 2026: off-chain API stabilization and DTC lab partnerships. Q3 Phase Two: an autonomous Agent OS that proactively monitors your health data and renegotiates your coverage. Q4 and beyond: full mainnet launch as institutional-grade cross-chain financial infrastructure."
+
+**[S12 — Closing / ~40s]**
+"I built this entire stack solo — product architecture, frontend, database, TEE integration, ZKP circuits, and multi-chain payments. What I set out to prove is this: the technology that protects your most sensitive data is not a cost — it is a competitive moat and a new revenue model. NEAR asked us: what if you could verify it cryptographically? OHmyDNA answers that question with working code. Thank you."
 
 ---
 
 ## Slide 1 — Cover
 
-**MyDNA Insurance Agent**
+**OHmyDNA Insurance Agent**
 > 유전자를 노출하지 않고, 유전자 덕분에 더 나은 보험에 가입하는 혁신.
 
-- **발표 분량**: 약 5분
+- **발표 분량**: 5분 (Final Pitch Day) / 3분 (데모 영상)
 - **타겟 도메인**: Healthcare x Web3 Privacy x AI
 
-🎤 **발표자 대본 (Speaker Script)**:
-"안녕하세요, NEAR Buidl 2026 해커톤에 참가한 MyDNA Insurance Agent입니다. 저희는 가장 민감한 개인정보인 '유전자 데이터'를 블록체인상에서 안전하게 격리 보호하면서도, AI를 활용해 개인 맞춤형 보험 서비스를 누릴 수 있는 유일한 솔루션을 제안합니다."
+🎤 **발표자 대본 — 5분 버전 (약 25초)**:
+"안녕하세요. OHmyDNA입니다. 유전자를 노출하지 않고, 유전자 덕분에 더 나은 보험에 가입하는 혁신을 NEAR 위에서 구현했습니다."
 
 ---
 
@@ -25,11 +147,11 @@
 유전자 검사 결과를 보험 및 금융 심사에 활용하는 것은 금기시되고 있습니다. 그 이유는 명확합니다.
 
 **1. 유전자 차별 (Genetic Discrimination)**: 보험사는 유전자 원본을 질병 리스크 극대화의 근거로 사용해 가입을 거절하거나 할증합니다.
-**2. 데이터 주권 상실 (Loss of Sovereignty)**: 중앙화된 시스템은 심각한 보안 위협에 취약합니다. (예: 23andMe 사례)
-**3. 획일적인 보장 구조 (Coverage Mismatch)**: 현재 시장엔 나의 유전적 취약점을 핀포인트로 방어해주는 상품이 없습니다.
+**2. 데이터 주권 상실 (Loss of Sovereignty)**: 유전자 정보는 평생 바꿀 수 없는 절대적 생체 데이터입니다. 23andMe 해킹 사태(690만 명 유출)처럼 중앙 서버 기반의 'Trust-Me' 모델에서 한 번 데이터가 털리면, 복구조차 불가능한 치명적 위협에 영원히 노출됩니다.
+**3. 획일적인 보장 구조 (Coverage Mismatch)**: 현재 시장엔 나의 유전적 취약점을 프라이빗하게 핀포인트로 방어해주는 투명한 상품이 없습니다.
 
-🎤 **발표자 대본 (Speaker Script)**:
-"전 세계 수천만 명의 사람들이 유전자 검사 데이터를 서랍 속에 방치하고 있습니다. 유전자 차별에 대한 두려움과 데이터 유출의 공포 때문입니다. 이는 개인에게도 손해일 뿐더러, 데이터의 유동성을 가로막아 거대한 헬스케어 시장의 비효율을 낳고 있습니다."
+🎤 **발표자 대본 — 5분 버전 (약 28초)**:
+"수천만 명이 유전자 데이터를 서랍에 방치합니다. 차별의 두려움, 데이터 유출의 공포 때문입니다. 23andMe 해킹처럼 한 번 털리면 DNA는 평생 복구 불가합니다. 이것이 헬스케어 보험 시장의 가장 큰 비효율입니다."
 
 ---
 
@@ -43,8 +165,8 @@
 | 데이터 완전 소멸 | **IronClaw TEE** — 외부와 통신이 단절된 하드웨어 내 분석 완료 후 즉시 메모리 영구 소각 |
 | 맞춤형 최적 설계 | **Agent AI 추천** — 철저히 격리된 유전자 프로파일을 기반으로 가장 유리한 보장 자동 탐색 |
 
-🎤 **발표자 대본 (Speaker Script)**:
-"우리는 NEAR의 2026 웹3 프라이버시 스택을 이용해 이 문제를 근본적으로 타파합니다. 데이터를 중앙 서버에 넘기는 대신, IronClaw TEE라는 봉인된 구역에서 AI가 은밀히 분석을 끝낸 뒤 흔적 하나 없이 삭제합니다. 나를 판단할 보험사에게는 단지 ZKP, 영지식 증명만이 전달됩니다."
+🎤 **발표자 대본 — 5분 버전 (약 28초)**:
+"해답은 데이터를 건네주지 않고 증명만으로 혜택을 얻는 것입니다. IronClaw TEE 안에서 분석 후 즉시 소각, 보험사에는 ZKP 증명만 전달됩니다. 이것이 Trustless입니다."
 
 ---
 
@@ -56,8 +178,8 @@ STEP 3. IronClaw TEE 격리 분석 & 즉각적인 소각 처리
 STEP 4. AI 보험 추천 대시보드 (ZKP 인증 인장 부여)
 STEP 5. Confidential Intents 기밀 결제 (온체인 트랜잭션 수립)
 
-🎤 **발표자 대본 (Speaker Script)**:
-"사용자 여정은 아주 자연스럽고 심플합니다. 유전자 파일을 업로드하면, 화면 너머의 TEE 내부에서 AI 분석이 일어납니다. 나에게 딱 맞는 질병 보장 상품을 추천받게 되고, 인텐트 기반 기밀 결제를 통해 다른 주소가 내가 어떤 보험을 계약했는지 추적할 수 없게끔 거래를 안전하게 확정합니다."
+🎤 **발표자 대본 — 5분 버전 (약 30초)**:
+"다섯 단계입니다. 지갑 연결, 파일 업로드, TEE 격리 분석 후 즉시 소각, AI 추천 대시보드, Confidential Intents 기밀 결제. 사용자는 어떤 데이터도 외부에 노출하지 않고 전 과정을 완료합니다."
 
 ---
 
@@ -72,12 +194,53 @@ STEP 5. Confidential Intents 기밀 결제 (온체인 트랜잭션 수립)
 | **Confidential Tx** | MyNearWallet 연동, 기밀 서명 구조를 통한 실거래 결제 흐름 완수 | **구현 완료** |
 | **Frontend UI/UX** | DApp 구축, 다국어 지원, 메모리 파티클 데이터 소각 시각화 애니메이션 구현 | **구현 완료** |
 
-🎤 **발표자 대본 (Speaker Script)**:
-"이번 해커톤에서 저희는 단순한 아이디어를 넘어 동작하는 코드를 완성했습니다. IronClaw TEE 연동 기능, 영지식 증명의 생성과 온체인 스마트 컨트랙트 등록 기록, 그리고 NEAR 테스트넷에서의 실제 결제 과정에 이르기까지 이 복잡한 프라이버시 스레드를 하나로 관통하는 엔드투엔드 파이프라인을 성공적으로 빌드업했습니다."
+🎤 **발표자 대본 — 5분 버전 (약 32초)**:
+"저희는 동작하는 코드를 완성했습니다. IronClaw TEE 연동, Noir ZKP NEAR 테스트넷 등록, Confidential Intents 실결제. 이 프라이버시 파이프라인 전체를 해커톤 기간 내에 엔드투엔드로 구동했습니다."
 
 ---
 
 ## Slide 6 — 왜 지금, 왜 NEAR 기반이어야 하는가?
+
+```mermaid
+flowchart LR
+    classDef teeBlock fill:#e3f2fd,stroke:#2196f3,stroke-width:2px,rx:10px,ry:10px;
+    classDef contractBlock fill:#e8f5e9,stroke:#4caf50,stroke-width:2px,rx:10px,ry:10px;
+    classDef highlightBlock fill:#fff3e0,stroke:#ff9800,stroke-width:2px,stroke-dasharray: 4 4,rx:10px,ry:10px;
+
+    subgraph TEE1 ["Worker in TEE (IronClaw)"]
+        direction TB
+        K1["🔑 Random Private Key"]
+        L1["🧠 LLM"]
+        A1["⚙️ Agent"]
+    end
+    API1["APIs and Storage"]
+
+    subgraph Contract ["Agent Contract (NEAR)"]
+        direction TB
+        Reg["register_worker(code_hash, attestation)"]
+        Sign["sign_tx(payload)"]
+    end
+
+    subgraph TEE2 ["Worker in TEE (Scalable)"]
+        direction TB
+        K2["🔑 Random Private Key"]
+        L2["🧠 LLM"]
+        A2["⚙️ Agent"]
+    end
+    API2["APIs and Storage"]
+
+    A1 <--> API1
+    A2 <--> API2
+    A1 -->|Verify Identity| Reg
+    A1 -->|Delegated Tx| Sign
+    A2 --> Reg
+    A2 --> Sign
+    Sign ===> Chains["🔗 Multi-Chain (NEAR, ETH, BTC, SOL...)"]
+
+    class TEE1 teeBlock;
+    class Contract contractBlock;
+    class TEE2 highlightBlock;
+```
 
 **IronClaw Runtime** + **Confidential Intents** + **Chain Signatures** 의 동시 가용 시점
 
@@ -85,8 +248,8 @@ STEP 5. Confidential Intents 기밀 결제 (온체인 트랜잭션 수립)
 클라우드는 강력하지만 여전히 운영 주체를 믿어야만 하는 중앙화 모델(Trust-Me)입니다. 
 반면 MyDNA는 TEE의 물리적 안정성과 블록체인의 암호학적 무결성(Trustless)을 결합하여, 거대 기업의 막대한 자본으로도 뚫을 수 없는 근본적인 해자(Moat)를 가집니다.
 
-🎤 **발표자 대본 (Speaker Script)**:
-"오직 지금 시점, NEAR 생태계에서만 이것이 가능합니다. TEE 격리 시스템, 인텐트 기술, 나아가 체인 간 서명이 하나의 개발 생태계로 묶여져 나왔기 때문입니다. 기존 빅테크 기업들과의 차이요? 저희는 '우리를 믿으라'고 말할 필요가 없습니다. 철저한 'Trustless' 코드가 신뢰를 대체하기 때문입니다."
+🎤 **발표자 대본 — 5분 버전 (약 33초)**:
+"오직 지금, NEAR에서만 가능합니다. TEE와 인텐트와 체인 서명이 하나의 생태계로 묶인 것은 지금이 처음입니다. 저희는 '우리를 믿으라'고 말할 필요가 없습니다. Trustless 코드가 신뢰를 대체하고, 이 구조를 오픈소스로 공개합니다."
 
 ---
 
@@ -97,8 +260,8 @@ STEP 5. Confidential Intents 기밀 결제 (온체인 트랜잭션 수립)
 - **TAM**: 4.5조 달러의 거대한 글로벌 건강/디지털 보험 영역
 - **SOM**: 아시아 시장 내에서 자발적 DTC 유전자 검사 경험이 충분히 확보된 MZ 세대부터 1차 공략
 
-🎤 **발표자 대본 (Speaker Script)**:
-"수익성에 대해서도 자신 있습니다. 전통 보험 산업에서 보험 설계사가 챙겨가던 막대한 판매 이윤을 웹3 플랫폼으로 우회 시킵니다. 또한 새로운 디지털 헬스케어에 거부감이 없는 아시아 권의 MZ 세대를 초기 고객층으로 설정하여 스마트하게 시장에 안착할 계획입니다."
+🎤 **발표자 대본 — 5분 버전 (약 25초)**:
+"수익 모델은 명확합니다. 설계사가 독식하던 15% 중개 수수료를 플랫폼이 흡수합니다. TAM 4.5조 달러, 초기 타겟은 아시아 MZ 세대입니다."
 
 ---
 
@@ -111,12 +274,15 @@ STEP 5. Confidential Intents 기밀 결제 (온체인 트랜잭션 수립)
 | **Phase 2 (V2)** | **Q3 2026** | **자율 운영 Agent OS 스택 도입 및 글로벌 크로스체인 금융 유동성 통합 확대** |
 | **Phase 3** | Q4 2026 ~ | 정식 글로벌 B2B 매치 메이킹 모델 및 메인넷 정식 런칭 |
 
-🎤 **발표자 대본 (Speaker Script)**:
-"저희의 마일스톤은 이렇습니다. V1 해커톤 기간 동안은 기술이 파편이 아닌 매끄러운 사용성으로 적용될 수 있는 '실현 가능성'을 증명했습니다. 향후 Q3, Phase 2를 기점으로는 자율성을 갖춘 차세대 플랫폼, 하나의 거대한 생태계 스케일업 파트(V2)를 준비하고 있습니다."
+🎤 **발표자 대본 — 5분 버전 (약 28초)**:
+"Phase 0 MVP, 증명됐습니다. Q2 DTC 협력, Q3 Agent OS와 크로스체인 유동성 통합. 수십억 기관 자산도 맡길 수 있는 금융 인프라가 목표입니다."
 
 ---
 
 ## Slide 9 — V2 확장을 위한 V1 전략적 동결 기준 (Feature Freeze Rationale)
+
+> **5분 발표: 생략** (S8에서 S12로 바로 이동)
+> **상세 Q&A 대비용**: 심사위원 질문 "왜 기능을 덜 넣었나?"에 대한 답변으로 활용
 
 **"왜 V1 MVP 단계에 현존하는 최신 트렌드를 모두 붙이지 않았는가?"**
 
@@ -131,6 +297,8 @@ STEP 5. Confidential Intents 기밀 결제 (온체인 트랜잭션 수립)
 
 ## Slide 10 — V2 넥스트 제너레이션 비전 (Advanced Expansion)
 
+> **5분 발표: 생략** (S8 로드맵 대본에 1문장으로 흡수됨)
+
 기본 신뢰망 위에 피어나는 진정한 **거시적 웹3 확장 (V2)**의 미래 모습.
 
 1. **Agent OS 탑재 (능동형 브로커 자율화)**: 단순 일회성 질의응답 모델을 넘어서, 유전자 데이터(Memory)와 건강 상태 변화를 장기 추적하여, 사용자가 요청하지 않아도 스스로 가장 효율적인 상품 조건을 찾아 계약을 재정의 하는 주체로 거듭납니다.
@@ -143,6 +311,8 @@ STEP 5. Confidential Intents 기밀 결제 (온체인 트랜잭션 수립)
 ---
 
 ## Slide 11 — Open-source & 생태계 기여 (Leverage)
+
+> **5분 발표: 생략** (S6 대본 마지막 문장에 흡수됨)
 
 **NEAR 빌더들을 위한 공공 인프라 헌납**
 - **TEE-App Wrapper 오픈소스화**: 누구나 10분 만에 강력한 프라이버시 앱을 지을 수 있도록, IronClaw 연동이 최적화된 Next.js + TEE 보일러플레이트를 대중에 공개합니다.
@@ -162,8 +332,8 @@ STEP 5. Confidential Intents 기밀 결제 (온체인 트랜잭션 수립)
 **우리가 증명한 단 하나 (Vision)**
 > 유전자를 오픈하지 않고도, 블록체인의 프라이버시 기술만으로 초개인화된 금융 혜택을 100% 누릴 수 있습니다.
 
-🎤 **발표자 대본 (Speaker Script)**:
-"이번 해커톤 내내 저는 단독으로 제품의 프랜차이즈 기획부터 데이터베이스, 인프라 배포 등 전 구조물을 올렸습니다. 제가 이 힘든 과정에서 증명하고자 했던 핵심 철학은 하나입니다. 사용자의 가장 예민한 데이터를 지키는 기술이, 곧 새로운 수익 모델이 될 수 있다는 점입니다. 프라이버시와 개인 정보 활용, 두 개의 역설적 진리가 조화롭게 만나는 새로운 웹3 보험 생태계를 기대해 주시기 바랍니다. 경청해 주셔서 감사합니다."
+🎤 **발표자 대본 — 5분 버전 (약 32초)**:
+"저는 1인으로 전 파이프라인을 구축했습니다. What if you could verify it cryptographically? OHmyDNA는 그 답을 코드로 증명했습니다. 프라이버시를 지키는 기술이 곧 수익 모델입니다. 감사합니다."
 
 ---
 
