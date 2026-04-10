@@ -2,12 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
+import { useRouter, usePathname } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, Loader2, AlertCircle } from "lucide-react";
+import { CheckCircle, Loader2, AlertCircle, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { Buffer } from "buffer";
 import { Button } from "@/components/ui/button";
 import { runAnalysis } from "@/actions/runAnalysis";
+import type { AuthPayload } from "@/actions/runAnalysis";
+import { generateAuthNonce } from "@/actions/generateAuthNonce";
+import { useWallet } from "@/context/WalletContext";
+import { AUTH_MESSAGE, AUTH_RECIPIENT } from "@/lib/near/wallet";
 import { ZkpFlowDiagram } from "@/components/modules/ZkpFlowDiagram";
 import type { AnalysisStage } from "@/components/modules/ZkpFlowDiagram";
 
@@ -51,10 +57,19 @@ interface TeeAnalysisProgressProps {
 }
 
 type LogEntry = { id: string; text: string; type: "default" | "success" | "private" | "system" | "error" };
+type AuthPhase = "idle" | "requesting_nonce" | "signing" | "authorized";
+
+const NONCE_STORAGE_KEY = (sessionId: string) => `mydna_auth_${sessionId}`;
 
 export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisProgressProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { selector } = useWallet();
   const t = useTranslations("teeProgress");
+
+  const [authPhase, setAuthPhase] = useState<AuthPhase>("idle");
+  const [authData, setAuthData] = useState<AuthPayload | null>(null);
 
   const STAGE_CONFIG: Record<AnalysisStage, StageConfig> = {
     parsing:   { label: t("steps.parsing"),   sublabel: t("steps.parsingDesc"),  progress: STAGE_PROGRESS.parsing },
@@ -81,6 +96,68 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
   const doneBtnRef = useRef<HTMLDivElement>(null);
   const errorBtnRef = useRef<HTMLDivElement>(null);
 
+  // ── 지갑 서명 콜백 감지 (my-near-wallet 리다이렉트 복귀) ────────────────────
+  useEffect(() => {
+    const signature = searchParams.get("signature");
+    const publicKey = searchParams.get("publicKey");
+    if (!signature || !publicKey) return;
+
+    const stored = sessionStorage.getItem(NONCE_STORAGE_KEY(sessionId));
+    if (!stored) {
+      toast.error("인증 세션이 만료되었습니다. 다시 시도해 주세요.");
+      return;
+    }
+
+    const { nonce, callbackUrl } = JSON.parse(stored) as { nonce: string; callbackUrl: string };
+    sessionStorage.removeItem(NONCE_STORAGE_KEY(sessionId));
+    // URL 정리 (서명 파라미터 제거)
+    window.history.replaceState({}, "", pathname);
+
+    setAuthData({ signature, publicKey, nonce, callbackUrl });
+    setAuthPhase("authorized");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function handleAuthorize() {
+    if (!selector) {
+      toast.error("지갑이 연결되지 않았습니다.");
+      return;
+    }
+
+    setAuthPhase("requesting_nonce");
+
+    const nonceResult = await generateAuthNonce(walletAddress);
+    if (!nonceResult.success || !nonceResult.nonce) {
+      toast.error(`Nonce 생성 실패: ${nonceResult.error}`);
+      setAuthPhase("idle");
+      return;
+    }
+
+    const callbackUrl = `${window.location.origin}${window.location.pathname}`;
+    sessionStorage.setItem(
+      NONCE_STORAGE_KEY(sessionId),
+      JSON.stringify({ nonce: nonceResult.nonce, callbackUrl })
+    );
+
+    setAuthPhase("signing");
+
+    try {
+      const wallet = await selector.wallet();
+      await wallet.signMessage({
+        message: AUTH_MESSAGE,
+        nonce: Buffer.from(nonceResult.nonce, "hex"),
+        recipient: AUTH_RECIPIENT,
+        callbackUrl,
+      });
+      // 지갑이 리다이렉트하므로 이후 코드는 실행되지 않음
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "서명 요청 실패";
+      toast.error(msg);
+      sessionStorage.removeItem(NONCE_STORAGE_KEY(sessionId));
+      setAuthPhase("idle");
+    }
+  }
+
   useEffect(() => {
     if (isDone) {
       doneBtnRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -94,6 +171,8 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
   }, [stage]);
 
   useEffect(() => {
+    if (authPhase !== "authorized" || !authData) return;
+
     const timers: ReturnType<typeof setTimeout>[] = [];
     let isMounted = true;
 
@@ -105,7 +184,7 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
       setTimeout(() => resolve({ success: false, error: "__TIMEOUT__" }), ANALYSIS_TIMEOUT_MS);
     });
 
-    Promise.race([runAnalysis(sessionId), timeoutPromise]).then((result) => {
+    Promise.race([runAnalysis(sessionId, authData), timeoutPromise]).then((result) => {
       if (!isMounted) return;
       resultRef.value = result;
 
@@ -145,10 +224,40 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
       timers.forEach(clearTimeout);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionId]);
+  }, [authPhase, authData]);
 
   const currentStageIndex = STAGE_ORDER.indexOf(stage);
   const config = STAGE_CONFIG[stage];
+
+  // ── 서명 인증 대기 화면 ────────────────────────────────────────────────────
+  if (authPhase === "idle" || authPhase === "requesting_nonce" || authPhase === "signing") {
+    const isLoading = authPhase === "requesting_nonce" || authPhase === "signing";
+    return (
+      <div className="flex flex-col items-center gap-6 w-full max-w-lg text-center">
+        <div className="flex items-center justify-center w-16 h-16 rounded-full border border-primary/30 bg-primary/10">
+          <ShieldCheck size={32} className="text-primary" strokeWidth={1.5} />
+        </div>
+        <div className="flex flex-col gap-1">
+          <p className="text-base font-semibold text-foreground">분석 권한 인증</p>
+          <p className="text-sm text-muted-foreground max-w-sm">
+            유전자 데이터 분석을 시작하려면 지갑 서명이 필요합니다.
+            개인키 소유를 증명하는 메시지에 서명해 주세요. 트랜잭션은 발생하지 않습니다.
+          </p>
+        </div>
+        <Button
+          className="w-full max-w-xs"
+          disabled={isLoading}
+          onClick={handleAuthorize}
+        >
+          {isLoading ? (
+            <><Loader2 size={14} className="animate-spin mr-2" />인증 중...</>
+          ) : (
+            <><ShieldCheck size={14} className="mr-2" />지갑으로 서명하기</>
+          )}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center gap-6 w-full max-w-lg">

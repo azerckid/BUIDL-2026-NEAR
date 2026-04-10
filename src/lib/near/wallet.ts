@@ -6,6 +6,10 @@ export type { WalletSelector };
 
 export type WalletNetwork = "testnet" | "mainnet";
 
+// NEP-413 서명 검증에 사용되는 앱 식별자 (서버-클라이언트 공유 상수)
+export const AUTH_RECIPIENT = "mydna-tee.testnet";
+export const AUTH_MESSAGE = "Authorize MyDNA Analysis";
+
 const NEAR_NETWORK: WalletNetwork = "testnet";
 // Phase 2 컨트랙트 주소: "wrap.testnet" → 실제 컨트랙트로 교체 예정
 

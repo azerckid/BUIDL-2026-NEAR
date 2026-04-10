@@ -12,13 +12,26 @@ import { teeAnalysisOutputSchema } from "@/types/tee-output";
 import { generateZkpProof, derivePrimaryRiskScore } from "@/lib/zkp/prover";
 import { matchProducts } from "./matchProducts";
 import { updateSessionStatus } from "./updateSessionStatus";
+import { consumeAuthNonce } from "./generateAuthNonce";
+import { verifyNearSignature } from "@/lib/near/verify-signature";
+import { AUTH_MESSAGE, AUTH_RECIPIENT } from "@/lib/near/wallet";
+
+export interface AuthPayload {
+  signature: string;   // base64
+  publicKey: string;   // "ed25519:BASE58..."
+  nonce: string;       // 64-char hex
+  callbackUrl: string;
+}
 
 interface RunAnalysisResult {
   success: boolean;
   error?: string;
 }
 
-export async function runAnalysis(sessionId: string): Promise<RunAnalysisResult> {
+export async function runAnalysis(
+  sessionId: string,
+  auth: AuthPayload
+): Promise<RunAnalysisResult> {
   try {
     // 세션 조회 + 재실행 가드
     const sessions = await db
@@ -39,6 +52,27 @@ export async function runAnalysis(sessionId: string): Promise<RunAnalysisResult>
     // 이미 완료된 세션은 재실행 없이 성공 반환
     if (session.status === "completed" || session.status === "purged") {
       return { success: true };
+    }
+
+    // ── 서명 검증 ─────────────────────────────────────────────────────────────
+    // 1. Nonce 유효성 확인 및 소비 (Replay Attack 방지)
+    const nonceCheck = await consumeAuthNonce(auth.nonce, session.walletAddress);
+    if (!nonceCheck.valid) {
+      return { success: false, error: `인증 실패: ${nonceCheck.error}` };
+    }
+
+    // 2. NEP-413 Ed25519 서명 검증
+    const isValid = verifyNearSignature({
+      message: AUTH_MESSAGE,
+      nonce: auth.nonce,
+      recipient: AUTH_RECIPIENT,
+      callbackUrl: auth.callbackUrl,
+      signature: auth.signature,
+      publicKey: auth.publicKey,
+    });
+
+    if (!isValid) {
+      return { success: false, error: "서명 검증 실패: 유효하지 않은 서명입니다" };
     }
 
     // ── Stage 1: 파싱 및 정규화 ────────────────────────────────────────────

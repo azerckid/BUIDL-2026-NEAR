@@ -228,6 +228,18 @@ export const transactionInsertSchema = z.object({
   confirmedAt: z.number().int().positive().nullable().default(null),
 });
 
+// ─── auth_nonces ──────────────────────────────────────────────────────────────
+// Challenge-Response 서명 검증용 일회용 Nonce (5분 TTL)
+// walletAddress는 user_profiles FK 없이 독립 저장 (프로필 미생성 상태에서도 발급 가능)
+
+export const authNonces = sqliteTable("auth_nonces", {
+  nonce: text("nonce").primaryKey(),          // 64-char hex (32 random bytes)
+  walletAddress: text("wallet_address").notNull(),
+  expiresAt: integer("expires_at").notNull(), // Unix timestamp (seconds)
+});
+
+export type AuthNonce = typeof authNonces.$inferSelect;
+
 // ─── Indexes ─────────────────────────────────────────────────────────────────
 
 export const analysisSessionsIdx = index("analysis_sessions_wallet_idx").on(
