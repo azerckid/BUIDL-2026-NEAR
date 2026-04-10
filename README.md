@@ -6,8 +6,10 @@ The only way to get better insurance because of your genes — without exposing 
 
 > NEAR Buidl 2026 Hackathon submission
 
-**Live Demo**: https://buidl-2026-near.vercel.app/en  
-**Pitch Deck**: https://buidl-2026-near.vercel.app/en/pitch  
+[![Live Demo](https://img.shields.io/badge/Live_Demo-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://buidl-2026-near.vercel.app/en)
+[![Pitch Deck](https://img.shields.io/badge/Pitch_Deck-4A154B?style=for-the-badge&logo=slides&logoColor=white)](https://buidl-2026-near.vercel.app/en/pitch)
+[![Demo Video](https://img.shields.io/badge/Demo_Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=FAVronsj7cA)
+
 **NEAR Testnet Contract**: `zkp.rogulus.testnet`
 
 ---
@@ -176,8 +178,10 @@ Built for **NEAR Buidl 2026 Hackathon** · Powered by NEAR Protocol
 
 > NEAR Buidl 2026 Hackathon 제출작
 
-**라이브 데모**: https://buidl-2026-near.vercel.app/en  
-**피치 덱**: https://buidl-2026-near.vercel.app/en/pitch  
+[![라이브 데모](https://img.shields.io/badge/라이브_데모-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://buidl-2026-near.vercel.app/en)
+[![피치 덱](https://img.shields.io/badge/피치_덱-4A154B?style=for-the-badge&logo=slides&logoColor=white)](https://buidl-2026-near.vercel.app/en/pitch)
+[![데모 영상](https://img.shields.io/badge/데모_영상-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=FAVronsj7cA)
+
 **NEAR 테스트넷 컨트랙트**: `zkp.rogulus.testnet`
 
 ---
