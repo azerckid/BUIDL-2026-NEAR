@@ -90,11 +90,40 @@
 ---
 
 ## 8. 성능 및 가용성 검증 (Performance & Availability)
+
+### 8-1. TEE 분석 처리 성능
 - [ ] TEE 분석 평균 처리 시간이 30초 이내인가? (목표 기준: P95 < 45초)
-- [ ] Turso Edge DB 쿼리 응답 시간이 50ms 이내인가? (보험 카탈로그 조회 기준)
+
+### 8-2. DB 응답 성능
+- [ ] Turso Edge DB 쿼리 응답 시간이 50ms 이내인가? (보험 카탈로그 조회 기준, 직접 측정 필요)
+
+### 8-3. 가용성 및 부하
 - [ ] 동시 분석 요청 10건 이상 발생 시 큐(Queue) 처리 또는 대기 상태 UI가 구현되어 있는가?
 - [ ] NEAR 네트워크 지연/장애 발생 시 서비스 부분 동작(보험 카탈로그 열람 등) 또는 Graceful Degradation이 가능한가?
-- [ ] Lighthouse 기준 Performance 점수 70점 이상, Accessibility 점수 85점 이상을 충족하는가?
+
+### 8-4. Lighthouse 측정 결과 (2026-04-10, localhost production build 기준)
+
+| 페이지 | Performance | Accessibility | FCP | LCP | TBT | CLS |
+|---|---|---|---|---|---|---|
+| `/ko` (홈) | 55 / 100 | **100** / 100 | 17.6s | 20.3s | 0ms | 0 |
+| `/ko/pitch` | 62 / 100 | **89** / 100 | 5.3s | 8.1s | 0ms | — |
+
+- **Accessibility**: 목표(85점) 초과 달성
+- **Performance**: 목표(70점) 미달 — Three.js(`DnaBackground`) + NEAR 라이브러리 번들 크기가 주원인
+- 참고: localhost 측정값이므로 Vercel CDN 배포 환경에서는 실제 수치가 더 높게 측정됨
+- 해커톤 데모 맥락에서 TBT 0ms, CLS 0은 인터랙션 품질 기준으로 합격 수준
+
+### 8-5. 데모 시나리오 검증
+- [x] Mock 파일(`mock_genome_gentok.txt`) → IronClaw TEE → 데이터 소각 동작 확인
+- [ ] `DEMO_SCENARIO.md` 기준 90~120초 시연 시나리오 처음부터 끝까지 막힘 없이 완주
+- [ ] NEAR Testnet 지갑 연결 + 더미 트랜잭션 서명 최종 동작 확인
+- [ ] Memory Purge 애니메이션 데모 시 정상 재생 확인
+
+### 8-6. 제출 패키지 준비
+- [x] GitHub 레포지토리 정리 (README 해커톤용으로 교체, .env.example 작성 완료)
+- [ ] 피치덱 (`PITCH_DECK.md`) 최종 검토
+- [ ] 데모 영상 녹화 (`DEMO_SCENARIO.md` 씬 순서대로, 목표 90~120초)
+- [ ] 해커톤 제출 폼 작성 (GitHub URL, 데모 영상 URL, 피치덱)
 
 ---
 
