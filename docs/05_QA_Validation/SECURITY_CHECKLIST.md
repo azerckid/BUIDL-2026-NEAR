@@ -113,18 +113,6 @@
 - 참고: localhost 측정값이므로 Vercel CDN 배포 환경에서는 실제 수치가 더 높게 측정됨
 - 해커톤 데모 맥락에서 TBT 0ms, CLS 0은 인터랙션 품질 기준으로 합격 수준
 
-### 8-5. 데모 시나리오 검증
-- [x] Mock 파일(`mock_genome_gentok.txt`) → IronClaw TEE → 데이터 소각 동작 확인
-- [ ] `DEMO_SCENARIO.md` 기준 90~120초 시연 시나리오 처음부터 끝까지 막힘 없이 완주
-- [ ] NEAR Testnet 지갑 연결 + 더미 트랜잭션 서명 최종 동작 확인
-- [ ] Memory Purge 애니메이션 데모 시 정상 재생 확인
-
-### 8-6. 제출 패키지 준비
-- [x] GitHub 레포지토리 정리 (README 해커톤용으로 교체, .env.example 작성 완료)
-- [ ] 피치덱 (`PITCH_DECK.md`) 최종 검토
-- [ ] 데모 영상 녹화 (`DEMO_SCENARIO.md` 씬 순서대로, 목표 90~120초)
-- [ ] 해커톤 제출 폼 작성 (GitHub URL, 데모 영상 URL, 피치덱)
-
 ---
 
 ## 관련 문서
