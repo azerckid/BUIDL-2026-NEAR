@@ -161,7 +161,7 @@ npx tsx src/lib/db/seed.ts # Seed insurance products
 
 ## Team
 
-- **azerckid** — Full-stack + NEAR Protocol integration
+- **azerckid** — Founder & Full-Stack E2E Delivery
 
 ---
 
@@ -333,7 +333,7 @@ npx tsx src/lib/db/seed.ts # 보험 상품 시드
 
 ## 팀
 
-- **azerckid** — Full-stack + NEAR Protocol 연동
+- **azerckid** — Founder & Full-Stack E2E Delivery
 
 ---
 
