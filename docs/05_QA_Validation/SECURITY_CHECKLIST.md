@@ -89,43 +89,8 @@
 
 ---
 
-## 8. 성능 및 가용성 검증 (Performance & Availability)
-
-### 8-1. TEE 분석 처리 성능
-- [ ] TEE 분석 평균 처리 시간이 30초 이내인가? (목표 기준: P95 < 45초)
-
-### 8-2. DB 응답 성능
-- [ ] Turso Edge DB 쿼리 응답 시간이 50ms 이내인가? (보험 카탈로그 조회 기준, 직접 측정 필요)
-
-### 8-3. 가용성 및 부하
-- [ ] 동시 분석 요청 10건 이상 발생 시 큐(Queue) 처리 또는 대기 상태 UI가 구현되어 있는가?
-- [ ] NEAR 네트워크 지연/장애 발생 시 서비스 부분 동작(보험 카탈로그 열람 등) 또는 Graceful Degradation이 가능한가?
-
-### 8-4. Lighthouse 측정 결과
-
-#### Vercel 프로덕션 URL 기준 (최종, 2026-04-10)
-
-| 항목 | 점수 | 목표 | 결과 |
-|---|---|---|---|
-| Performance | **87** / 100 | 70 이상 | PASS |
-| Accessibility | **100** / 100 | 85 이상 | PASS |
-| Best Practices | **96** / 100 | — | — |
-| SEO | **100** / 100 | — | — |
-
-주요 지표: FCP 2.6s / TBT 230ms / LCP 4.2s
-
-#### 참고: localhost production build 기준 (비교용)
-
-| 페이지 | Performance | Accessibility | FCP | LCP | TBT |
-|---|---|---|---|---|---|
-| `/ko` (홈) | 55 / 100 | 100 / 100 | 17.6s | 20.3s | 0ms |
-| `/ko/pitch` | 62 / 100 | 89 / 100 | 5.3s | 8.1s | 0ms |
-
-- localhost와 Vercel CDN 간 Performance 32점 차이는 CDN 엣지 캐싱·압축 효과
-
----
-
 ## 관련 문서
 - [기술 아키텍처 명세](../03_Technical_Specs/NEAR_PRIVACY_STACK_ARCH.md)
 - [프로토타입 UI 흐름](../02_UI_Screens/USER_FLOW.md)
-- [프로젝트 로드맵](../04_Logic_Progress/ROADMAP.md)
+- [구현 진행 및 성능 측정 체크리스트](../04_Logic_Progress/ROADMAP.md) — Stage 8 (QA/성능/데모 준비)
+- [E2E 테스트 결과 리포트](./02_E2E_TEST_REPORT.md) — Playwright 21/21, Lighthouse 실측값
