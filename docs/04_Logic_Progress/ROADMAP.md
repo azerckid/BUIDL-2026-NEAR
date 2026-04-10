@@ -383,8 +383,9 @@
 - [x] 파일 업로드 확장자 화이트리스트 동작 확인 (.vcf/.txt/.csv/.pdf, Zod 검증)
 
 #### 8-3. 성능 및 접근성
-- [ ] Lighthouse Performance 점수 70점 이상 — 측정값: 홈 55 / 피치 62 (localhost 기준, Vercel CDN 실제는 더 높음)
-- [x] Lighthouse Accessibility 점수 85점 이상 — 측정값: 홈 100 / 피치 89 (2026-04-10 확인)
+- [x] Lighthouse Performance 점수 70점 이상 — Vercel 프로덕션 실측 **87** / 100 (2026-04-10)
+- [x] Lighthouse Accessibility 점수 85점 이상 — Vercel 프로덕션 실측 **100** / 100 (2026-04-10)
+- [x] Best Practices **96** / 100, SEO **100** / 100 (2026-04-10)
 - [ ] Turso DB 쿼리 응답 50ms 이내 확인 (직접 측정 필요)
 
 #### 8-4. 데모 시나리오 검증

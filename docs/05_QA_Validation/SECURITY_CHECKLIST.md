@@ -101,17 +101,27 @@
 - [ ] 동시 분석 요청 10건 이상 발생 시 큐(Queue) 처리 또는 대기 상태 UI가 구현되어 있는가?
 - [ ] NEAR 네트워크 지연/장애 발생 시 서비스 부분 동작(보험 카탈로그 열람 등) 또는 Graceful Degradation이 가능한가?
 
-### 8-4. Lighthouse 측정 결과 (2026-04-10, localhost production build 기준)
+### 8-4. Lighthouse 측정 결과
 
-| 페이지 | Performance | Accessibility | FCP | LCP | TBT | CLS |
-|---|---|---|---|---|---|---|
-| `/ko` (홈) | 55 / 100 | **100** / 100 | 17.6s | 20.3s | 0ms | 0 |
-| `/ko/pitch` | 62 / 100 | **89** / 100 | 5.3s | 8.1s | 0ms | — |
+#### Vercel 프로덕션 URL 기준 (최종, 2026-04-10)
 
-- **Accessibility**: 목표(85점) 초과 달성
-- **Performance**: 목표(70점) 미달 — Three.js(`DnaBackground`) + NEAR 라이브러리 번들 크기가 주원인
-- 참고: localhost 측정값이므로 Vercel CDN 배포 환경에서는 실제 수치가 더 높게 측정됨
-- 해커톤 데모 맥락에서 TBT 0ms, CLS 0은 인터랙션 품질 기준으로 합격 수준
+| 항목 | 점수 | 목표 | 결과 |
+|---|---|---|---|
+| Performance | **87** / 100 | 70 이상 | PASS |
+| Accessibility | **100** / 100 | 85 이상 | PASS |
+| Best Practices | **96** / 100 | — | — |
+| SEO | **100** / 100 | — | — |
+
+주요 지표: FCP 2.6s / TBT 230ms / LCP 4.2s
+
+#### 참고: localhost production build 기준 (비교용)
+
+| 페이지 | Performance | Accessibility | FCP | LCP | TBT |
+|---|---|---|---|---|---|
+| `/ko` (홈) | 55 / 100 | 100 / 100 | 17.6s | 20.3s | 0ms |
+| `/ko/pitch` | 62 / 100 | 89 / 100 | 5.3s | 8.1s | 0ms |
+
+- localhost와 Vercel CDN 간 Performance 32점 차이는 CDN 엣지 캐싱·압축 효과
 
 ---
 
