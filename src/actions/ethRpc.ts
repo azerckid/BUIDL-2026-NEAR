@@ -2,21 +2,38 @@
 
 import { deriveEthAddress } from "@/lib/near/chain-signatures";
 
-// ETH Sepolia RPC 호출 (Server Action — CORS 우회)
-const SEPOLIA_RPC = "https://1rpc.io/sepolia";
+// ETH Sepolia RPC 엔드포인트 — 순서대로 시도 (폴백)
+const SEPOLIA_RPC_LIST = [
+  "https://1rpc.io/sepolia",
+  "https://rpc.sepolia.org",
+  "https://ethereum-sepolia-rpc.publicnode.com",
+  "https://sepolia.drpc.org",
+];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function rpcCall(method: string, params: unknown[]): Promise<any> {
-  const response = await fetch(SEPOLIA_RPC, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
-  });
-  const json = (await response.json()) as { result?: unknown; error?: unknown };
-  if (json.error || json.result === undefined) {
-    throw new Error("ETH RPC error: " + JSON.stringify(json.error ?? json));
+  let lastError: Error = new Error("All Sepolia RPC endpoints failed");
+
+  for (const rpc of SEPOLIA_RPC_LIST) {
+    try {
+      const response = await fetch(rpc, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+        signal: AbortSignal.timeout(5000), // 5초 타임아웃
+      });
+      const json = (await response.json()) as { result?: unknown; error?: unknown };
+      if (json.error || json.result === undefined) {
+        lastError = new Error("ETH RPC error: " + JSON.stringify(json.error ?? json));
+        continue;
+      }
+      return json.result;
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+    }
   }
-  return json.result;
+
+  throw lastError;
 }
 
 /** ETH 파생 주소 조회 (NEAR RPC view call — 서버 측 실행) */
