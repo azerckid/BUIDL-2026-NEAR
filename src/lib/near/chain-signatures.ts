@@ -21,8 +21,14 @@ const DEMO_AMOUNT_YNEAR = "1000000000000000000000";
 const MPC_CONTRACT_TESTNET = "v1.signer-prod.testnet";
 // const MPC_CONTRACT_MAINNET = "v1.signer.near";
 
-// ETH Sepolia RPC (1rpc.io — 무료, CORS *, 브라우저 호환)
-const SEPOLIA_RPC = "https://1rpc.io/sepolia";
+// ETH Sepolia RPC 폴백 목록 (클라이언트에서 직접 호출 시 사용)
+const SEPOLIA_RPC_LIST = [
+  "https://1rpc.io/sepolia",
+  "https://rpc.sepolia.org",
+  "https://ethereum-sepolia-rpc.publicnode.com",
+  "https://sepolia.drpc.org",
+];
+const SEPOLIA_RPC = SEPOLIA_RPC_LIST[0]; // ethers Provider용 기본값
 
 // 보험 결제 전용 파생 경로
 const INSURANCE_DERIVATION_PATH = "insurance,1";
@@ -178,21 +184,31 @@ export async function broadcastEthTransaction(
  * ethers Provider 대신 fetch 직접 호출 — 네트워크 자동 감지 없이 단일 요청으로 완료
  */
 export async function getEthBalance(ethAddress: string): Promise<string> {
-  const response = await fetch(SEPOLIA_RPC, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: 1,
-      method: "eth_getBalance",
-      params: [ethAddress, "latest"],
-    }),
-  });
-  const json = await response.json() as { result?: string; error?: unknown };
-  if (!json.result) {
-    throw new Error("ETH 잔액 조회 실패: " + JSON.stringify(json.error ?? json));
+  let lastError: Error = new Error("All Sepolia RPC endpoints failed");
+  for (const rpc of SEPOLIA_RPC_LIST) {
+    try {
+      const response = await fetch(rpc, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_getBalance",
+          params: [ethAddress, "latest"],
+        }),
+        signal: AbortSignal.timeout(5000),
+      });
+      const json = await response.json() as { result?: string; error?: unknown };
+      if (!json.result) {
+        lastError = new Error("ETH 잔액 조회 실패: " + JSON.stringify(json.error ?? json));
+        continue;
+      }
+      return ethers.formatEther(BigInt(json.result));
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+    }
   }
-  return ethers.formatEther(BigInt(json.result));
+  throw lastError;
 }
 
 // ─── 유틸 함수 ───────────────────────────────────────────────────────────────
