@@ -143,13 +143,25 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
 
     try {
       const wallet = await selector.wallet();
-      await wallet.signMessage({
+      const result = await wallet.signMessage({
         message: AUTH_MESSAGE,
         nonce: Buffer.from(nonceResult.nonce, "hex"),
         recipient: AUTH_RECIPIENT,
         callbackUrl,
       });
-      // 지갑이 리다이렉트하므로 이후 코드는 실행되지 않음
+
+      // 직접 반환 케이스 (injected wallet / 일부 my-near-wallet 버전)
+      // 리다이렉트 케이스는 이 코드에 도달하지 않고 페이지가 이동됨
+      if (result) {
+        sessionStorage.removeItem(NONCE_STORAGE_KEY(sessionId));
+        setAuthData({
+          signature: result.signature,
+          publicKey: result.publicKey,
+          nonce: nonceResult.nonce,
+          callbackUrl,
+        });
+        setAuthPhase("authorized");
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "서명 요청 실패";
       toast.error(msg);
