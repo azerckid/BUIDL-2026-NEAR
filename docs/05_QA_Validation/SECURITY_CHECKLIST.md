@@ -1,7 +1,7 @@
 # [보안 검증] 유전자 정보 취급 및 NEAR 프라이버시 스택 체크리스트
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-11
+- **최종 수정일**: 2026-04-11 (2차)
 - **레이어**: 05_QA_Validation
 - **상태**: Draft v1.3
 
@@ -72,8 +72,7 @@
 - [x] `getDashboardData(sessionId, walletAddress)`: DB에서 sessionId + walletAddress 교차 검증 (`and()` 조건) — 타인 세션 열람 차단 (`src/actions/getDashboardData.ts`).
 - [ ] `createSession(walletAddress, ...)`: 호출자와 walletAddress 일치 여부 서버에서 검증되는가?
   > **Phase 0 한계**: 미검증. 악의적 호출자가 타인 지갑 주소로 세션 생성 가능. 실 피해는 Phase 0 mock 데이터 환경에서 제한적.
-- [ ] `runAnalysis(sessionId)`: 호출자가 해당 세션의 소유자인지 서버에서 검증되는가?
-  > **Phase 0 한계**: sessionId 존재 여부만 확인. Phase 2에서 세션 소유권 + 지갑 서명 검증 필요.
+- [x] `runAnalysis(sessionId, auth)`: NEP-413 Challenge-Response 서명 검증 구현 — Nonce 발급(5분 TTL) → my-near-wallet 서명 → 서버에서 Borsh 재구성 + Ed25519 검증 + Nonce 소각 (`src/actions/runAnalysis.ts`, `src/lib/near/verify-signature.ts`).
 - [x] `upsertUserProfile(walletAddress)`: 쓰기 데이터가 구독 등급(free) 및 타임스탬프로만 제한되어, 비인가 호출의 실질적 피해가 최소화되는가?
 
 ---
