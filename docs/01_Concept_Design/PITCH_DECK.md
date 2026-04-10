@@ -18,46 +18,51 @@
 
 ## 3분 데모 영상 스크립트 (제출용)
 
-> QuickTime 화면 녹화 기준. 총 180초 목표.
+> QuickTime 화면 녹화 기준. 총 180초(3분) 목표.
 
-**[0:00~0:15] 오프닝 (S1)**
-"안녕하세요. OHmyDNA입니다. 유전자를 노출하지 않고, 유전자 덕분에 더 나은 보험에 가입하는 유일한 솔루션입니다."
+**[0:00~0:25] 오프닝 및 비전 (25초)**
+"안녕하세요. 사용자의 가장 민감한 데이터인 DNA를 보호하면서도, 그 데이터를 통해 최적의 금융 혜택을 누리게 해주는 혁신적인 솔루션, **OHmyDNA**입니다. 우리는 '데이터를 노출하지 않고도 그 가치를 증명할 수 있는가?'라는 질문에 대한 답을 NEAR의 최신 프라이버시 기술로 증명해냈습니다."
 
-**[0:15~0:40] 문제와 해답 (S2+S3 압축)**
-"수천만 명이 유전자 데이터를 서랍에 방치합니다. 차별과 유출의 공포 때문입니다. OHmyDNA는 데이터를 건네주지 않고 증명만으로 혜택을 줍니다. IronClaw TEE에서 분석 즉시 소각, 보험사엔 ZKP만 전달됩니다."
+**[0:25~1:00] 문제 정의와 기술적 해답 (35초)**
+"현재 수천만 명의 유전자 데이터가 유출의 공포 때문에 서랍 속에 방치되고 있습니다. 유전자 데이터는 한 번 유출되면 평생 바꿀 수 없는 치명적인 정보입니다. OHmyDNA는 이 문제를 해결하기 위해 **'Trustless' 모델**을 도입했습니다. 사용자의 원본 데이터를 보험사 서버로 보내는 대신, **IronClaw TEE** 기반의 격리 구역에서 분석하고 즉시 소각합니다. 보험사에는 오직 '가입 조건 충족'이라는 **ZKP(영지식 증명)** 결과물만 전달됩니다."
 
-**[0:40~2:10] 앱 라이브 시연 (화면 녹화)**
-- 지갑 연결 → 샘플 파일 업로드 → TEE 분석 진행 애니메이션 → 데이터 소각 확인
-- AI 추천 대시보드 3단계 공개 → 상품 선택 → Confidential Intents 결제 완료
+**[1:00~2:30] 앱 라이브 시연 - 상세 나레이션 (90초)**
+- **(1:00~1:15)** "이제 실제 앱 동작 과정을 살펴보겠습니다. 먼저 사용자의 NEAR 지갑을 연결합니다. 이 지갑은 단순한 결제 수단이 아니라, 사용자의 유전자 증명서를 관리하는 보안 키 역할을 합니다."
+- **(1:15~1:35)** "이제 서랍 속에 잠자고 있던 유전자 파일을 업로드합니다. 이때 파일은 즉시 암호화되어, 외부와 완전히 격리된 하드웨어 보안 영역인 **IronClaw TEE**로 직접 전송됩니다. 인클레이브 내부에서는 AI 모델이 유전자 리포트를 파싱하기 시작합니다."
+- **(1:35~1:55)** "보시는 애니메이션은 실제 메모리 내부에서 분석이 이루어지는 과정입니다. 분석이 완료되는 즉시, 원본 데이터는 메모리 파티션에서 영구적으로 소각됩니다. '데이터를 주지 않고 결과만 얻는다'는 원칙이 실현되는 순간입니다."
+- **(1:55~2:15)** "분석 결과에 따라 AI 에이전트가 3단계 추천 리포트를 생성합니다. 사용자의 유전적 취약점을 보완할 수 있는 최적의 보험 상품들이 제안됩니다. 사용자는 자신의 어떤 데이터가 활용되었는지 확인하면서도, 원본 노출 걱정 없이 상품을 선택할 수 있습니다."
+- **(2:15~2:30)** "마지막으로 상품 가입 단계입니다. NEAR의 **Confidential Intents**를 사용하여 결제를 진행합니다. 온체인 트랜잭션에서도 사용자의 민감한 정보는 남아있지 않으며, 모든 과정이 암호학적으로 무결하게 완료됩니다."
 
-**[2:10~2:40] 구현 성과 (S5)**
-"IronClaw TEE 연동, Noir ZKP NEAR 테스트넷 등록, Confidential Intents 실결제까지 엔드투엔드 파이프라인을 모두 동작하는 코드로 완성했습니다."
+**[2:30~2:50] 구현 성과 (20초)**
+"저희는 이번 해커톤 기간 동안 IronClaw TEE 연동, NEAR 테스트넷에 등록된 Noir ZKP 회로, 그리고 Confidential Intents 기반의 기밀 결제까지, 전체 프라이버시 파이프라인을 구동 가능한 실제 코드로 완수했습니다."
 
-**[2:40~3:00] 클로징 (S12)**
-"사용자의 가장 예민한 데이터를 지키는 기술이 곧 새로운 수익 모델입니다. 감사합니다."
+**[2:50~3:00] 클로징 (10초)**
+"사용자의 프라이버시를 지키는 기술이 곧 가장 강력한 비즈니스 모델입니다. 기술로 신뢰를 증명하는 곳, OHmyDNA였습니다. 감사합니다."
 
 ---
 
 ## 3-Min Demo Video Script (Submission — English)
 
-> QuickTime screen recording. Target: 180 seconds.
-> Narration ~90s + App demo screen recording ~90s.
+> QuickTime screen recording. Target: 180 seconds (3 minutes).
 
-**[0:00~0:15] Opening (S1)**
-"Hi, I'm the founder of OHmyDNA — the only solution that lets you benefit from your genetic data without ever exposing it."
+**[0:00~0:25] Opening & Vision (25s)**
+"Hi, I'm the founder of OHmyDNA — the first solution that protects your sensitive genetic data while allowing you to enjoy personalized financial benefits. We've proven that you can verify the value of your data without ever exposing it, using NEAR's latest privacy stack."
 
-**[0:15~0:45] Problem & Solution (S2+S3)**
-"Tens of millions of people keep their DNA test results locked away — afraid of discrimination and data leaks. When 23andMe was hacked, 6.9 million profiles ended up on the dark web. Your DNA can never be reset. OHmyDNA solves this by never storing your data at all. We analyze inside an IronClaw TEE, purge it instantly, and send only a ZKP proof to the insurer — no raw data, ever."
+**[0:25~1:00] Problem & Technical Solution (35s)**
+"Millions of genetic test results are sitting unused in drawers due to the fear of data leaks. DNA is a permanent biometric identifier—once leaked, it's out forever. OHmyDNA solves this with a 'Trustless' model. Instead of sending raw data to an insurer, we analyze it inside an IronClaw TEE enclave and purge it immediately. The insurer receives only a Zero-Knowledge Proof (ZKP) of eligibility."
 
-**[0:45~2:15] Live App Demo (Screen Recording)**
-- Wallet connect → sample file upload → TEE analysis animation → data purge confirmation
-- AI recommendation dashboard 3-step reveal → product selection → Confidential Intents payment complete
+**[1:00~2:30] Live App Demo - Detailed Narration (90s)**
+- **(1:00~1:15)** "Let's walk through the app. First, I connect my NEAR wallet. This wallet acts not just as a payment tool, but as a secure key for managing your genetic certifications."
+- **(1:15~1:35)** "I upload my genome file. It is immediately encrypted and sent to the IronClaw TEE, a hardware-isolated secure enclave. Inside, the AI model starts parsing the report."
+- **(1:35~1:55)** "This animation visualizes the analysis happening inside the secure memory. The moment the analysis is complete, the raw data is permanently purged. This is where the 'No raw data shared' principle becomes a reality."
+- **(1:55~2:15)** "Based on the findings, the AI agent generates a 3-step recommendation report. We highlight the best insurance products that match your genetic profile. You can see which tags were used without ever exposing the raw sequences."
+- **(2:15~2:30)** "Finally, the checkout. We use NEAR Confidential Intents for the payment. Even on the public ledger, your sensitive transaction details remain private. The entire pipeline is cryptographically sound."
 
-**[2:15~2:45] What We Built (S5)**
-"We shipped full working code: IronClaw TEE integration, a Noir ZKP circuit deployed to NEAR testnet, and Confidential Intents payment — a complete end-to-end privacy pipeline, all built during this hackathon."
+**[2:30~2:50] What We Built (20s)**
+"During this hackathon, we built and shipped a full working pipeline: IronClaw TEE integration, a Noir ZKP circuit deployed on NEAR testnet, and Confidential Intents for private payments—all running on live code."
 
-**[2:45~3:00] Closing (S12)**
-"The technology that protects your most sensitive data is the new competitive moat. What if you could verify it cryptographically? OHmyDNA just did. Thank you."
+**[2:50~3:00] Closing (10s)**
+"Technology that protects privacy is the most powerful business model. Verification without trust—this is OHmyDNA. Thank you."
 
 ---
 
