@@ -62,14 +62,19 @@ export async function runAnalysis(
     }
 
     // 2. NEP-413 Ed25519 서명 검증
-    const isValid = verifyNearSignature({
+    // callbackUrl 포함 버전 먼저 시도, 실패 시 null로 재시도
+    // (my-near-wallet 직접 반환 시 callbackUrl이 페이로드에 포함되지 않을 수 있음)
+    const baseParams = {
       message: AUTH_MESSAGE,
       nonce: auth.nonce,
       recipient: AUTH_RECIPIENT,
-      callbackUrl: auth.callbackUrl,
       signature: auth.signature,
       publicKey: auth.publicKey,
-    });
+    };
+
+    const isValid =
+      verifyNearSignature({ ...baseParams, callbackUrl: auth.callbackUrl }) ||
+      verifyNearSignature({ ...baseParams, callbackUrl: null });
 
     if (!isValid) {
       return { success: false, error: "서명 검증 실패: 유효하지 않은 서명입니다" };
