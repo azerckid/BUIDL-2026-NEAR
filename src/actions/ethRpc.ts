@@ -80,10 +80,14 @@ export async function getFeeDataAction(): Promise<
   try {
     const baseFeeHex = (await rpcCall("eth_gasPrice", [])) as string;
     const baseFee = BigInt(baseFeeHex);
-    // EIP-1559: maxFeePerGas = baseFee * 2, maxPriorityFeePerGas = 1.5 gwei
-    const maxFeePerGas = (baseFee * BigInt(2)).toString();
-    const maxPriorityFeePerGas = BigInt(1500000000).toString(); // 1.5 gwei
-    return { maxFeePerGas, maxPriorityFeePerGas };
+    // EIP-1559: maxPriorityFeePerGas 고정 1.5 Gwei
+    // maxFeePerGas = baseFee * 2 + priorityFee (항상 priorityFee >= maxFee 방지)
+    const maxPriorityFeePerGas = BigInt(1_500_000_000); // 1.5 gwei
+    const maxFeePerGas = baseFee * BigInt(2) + maxPriorityFeePerGas;
+    return {
+      maxFeePerGas: maxFeePerGas.toString(),
+      maxPriorityFeePerGas: maxPriorityFeePerGas.toString(),
+    };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Unknown error" };
   }
