@@ -1,9 +1,9 @@
 # [보안 검증] 유전자 정보 취급 및 NEAR 프라이버시 스택 체크리스트
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-03
+- **최종 수정일**: 2026-04-10
 - **레이어**: 05_QA_Validation
-- **상태**: Draft v1.1
+- **상태**: Draft v1.2
 
 ---
 
@@ -86,6 +86,43 @@
 - [ ] 각 국가의 개인정보보호법(GDPR, 한국 개인정보보호법 등)을 준수하는가?
 - [ ] 불필요한 개인 식별 정보(PII)의 수집을 최소화하고 있는가? (지갑 주소만을 식별자로 사용)
 - [ ] 국내 보험업법상 보험중개 서비스 운영에 필요한 GA 등록 또는 제휴 계획이 수립되어 있는가?
+
+---
+
+## 7-A. NEAR 스택 구현 검증
+
+### 7-3. 자격증명 및 보안 설정
+- [x] `IRONCLAW_API_KEY` 서버 사이드 전용 환경 변수 확인 (`NEXT_PUBLIC_` 접두사 미사용)
+- [ ] IronClaw 허용 엔드포인트 화이트리스트 설정 (NEAR AI Cloud 대시보드 설정, 코드 외부)
+
+### 7-4. Chain Signatures 구현 및 연동 검증
+- [x] `deriveEthAddress` — `v1.signer-prod.testnet` view call 정상 동작 확인 (2026-04-10 직접 검증)
+  - 파생 키: `secp256k1:xuvxnfhqeeY9JiRa92UaUHTDLT6UqruapLsb2XQwtzXgiCqB8wzaeqYgWRSLV69bKuAKSn8CrjXdPS15k6V9p6w`
+- [x] `requestMpcSignature` 코드 구현 완료 (`v1.signer-prod.testnet` sign 호출, 250 Tgas)
+- [x] `broadcastEthTransaction` 코드 구현 완료 (ethers v6 + Sepolia RPC)
+- [x] `reconstructEthSignature` 코드 구현 완료 (recovery_id 0/1 순차 시도 포함)
+- [ ] `v1.signer` MPC 컨트랙트 testnet 실서명 요청 동작 확인 (브라우저 지갑 + testnet 잔액 필요)
+- [ ] MPC 서명 → ETH Sepolia 트랜잭션 브로드캐스트 E2E 확인 (수동 테스트 필요)
+- [ ] Phase 3: SOL 파생 주소 생성 — `deriveSolAddress` Phase 3 stub, 현재 미구현 (의도된 상태)
+
+### 7-5. Noir ZKP 구현 및 온체인 검증 연동
+- [x] `circuits/insurance_eligibility/target/proof` 바이너리 존재 (nargo 로컬 proof 생성 완료)
+- [x] `zkp.rogulus.testnet` 컨트랙트 testnet 배포 확인 (2026-04-10 view call 응답 정상)
+  - `is_proof_registered("test_proof_hash_000")` → `false` 정상 응답
+- [x] `checkProofRegistration` view call 구현 완료 (서버 사이드, 서명 불필요)
+- [x] `prepareZkpProofSubmission` 서버 액션 구현 완료 (proof hash 검증 + 중복 등록 방지)
+- [ ] Noir ZKP proof 생성 → proof bytes TeeAnalysisOutput 포함 여부 확인 (Phase 2 TEE 연동 시)
+- [ ] `submit_proof` 온체인 write 호출 — Phase 2 구현 대상 (현재 client-side WalletSelector FunctionCall 필요)
+
+### 7-6. E2E 검증 현황
+- [x] Mock 파일 → IronClaw API → `TeeAnalysisOutput` JSON 수신 확인
+- [x] Playwright E2E 21/21 통과 — 공개 접근 페이지 전체 검증 (2026-04-10)
+- [ ] Chain Signatures MPC 서명 → Confidential Intents 트랜잭션 제출 확인 (수동, 지갑 필요)
+- [ ] Noir ZKP proof bytes 포함 전체 플로우 확인 (Phase 2)
+- [ ] 전체 플로우 (업로드 → TEE → ZKP → 대시보드 → MPC 서명 → 결제 완료) E2E 완주 (수동, 지갑 필요)
+
+> **Phase 0 범위 내 자동화 검증 한계**: MPC 서명, 트랜잭션 브로드캐스트, ZKP on-chain verifier는
+> 실제 NEAR Testnet 지갑 인터랙션이 선행 조건이므로 자동화 E2E 테스트 커버 범위 밖입니다.
 
 ---
 
