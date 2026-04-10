@@ -1,9 +1,9 @@
 # [보안 검증] 유전자 정보 취급 및 NEAR 프라이버시 스택 체크리스트
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-10
+- **최종 수정일**: 2026-04-11
 - **레이어**: 05_QA_Validation
-- **상태**: Draft v1.2
+- **상태**: Draft v1.3
 
 ---
 
@@ -11,7 +11,8 @@
 - [ ] 유전자 Raw Data가 NEAR Private Cloud에 ECIES + AES-256-GCM으로 암호화되어 저장되는가?
 - [ ] 사용자 본인 외에 그 누구도 스토리지에 접근할 수 없는 키 관리 구조인가?
 - [ ] 데이터 소유자가 자신의 데이터를 즉시 삭제(Right to be forgotten)할 수 있는가?
-- [x] Turso DB에 유전자 원본 데이터 또는 부분 수치가 단 한 건도 저장되지 않는가?
+- [ ] Turso DB에 유전자 원본 데이터 또는 부분 수치가 단 한 건도 저장되지 않는가?
+  > **Phase 0 한계**: `analysis_results.risk_profile` 컬럼에 질병 카테고리 레이블(`flags: ["breast_cancer", ...]`)이 JSON 형태로 저장됨. 원시 서열 데이터는 아니나, 개인정보보호법 제23조 및 GDPR Art.9 상 민감 정보에 해당. Phase 2 전환 시 사용자 공개키 암호화 또는 비식별화 처리 필요.
 - [x] 업로드 파일 형식이 화이트리스트(VCF, PDF, TXT)로만 제한되어 있는가?
 
 ---
@@ -33,6 +34,7 @@
 - [x] `circuits/insurance_eligibility/src/main.nr` 회로 로직이 `assert(risk_score >= threshold)` 단일 조건으로 제한되는가?
 - [ ] `nargo compile` 아티팩트가 버전 관리되고 변조 불가 상태로 유지되는가?
 - [ ] ZKP proof 생성이 IronClaw TEE 내부(`prover.ts`)에서만 호출되는가?
+  > **Phase 0 한계**: `runAnalysis` Server Action 내 `generateZkpProof()` 직접 호출. Phase 2에서 IronClaw TEE 런타임으로 이전 필요.
 - [x] proof bytes 외 수치 데이터가 `TeeAnalysisOutput`에 포함되지 않는가?
 - [ ] ZKP proof bytes가 Confidential Intents 트랜잭션 calldata에 첨부되는가?
 - [x] Phase 0 로컬 검증(`nargo verify`)이 통과되는가?
@@ -53,12 +55,26 @@
 
 ## 4. 웹 프론트엔드 보안 (Web Security)
 - [x] Next.js `Content-Security-Policy(CSP)` 헤더가 설정되어 인라인 스크립트 및 외부 스크립트 로드를 제한하는가?
+  > **잔존 위험**: `unsafe-inline`, `unsafe-eval` 지시어 포함 (Tailwind CSS / Framer Motion 호환성 요건). Phase 2에서 nonce 기반 CSP로 전환 권장.
 - [x] 모든 API 라우트에 CSRF 방어 토큰 또는 SameSite 쿠키 정책이 적용되어 있는가?
 - [x] 사용자 입력값(파일명, 지갑 주소 등) 전체에 XSS 방어를 위한 인코딩/이스케이프 처리가 되어 있는가?
 - [x] 파일 업로드 엔드포인트에서 허용 MIME 타입 외 파일의 서버 실행이 불가능한가?
 - [x] Drizzle ORM의 Parameterized Query를 사용하여 SQL Injection이 방어되어 있는가?
 - [x] `next.config.js`의 `headers()`에 `X-Frame-Options: DENY` 및 `X-Content-Type-Options: nosniff`가 설정되어 있는가?
 - [x] 환경 변수(API 키, DB 토큰)가 클라이언트 번들에 노출되지 않는가? (`NEXT_PUBLIC_` 접두사 사용 여부 점검)
+
+---
+
+## 4-1. Server Action 접근 제어 (IDOR 방어)
+
+> **Phase 0 구현 상태**: NEAR Wallet 서명 기반 서버 세션이 없으므로, 호출자 인증은 URL 파라미터 교차 검증으로 부분 완화됨. Phase 2에서 Challenge-Response 서명 검증으로 격상 필요.
+
+- [x] `getDashboardData(sessionId, walletAddress)`: DB에서 sessionId + walletAddress 교차 검증 (`and()` 조건) — 타인 세션 열람 차단 (`src/actions/getDashboardData.ts`).
+- [ ] `createSession(walletAddress, ...)`: 호출자와 walletAddress 일치 여부 서버에서 검증되는가?
+  > **Phase 0 한계**: 미검증. 악의적 호출자가 타인 지갑 주소로 세션 생성 가능. 실 피해는 Phase 0 mock 데이터 환경에서 제한적.
+- [ ] `runAnalysis(sessionId)`: 호출자가 해당 세션의 소유자인지 서버에서 검증되는가?
+  > **Phase 0 한계**: sessionId 존재 여부만 확인. Phase 2에서 세션 소유권 + 지갑 서명 검증 필요.
+- [x] `upsertUserProfile(walletAddress)`: 쓰기 데이터가 구독 등급(free) 및 타임스탬프로만 제한되어, 비인가 호출의 실질적 피해가 최소화되는가?
 
 ---
 

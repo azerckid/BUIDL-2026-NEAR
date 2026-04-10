@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { analysisResults, insuranceProducts, riskProfileSchema } from "@/lib/db/schema";
 import type { InsuranceProduct, RiskProfile } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { z } from "zod";
 
@@ -34,13 +34,21 @@ export interface DashboardData {
   priorityOrder: PriorityOrder | null;
 }
 
-export async function getDashboardData(sessionId: string): Promise<DashboardData | null> {
-  if (!sessionId) return null;
+export async function getDashboardData(
+  sessionId: string,
+  walletAddress: string
+): Promise<DashboardData | null> {
+  if (!sessionId || !walletAddress) return null;
 
   const rows = await db
     .select()
     .from(analysisResults)
-    .where(eq(analysisResults.sessionId, sessionId))
+    .where(
+      and(
+        eq(analysisResults.sessionId, sessionId),
+        eq(analysisResults.walletAddress, walletAddress)
+      )
+    )
     .limit(1);
 
   if (rows.length === 0) return null;

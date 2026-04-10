@@ -47,11 +47,12 @@ const PARTICLES = Array.from({ length: 12 }, (_, i) => ({
 
 interface TeeAnalysisProgressProps {
   sessionId: string;
+  walletAddress: string;
 }
 
 type LogEntry = { id: string; text: string; type: "default" | "success" | "private" | "system" | "error" };
 
-export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
+export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisProgressProps) {
   const router = useRouter();
   const t = useTranslations("teeProgress");
 
@@ -272,7 +273,7 @@ export function TeeAnalysisProgress({ sessionId }: TeeAnalysisProgressProps) {
             </p>
             <Button
               className="w-full"
-              onClick={() => router.push(`/dashboard?sid=${sessionId}`)}
+              onClick={() => router.push(`/dashboard?sid=${sessionId}&wallet=${encodeURIComponent(walletAddress)}`)}
             >
               {t("goToDashboard")}
             </Button>

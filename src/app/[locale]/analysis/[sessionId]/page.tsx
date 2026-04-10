@@ -17,15 +17,15 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
   const tc = await getTranslations("common");
 
   const sessions = await db
-    .select({ status: analysisSessions.status })
+    .select({ status: analysisSessions.status, walletAddress: analysisSessions.walletAddress })
     .from(analysisSessions)
     .where(eq(analysisSessions.id, sessionId))
     .limit(1);
 
   if (sessions.length === 0) redirect(`/${locale}/upload`);
 
-  const { status } = sessions[0];
-  if (status === "purged") redirect(`/${locale}/dashboard?sid=${sessionId}`);
+  const { status, walletAddress } = sessions[0];
+  if (status === "purged") redirect(`/${locale}/dashboard?sid=${sessionId}&wallet=${encodeURIComponent(walletAddress)}`);
 
   const STEPS = [
     tc("steps.walletConnect"),
@@ -75,7 +75,7 @@ export default async function AnalysisPage({ params }: AnalysisPageProps) {
           <p className="text-sm text-muted-foreground max-w-md">{t("description")}</p>
         </div>
         <Suspense>
-          <TeeAnalysisProgress sessionId={sessionId} />
+          <TeeAnalysisProgress sessionId={sessionId} walletAddress={walletAddress} />
         </Suspense>
       </main>
     </div>
