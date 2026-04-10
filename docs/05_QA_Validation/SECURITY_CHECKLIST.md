@@ -63,6 +63,10 @@
 ---
 
 ## 5. 스마트 컨트랙트 보안 (Smart Contract Security)
+
+> **Phase 2 미구현**: `contracts/` 하위에 `zkp_verifier`(testnet 배포 완료)만 존재.
+> 보험료 결제 컨트랙트는 미작성 상태이므로 아래 항목 전체가 Phase 2 대상임.
+
 - [ ] 보험료 결제 컨트랙트에 재진입 공격(Re-entrancy Attack) 방어 로직이 구현되어 있는가?
 - [ ] 수수료 정산 함수의 호출자 권한 검증(Access Control)이 되어 있는가? (플랫폼 트레저리 주소만 허용)
 - [ ] NEAR 컨트랙트의 `ft_on_transfer` 콜백에서 잘못된 토큰 수신 시 즉시 revert 처리가 되는가?
