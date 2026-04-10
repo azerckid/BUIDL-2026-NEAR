@@ -250,10 +250,10 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
           <ShieldCheck size={32} className="text-primary" strokeWidth={1.5} />
         </div>
         <div className="flex flex-col gap-1">
-          <p className="text-base font-semibold text-foreground">분석 권한 인증</p>
+          <p className="text-base font-semibold text-foreground">Analysis Authorization</p>
           <p className="text-sm text-muted-foreground max-w-sm">
-            유전자 데이터 분석을 시작하려면 지갑 서명이 필요합니다.
-            개인키 소유를 증명하는 메시지에 서명해 주세요. 트랜잭션은 발생하지 않습니다.
+            A wallet signature is required to start the genetic analysis.
+            Sign a message to prove ownership of your private key. No transaction will occur.
           </p>
         </div>
         <Button
@@ -262,9 +262,9 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
           onClick={handleAuthorize}
         >
           {isLoading ? (
-            <><Loader2 size={14} className="animate-spin mr-2" />인증 중...</>
+            <><Loader2 size={14} className="animate-spin mr-2" />Authorizing...</>
           ) : (
-            <><ShieldCheck size={14} className="mr-2" />지갑으로 서명하기</>
+            <><ShieldCheck size={14} className="mr-2" />Sign with Wallet</>
           )}
         </Button>
       </div>
