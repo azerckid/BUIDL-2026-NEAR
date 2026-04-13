@@ -1,7 +1,7 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-08 (Stage 13 AI 매칭 결과 단계별 공개 UX 완료)
+- **최종 수정일**: 2026-04-13 (Stage 14 Intel TDX Attestation 통합 완료)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v2.0
 
@@ -15,9 +15,9 @@
 - **산출물**:
   - Next.js 기반 웹 DApp — 5단계 User Flow UI 구현 (Step 1~5 화면 전환).
   - NEAR Testnet 지갑 연결 및 더미 보험 카탈로그 조회 동작.
-  - TEE 분석 시뮬레이션 UI (실제 IronClaw 대신 Mock 응답으로 대체).
+  - IronClaw TEE 연동 + Intel TDX Attestation 검증 UI (실제 NEAR AI Cloud 엔드포인트 호출, Mock 아님).
   - Confidential Intents Testnet에서의 더미 결제 트랜잭션 데모.
-- **데모 발표 포인트**: TEE 분석 → Memory Purge 애니메이션 → ZKP 증명 → 기밀 결제 흐름을 한 번에 보여주는 5분 시연 시나리오.
+- **데모 발표 포인트**: TEE 분석 → Intel TDX Attestation 배지 → Memory Purge 애니메이션 → ZKP 증명 → 기밀 결제 흐름을 한 번에 보여주는 5분 시연 시나리오.
 
 ### Phase 1: MVP 개발 및 개념 증명 (PoC)
 - **텔레그램 에이전트와 웹 DApp의 관계**: Phase 1에서는 텔레그램 봇을 빠른 프로토타입 채널로 활용. 사용자가 DTC 결과 텍스트를 텔레그램에 붙여넣으면 AI가 요약 리포트를 반환하는 방식으로 분석 로직(AI 모델 + 보험 매칭 엔진)을 먼저 검증. **Phase 2 이전에 동일한 분석 백엔드를 웹 DApp으로 전환**하며, 텔레그램 봇은 알림/리밸런싱 알람 채널로 역할 축소.
@@ -42,7 +42,7 @@
 
 | 단계 | 주요 태스크 | 기간 (예상) |
 | :--- | :--- | :--- |
-| **2026-04** | 해커톤 데모 완성 (Phase 0) — Next.js UI, Testnet 연동, Mock TEE | 3주 |
+| **2026-04** | 해커톤 데모 완성 (Phase 0) — Next.js UI, Testnet 연동, IronClaw TEE + Intel TDX Attestation 완료 | 3주 |
 | **Q2 2026** | MVP 에이전트 개발 및 DTC 데이터 해석 파이프라인 구축, 텔레그램 → 웹 전환 | 3개월 |
 | **Q3 2026** | NEAR TEE(IronClaw) 환경 실제 연동 및 보안 감사 (외부 Audit) | 2개월 |
 | **Q4 2026** | GA 라이선스 확보 또는 제휴 GA사 계약, 베타 서비스 운영 | 3개월 |
@@ -68,7 +68,7 @@
 
 | 리스크 | 심각도 | 가능성 | 대응 계획 |
 | :--- | :--- | :--- | :--- |
-| IronClaw TEE 개발 환경 구축 난이도 | 높음 | 중간 | Phase 0~1에서는 Mock TEE(로컬 Node.js 함수)로 대체. Phase 2에 NEAR AI 팀과 기술 지원 요청. |
+| IronClaw TEE 개발 환경 구축 난이도 | ~~높음~~ **해소** | ~~중간~~ **완료** | Phase 0에서 IronClaw NEAR AI Cloud 실제 연동 완료. Intel TDX Attestation 검증 엔드포인트(`/v1/attestation/report`) 통합으로 하드웨어 신뢰 기반 확립. Phase 2에서 SHA-256 nonce 바인딩 전체 검증으로 전환 예정. |
 | Confidential Intents 메인넷 출시 지연 | 중간 | 낮음 | 테스트넷 기반으로 전 기능 구현 완료 후 엔드포인트 변경만으로 전환 가능하도록 추상화 레이어 설계. |
 | 보험사 API 연동 장벽 (폐쇄적 레거시 시스템) | 높음 | 높음 | 초기에는 보험다모아 등 공개 API + 수동 크롤링으로 카탈로그 구성. 이후 GA 제휴사를 통해 정식 API 접근권 확보. |
 | 유전자 데이터 규제 불확실성 | 높음 | 중간 | 법률 자문 조기 수령 (Q2 2026), '건강 관리 서비스' 프레임으로 규제 샌드박스 진입. |
@@ -671,9 +671,68 @@
 
 ---
 
+### Stage 14 — Intel TDX Attestation 통합 ✓ 완료 2026-04-13
+
+> **목적**: NEAR AI Cloud IronClaw TEE의 하드웨어 신뢰를 검증 가능한 형태로 사용자에게 노출.
+> `GET https://cloud-api.near.ai/v1/attestation/report` 공개 엔드포인트를 통해 Intel TDX Quote를
+> 분석 파이프라인에 통합하고, 세션 DB에 검증 결과를 기록한 후 UI 배지로 표시.
+>
+> **참고 명세**: [TEE_ATTESTATION_SPEC.md](../03_Technical_Specs/TEE_ATTESTATION_SPEC.md)
+
+#### 14-1. 타입 정의
+
+- [x] `src/types/attestation.ts` — `AttestationReport` Zod 스키마 + `AttestationVerificationResult` 타입
+
+#### 14-2. 라이브러리 구현
+
+- [x] `src/lib/tee/attestation.ts`
+  - [x] `generateNonce()` — 32바이트 랜덤 nonce → 64자 hex
+  - [x] `fetchAttestationReport()` — NEAR AI Cloud `/v1/attestation/report` 호출 (10s timeout)
+  - [x] `verifyNonceBinding()` — Phase 0: `report_data` 필드 존재 확인 (Phase 2: SHA-256 비교로 전환 예정)
+
+#### 14-3. Server Action
+
+- [x] `src/actions/verifyAttestation.ts` — `"use server"` Action
+  - [x] nonce 생성 → attestation 조회 → 3단계 검증 결과 반환
+  - [x] `IRONCLAW_MODEL` 환경 변수 지원 (기본값: `Qwen/Qwen3-30B-A3B-Instruct-2507`)
+
+#### 14-4. DB 스키마 변경
+
+- [x] `src/lib/db/schema.ts` — `analysisSessions` 테이블에 컬럼 2개 추가
+  - [x] `attestationNonce TEXT` — 분석 시 생성된 nonce (재현 및 감사 추적용)
+  - [x] `attestationVerified INTEGER (boolean)` — 검증 성공 여부
+
+#### 14-5. DB 마이그레이션
+
+- [x] `npx drizzle-kit generate` — `drizzle/0003_purple_stardust.sql` 생성
+- [x] `npx drizzle-kit migrate` — Turso DB 적용 완료
+
+#### 14-6. runAnalysis.ts 파이프라인 통합
+
+- [x] `tee_processing` 상태 진입 후 attestation 선행 호출
+- [x] nonce + 검증 결과를 `analysisSessions` 레코드에 저장
+- [x] Phase 0 비차단 설계 — 엔드포인트 일시 불가 시 분석 파이프라인 계속 진행
+
+#### 14-7. UI 배지
+
+- [x] `src/components/modules/TeeAnalysisProgress.tsx` — zkp 단계 이후 `Intel TDX Attestation Verified` 배지 표시
+  - [x] Framer Motion `AnimatePresence` 페이드인 애니메이션
+  - [x] `ShieldCheck` 아이콘 (lucide-react), 파란색 테마
+
+#### 14-8. 명세 문서
+
+- [x] `docs/03_Technical_Specs/TEE_ATTESTATION_SPEC.md` 작성
+
+#### 14-9. 빌드 검증
+
+- [x] `npm run build` TypeScript 오류 0건 확인
+
+---
+
 ## 관련 문서
 - [비즈니스 기획안](../01_Concept_Design/GENETIC_AI_INSURANCE_AGENT.md)
 - [기술 아키텍처 명세](../03_Technical_Specs/NEAR_PRIVACY_STACK_ARCH.md)
+- [TEE Attestation 구현 명세](../03_Technical_Specs/TEE_ATTESTATION_SPEC.md)
 - [Phase 2 구현 명세서](../03_Technical_Specs/PHASE2_IMPLEMENTATION_SPEC.md)
 - [DB 스키마 명세](../03_Technical_Specs/DB_SCHEMA.md)
 - [AI 매칭 파이프라인](./AI_MATCHING_PIPELINE.md)
