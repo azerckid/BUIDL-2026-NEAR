@@ -212,8 +212,8 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
         return;
       }
 
-      // 실제 attestation 검증 결과 반영
-      setAttestationResult(result.attestationVerified ?? false);
+      // 실제 attestation 검증 결과 반영 (null = 엔드포인트 불가, false = 검증 실패)
+      setAttestationResult(result.attestationVerified ?? null);
 
       // 애니메이션이 이미 "purged"에 도달한 경우 완료 상태로 전환
       if (stageRef.value === "purged") {
@@ -370,11 +370,14 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
       {/* 로그 렌더링 트리거용 — logs state 사용 */}
       {logs.length === 0 && null}
 
-      {/* TEE Attestation 배지 — runAnalysis 반환 후 실제 검증 결과 반영 */}
+      {/* TEE Attestation 배지 — runAnalysis 반환 후 실제 검증 결과 반영
+          null  = 검증 중 (스피너) / 완료 후에도 null = 엔드포인트 불가 (회색, 작게)
+          true  = Verified (파란색)
+          false = 검증 실패 (노란색) */}
       <AnimatePresence>
         {(stage === "zkp" || stage === "profiling" || stage === "purged") && (
           <motion.div
-            key={attestationResult === null ? "attesting" : attestationResult ? "verified" : "unavailable"}
+            key={attestationResult === null ? (isDone ? "not-checked" : "attesting") : attestationResult ? "verified" : "unavailable"}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             className={[
@@ -383,18 +386,22 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
                 ? "border-blue-500/30 bg-blue-500/10 text-blue-400"
                 : attestationResult === false
                 ? "border-yellow-500/30 bg-yellow-500/10 text-yellow-400"
+                : isDone
+                ? "border-border bg-transparent text-muted-foreground/50"
                 : "border-muted bg-muted/30 text-muted-foreground",
             ].join(" ")}
           >
-            {attestationResult === null
+            {!isDone && attestationResult === null
               ? <Loader2 size={13} className="animate-spin" />
               : <ShieldCheck size={13} />
             }
-            {attestationResult === null
-              ? "Intel TDX Attestation..."
-              : attestationResult
+            {attestationResult === true
               ? "Intel TDX Attestation Verified"
-              : "Intel TDX Attestation Unavailable"
+              : attestationResult === false
+              ? "Intel TDX Attestation Unavailable"
+              : isDone
+              ? "Intel TDX Attestation (Not Checked)"
+              : "Intel TDX Attestation..."
             }
           </motion.div>
         )}
