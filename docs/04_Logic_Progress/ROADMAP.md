@@ -25,10 +25,12 @@
 - NEAR Protocol 기반의 기본 계정 및 프라이빗 스토리지 연동.
 - 기존 보험 증권 분석을 통한 보장 공백 진단 로직 구현.
 
-### Phase 2: NEAR TEE 및 프라이버시 스택 통합 (The Secret Keeper 고도화)
-- **The Secret Keeper 구축**: NEAR AI Cloud(Qwen 등)와 IronClaw TEE를 결합하여 암호학적으로 안전한 대화형 컨시어지 런타임 구축.
-- **RAG(Retrieval-Augmented Generation) 통합**: 보험 약관 및 헬스 데이터 지식 베이스를 에이전트와 연동하여 답변 정확도 향상.
-- NEAR AI 프라이버시 스택을 활용한 TEE 분석 환경 구축.
+### Phase 2: NEAR TEE 및 프라이버시 스택 통합
+- **Confidential Intents 실연동**: Defuse Protocol SDK를 통해 실제 기밀 결제 인텐트를 Solver 네트워크에 제출. ZKP proof hash를 calldata에 첨부.
+- **Noir ZKP 온체인 수학적 검증**: `@aztec/bb.js` 기반 실제 proof 생성 및 NEAR 컨트랙트 제출.
+- **MPC Chain Signatures 고도화**: v1.signer 실연동으로 NEAR 지갑 하나로 ETH/SOL 보험료 결제 지원.
+- **NEAR AI Cloud 연동 고도화**: Qwen 30B 이상 모델 활용, TEE 내부 분석 정확도 향상.
+- **AI 상담 레이어 추가 (부가 기능)**: TEE 분석 후 생성된 위험 레이블을 컨텍스트로 주입하여, 사용자가 보험·질병 관련 질문을 할 수 있는 채팅 인터페이스 제공. LLM 내장 지식 기반 답변, Stateless 설계. 세부 구현 명세는 `SECRET_KEEPER_IMPL_SPEC.md` 참조.
 - 암호화된 유전자 Raw Data(VCF 등)의 안전한 로딩 및 처리 테스트.
 - 보험사 API 연동 및 상품 매칭 엔진 고도화.
 - Confidential Intents 테스트넷 → 메인넷 전환 대응.
@@ -732,11 +734,67 @@
 
 ---
 
+### Stage 15 — AI 상담 레이어 (The Secret Keeper) — Phase 2 예정
+
+> **목적**: TEE 분석 완료 후 대시보드에 부가 편의 기능으로 채팅 인터페이스 추가.
+> 사용자가 위험 레이블 기반으로 질병·보험 관련 질문을 하면 공감하는 말투로 답변.
+> 원본 DNA 시퀀스는 컨텍스트에 포함하지 않으며, 세션 종료 시 대화 맥락 소각.
+>
+> **참고 명세**: [SECRET_KEEPER_IMPL_SPEC.md](../03_Technical_Specs/SECRET_KEEPER_IMPL_SPEC.md)
+
+#### 15-1. 시스템 프롬프트 파일
+
+- [ ] `src/lib/tee/concierge-system-prompt.ts` 작성 (템플릿 리터럴, fs 미사용 — Vercel 배포 안정성)
+  - [ ] 공감 말투 원칙 4개 (걱정 공감 → 정보 제공 → 보험 연결 → 사용자 언어로 답변)
+  - [ ] 가드레일 5개 (원본 DNA 거부, 확정 진단 금지, 전문의 권고, 길이 제한, 세션 망각 안내)
+  - [ ] `buildSystemPrompt(riskProfileContext: string): string` 함수로 export
+
+#### 15-2. 타입 정의
+
+- [ ] `src/types/concierge.ts`
+  - [ ] `ChatMessage` 타입 (`role: 'user' | 'assistant'`, `content: string`)
+  - [ ] `ChatWithConciergeInput` Zod 스키마 (message, history, riskProfile)
+
+#### 15-3. Server Action
+
+- [ ] `src/actions/chatWithConcierge.ts`
+  - [ ] `concierge-system-prompt.md` 파일 로드 + `{RISK_PROFILE_CONTEXT}` 치환
+  - [ ] `riskProfile` → 카테고리·레벨 레이블 변환 (`formatRiskContext`)
+  - [ ] NEAR AI Cloud 호출 (기존 `IRONCLAW_BASE_URL` / `IRONCLAW_API_KEY` 재사용)
+  - [ ] `max_tokens: 600`, `temperature: 0.7`
+  - [ ] 입력 Zod 검증 (`message.max(500)`, `history.max(20)`)
+
+#### 15-4. UI 컴포넌트
+
+- [ ] `src/components/modules/ConciergeChat.tsx`
+  - [ ] 메시지 목록 표시 (user / assistant 말풍선 구분)
+  - [ ] 입력창 + 전송 버튼
+  - [ ] 전송 중 로딩 상태 표시
+  - [ ] 세션 내 대화 이력은 `useState`로만 관리 (DB 미저장)
+  - [ ] 컴포넌트 언마운트 시 이력 자동 소각 (상태 초기화)
+
+#### 15-5. 대시보드 통합
+
+- [ ] `src/app/[locale]/dashboard/page.tsx` — `<ConciergeChat sessionId={sid} riskProfile={...} />` 삽입
+- [ ] `messages/ko.json`, `messages/en.json` — `concierge.*` 번역 키 추가
+  - [ ] `concierge.placeholder` — 입력창 안내 문구
+  - [ ] `concierge.disclaimer` — "의학적 진단이 아닙니다" 안내 문구
+
+#### 15-6. 빌드 검증
+
+- [ ] `npm run build` TypeScript 오류 0건 확인
+- [ ] 샘플 질문 입력 → NEAR AI Cloud 응답 수신 확인
+- [ ] 원본 DNA 시퀀스 요청 → 거절 답변 확인 (TS-03)
+- [ ] 새 세션 접속 → 이전 대화 기억 안 함 확인 (TS-02)
+
+---
+
 ## 관련 문서
 - [비즈니스 기획안](../01_Concept_Design/GENETIC_AI_INSURANCE_AGENT.md)
 - [기술 아키텍처 명세](../03_Technical_Specs/NEAR_PRIVACY_STACK_ARCH.md)
 - [TEE Attestation 구현 명세](../03_Technical_Specs/TEE_ATTESTATION_SPEC.md)
 - [Phase 2 구현 명세서](../03_Technical_Specs/PHASE2_IMPLEMENTATION_SPEC.md)
+- [AI 상담 레이어 구현 명세](../03_Technical_Specs/SECRET_KEEPER_IMPL_SPEC.md)
 - [DB 스키마 명세](../03_Technical_Specs/DB_SCHEMA.md)
 - [AI 매칭 파이프라인](./AI_MATCHING_PIPELINE.md)
 - [구현 계획 (초기 세팅)](./IMPLEMENTATION_PLAN.md)
