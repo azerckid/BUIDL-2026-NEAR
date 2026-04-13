@@ -50,9 +50,48 @@ export async function fetchAttestationReport(params: {
 
 /**
  * nonce 바인딩 검증.
- * Phase 0: report_data 필드 존재 여부 확인.
- * Phase 2: SHA256(signing_key || nonce) 해시 비교로 교체.
+ * SHA-256(signing_key_bytes || nonce_bytes) 를 계산하여 report_data(hex)와 비교.
+ * signing_key 또는 report_data 형식이 hex가 아닌 경우(base64 등) catch로 낙하하여
+ * field 존재 여부 확인으로 fallback — Phase 2 에서는 throw 활성화 예정.
  */
-export function verifyNonceBinding(report: AttestationReport): boolean {
-  return typeof report.report_data === "string" && report.report_data.length > 0;
+export async function verifyNonceBinding(
+  report: AttestationReport,
+  nonce: string
+): Promise<boolean> {
+  if (typeof report.report_data !== "string" || report.report_data.length === 0) {
+    return false;
+  }
+
+  try {
+    const signingKeyBytes = hexToBytes(report.signing_key);
+    const nonceBytes = hexToBytes(nonce);
+
+    const combined = new Uint8Array(signingKeyBytes.length + nonceBytes.length);
+    combined.set(signingKeyBytes, 0);
+    combined.set(nonceBytes, signingKeyBytes.length);
+
+    const hashBuffer = await crypto.subtle.digest("SHA-256", combined);
+    const hashHex = Array.from(new Uint8Array(hashBuffer))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    return hashHex === report.report_data.toLowerCase();
+  } catch {
+    // signing_key 또는 report_data 가 hex 형식이 아닌 경우 — field 존재 여부로 fallback
+    // Phase 2 전환 시 catch 블록 대신 throw 활성화
+    return typeof report.report_data === "string" && report.report_data.length > 0;
+  }
+}
+
+/** hex 문자열 → Uint8Array 변환 (0x 접두사 허용) */
+function hexToBytes(hex: string): Uint8Array {
+  const normalized = hex.startsWith("0x") ? hex.slice(2) : hex;
+  if (normalized.length % 2 !== 0) {
+    throw new Error(`Invalid hex length: ${normalized.length}`);
+  }
+  const bytes = new Uint8Array(normalized.length / 2);
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = parseInt(normalized.slice(i * 2, i * 2 + 2), 16);
+  }
+  return bytes;
 }

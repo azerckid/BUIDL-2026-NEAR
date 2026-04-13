@@ -22,7 +22,7 @@ export async function verifyAttestation(): Promise<AttestationVerificationResult
     includeTlsFingerprint: true,
   });
 
-  const nonceOk = verifyNonceBinding(report);
+  const nonceOk = await verifyNonceBinding(report, nonce);
   const quoteOk = report.intel_quote.length > 0;
 
   return {
