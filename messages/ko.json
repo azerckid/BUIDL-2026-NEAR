@@ -277,7 +277,9 @@
       "b3Title": "기밀 트랜잭션",
       "b3Desc": "Intents와 MyNearWallet을 통한 프라이빗 결제 엔드-투-엔드 실행을 구현했습니다.",
       "b4Title": "프론트엔드 DApp",
-      "b4Desc": "다국어 지원 DApp, 메모리 소각 파티클 애니메이션, 3단계 AI 추천 공개 UX 및 온체인 영수증 구현."
+      "b4Desc": "다국어 지원 DApp, 메모리 소각 파티클 애니메이션, 3단계 AI 추천 공개 UX 및 온체인 영수증 구현.",
+      "b5Title": "Intel TDX Attestation",
+      "b5Desc": "/v1/attestation/report를 통한 암호학적 TEE 검증 — SHA-256 nonce 바인딩, 3상태 UI 배지, DB 감사 기록."
     },
     "s6": {
       "title": "왜 NEAR인가, 왜 지금인가?",

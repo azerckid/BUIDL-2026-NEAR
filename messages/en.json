@@ -277,7 +277,9 @@
       "b3Title": "Confidential Transactions",
       "b3Desc": "End-to-end execution of private payments via Intents and MyNearWallet.",
       "b4Title": "Frontend DApp",
-      "b4Desc": "Multi-language DApp with memory-purge particle animation, 3-step reveal UX, and on-chain receipt."
+      "b4Desc": "Multi-language DApp with memory-purge particle animation, 3-step reveal UX, and on-chain receipt.",
+      "b5Title": "Intel TDX Attestation",
+      "b5Desc": "Cryptographic TEE verification via /v1/attestation/report — nonce binding with SHA-256, 3-state UI badge, and audit trail in DB."
     },
     "s6": {
       "title": "Why NEAR, Why Now?",
