@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import { parseMockFile } from "@/lib/tee/normalizer";
 import { runMockTeeAnalysis } from "@/lib/tee/mock-tee";
 import { runIronClawAnalysis } from "@/lib/tee/ironclaw-tee";
+import { verifyAttestation } from "./verifyAttestation";
 import { teeAnalysisOutputSchema } from "@/types/tee-output";
 import { generateZkpProof, derivePrimaryRiskScore } from "@/lib/zkp/prover";
 import { matchProducts } from "./matchProducts";
@@ -86,6 +87,29 @@ export async function runAnalysis(
     const profile = parseMockFile();
 
     await updateSessionStatus(sessionId, "tee_processing");
+
+    // ── TEE Attestation 사전 검증 ──────────────────────────────────────────
+    // Phase 0: 실패해도 분석 계속 (nonce + 결과를 DB에 기록)
+    // Phase 2: verified === false 시 throw로 전환
+    let attestationNonce: string | null = null;
+    let attestationVerified: boolean | null = null;
+    try {
+      const attestation = await verifyAttestation();
+      attestationNonce = attestation.nonce;
+      attestationVerified = attestation.verified;
+      if (!attestation.verified) {
+        // Phase 2 전환 시 아래 throw 활성화
+        // throw new Error("TEE Attestation 검증 실패 — 분석 중단");
+      }
+    } catch {
+      // 엔드포인트 일시 불가 — Phase 0에서는 분석 계속
+    }
+
+    // attestation 결과를 세션 레코드에 기록
+    await db
+      .update(analysisSessions)
+      .set({ attestationNonce, attestationVerified })
+      .where(eq(analysisSessions.id, sessionId));
 
     // ── Stage 2: TEE 분석 ──────────────────────────────────────────────────
     // USE_REAL_TEE=true → IronClaw NEAR AI Cloud, 미설정 → Mock (Phase 0)
