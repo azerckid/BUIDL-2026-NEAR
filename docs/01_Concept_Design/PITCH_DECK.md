@@ -200,8 +200,8 @@ STEP 5. Confidential Intents 기밀 결제 (온체인 트랜잭션 수립)
 | **Confidential Tx** | MyNearWallet 연동, 기밀 서명 구조를 통한 실거래 결제 흐름 완수 | **구현 완료** |
 | **Frontend UI/UX** | DApp 구축, 다국어 지원, 메모리 파티클 데이터 소각 시각화 애니메이션 구현 | **구현 완료** |
 
-🎤 **발표자 대본 — 5분 버전 (약 32초)**:
-"저희는 동작하는 코드를 완성했습니다. IronClaw TEE 연동, Noir ZKP NEAR 테스트넷 등록, Confidential Intents 실결제. 이 프라이버시 파이프라인 전체를 해커톤 기간 내에 엔드투엔드로 구동했습니다."
+🎤 **발표자 대본 — 5분 버전 (약 35초)**:
+"저희는 동작하는 코드를 완성했습니다. IronClaw TEE 연동, NEAR AI Cloud 공개 엔드포인트를 통한 Intel TDX Attestation 검증—nonce 바인딩과 SHA-256 해시 비교로 암호학적 신뢰를 구현했습니다. Noir ZKP NEAR 테스트넷 등록, Confidential Intents 실결제까지. 이 프라이버시 파이프라인 전체를 해커톤 기간 내에 엔드투엔드로 구동했습니다."
 
 ---
 
