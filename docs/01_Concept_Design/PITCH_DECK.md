@@ -96,7 +96,7 @@
 "Phase 0 MVP, 증명됐습니다. Q2 DTC 협력, Q3 Agent OS와 크로스체인 유동성 통합. 수십억 기관 자산도 맡길 수 있는 금융 인프라가 목표입니다."
 
 **[S12 — Team & Closing / ~43초]**
-"저는 1인으로 전 파이프라인을 구축했습니다. What if you could verify it cryptographically? OHmyDNA는 그 답을 코드로 증명했습니다. 프라이버시를 지키는 기술이 곧 수익 모델입니다. 감사합니다."
+"저희는 전체 파이프라인을 구축했습니다. What if you could verify it cryptographically? OHmyDNA는 그 답을 코드로 증명했습니다. 프라이버시를 지키는 기술이 곧 수익 모델입니다. 감사합니다."
 
 ---
 
@@ -130,7 +130,7 @@
 "Phase Zero is proven today. Q2 2026: off-chain API stabilization and DTC lab partnerships. Q3 Phase Two: an autonomous Agent OS that proactively monitors your health data and renegotiates your coverage. Q4 and beyond: full mainnet launch as institutional-grade cross-chain financial infrastructure."
 
 **[S12 — Closing / ~40s]**
-"I built this entire stack solo — product architecture, frontend, database, TEE integration, ZKP circuits, and multi-chain payments. What I set out to prove is this: the technology that protects your most sensitive data is not a cost — it is a competitive moat and a new revenue model. NEAR asked us: what if you could verify it cryptographically? OHmyDNA answers that question with working code. Thank you."
+"We built this entire stack end-to-end — product architecture, frontend, database, TEE integration, ZKP circuits, and multi-chain payments. What we set out to prove is this: the technology that protects your most sensitive data is not a cost — it is a competitive moat and a new revenue model. NEAR asked us: what if you could verify it cryptographically? OHmyDNA answers that question with working code. Thank you."
 
 ---
 
@@ -331,15 +331,15 @@ flowchart LR
 
 ## Slide 12 — Team & Ask (Vision Demo)
 
-**Solo Founder — Full-Stack Build E2E Structure**
-- 기획 사업, Next.js 프론트엔드, Drizzle DB, TEE, ZKP 컨트랙트 배포 등 전체 워크플로우 1인 체제 돌파
+**Founder — Full-Stack Build E2E Structure**
+- 기획 사업, Next.js 프론트엔드, Drizzle DB, TEE, ZKP 컨트랙트 배포 등 전체 워크플로우 구축
 *(Phase 1 이후 제품 디자인 및 추가 시스템 엔지니어 충원 계획 수립)*
 
 **우리가 증명한 단 하나 (Vision)**
 > 유전자를 오픈하지 않고도, 블록체인의 프라이버시 기술만으로 초개인화된 금융 혜택을 100% 누릴 수 있습니다.
 
 🎤 **발표자 대본 — 5분 버전 (약 32초)**:
-"저는 1인으로 전 파이프라인을 구축했습니다. What if you could verify it cryptographically? OHmyDNA는 그 답을 코드로 증명했습니다. 프라이버시를 지키는 기술이 곧 수익 모델입니다. 감사합니다."
+"전체 파이프라인을 구축했습니다. What if you could verify it cryptographically? OHmyDNA는 그 답을 코드로 증명했습니다. 프라이버시를 지키는 기술이 곧 수익 모델입니다. 감사합니다."
 
 ---
 
