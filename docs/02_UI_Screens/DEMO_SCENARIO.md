@@ -1,7 +1,7 @@
 # [데모 시나리오] MyDNA Insurance Agent — 해커톤 발표용 영상 스크립트
 
 - **작성일**: 2026-04-01
-- **최종 수정일**: 2026-04-01
+- **최종 수정일**: 2026-04-13
 - **레이어**: 02_UI_Screens
 - **상태**: Draft v1.0
 
@@ -9,7 +9,7 @@
 
 ## 개요
 
-**목표**: 심사위원이 "TEE 격리 분석 → Memory Purge → ZKP 기밀 결제"의 흐름을 단 한 번의 영상으로 이해하게 만든다.
+**목표**: 심사위원이 "TEE 격리 분석 → Intel TDX Attestation 하드웨어 신뢰 증명 → Memory Purge → ZKP 기밀 결제"의 흐름을 단 한 번의 영상으로 이해하게 만든다.
 
 **총 목표 시간**: 90초 ~ 120초 (피치덱 발표 중 재생 기준)
 
@@ -139,15 +139,23 @@ The only way to get better insurance because of your DNA — without exposing it
   Raw data permanently purged from TEE memory.
   ```
 - 하단 소형 텍스트: `분석 소요: 18.3s / 잔류 데이터: 0 bytes`
+- **Attestation 배지 페이드인** (purge 완료 직후 0.3초 딜레이):
+  - 파란색 테두리 + `ShieldCheck` 아이콘: `Intel TDX Attestation Verified`
+  - 나레이터 포인트: "이 인클레이브는 하드웨어 수준에서 암호학적으로 신뢰가 검증된 환경입니다"
+  - ZKP 배지(`Zero-Knowledge Proof Generated`, emerald)와 나란히 표시
 
 **내레이션 자막**
 ```
 [KO] 유전자 데이터는 하드웨어 TEE(신뢰 실행 환경) 안에서만 분석됩니다.
      분석이 끝나는 순간, 원본 데이터는 메모리에서 즉시 삭제됩니다.
+     화면의 파란 배지 — Intel TDX Attestation — 가 이 인클레이브가
+     실제 하드웨어 보안 구역임을 암호학적으로 증명합니다.
      당사 서버 어디에도, 어느 직원도, 이 데이터를 본 사람은 없습니다.
 
 [EN] Your DNA is analyzed only inside a hardware TEE (Trusted Execution Environment).
      The moment analysis is complete, raw data is permanently purged from memory.
+     The blue badge — Intel TDX Attestation — cryptographically proves this enclave
+     is a genuine hardware-isolated environment, not just a software claim.
      No one — including our engineers — ever sees it.
 ```
 
