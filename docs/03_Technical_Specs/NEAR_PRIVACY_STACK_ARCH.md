@@ -1,7 +1,7 @@
 # [기술 명세] NEAR AI 프라이버시 스택 기반 유전자 데이터 처리 아키텍처
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-04
+- **최종 수정일**: 2026-04-13
 - **레이어**: 03_Technical_Specs
 - **상태**: Draft v2.0
 
@@ -97,7 +97,8 @@ AI 에이전트의 분석 로직은 투명하게 공개되되, 분석 시점은 
 
 ## 5. 향후 확장 기술 (Future Expansion)
 - **Multi-Party Computation (MPC)**: 여러 사용자의 익명화된 데이터를 결합하여 정밀한 질병 예측 모델을 고도화할 때 활용.
-- **On-chain Attestation**: TEE 내에서 수행된 분석 결과에 대한 신뢰성을 온체인 증명서로 발급.
+- **Off-chain Attestation (구현 완료 — Phase 0)**: NEAR AI Cloud의 `GET /v1/attestation/report` 공개 엔드포인트를 통해 Intel TDX Quote를 조회하고, nonce 바인딩 검증 결과(`attestationNonce`, `attestationVerified`)를 DB에 기록. 분석 UI에서 `Intel TDX Attestation Verified` 배지로 사용자에게 표시. Phase 2에서는 `SHA256(signing_key || nonce)` 전체 해시 비교 검증으로 업그레이드 예정.
+- **On-chain Attestation 등록 (Phase 2 예정)**: Off-chain 검증 결과를 NEAR 스마트 컨트랙트에 온체인 등록하여 제3자가 감사 가능한 형태의 불변 증명서 발급. Intel TDX `intel_quote`를 온체인 Calldata로 기록, DCAP-QVL 기반 검증 로직 연동.
 
 ---
 
