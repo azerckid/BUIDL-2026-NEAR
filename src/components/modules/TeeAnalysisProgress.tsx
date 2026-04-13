@@ -365,6 +365,20 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
       {/* 로그 렌더링 트리거용 — logs state 사용 */}
       {logs.length === 0 && null}
 
+      {/* TEE Attestation 배지 */}
+      <AnimatePresence>
+        {(stage === "zkp" || stage === "profiling" || stage === "purged") && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs"
+          >
+            <ShieldCheck size={13} />
+            Intel TDX Attestation Verified
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ZKP 완료 배지 */}
       <AnimatePresence>
         {(stage === "profiling" || stage === "purged") && (
