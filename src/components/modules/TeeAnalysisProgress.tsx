@@ -91,6 +91,8 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
   const [stage, setStage] = useState<AnalysisStage>("parsing");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isDone, setIsDone] = useState(false);
+  // null = 검증 중, true = 성공, false = 실패/불가
+  const [attestationResult, setAttestationResult] = useState<boolean | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const logsRef = useRef<LogEntry[]>([]);
   const doneBtnRef = useRef<HTMLDivElement>(null);
@@ -209,6 +211,9 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
         toast.error(t("errorTitle") + ": " + message);
         return;
       }
+
+      // 실제 attestation 검증 결과 반영
+      setAttestationResult(result.attestationVerified ?? false);
 
       // 애니메이션이 이미 "purged"에 도달한 경우 완료 상태로 전환
       if (stageRef.value === "purged") {
@@ -365,16 +370,32 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
       {/* 로그 렌더링 트리거용 — logs state 사용 */}
       {logs.length === 0 && null}
 
-      {/* TEE Attestation 배지 */}
+      {/* TEE Attestation 배지 — runAnalysis 반환 후 실제 검증 결과 반영 */}
       <AnimatePresence>
         {(stage === "zkp" || stage === "profiling" || stage === "purged") && (
           <motion.div
+            key={attestationResult === null ? "attesting" : attestationResult ? "verified" : "unavailable"}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs"
+            className={[
+              "flex items-center gap-2 px-4 py-2 rounded-lg border text-xs",
+              attestationResult === true
+                ? "border-blue-500/30 bg-blue-500/10 text-blue-400"
+                : attestationResult === false
+                ? "border-yellow-500/30 bg-yellow-500/10 text-yellow-400"
+                : "border-muted bg-muted/30 text-muted-foreground",
+            ].join(" ")}
           >
-            <ShieldCheck size={13} />
-            Intel TDX Attestation Verified
+            {attestationResult === null
+              ? <Loader2 size={13} className="animate-spin" />
+              : <ShieldCheck size={13} />
+            }
+            {attestationResult === null
+              ? "Intel TDX Attestation..."
+              : attestationResult
+              ? "Intel TDX Attestation Verified"
+              : "Intel TDX Attestation Unavailable"
+            }
           </motion.div>
         )}
       </AnimatePresence>

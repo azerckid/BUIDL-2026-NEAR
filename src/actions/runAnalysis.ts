@@ -27,6 +27,7 @@ export interface AuthPayload {
 interface RunAnalysisResult {
   success: boolean;
   error?: string;
+  attestationVerified?: boolean | null;
 }
 
 export async function runAnalysis(
@@ -156,7 +157,7 @@ export async function runAnalysis(
 
     await updateSessionStatus(sessionId, "purged");
 
-    return { success: true };
+    return { success: true, attestationVerified };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     await updateSessionStatus(sessionId, "failed").catch(() => {});
