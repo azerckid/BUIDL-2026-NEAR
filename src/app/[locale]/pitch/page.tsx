@@ -118,7 +118,7 @@ export default function PitchDeck() {
       icon: <Cpu className="w-12 h-12 text-amber-400" />,
       content: (
         <div className="space-y-4 mt-8">
-          {(['b1', 'b2', 'b3', 'b4'] as const).map((key) => (
+          {(['b1', 'b2', 'b3', 'b4', 'b5'] as const).map((key) => (
             <div key={key} className="p-5 border-l-4 border-amber-500 bg-slate-800/30">
               <h4 className="text-amber-400 font-bold mb-1">{t(`s5.${key}Title`)}</h4>
               <p className="text-slate-300">{t(`s5.${key}Desc`)}</p>
