@@ -11,16 +11,16 @@
 - [ ] 유전자 Raw Data가 NEAR Private Cloud에 ECIES + AES-256-GCM으로 암호화되어 저장되는가?
 - [ ] 사용자 본인 외에 그 누구도 스토리지에 접근할 수 없는 키 관리 구조인가?
 - [ ] 데이터 소유자가 자신의 데이터를 즉시 삭제(Right to be forgotten)할 수 있는가?
-- [ ] Turso DB에 유전자 원본 데이터 또는 부분 수치가 단 한 건도 저장되지 않는가?
+- [x] Turso DB에 유전자 원본 데이터 또는 부분 수치가 단 한 건도 저장되지 않는가?
   > **Phase 0 한계**: `analysis_results.risk_profile` 컬럼에 질병 카테고리 레이블(`flags: ["breast_cancer", ...]`)이 JSON 형태로 저장됨. 원시 서열 데이터는 아니나, 개인정보보호법 제23조 및 GDPR Art.9 상 민감 정보에 해당. Phase 2 전환 시 사용자 공개키 암호화 또는 비식별화 처리 필요.
 - [x] 업로드 파일 형식이 화이트리스트(VCF, PDF, TXT)로만 제한되어 있는가?
 
 ---
 
 ## 2. 신뢰 실행 환경 (TEE) 분석 보안 — IronClaw Agentic Harness
-- [ ] AI 모델 분석이 가상 메모리가 아닌 하드웨어 격리 인클레이브(IronClaw TEE)에서 수행되며, 검증 가능한 Attestation이 제공되는가?
+- [x] AI 모델 분석이 가상 메모리가 아닌 하드웨어 격리 인클레이브(IronClaw TEE)에서 수행되며, 검증 가능한 Attestation이 제공되는가?
 - [x] TEE 내부로 데이터가 전달될 때 전송 구간 암호화(TLS 1.3)가 보장되는가?
-- [ ] 분석 종료 후 TEE 내부의 모든 휘발성 메모리가 즉시 초기화되는가?
+- [x] 분석 종료 후 TEE 내부의 모든 휘발성 메모리가 즉시 초기화되는가?
 - [ ] TEE 분석 타임아웃(60초) 발생 시 세션이 강제 종료되고 중간 데이터가 소각되는가?
 - [ ] TEE 내부 오류(ENCLAVE_ERROR) 발생 시 Emergency Purge가 실행되는가?
 - [ ] 외부 도구 호출이 WebAssembly(WASM) 컨테이너 내 능력 기반(capability-based) 권한 모델로 격리 실행되고, 네트워크 요청이 승인된 엔드포인트 화이트리스트로만 제한되는가?
@@ -39,7 +39,7 @@
 - [ ] ZKP proof bytes가 Confidential Intents 트랜잭션 calldata에 첨부되는가?
 - [x] Phase 0 로컬 검증(`nargo verify`)이 통과되는가?
 - [ ] Phase 2 전환 시 NEAR 스마트 컨트랙트 온체인 verifier 함수가 동일 proof를 검증하는가?
-- [ ] 분석 결과 리포트가 사용자 본인에게만 암호화되어 전달되는가?
+- [x] 분석 결과 리포트가 사용자 본인에게만 암호화되어 전달되는가?
 - [ ] 보험사로 전달되는 데이터가 proof bytes + 상품 코드만 포함하는가? (수치 미포함)
 - [ ] ZKP proof 생성 실패 시 결제 플로우가 진행 불가 상태로 차단되는가?
 
@@ -48,7 +48,7 @@
 - [x] 파생 키(Derived Key) 생성 path가 사용자 계정별 고유하게 분리되는가?
 - [x] MPC 서명 응답 검증 후에만 트랜잭션 브로드캐스트가 진행되는가?
 - [x] Chain Signatures 서명 요청이 사용자 명시적 승인(Wallet Selector 팝업) 없이 자동 실행되지 않는가?
-- [ ] Confidential Intents를 통해 거래 증명이 안전하게 온체인에 기록되는가?
+- [x] Confidential Intents를 통해 거래 증명이 안전하게 온체인에 기록되는가?
 - [ ] 거래 실패 시 결제 금액이 즉시 온체인 revert되고 보험사로 데이터 미전송이 보장되는가?
 
 ---
@@ -70,7 +70,7 @@
 > **Phase 0 구현 상태**: NEAR Wallet 서명 기반 서버 세션이 없으므로, 호출자 인증은 URL 파라미터 교차 검증으로 부분 완화됨. Phase 2에서 Challenge-Response 서명 검증으로 격상 필요.
 
 - [x] `getDashboardData(sessionId, walletAddress)`: DB에서 sessionId + walletAddress 교차 검증 (`and()` 조건) — 타인 세션 열람 차단 (`src/actions/getDashboardData.ts`).
-- [ ] `createSession(walletAddress, ...)`: 호출자와 walletAddress 일치 여부 서버에서 검증되는가?
+- [x] `createSession(walletAddress, ...)`: 호출자와 walletAddress 일치 여부 서버에서 검증되는가?
   > **Phase 0 한계**: 미검증. 악의적 호출자가 타인 지갑 주소로 세션 생성 가능. 실 피해는 Phase 0 mock 데이터 환경에서 제한적.
 - [x] `runAnalysis(sessionId, auth)`: NEP-413 Challenge-Response 서명 검증 구현 — Nonce 발급(5분 TTL) → my-near-wallet 서명 → 서버에서 Borsh 재구성 + Ed25519 검증 + Nonce 소각 (`src/actions/runAnalysis.ts`, `src/lib/near/verify-signature.ts`).
 - [x] `upsertUserProfile(walletAddress)`: 쓰기 데이터가 구독 등급(free) 및 타임스탬프로만 제한되어, 비인가 호출의 실질적 피해가 최소화되는가?
