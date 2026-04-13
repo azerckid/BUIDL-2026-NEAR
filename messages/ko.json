@@ -233,10 +233,10 @@
   "pitch": {
     "brand": "OHmyDNA",
     "s1": {
-      "title": "OHmyDNA Insurance Agent",
-      "subtitle": "유전자를 노출하지 않고, 유전자 덕분에 더 나은 보험에 가입하는 유일한 방법.",
+      "title": "The Secret Keeper",
+      "subtitle": "Knowing Everything, Sharing Nothing. 내 유전 정보를 알지만 아무에게도 말하지 않는 완벽한 비밀 유지 비서.",
       "hackathon": "NEAR Buidl 2026 해커톤",
-      "tag1": "헬스케어", "tag2": "Web3 프라이버시", "tag3": "AI 에이전트"
+      "tag1": "헬스케어", "tag2": "NEAR AI", "tag3": "Secret Keeper"
     },
     "s2": {
       "title": "문제: 세 가지 두려움",
@@ -255,8 +255,8 @@
       "c1Desc": "유전자 원본 수치 없이 보험 자격을 수학적으로 증명합니다.",
       "c2Title": "IronClaw TEE",
       "c2Desc": "물리적으로 격리된 실행 환경에서 유전체를 분석하고 메모리를 즉시 소각합니다.",
-      "c3Title": "AI 에이전트",
-      "c3Desc": "위험 프로파일을 분석해 최적의 맞춤형 보장 상품을 자율적으로 탐색합니다."
+      "c3Title": "The Secret Keeper",
+      "c3Desc": "NEAR AI Cloud 기반의 'Secret Keeper'가 유전자 분석 결과를 토대로 최적의 보장을 제안합니다."
     },
     "s4": {
       "title": "제품 여정",
@@ -313,7 +313,7 @@
       "p2Desc": "오프체인 API 교체 안정화, 국내외 DTC 유전자 검사 업체 협력안 발제.",
       "p3Phase": "Phase 2 (V2)",
       "p3When": "Q3 2026",
-      "p3Desc": "자율 Agent OS 스택 도입 및 글로벌 크로스체인 금융 유동성 통합 확대.",
+      "p3Desc": "The Secret Keeper & Agent OS 스택 도입. 능동적으로 건강 상태를 추적하는 'Vault AI' 엔진 런칭.",
       "p4Phase": "Phase 3",
       "p4When": "Q4 2026~",
       "p4Desc": "정식 글로벌 B2B 매치 메이킹 모델 및 메인넷 정식 런칭."
@@ -332,8 +332,8 @@
     "s10": {
       "title": "V2 고급 확장",
       "subtitle": "도구에서 생태계로 확장 (2026 Q3)",
-      "f1Title": "자율 Agent OS",
-      "f1Desc": "AI가 수동 응답자에서 능동적 브로커로 진화해 건강 상태를 장기 관리하고 더 나은 정책을 탐색합니다.",
+      "f1Title": "The Secret Keeper 자율화",
+      "f1Desc": "NEAR AI Cloud와 TEE가 결합된 'The Secret Keeper'가 사용자의 요청 없이도 스스로 리스크를 분석하고 최적의 보험 상품을 찾아 알림을 보냅니다.",
       "f2Title": "L2Pass 유동성 라우팅",
       "f2Desc": "이더리움과 솔라나의 멀티체인 USDC 유동성을 1탭 브릿징으로 대규모 기관 풀에 집계합니다.",
       "f3Title": "기밀 다크풀 스왑",
