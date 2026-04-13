@@ -246,7 +246,7 @@ export default function PitchDeck() {
 
           {(['p1', 'p2', 'p3', 'p4'] as const).map((key, i) => {
             const isCurrent = i === 1; // Phase 1
-            const isV2Vision = i === 2; // Phase 2 (AI Concierge)
+            const isV2Vision = i === 2; // Phase 2 (NEAR AI Cloud 고도화)
             const isCompleted = i === 0; // Phase 0
 
             let cardStyle = 'bg-slate-900/60 border-slate-800/80 opacity-[0.55]';
