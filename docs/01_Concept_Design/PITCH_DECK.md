@@ -83,8 +83,16 @@
 **[S4 — Product Journey / ~38초]**
 "다섯 단계입니다. 지갑 연결, 파일 업로드, TEE 격리 분석 후 즉시 소각, AI 추천 대시보드, Confidential Intents 기밀 결제. 사용자는 어떤 데이터도 외부에 노출하지 않고 전 과정을 완료합니다."
 
-**[S5 — What We Built / ~42초]**
+**[S5 — What We Built / ~50초]**
 "저희는 동작하는 코드를 완성했습니다. IronClaw TEE 연동, Intel TDX Attestation 하드웨어 신뢰 검증, Noir ZKP NEAR 테스트넷 등록, Confidential Intents 실결제. 이 프라이버시 파이프라인 전체를 해커톤 기간 내에 엔드투엔드로 구동했습니다."
+
+> **[시연 화면 설명 멘트 — 'Not Checked' 배지가 표시될 경우]**
+> "화면의 Attestation 배지는 NEAR AI Cloud 실제 엔드포인트 결과를 그대로 반영합니다.
+> 오늘처럼 인클레이브 노드가 응답하지 않을 때는 'Not Checked'로 표시되며,
+> 노드가 활성화되면 'Verified'로 바뀝니다.
+> 저희는 배지를 가짜로 항상 켜놓지 않았습니다 — 외부 API 상태를 정직하게 보여주는 것 자체가
+> Trustless 설계의 일부입니다. Phase 2에서는 온체인 DCAP-QVL 검증으로 전환해
+> 엔드포인트 의존성을 완전히 제거할 예정입니다."
 
 **[S6 — 왜 NEAR인가 / ~42초]**
 "오직 지금, NEAR에서만 가능합니다. TEE와 인텐트와 체인 서명이 하나의 생태계로 묶인 것은 지금이 처음입니다. 저희는 '우리를 믿으라'고 말할 필요가 없습니다. Trustless 코드가 신뢰를 대체하고, 이 구조를 오픈소스로 공개합니다."
