@@ -20,11 +20,14 @@
 - **데모 발표 포인트**: TEE 분석 → Intel TDX Attestation 배지 → Memory Purge 애니메이션 → ZKP 증명 → 기밀 결제 흐름을 한 번에 보여주는 5분 시연 시나리오.
 
 ### Phase 1: MVP 개발 및 개념 증명 (PoC)
+- **The Secret Keeper 시제품 검증**: 사용자가 유전자 결과 텍스트를 입력하면 분석 리포트와 보험 추천 근거를 대화로 제공하는 에이전트 로직 검증.
 - **텔레그램 에이전트와 웹 DApp의 관계**: Phase 1에서는 텔레그램 봇을 빠른 프로토타입 채널로 활용. 사용자가 DTC 결과 텍스트를 텔레그램에 붙여넣으면 AI가 요약 리포트를 반환하는 방식으로 분석 로직(AI 모델 + 보험 매칭 엔진)을 먼저 검증. **Phase 2 이전에 동일한 분석 백엔드를 웹 DApp으로 전환**하며, 텔레그램 봇은 알림/리밸런싱 알람 채널로 역할 축소.
 - NEAR Protocol 기반의 기본 계정 및 프라이빗 스토리지 연동.
 - 기존 보험 증권 분석을 통한 보장 공백 진단 로직 구현.
 
-### Phase 2: NEAR TEE 및 프라이버시 스택 통합
+### Phase 2: NEAR TEE 및 프라이버시 스택 통합 (The Secret Keeper 고도화)
+- **The Secret Keeper 구축**: NEAR AI Cloud(Qwen 등)와 IronClaw TEE를 결합하여 암호학적으로 안전한 대화형 컨시어지 런타임 구축.
+- **RAG(Retrieval-Augmented Generation) 통합**: 보험 약관 및 헬스 데이터 지식 베이스를 에이전트와 연동하여 답변 정확도 향상.
 - NEAR AI 프라이버시 스택을 활용한 TEE 분석 환경 구축.
 - 암호화된 유전자 Raw Data(VCF 등)의 안전한 로딩 및 처리 테스트.
 - 보험사 API 연동 및 상품 매칭 엔진 고도화.
