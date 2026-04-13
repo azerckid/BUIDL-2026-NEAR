@@ -233,10 +233,10 @@
   "pitch": {
     "brand": "OHmyDNA",
     "s1": {
-      "title": "OHmyDNA Insurance Agent",
-      "subtitle": "Gaining better insurance through your DNA, without exposing it to the world.",
+      "title": "The Secret Keeper",
+      "subtitle": "Knowing Everything, Sharing Nothing. The ultimate assistant that knows your DNA but never speaks a word.",
       "hackathon": "NEAR Buidl 2026 Hackathon",
-      "tag1": "Healthcare", "tag2": "Web3 Privacy", "tag3": "AI Agents"
+      "tag1": "Healthcare", "tag2": "NEAR AI", "tag3": "Secret Keeper"
     },
     "s2": {
       "title": "The Problem: Three Primal Fears",
@@ -255,8 +255,8 @@
       "c1Desc": "Mathematically proves health eligibility without revealing any raw DNA values to the insurer.",
       "c2Title": "IronClaw TEE",
       "c2Desc": "A physically hardened execution enclave that purges memory instantly after parsing the genome.",
-      "c3Title": "Agent AI",
-      "c3Desc": "An autonomous broker that isolates your risk profile to find the optimal pinpoint coverage."
+      "c3Title": "The Secret Keeper",
+      "c3Desc": "Powered by NEAR AI Cloud, 'The Secret Keeper' finds the best coverage based on your genetic risk profile inside TEE."
     },
     "s4": {
       "title": "Product Journey",
@@ -313,7 +313,7 @@
       "p2Desc": "Off-chain API stabilization, outreach to DTC genetic testing partners.",
       "p3Phase": "Phase 2 (V2)",
       "p3When": "Q3 2026",
-      "p3Desc": "Autonomous Agent OS launch & global cross-chain liquidity integration.",
+      "p3Desc": "The Secret Keeper & Agent OS Stack Launch. Introducing 'Vault AI' for proactive health monitoring.",
       "p4Phase": "Phase 3",
       "p4When": "Q4 2026+",
       "p4Desc": "Official global B2B matchmaking model & mainnet launch."
@@ -332,8 +332,8 @@
     "s10": {
       "title": "V2 Advanced Expansion",
       "subtitle": "Scaling from a Tool to an Ecosystem (Q3 2026)",
-      "f1Title": "Autonomous Agent OS",
-      "f1Desc": "AI evolves from a passive responder to an active broker, managing your health state long-term and hunting for better policies.",
+      "f1Title": "Autonomous Secret Keeper",
+      "f1Desc": "The Secret Keeper (NEAR AI Cloud + TEE) proactively monitors your health risk and searches for the best policies without you asking.",
       "f2Title": "L2Pass Liquidity Routing",
       "f2Desc": "Unleashing multi-chain stablecoin liquidity (USDC) from Ethereum and Solana with 1-tap bridging to aggregate massive institutional pools.",
       "f3Title": "Confidential Dark-Pool Swaps",
