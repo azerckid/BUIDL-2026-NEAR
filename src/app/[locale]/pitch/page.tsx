@@ -246,7 +246,22 @@ export default function PitchDeck() {
 
           {(['p1', 'p2', 'p3', 'p4'] as const).map((key, i) => {
             const isCurrent = i === 1; // Phase 1
+            const isV2Vision = i === 2; // Phase 2 (AI Concierge)
             const isCompleted = i === 0; // Phase 0
+
+            let cardStyle = 'bg-slate-900/60 border-slate-800/80 opacity-[0.55]';
+            let dotStyle = 'bg-slate-700';
+
+            if (isCurrent) {
+              cardStyle = 'bg-slate-800/80 border-teal-400/50 shadow-[0_0_30px_rgba(45,212,191,0.15)] md:-translate-y-2';
+              dotStyle = 'bg-teal-400 shadow-[0_0_15px_rgba(45,212,191,0.8)] scale-125';
+            } else if (isV2Vision) {
+              cardStyle = 'bg-emerald-900/20 border-emerald-500/40 border-dashed shadow-[0_0_20px_rgba(16,185,129,0.1)] scale-[1.02]';
+              dotStyle = 'bg-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.6)] animate-pulse';
+            } else if (isCompleted) {
+              cardStyle = 'bg-slate-800/40 border-teal-900/50';
+              dotStyle = 'bg-teal-700';
+            }
 
             return (
               <motion.div 
@@ -254,22 +269,14 @@ export default function PitchDeck() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.2 + 0.4 }}
-                className={`relative flex-1 p-5 pt-8 mt-4 rounded-2xl border backdrop-blur-md transition-all duration-500 z-10 ${
-                  isCurrent 
-                    ? 'bg-slate-800/80 border-teal-400/50 shadow-[0_0_30px_rgba(45,212,191,0.15)] md:-translate-y-2' 
-                    : isCompleted
-                      ? 'bg-slate-800/40 border-teal-900/50'
-                      : 'bg-slate-900/60 border-slate-800/80 opacity-[0.55]'
-                }`}
+                className={`relative flex-1 p-5 pt-8 mt-4 rounded-2xl border backdrop-blur-md transition-all duration-500 z-10 ${cardStyle}`}
               >
                 {/* Status Dot */}
-                <div className={`absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full border-4 border-slate-950 z-20 transition-all duration-500 ${
-                  isCurrent ? 'bg-teal-400 shadow-[0_0_15px_rgba(45,212,191,0.8)] scale-125' : isCompleted ? 'bg-teal-700' : 'bg-slate-700'
-                }`} />
+                <div className={`absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full border-4 border-slate-950 z-20 transition-all duration-500 ${dotStyle}`} />
 
                 <div className="text-center flex flex-col items-center h-full">
                   <span className={`inline-block px-3 py-1 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wide mb-3 ${
-                    isCurrent ? 'bg-teal-400/20 text-teal-300 border border-teal-400/30' : isCompleted ? 'bg-slate-800 text-teal-600' : 'bg-slate-800/50 text-slate-500'
+                    isCurrent ? 'bg-teal-400/20 text-teal-300 border border-teal-400/30' : isV2Vision ? 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/30' : isCompleted ? 'bg-slate-800 text-teal-600' : 'bg-slate-800/50 text-slate-500'
                   }`}>
                     {t(`s8.${key}Phase`)}
                   </span>
