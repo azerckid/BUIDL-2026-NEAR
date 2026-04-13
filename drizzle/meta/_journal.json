@@ -22,6 +22,13 @@
       "when": 1775850476804,
       "tag": "0002_rich_the_renegades",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1776061127583,
+      "tag": "0003_purple_stardust",
+      "breakpoints": true
     }
   ]
 }
