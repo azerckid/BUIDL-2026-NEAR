@@ -19,8 +19,9 @@ The only way to get better insurance because of your genes — without exposing 
 Upload your DTC (Direct-to-Consumer) genetic data and:
 
 1. **IronClaw TEE** analyzes your genome in isolation — raw data is purged immediately after analysis
-2. **Noir ZKP** proof verifies insurance eligibility without revealing any numeric values
-3. **NEAR Confidential Intents** settles your premium privately — insurers never see your genetic data
+2. **Intel TDX Attestation** cryptographically verifies the enclave is a genuine hardware-isolated environment
+3. **Noir ZKP** proof verifies insurance eligibility without revealing any numeric values
+4. **NEAR Confidential Intents** settles your premium privately — insurers never see your genetic data
 
 ---
 
@@ -29,6 +30,7 @@ Upload your DTC (Direct-to-Consumer) genetic data and:
 | Technology | Role |
 |---|---|
 | **IronClaw TEE** | Isolated genetic analysis + memory purge (NEAR AI Cloud) |
+| **Intel TDX Attestation** | Hardware enclave verification via `GET /v1/attestation/report` (no API key required) |
 | **Confidential Intents** | Private premium settlement (encrypted transaction payload) |
 | **Chain Signatures** | Multi-chain insurance product payments (MPC signing) |
 | **Noir ZKP** | Zero-knowledge eligibility proof without exposing risk scores (`circuits/insurance_eligibility/`) |
@@ -121,7 +123,7 @@ npm run dev
 
 1. `http://localhost:3000` — Connect NEAR Testnet wallet
 2. Click "Try with sample file" → analysis starts
-3. IronClaw TEE analysis (5–15s) → data purge confirmed
+3. IronClaw TEE analysis (5–15s) → Intel TDX Attestation badge → data purge confirmed
 4. Insurance recommendation dashboard → select products
 5. NEAR Confidential Intents payment completed
 
@@ -191,8 +193,9 @@ Built for **NEAR Buidl 2026 Hackathon** · Powered by NEAR Protocol
 DTC(소비자 직접 검사) 유전자 데이터를 업로드하면:
 
 1. **IronClaw TEE** 안에서 유전자 분석 — 원본 데이터는 분석 즉시 소각
-2. **Noir ZKP** 증명으로 수치 없이 보험 자격 충족 여부만 증명
-3. **NEAR Confidential Intents** 로 기밀 보험료 결제 — 보험사에 유전자 수치 전달 없음
+2. **Intel TDX Attestation** 으로 인클레이브가 실제 하드웨어 격리 환경임을 암호학적으로 검증
+3. **Noir ZKP** 증명으로 수치 없이 보험 자격 충족 여부만 증명
+4. **NEAR Confidential Intents** 로 기밀 보험료 결제 — 보험사에 유전자 수치 전달 없음
 
 ---
 
@@ -201,6 +204,7 @@ DTC(소비자 직접 검사) 유전자 데이터를 업로드하면:
 | 기술 | 역할 |
 |---|---|
 | **IronClaw TEE** | 유전자 데이터 격리 분석 + 메모리 소각 (NEAR AI Cloud) |
+| **Intel TDX Attestation** | 하드웨어 인클레이브 검증 — `GET /v1/attestation/report` (API 키 불필요) |
 | **Confidential Intents** | 기밀 보험료 결제 (거래 내용 암호화) |
 | **Chain Signatures** | 멀티체인 보험 상품 결제 (MPC 서명) |
 | **Noir ZKP** | 유전자 수치 비공개 자격 증명 (`circuits/insurance_eligibility/`) |
@@ -293,7 +297,7 @@ npm run dev
 
 1. `http://localhost:3000` — NEAR Testnet 지갑 연결
 2. "샘플 파일로 체험하기" 클릭 → 분석 시작
-3. IronClaw TEE 분석 (5~15초) → 데이터 소각 확인
+3. IronClaw TEE 분석 (5~15초) → Intel TDX Attestation 배지 → 데이터 소각 확인
 4. 보험 추천 대시보드 → 상품 선택
 5. NEAR Confidential Intents 결제 완료
 
