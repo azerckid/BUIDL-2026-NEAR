@@ -105,6 +105,8 @@ export const analysisSessions = sqliteTable("analysis_sessions", {
   teeEnteredAt: integer("tee_entered_at", { mode: "timestamp" }),
   completedAt: integer("completed_at", { mode: "timestamp" }),
   purgedAt: integer("purged_at", { mode: "timestamp" }),
+  attestationNonce: text("attestation_nonce"),
+  attestationVerified: integer("attestation_verified", { mode: "boolean" }),
 });
 
 export const analysisSessionInsertSchema = z.object({
