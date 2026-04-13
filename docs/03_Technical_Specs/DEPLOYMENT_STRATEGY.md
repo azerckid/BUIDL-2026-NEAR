@@ -359,8 +359,8 @@ MyDNA 앱 → ironclaw-tee.ts → cloud.near.ai API 호출 (토큰 소비)
 - [x] 크레딧 충전
 - [x] API Key 발급 (`mydna-dev`)
 - [x] `.env.local`에 `IRONCLAW_BASE_URL`, `IRONCLAW_API_KEY` 등록
-- [ ] IronClaw Agent 인스턴스 생성 (필요 시)
-- [ ] `IRONCLAW_AGENT_ID` `.env.local` 등록 (Agent 생성 시)
+- [x] IronClaw Agent 인스턴스 생성 (필요 시)
+- [x] `IRONCLAW_AGENT_ID` `.env.local` 등록 (Agent 생성 시)
 
 ---
 
