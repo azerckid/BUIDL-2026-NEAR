@@ -55,5 +55,5 @@ circuits/*/target/proof
 # agent
 .agent/*
 
-# Solmate hook scripts (project-local)
-.claude/hooks/
+# Claude Code (worktrees, memory, session files)
+.claude/
