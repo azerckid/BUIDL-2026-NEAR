@@ -403,13 +403,16 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
           })
         );
 
-        // MPC 서명 요청 (NEAR 지갑 팝업 또는 리다이렉트)
+        // MPC 서명 요청 — callbackUrl 전달로 BrowserWallet 팝업 차단 방지
+        // BrowserWallet(MyNearWallet)은 callbackUrl이 있으면 리다이렉트 모드로 서명.
+        // 복귀 후 처리: useEffect의 txHashParam 분기에서 fetchMpcSignatureFromTxHash 호출.
         const txHash = ethers.keccak256(
           ethers.Transaction.from(unsignedTx as ethers.TransactionLike<string>).unsignedSerialized
         );
         const payload = ethers.getBytes(txHash);
+        const mpcCallbackUrl = window.location.href.split("?")[0];
 
-        const mpcSig = await requestMpcSignature(wallet, payload);
+        const mpcSig = await requestMpcSignature(wallet, payload, undefined, mpcCallbackUrl);
 
         // ETH 서명 복원 + 브로드캐스트 (Server Action)
         setStep("confirming");

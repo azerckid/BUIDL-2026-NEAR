@@ -122,18 +122,22 @@ export async function deriveEthAddress(
  * v1.signer MPC 컨트랙트에 서명 요청
  * NEAR 지갑 팝업 → 사용자 서명 → MPC 노드 분산 서명
  *
- * @param wallet    WalletSelector wallet 인스턴스
- * @param payload   32바이트 해시 (ETH 트랜잭션 해시)
- * @param derivationPath 파생 경로 (기본값: "insurance,1")
+ * @param wallet          WalletSelector wallet 인스턴스
+ * @param payload         32바이트 해시 (ETH 트랜잭션 해시)
+ * @param derivationPath  파생 경로 (기본값: "insurance,1")
+ * @param callbackUrl     BrowserWallet(MyNearWallet) 리다이렉트 복귀 URL.
+ *                        전달 시 팝업 대신 리다이렉트 모드로 서명 — 브라우저 팝업 차단 방지.
  */
 export async function requestMpcSignature(
   wallet: Awaited<ReturnType<WalletSelector["wallet"]>>,
   payload: Uint8Array,
-  derivationPath: string = INSURANCE_DERIVATION_PATH
+  derivationPath: string = INSURANCE_DERIVATION_PATH,
+  callbackUrl?: string
 ): Promise<{ bigR: string; s: string; recoveryId?: number }> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result = await (wallet as any).signAndSendTransaction({
     receiverId: MPC_CONTRACT_TESTNET,
+    callbackUrl,
     actions: [
       {
         functionCall: {
