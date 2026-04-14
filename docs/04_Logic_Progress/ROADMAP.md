@@ -734,7 +734,7 @@
 
 ---
 
-### Stage 15 — AI 상담 레이어 (The Secret Keeper) — Phase 2 예정
+### Stage 15 — AI 상담 레이어 (The Secret Keeper) — 구현 완료 (2026-04-14)
 
 > **목적**: TEE 분석 완료 후 대시보드에 부가 편의 기능으로 채팅 인터페이스 추가.
 > 사용자가 위험 레이블 기반으로 질병·보험 관련 질문을 하면 공감하는 말투로 답변.
@@ -744,45 +744,45 @@
 
 #### 15-1. 시스템 프롬프트 파일
 
-- [ ] `src/lib/tee/concierge-system-prompt.ts` 작성 (템플릿 리터럴, fs 미사용 — Vercel 배포 안정성)
-  - [ ] 공감 말투 원칙 4개 (걱정 공감 → 정보 제공 → 보험 연결 → 사용자 언어로 답변)
-  - [ ] 가드레일 5개 (원본 DNA 거부, 확정 진단 금지, 전문의 권고, 길이 제한, 세션 망각 안내)
-  - [ ] `buildSystemPrompt(riskProfileContext: string): string` 함수로 export
+- [x] `src/lib/tee/concierge-system-prompt.ts` 작성 (템플릿 리터럴, fs 미사용 — Vercel 배포 안정성)
+  - [x] 공감 말투 원칙 4개 (걱정 공감 → 정보 제공 → 보험 연결 → 사용자 언어로 답변)
+  - [x] 가드레일 5개 (원본 DNA 거부, 확정 진단 금지, 전문의 권고, 길이 제한, 세션 망각 안내)
+  - [x] `buildSystemPrompt(riskProfileContext: string): string` 함수로 export
 
 #### 15-2. 타입 정의
 
-- [ ] `src/types/concierge.ts`
-  - [ ] `ChatMessage` 타입 (`role: 'user' | 'assistant'`, `content: string`)
-  - [ ] `ChatWithConciergeInput` Zod 스키마 (message, history, riskProfile)
+- [x] `ChatMessage` 인터페이스 — `ConciergeChat.tsx` 내 인라인 정의 (별도 파일 불필요 판단)
+  - [x] `role: 'user' | 'assistant'`, `content: string`
+  - [x] Zod 입력 스키마 — `chatWithConcierge.ts` 내 `inputSchema`로 통합 정의
 
 #### 15-3. Server Action
 
-- [ ] `src/actions/chatWithConcierge.ts`
-  - [ ] `concierge-system-prompt.md` 파일 로드 + `{RISK_PROFILE_CONTEXT}` 치환
-  - [ ] `riskProfile` → 카테고리·레벨 레이블 변환 (`formatRiskContext`)
-  - [ ] NEAR AI Cloud 호출 (기존 `IRONCLAW_BASE_URL` / `IRONCLAW_API_KEY` 재사용)
-  - [ ] `max_tokens: 600`, `temperature: 0.7`
-  - [ ] 입력 Zod 검증 (`message.max(500)`, `history.max(20)`)
+- [x] `src/actions/chatWithConcierge.ts`
+  - [x] `buildSystemPrompt()` 호출로 riskProfile 컨텍스트 주입 (md 파일 로드 방식 → TS 함수 호출로 변경)
+  - [x] `riskProfile` → 카테고리·레벨 레이블 변환 (`formatRiskContext`)
+  - [x] NEAR AI Cloud 호출 (기존 `IRONCLAW_BASE_URL` / `IRONCLAW_API_KEY` 재사용)
+  - [x] `max_tokens: 600`, `temperature: 0.7`
+  - [x] 입력 Zod 검증 (`message.max(500)`, `history.max(20)`)
 
 #### 15-4. UI 컴포넌트
 
-- [ ] `src/components/modules/ConciergeChat.tsx`
-  - [ ] 메시지 목록 표시 (user / assistant 말풍선 구분)
-  - [ ] 입력창 + 전송 버튼
-  - [ ] 전송 중 로딩 상태 표시
-  - [ ] 세션 내 대화 이력은 `useState`로만 관리 (DB 미저장)
-  - [ ] 컴포넌트 언마운트 시 이력 자동 소각 (상태 초기화)
+- [x] `src/components/modules/ConciergeChat.tsx`
+  - [x] 메시지 목록 표시 (user / assistant 말풍선 구분)
+  - [x] 입력창 + 전송 버튼 (Enter 전송 / Shift+Enter 줄바꿈)
+  - [x] 전송 중 로딩 상태 표시 (타이핑 인디케이터 애니메이션)
+  - [x] 세션 내 대화 이력은 `useState`로만 관리 (DB 미저장)
+  - [x] 컴포넌트 언마운트 시 이력 자동 소각 (React 상태 초기화)
 
 #### 15-5. 대시보드 통합
 
-- [ ] `src/app/[locale]/dashboard/page.tsx` — `<ConciergeChat sessionId={sid} riskProfile={...} />` 삽입
-- [ ] `messages/ko.json`, `messages/en.json` — `concierge.*` 번역 키 추가
+- [x] `src/components/modules/DashboardClient.tsx` — `<ConciergeChat riskProfile={...} />` 삽입 (Client Component 계층에 통합)
+- [ ] `messages/ko.json`, `messages/en.json` — `concierge.*` 번역 키 추가 (현재 하드코딩, 추후 i18n 전환)
   - [ ] `concierge.placeholder` — 입력창 안내 문구
   - [ ] `concierge.disclaimer` — "의학적 진단이 아닙니다" 안내 문구
 
 #### 15-6. 빌드 검증
 
-- [ ] `npm run build` TypeScript 오류 0건 확인
+- [x] `npm run build` TypeScript 오류 0건 확인
 - [ ] 샘플 질문 입력 → NEAR AI Cloud 응답 수신 확인
 - [ ] 원본 DNA 시퀀스 요청 → 거절 답변 확인 (TS-03)
 - [ ] 새 세션 접속 → 이전 대화 기억 안 함 확인 (TS-02)
