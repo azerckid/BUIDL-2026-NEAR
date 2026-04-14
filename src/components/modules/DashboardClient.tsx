@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RiskProfileCard } from "./RiskProfileCard";
 import { InsuranceProductCard } from "./InsuranceProductCard";
+import { ConciergeChat } from "./ConciergeChat";
 import { createCart } from "@/actions/createCart";
 import type { DashboardData, PriorityOrder } from "@/actions/getDashboardData";
 import type { RiskProfile, RiskLevel, InsuranceProduct } from "@/lib/db/schema";
@@ -430,6 +431,8 @@ export function DashboardClient({ data }: DashboardClientProps) {
           isPending={isPending}
         />
       )}
+
+      <ConciergeChat riskProfile={data.riskProfile} />
     </div>
   );
 }
