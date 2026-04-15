@@ -2,7 +2,7 @@
 # Builder Day -- 질문 및 대화 준비 문서
 
 - **Created**: 2026-04-13
-- **Last Updated**: 2026-04-13
+- **Last Updated**: 2026-04-14
 - **Layer**: 05_QA_Validation
 - **Status**: Final v1.0
 - **Event**: BuidlHack Builder Day | April 14, 2026 | DSRV (B1) | 18:00-21:30
@@ -160,10 +160,10 @@
 ### Q8. Chain Signatures E2E Demo / Chain Signatures E2E 데모
 
 **English:**
-"I implemented `deriveEthAddress` using `v1.signer-prod.testnet` MPC -- it generates an ETH address from a NEAR account. I also wrote `requestMpcSignature` and `broadcastEthTransaction`. But I haven't done the full E2E test yet because the derived ETH address needs Sepolia faucet funds. **For the demo, does showing the full MPC signing flow matter a lot? Or is showing the derived address plus explaining the architecture enough?**"
+"I implemented `deriveEthAddress` using `v1.signer-prod.testnet` MPC -- it generates an ETH address from a NEAR account. I also implemented `requestMpcSignature` with redirect mode (`callbackUrl`) so that BrowserWallet signs without triggering a popup block. The MPC signing flow itself is working. The remaining gap is funding the derived ETH address on Sepolia to broadcast the final transaction. **For the demo, does showing the full MPC signing flow up to the broadcast step matter a lot? Or is showing the derived address, the signed payload, and explaining the broadcast architecture enough?**"
 
 **Korean (참고용):**
-"`v1.signer-prod.testnet` MPC를 통해 NEAR 계정에서 ETH 주소를 파생하는 `deriveEthAddress`를 구현했습니다. `requestMpcSignature`와 `broadcastEthTransaction`도 작성했습니다. 다만, 파생 ETH 주소에 Sepolia faucet 잔액이 필요하여 전체 E2E 테스트를 완료하지 못했습니다. **데모에서 MPC 서명 전체 흐름을 보여주는 것이 결정적 차이를 만듭니까, 아니면 파생 주소 생성 + 아키텍처 설명으로 충분합니까?**"
+"`v1.signer-prod.testnet` MPC를 통해 NEAR 계정에서 ETH 주소를 파생하는 `deriveEthAddress`를 구현했습니다. `requestMpcSignature`는 `callbackUrl`을 통한 리다이렉트 모드로 동작하여 BrowserWallet(MyNearWallet)의 팝업 차단 문제도 해결되었습니다. MPC 서명 흐름 자체는 작동합니다. 남은 부분은 파생 ETH 주소에 Sepolia faucet 잔액을 확보하여 최종 트랜잭션을 브로드캐스트하는 것입니다. **데모에서 브로드캐스트 직전까지의 MPC 서명 전체 흐름을 보여주는 것이 결정적 차이를 만듭니까, 아니면 파생 주소 + 서명된 payload 표시 + 브로드캐스트 아키텍처 설명으로 충분합니까?**"
 
 ---
 
@@ -237,10 +237,10 @@
 ### "What's your demo status?" / "데모 상태는?"
 
 **English:**
-"The full flow is working. Wallet connect, file upload, TEE analysis, data purge animation, AI insurance recommendation, and payment on NEAR testnet. Lighthouse score is 87, accessibility is 100. E2E tests pass 21 out of 21."
+"The full flow is working. Wallet connect, file upload, TEE analysis, data purge animation, AI insurance recommendation, AI concierge consultation (The Secret Keeper), and payment on NEAR testnet. MPC signing uses redirect mode -- no popup block. Lighthouse score is 87, accessibility is 100. E2E tests pass 21 out of 21."
 
 **Korean:**
-"전체 플로우가 동작합니다. 지갑 연결, 파일 업로드, TEE 분석, 데이터 소각 애니메이션, AI 보험 추천, NEAR 테스트넷 결제. Lighthouse 87점, 접근성 100점. E2E 테스트 21/21 통과."
+"전체 플로우가 동작합니다. 지갑 연결, 파일 업로드, TEE 분석, 데이터 소각 애니메이션, AI 보험 추천, AI 상담 레이어(The Secret Keeper), NEAR 테스트넷 결제. MPC 서명은 리다이렉트 모드로 동작하여 팝업 차단 없음. Lighthouse 87점, 접근성 100점. E2E 테스트 21/21 통과."
 
 ---
 
