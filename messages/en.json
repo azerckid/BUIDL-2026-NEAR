@@ -256,7 +256,7 @@
       "c2Title": "IronClaw TEE",
       "c2Desc": "A physically hardened execution enclave that purges memory instantly after parsing the genome.",
       "c3Title": "The Secret Keeper",
-      "c3Desc": "Powered by NEAR AI Cloud, 'The Secret Keeper' finds the best coverage based on your genetic risk profile inside TEE."
+      "c3Desc": "Powered by NEAR AI Cloud, 'The Secret Keeper' is a stateless agent that securely recommends the best coverage while instantly purging all conversational memory."
     },
     "s4": {
       "title": "Product Journey",
