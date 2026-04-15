@@ -81,7 +81,7 @@
 "해답은 데이터를 건네주지 않고 증명만으로 혜택을 얻는 것입니다. IronClaw TEE 안에서 분석 후 즉시 소각, 보험사에는 ZKP 증명만 전달됩니다. 이것이 Trustless입니다."
 
 **[S4 — Product Journey / ~38초]**
-"다섯 단계입니다. 지갑 연결, 파일 업로드, TEE 격리 분석 후 즉시 소각, AI 추천 대시보드, Confidential Intents 기밀 결제. 사용자는 어떤 데이터도 외부에 노출하지 않고 전 과정을 완료합니다."
+"다섯 단계입니다. 지갑 연결, 파일 업로드, TEE 격리 분석 후 즉시 소각, The Secret Keeper(대화 맥락을 즉시 소각하는 NEAR AI 에이전트)의 안전한 추천 대시보드, Confidential Intents 기밀 결제. 사용자는 어떤 데이터도 외부에 노출하지 않고 전 과정을 완료합니다."
 
 **[S5 — What We Built / ~50초]**
 "저희는 동작하는 코드를 완성했습니다. IronClaw TEE 연동, Intel TDX Attestation 하드웨어 신뢰 검증, Noir ZKP NEAR 테스트넷 등록, Confidential Intents 실결제. 이 프라이버시 파이프라인 전체를 해커톤 기간 내에 엔드투엔드로 구동했습니다."
@@ -123,7 +123,7 @@
 "Our answer is a fundamental paradigm shift: you get all the benefits of personalized insurance without handing over your data. Your genetic file is analyzed inside an IronClaw Trusted Execution Environment — a hardware-isolated black box. The moment analysis is complete, the raw data is permanently purged from memory. The insurer receives nothing except a zero-knowledge proof — a mathematical certificate that says 'eligibility confirmed' without revealing a single data point."
 
 **[S4 — Product Journey / ~30s]**
-"The user journey is five steps. Connect your NEAR wallet. Upload your genetic file. IronClaw TEE performs isolated analysis and the data is immediately burned. Our AI surfaces the most relevant insurance products for your genetic profile. You complete payment through NEAR Confidential Intents — a private on-chain transaction that leaves no traceable trail."
+"The user journey is five steps. Connect your NEAR wallet. Upload your genetic file. IronClaw TEE performs isolated analysis and the data is immediately burned. 'The Secret Keeper' (our stateless NEAR AI agent that purges all context instantly) surfaces the most relevant insurance products for your genetic profile. You complete payment through NEAR Confidential Intents — a private on-chain transaction that leaves no traceable trail."
 
 **[S5 — What We Built / ~35s]**
 "We didn't just design this — we built it and it runs. During this hackathon, we completed a full end-to-end pipeline. IronClaw TEE integrated with NEAR AI Cloud, running real inference on the Qwen model. Intel TDX hardware attestation verified via the public NEAR AI attestation endpoint — the enclave is cryptographically proven, not assumed. A Noir ZKP circuit compiled and deployed to NEAR testnet at zkp.rogulus.testnet. Confidential Intents payment completed on testnet. Every layer of the privacy stack is working code."
