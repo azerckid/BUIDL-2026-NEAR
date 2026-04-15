@@ -233,10 +233,10 @@
   "pitch": {
     "brand": "OHmyDNA",
     "s1": {
-      "title": "The Secret Keeper",
-      "subtitle": "Knowing Everything, Sharing Nothing. 내 유전 정보를 알지만 아무에게도 말하지 않는 완벽한 비밀 유지 비서.",
+      "title": "OHmyDNA Insurance Agent",
+      "subtitle": "유전자를 노출하지 않고, 유전자 덕분에 더 나은 보험에 가입하는 유일한 방법.",
       "hackathon": "NEAR Buidl 2026 해커톤",
-      "tag1": "헬스케어", "tag2": "NEAR AI", "tag3": "Secret Keeper"
+      "tag1": "헬스케어", "tag2": "Web3 프라이버시", "tag3": "AI 에이전트"
     },
     "s2": {
       "title": "문제: 세 가지 두려움",
