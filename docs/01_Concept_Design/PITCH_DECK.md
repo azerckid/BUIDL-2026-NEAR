@@ -199,9 +199,9 @@ The Total Addressable Market (TAM) is valued at $4.5 trillion. We are focusing o
 > **[💻 Visual Cue] Transition to Slide 8**
 
 "Phase Zero is live today.
-Q2 2026: API stabilization and DTC lab partnerships.
-Q3 Phase Two: an autonomous Agent OS that monitors your health and renegotiates your coverage.
-Q4 and beyond: full mainnet as institutional-grade cross-chain financial infrastructure."
+Q2 API stabilization and DTC lab partnerships.
+Q3 an autonomous Agent OS that monitors your health and renegotiates your coverage.
+Q4 full mainnet as institutional-grade cross-chain financial infrastructure."
 
 **[S12 — Closing / ~30s]**
 > **[💻 Visual Cue] Fast-forward S9, S10, S11 (1s each) ▶️ Transition to Slide 12**
