@@ -130,43 +130,89 @@
 ## 5-Min Pitch Script (Final Pitch Day — English)
 
 > 9 slides × ~33 sec average = ~5 min. Skip S9 / S10 / S11.
-> Target: ~600 words at 130 WPM = ~277 seconds + ~27s transitions = ~305 seconds.
+> Target: ~470 words at 95 WPM = ~297 seconds + ~23s transitions = ~320 seconds.
 
-**[S1 — Cover / ~20s]**
+**[S1 — Cover / ~15s]**
 > **[💻 Visual Cue] Display Slide 1**
-"Hello, everyone. We're OHmyDNA — a privacy-first genetic insurance DApp built on NEAR Protocol. We've built the only solution that lets you benefit from your personal genetic data without ever exposing it to insurers, hospitals, or anyone else."
 
-**[S2 — Problem / ~40s]**
+"Hello. We're OHmyDNA — a privacy-first genetic insurance DApp on NEAR Protocol.
+The only solution that lets you benefit from your DNA without ever exposing it to anyone."
+
+**[S2 — Problem / ~35s]**
 > **[💻 Visual Cue] Transition to Slide 2**
-"Tens of millions of people have taken DTC genetic tests — 23andMe, AncestryDNA. But those results sit unused in a drawer. Why? Because people are terrified. Terrified of genetic discrimination — insurers using their DNA to deny coverage or spike premiums. And terrified of data breaches. When 23andMe was hacked in 2023, 6.9 million people's genetic profiles ended up on the dark web. Unlike a password, your DNA can never be reset. This is the biggest unsolved problem in healthcare insurance today."
 
-**[S3 — Solution / ~35s]**
+"Tens of millions have taken DTC genetic tests — 23andMe, AncestryDNA.
+But those results sit unused. Why?
+Fear.
+Fear of genetic discrimination — insurers using your DNA to deny coverage or spike premiums.
+When 23andMe was hacked in 2023, 6.9 million profiles ended up on the dark web.
+Unlike a password, your DNA can never be reset.
+This is healthcare insurance's biggest unsolved problem."
+
+**[S3 — Solution / ~30s]**
 > **[💻 Visual Cue] Transition to Slide 3**
-"Our answer is a fundamental paradigm shift: you get all the benefits of personalized insurance without handing over your data. Your genetic file is analyzed inside an IronClaw Trusted Execution Environment — a hardware-isolated black box. The moment analysis is complete, the raw data is permanently purged from memory. The insurer receives nothing except a zero-knowledge proof — a mathematical certificate that says 'eligibility confirmed' without revealing a single data point."
 
-**[S4 — Product Journey / ~30s]**
+"Our answer: a fundamental paradigm shift.
+You get all the benefits of personalized insurance — without handing over your data.
+Your genetic file is analyzed inside an IronClaw TEE — a hardware-isolated black box.
+The moment analysis is complete, the raw data is permanently purged.
+The insurer receives only a zero-knowledge proof:
+'Eligibility confirmed' — without revealing a single data point."
+
+**[S4 — Product Journey / ~25s]**
 > **[💻 Visual Cue] Transition to Slide 4 + [▶️ Video Cue] Auto-play Demo video**
-"The user journey is five steps. Connect your NEAR wallet. Upload your genetic file. IronClaw TEE performs isolated analysis and the data is immediately burned. 'The Secret Keeper' (our stateless NEAR AI agent that purges all context instantly) surfaces the most relevant insurance products for your genetic profile. You complete payment through NEAR Confidential Intents — a private on-chain transaction that leaves no traceable trail."
 
-**[S5 — What We Built / ~35s]**
+"Five steps.
+Connect your NEAR wallet. Upload your genetic file.
+IronClaw TEE analyzes it — data immediately burned.
+'The Secret Keeper,' our stateless NEAR AI agent, surfaces your best-fit insurance products.
+You pay through NEAR Confidential Intents — private, on-chain, no traceable trail."
+
+**[S5 — What We Built / ~30s]**
 > **[💻 Visual Cue] Transition to Slide 5 + [🔍 Highlight] Point to Attestation Badge**
-"We didn't just design this — we built it and it runs. During this hackathon, we completed a full end-to-end pipeline. IronClaw TEE integrated with NEAR AI Cloud, running real inference on the Qwen model. Intel TDX hardware attestation verified via the public NEAR AI attestation endpoint — the enclave is cryptographically proven, not assumed. A Noir ZKP circuit compiled and deployed to NEAR testnet at zkp.rogulus.testnet. Confidential Intents payment completed on testnet. Every layer of the privacy stack is working code."
 
-**[S6 — Why NEAR / ~35s]**
+"We didn't just design this — we built it. Running today.
+IronClaw TEE with real Qwen inference on NEAR AI Cloud.
+Intel TDX hardware attestation — cryptographically verified via the public NEAR AI endpoint.
+A Noir ZKP circuit deployed to NEAR testnet.
+Confidential Intents payment completed on testnet.
+Every layer of the privacy stack is working code."
+
+**[S6 — Why NEAR / ~30s]**
 > **[💻 Visual Cue] Transition to Slide 6**
-"Why is this only possible on NEAR, right now? Because NEAR is the only ecosystem where IronClaw TEE, Confidential Intents, and Chain Signatures are all available under one developer roof. AWS Nitro is powerful — but it's still a Trust-Me model. You're trusting Amazon. We don't ask you to trust us. Every step is cryptographically verifiable on-chain. And we're open-sourcing the entire TEE wrapper and ZKP templates for the NEAR community."
 
-**[S7 — Business Model / ~25s]**
+"Why is this only possible on NEAR?
+Because NEAR is the only ecosystem where IronClaw TEE, Confidential Intents, and Chain Signatures all live under one roof.
+AWS Nitro is powerful — but it's still a trust-me model. You're trusting Amazon.
+We don't ask you to trust anyone.
+Every step is cryptographically verifiable on-chain.
+And we're open-sourcing the entire TEE wrapper and ZKP templates to the community."
+
+**[S7 — Business Model / ~20s]**
 > **[💻 Visual Cue] Transition to Slide 7**
-"The business model is direct. Traditional insurance brokers take a 15% commission on every policy sold. We replace that with a smart contract fee. TAM is $4.5 trillion in global health and digital insurance. Our beachhead is Asia's Gen MZ — already comfortable with DTC genetic testing and digital health."
 
-**[S8 — Roadmap / ~25s]**
+"The business model is direct.
+Traditional brokers take 15% commission on every policy. We replace that with a smart contract.
+The Total Addressable Market (TAM) is valued at $4.5 trillion. We are focusing our beachhead on Asia's Gen MZ, as they are already comfortable with DTC testing and digital health.
+
+**[S8 — Roadmap / ~20s]**
 > **[💻 Visual Cue] Transition to Slide 8**
-"Phase Zero is proven today. Q2 2026: off-chain API stabilization and DTC lab partnerships. Q3 Phase Two: an autonomous Agent OS that proactively monitors your health data and renegotiates your coverage. Q4 and beyond: full mainnet launch as institutional-grade cross-chain financial infrastructure."
 
-**[S12 — Closing / ~40s]**
-> **[💻 Visual Cue] Fast-forward S9, S10, S11 ▶️ Transition to Slide 12**
-"We built this entire stack end-to-end — product architecture, frontend, database, TEE integration, ZKP circuits, and multi-chain payments. What we set out to prove is this: the technology that protects your most sensitive data is not a cost — it is a competitive moat and a new revenue model. NEAR asked us: what if you could verify it cryptographically? OHmyDNA answers that question with working code. Thank you."
+"Phase Zero is live today.
+Q2 2026: API stabilization and DTC lab partnerships.
+Q3 Phase Two: an autonomous Agent OS that monitors your health and renegotiates your coverage.
+Q4 and beyond: full mainnet as institutional-grade cross-chain financial infrastructure."
+
+**[S12 — Closing / ~30s]**
+> **[💻 Visual Cue] Fast-forward S9, S10, S11 (1s each) ▶️ Transition to Slide 12**
+
+"We built this entire stack —
+product, frontend, database, TEE integration, ZKP circuits, and multi-chain payments.
+The technology that protects your most sensitive data is not a cost.
+It is a competitive moat. And a new revenue model.
+NEAR asked: what if you could verify it cryptographically?
+OHmyDNA answers with working code.
+Thank you."
 
 ---
 
