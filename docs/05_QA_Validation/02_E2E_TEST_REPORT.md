@@ -82,7 +82,7 @@ Playwright(`@playwright/test`) 기반 E2E 테스트 suite를 구성하고 전체
 | 항목 | 사유 |
 |---|---|
 | NEAR 지갑 연결 플로우 | 실제 지갑 확장 프로그램 의존, E2E 환경에서 자동화 불가 |
-| TEE 분석 전체 플로우 | Phase 0 Mock이지만 지갑 인증 선행 필요 |
+| TEE 분석 전체 플로우 | 실제 NEAR AI Cloud Qwen3-30B 구동 중이나 지갑 인증 선행 필요, E2E 자동화 불가 |
 | 결제 트랜잭션 | NEAR Testnet 계정 및 실제 서명 필요 |
 | 다국어(en) 전환 | 핵심 플로우와 동일 로직, 우선순위 낮음 |
 
