@@ -1,7 +1,7 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-13 (Stage 14 Intel TDX Attestation 통합 완료)
+- **최종 수정일**: 2026-04-18 (Stage 16 ZKP-in-TEE 구현 명세 추가)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v2.0
 
@@ -789,12 +789,50 @@
 
 ---
 
+### Stage 16 — ZKP-in-TEE: IronClaw 인클레이브 내 Noir WASM 배포 [Phase 2 착수 예정]
+
+> **목적**: Phase 0 더미 proof를 IronClaw TEE 인클레이브 내부에서 생성한 실제 Noir proof bytes로 교체.
+> `risk_score`(Private Input)가 TEE 외부로 절대 유출되지 않는 완전 격리형 프라이버시 파이프라인 완성.
+>
+> **상세 구현 명세**: `docs/03_Technical_Specs/ZKP_IN_TEE_WASM_IMPL_SPEC.md`
+
+#### IronClaw WASM 지원 타임라인 (Phase 2 착수 근거)
+
+이 구현이 Phase 2로 미뤄진 것은 인프라 미비 때문이었으며, 해커톤 기간 중 해당 장벽이 제거되었습니다.
+
+| 날짜 | 버전 | 내용 | 비고 |
+|---|---|---|---|
+| 2026-03-10 | v0.17.0 | 커스텀 WASM 툴 배포 최초 도입 | 실험적 단계 — 프로젝트 시작 시점 |
+| 2026-03-xx | — | 본 프로젝트 개발 시작 | v0.17.0 불안정으로 분석 로직 구현 우선 |
+| 2026-04-11 | v0.25.0 | 커스텀 WASM 프로덕션 수준 공식 지원 | **Phase 2 착수 가능 시점** |
+| 2026-04-18 | — | Final Pitch Day | Phase 2 인프라 준비 완료 상태 |
+
+#### 현재 준비 완료된 아티팩트
+
+| 파일 | 상태 |
+|---|---|
+| `circuits/insurance_eligibility/src/main.nr` | 완성 — `assert(risk_score >= threshold)` 회로 |
+| `circuits/insurance_eligibility/target/insurance_eligibility.json` | 완성 — 컴파일된 회로 아티팩트 (1.7KB) |
+| `circuits/insurance_eligibility/target/proof` | 완성 — `nargo prove` 로컬 생성 proof (14KB) |
+| `src/lib/zkp/prover.ts` | Phase 2 교체 대상 — 현재 더미 반환 |
+
+#### 구현 태스크
+
+- [ ] Barretenberg를 WASI Preview 2 컴포넌트로 크로스 컴파일
+- [ ] IronClaw에 `zkp-prover` WASM 툴 등록 + 회로 파일 인클레이브 배치
+- [ ] `src/lib/zkp/prover.ts` — IronClaw Tool Call API 호출로 교체
+- [ ] `src/lib/zkp/verifier.ts` — proof hash 온체인 등록(`zkp.rogulus.testnet`)으로 교체
+- [ ] E2E 검증: TEE 분석 + proof 생성 → 온체인 등록 → 대시보드 표시
+
+---
+
 ## 관련 문서
 - [비즈니스 기획안](../01_Concept_Design/GENETIC_AI_INSURANCE_AGENT.md)
 - [기술 아키텍처 명세](../03_Technical_Specs/NEAR_PRIVACY_STACK_ARCH.md)
 - [TEE Attestation 구현 명세](../03_Technical_Specs/TEE_ATTESTATION_SPEC.md)
 - [Phase 2 구현 명세서](../03_Technical_Specs/PHASE2_IMPLEMENTATION_SPEC.md)
 - [AI 상담 레이어 구현 명세](../03_Technical_Specs/SECRET_KEEPER_IMPL_SPEC.md)
+- [ZKP-in-TEE WASM 배포 구현 명세](../03_Technical_Specs/ZKP_IN_TEE_WASM_IMPL_SPEC.md)
 - [DB 스키마 명세](../03_Technical_Specs/DB_SCHEMA.md)
 - [AI 매칭 파이프라인](./AI_MATCHING_PIPELINE.md)
 - [구현 계획 (초기 세팅)](./IMPLEMENTATION_PLAN.md)
