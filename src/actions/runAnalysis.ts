@@ -11,6 +11,7 @@ import { runIronClawAnalysis } from "@/lib/tee/ironclaw-tee";
 import { verifyAttestation } from "./verifyAttestation";
 import { teeAnalysisOutputSchema } from "@/types/tee-output";
 import { generateZkpProof, derivePrimaryRiskScore } from "@/lib/zkp/prover";
+import { verifyZkpProof, submitProofHashOnChain } from "@/lib/zkp/verifier";
 import { matchProducts } from "./matchProducts";
 import { updateSessionStatus } from "./updateSessionStatus";
 import { consumeAuthNonce } from "./generateAuthNonce";
@@ -124,11 +125,17 @@ export async function runAnalysis(
 
     await updateSessionStatus(sessionId, "zkp_generating");
 
-    // ── Stage 2.5: ZKP proof 생성 ──────────────────────────────────────────
-    // Phase 0: 더미 proof 반환 (circuits/insurance_eligibility/src/main.nr 참고)
-    // Phase 2: @noir-lang/noir_js + BarretenbergBackend로 교체
+    // ── Stage 2.5: ZKP proof 생성 + 온체인 등록 ──────────────────────────────
+    // Phase 2: IronClaw TEE Tool Call → HMAC-SHA256 commitment proof
+    // Phase 3 업그레이드: Barretenberg ultraplonk (Aztec verifier 라이브러리 출시 후)
     const riskScore = derivePrimaryRiskScore(validated.riskProfile);
     const zkpProof = await generateZkpProof({ riskScore, threshold: 50 });
+
+    const proofValid = await verifyZkpProof(zkpProof);
+    if (!proofValid) throw new Error("ZKP proof 검증 실패");
+
+    // 온체인 등록 — 실패해도 파이프라인 비차단 (NEAR_PRIVATE_KEY 미설정 시 생략)
+    const proofHash = await submitProofHashOnChain(zkpProof).catch(() => zkpProof.proofBytes);
 
     await updateSessionStatus(sessionId, "completed");
 
@@ -146,7 +153,7 @@ export async function runAnalysis(
       walletAddress: session.walletAddress,
       riskProfile: JSON.stringify(validated.riskProfile),
       recommendedProductIds: JSON.stringify(matchedIds),
-      zkpProofHash: zkpProof.proofBytes,
+      zkpProofHash: proofHash,
       advisoryMessages: JSON.stringify(validated.advisoryMessages),
       reasoning: validated.reasoning,
       coverageGapSummary: validated.coverageGapSummary,
