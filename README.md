@@ -1,58 +1,84 @@
-# OHmyDNA Insurance Agent
+# MyDNA Insurance Agent
 
 **Privacy-first genetic insurance DApp powered by NEAR Protocol**
 
 The only way to get better insurance because of your genes — without exposing them.
 
-> NEAR Buidl 2026 Hackathon submission
-
+[![NEAR Protocol Track 1st Place](https://img.shields.io/badge/NEAR_Protocol_Track-1st_Place-gold?style=for-the-badge)](https://buidl.near.org)
 [![Live Demo](https://img.shields.io/badge/Live_Demo-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://buidl-2026-near.vercel.app/en)
-[![Pitch Deck](https://img.shields.io/badge/Pitch_Deck-4A154B?style=for-the-badge&logo=slides&logoColor=white)](https://buidl-2026-near.vercel.app/en/pitch)
 [![Demo Video](https://img.shields.io/badge/Demo_Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/zt8yo6XRHNI)
+[![Pitch Deck](https://img.shields.io/badge/Pitch_Deck-4A154B?style=for-the-badge&logo=slides&logoColor=white)](https://buidl-2026-near.vercel.app/en/pitch)
 
 **NEAR Testnet Contract**: `zkp.rogulus.testnet`
+
+> **NEAR Buidl 2026 Hackathon — NEAR Protocol Track 1st Place**
+> Currently in Phase 2: ZKP-in-TEE production implementation
 
 ---
 
 ## What It Does
 
-Upload your DTC (Direct-to-Consumer) genetic data and:
+Upload your DTC (Direct-to-Consumer) genetic data and receive personalized insurance recommendations — without exposing your genetic information to anyone.
 
-1. **IronClaw TEE** analyzes your genome in isolation — raw data is purged immediately after analysis
-2. **Intel TDX Attestation** cryptographically verifies the enclave is a genuine hardware-isolated environment
+1. **IronClaw TEE** (NEAR AI Cloud) analyzes your genome in hardware isolation — raw data is purged immediately after analysis
+2. **Intel TDX Attestation** cryptographically verifies the enclave is genuine hardware-isolated
 3. **Noir ZKP** proof verifies insurance eligibility without revealing any numeric values
 4. **NEAR Confidential Intents** settles your premium privately — insurers never see your genetic data
+5. **AI Concierge** (The Secret Keeper) answers health and insurance questions using only risk labels — no raw data retained
+
+---
+
+## Why This Matters
+
+The global genetic testing market is projected to reach $35B by 2030. Yet today, submitting your genetic data for insurance means surrendering it permanently. MyDNA Insurance Agent solves this with a three-layer privacy architecture that makes better insurance possible without data exposure.
+
+**The core insight**: insurers need to know you qualify — not your actual risk score. ZKP makes this distinction technically enforceable.
 
 ---
 
 ## NEAR Technology Stack
 
-| Technology | Role |
-|---|---|
-| **IronClaw TEE** | Isolated genetic analysis + memory purge (NEAR AI Cloud) |
-| **Intel TDX Attestation** | Hardware enclave verification via `GET /v1/attestation/report` (no API key required) |
-| **Confidential Intents** | Private premium settlement (encrypted transaction payload) |
-| **Chain Signatures** | Multi-chain insurance product payments (MPC signing) |
-| **Noir ZKP** | Zero-knowledge eligibility proof without exposing risk scores (`circuits/insurance_eligibility/`) |
+| Technology | Role | Status |
+|---|---|---|
+| **IronClaw TEE** | Isolated genetic analysis + memory purge (NEAR AI Cloud) | Live |
+| **Intel TDX Attestation** | Hardware enclave verification via `/v1/attestation/report` | Live |
+| **Noir ZKP** | Zero-knowledge eligibility proof (`circuits/insurance_eligibility/`) | Live |
+| **ZKP-in-TEE** | WASM prover (`zkp-prover-wasm`) running inside IronClaw enclave | Phase 2 |
+| **Confidential Intents** | Private premium settlement | Live (testnet) |
+| **Chain Signatures** | Multi-chain payment via MPC signing | Live (testnet) |
 
 ---
 
-## Architecture
+## Architecture: 3-Layer Privacy Model
 
 ```
 User Browser
-  └─ File upload (only SHA-256 hash persisted)
-      └─ NEAR AI Cloud (IronClaw TEE)
-          └─ NormalizedGeneticProfile → TeeAnalysisOutput (purged after analysis)
-              └─ Noir ZKP proof generation
+  └─ File upload (SHA-256 hash only — raw file never leaves browser)
+      └─ NEAR AI Cloud (IronClaw TEE — Intel TDX)
+          ├─ NormalizedGeneticProfile → TeeAnalysisOutput (purged after analysis)
+          └─ ZKP-in-TEE: zkp-prover WASM generates proof (risk_score never leaves enclave)
+              └─ proof_bytes + public_inputs
                   └─ Insurance product matching → recommendation cart
                       └─ NEAR Confidential Intents payment
 ```
 
-**3-Layer Privacy Model**
-- Layer 1: TEE isolated analysis (IronClaw Runtime)
-- Layer 2: Edge DB stores metadata only (Turso — no raw genetic data)
-- Layer 3: Web3 trust layer (Confidential Intents + Chain Signatures + ZKP)
+| Layer | Technology | Privacy Guarantee |
+|---|---|---|
+| Layer 1 | IronClaw TEE (Intel TDX) | Operator cannot access data; hardware attestation verifiable |
+| Layer 2 | Turso Edge DB | Metadata only — no raw genetic data ever stored |
+| Layer 3 | Confidential Intents + ZKP | Insurer sees eligibility proof only, never risk score |
+
+---
+
+## Phase 2 Progress (Post-Hackathon)
+
+| Item | Status |
+|---|---|
+| `zkp-prover-wasm` — HMAC-SHA256 commitment circuit (wasm32-wasip2, 137KB) | Done |
+| `prover.ts` — IronClaw Tool Call API integration | Done |
+| `verifier.ts` — SHA-256 proof hash + on-chain registration | Done |
+| IronClaw WASM tool registration on `cloud.near.ai` | Pending (NEAR AI team) |
+| Barretenberg ultraplonk (Phase 3) | Roadmap |
 
 ---
 
@@ -61,8 +87,8 @@ User Browser
 - **Frontend**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, Shadcn/ui, Framer Motion
 - **Backend**: Next.js Server Actions, Drizzle ORM, Turso (Edge SQLite)
 - **AI/TEE**: NEAR AI Cloud (IronClaw) — OpenAI-compatible `/v1/chat/completions`
-- **Web3**: NEAR Wallet Selector, near-api-js, @defuse-protocol/intents-sdk
-- **ZKP**: Noir (`nargo`) — `circuits/insurance_eligibility/src/main.nr`
+- **Web3**: NEAR Wallet Selector, near-api-js v7, Chain Signatures
+- **ZKP**: Noir circuit + `zkp-prover-wasm` (Rust, wasm32-wasip2)
 
 ---
 
@@ -77,55 +103,40 @@ User Browser
 ### Setup
 
 ```bash
-git clone https://github.com/azerckid/BUIDL-2026_NEAR
-cd BUIDL-2026_NEAR
+git clone https://github.com/azerckid/BUIDL-2026-NEAR
+cd BUIDL-2026-NEAR
 npm install
-```
-
-Create `.env.local`:
-
-```bash
 cp .env.example .env.local
-# Fill in the values below
+# Fill in TURSO_DATABASE_URL, TURSO_AUTH_TOKEN, IRONCLAW_API_KEY
 ```
-
-```
-TURSO_DATABASE_URL=libsql://your-db.turso.io
-TURSO_AUTH_TOKEN=your-auth-token
-
-NEXT_PUBLIC_NEAR_WALLET_NETWORK=testnet
-
-IRONCLAW_BASE_URL=https://cloud-api.near.ai/v1
-IRONCLAW_API_KEY=your-nearai-api-key
-
-# Enable real IronClaw analysis (uses Mock TEE if unset)
-# USE_REAL_TEE=true
-```
-
-### Database Setup
 
 ```bash
 npx drizzle-kit generate
 npx drizzle-kit migrate
 npx tsx src/lib/db/seed.ts
-```
-
-### Run
-
-```bash
 npm run dev
 # http://localhost:3000
 ```
+
+### Environment Variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `TURSO_DATABASE_URL` | Yes | Turso DB URL |
+| `TURSO_AUTH_TOKEN` | Yes | Turso auth token |
+| `IRONCLAW_API_KEY` | Yes | NEAR AI Cloud API key |
+| `USE_REAL_TEE` | No | `true` = IronClaw analysis (default: Mock) |
+| `USE_REAL_ZKP` | No | `true` = IronClaw WASM tool proof (default: local HMAC) |
 
 ---
 
 ## Demo Flow
 
-1. `http://localhost:3000` — Connect NEAR Testnet wallet
-2. Click "Try with sample file" → analysis starts
-3. IronClaw TEE analysis (5–15s) → Intel TDX Attestation badge → data purge confirmed
-4. Insurance recommendation dashboard → select products
-5. NEAR Confidential Intents payment completed
+1. Connect NEAR Testnet wallet
+2. Click "Try with sample file" — DTC genetic data sample loads automatically
+3. IronClaw TEE analysis (5–15s) → Intel TDX Attestation badge → memory purge animation
+4. Insurance recommendation dashboard → select products → AI Concierge Q&A
+5. NEAR Confidential Intents payment → insurance certificate issued
 
 ---
 
@@ -134,211 +145,91 @@ npm run dev
 ```
 src/
 ├── app/                    # Next.js App Router pages
-├── components/modules/     # Domain components
+├── components/modules/     # Domain components (TEE progress, dashboard, concierge)
 ├── lib/
 │   ├── db/                 # Drizzle schema + Turso client
-│   ├── near/               # Wallet, Chain Signatures
-│   ├── tee/                # IronClaw + Mock TEE
-│   └── zkp/                # Noir ZKP prover
+│   ├── near/               # Wallet, Chain Signatures, MPC
+│   ├── tee/                # IronClaw + Mock TEE + Attestation
+│   └── zkp/                # ZKP prover + verifier
 ├── actions/                # Server Actions
 └── types/                  # Zod schemas + TypeScript types
 circuits/
-└── insurance_eligibility/  # Noir ZKP circuit
-```
-
----
-
-## Commands
-
-```bash
-npm run dev        # Dev server
-npm run build      # Production build
-npm run lint       # ESLint
-
-npx drizzle-kit studio     # DB browser
-npx tsx src/lib/db/seed.ts # Seed insurance products
+└── insurance_eligibility/  # Noir ZKP circuit (assert risk_score >= threshold)
+zkp-prover-wasm/
+└── src/main.rs             # Rust WASM prover (wasm32-wasip2, 137KB)
 ```
 
 ---
 
 ## Team
 
-- **azerckid** — Founder & Full-Stack E2E Delivery
+- **azerckid** — Founder & Full-Stack E2E
 
 ---
 
-Built for **NEAR Buidl 2026 Hackathon** · Powered by NEAR Protocol
+## Contact
+
+For investment inquiries or partnership discussions: **azerckid@gmail.com**
+
+---
+
+Built at **NEAR Buidl 2026 Hackathon** · NEAR Protocol Track 1st Place · Powered by NEAR Protocol
 
 ---
 ---
 
-# OHmyDNA Insurance Agent (한국어)
+# MyDNA Insurance Agent (한국어)
 
 **NEAR Protocol 기반 프라이버시 우선 유전자 보험 DApp**
 
 유전자를 노출하지 않고, 유전자 덕분에 더 나은 보험에 가입하는 유일한 방법.
 
-> NEAR Buidl 2026 Hackathon 제출작
-
+[![NEAR Protocol 트랙 1위](https://img.shields.io/badge/NEAR_Protocol_트랙-1위_수상-gold?style=for-the-badge)](https://buidl.near.org)
 [![라이브 데모](https://img.shields.io/badge/라이브_데모-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://buidl-2026-near.vercel.app/en)
-[![피치 덱](https://img.shields.io/badge/피치_덱-4A154B?style=for-the-badge&logo=slides&logoColor=white)](https://buidl-2026-near.vercel.app/en/pitch)
 [![데모 영상](https://img.shields.io/badge/데모_영상-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/zt8yo6XRHNI)
+[![피치 덱](https://img.shields.io/badge/피치_덱-4A154B?style=for-the-badge&logo=slides&logoColor=white)](https://buidl-2026-near.vercel.app/en/pitch)
 
 **NEAR 테스트넷 컨트랙트**: `zkp.rogulus.testnet`
+
+> **NEAR Buidl 2026 해커톤 — NEAR Protocol 트랙 1위 수상**
+> 현재 Phase 2 진행 중: ZKP-in-TEE 프로덕션 구현
 
 ---
 
 ## 무엇을 하는가
 
-DTC(소비자 직접 검사) 유전자 데이터를 업로드하면:
+DTC(소비자 직접 검사) 유전자 데이터를 업로드하면 맞춤 보험 추천을 받습니다 — 유전자 정보는 누구에게도 노출되지 않습니다.
 
-1. **IronClaw TEE** 안에서 유전자 분석 — 원본 데이터는 분석 즉시 소각
-2. **Intel TDX Attestation** 으로 인클레이브가 실제 하드웨어 격리 환경임을 암호학적으로 검증
+1. **IronClaw TEE** (NEAR AI Cloud)에서 하드웨어 격리 유전자 분석 — 원본 데이터 분석 즉시 소각
+2. **Intel TDX Attestation**으로 인클레이브가 실제 하드웨어 격리 환경임을 암호학적으로 검증
 3. **Noir ZKP** 증명으로 수치 없이 보험 자격 충족 여부만 증명
-4. **NEAR Confidential Intents** 로 기밀 보험료 결제 — 보험사에 유전자 수치 전달 없음
+4. **NEAR Confidential Intents**로 기밀 보험료 결제 — 보험사에 유전자 수치 전달 없음
+5. **AI 상담 레이어** (The Secret Keeper) — 위험 레이블만 사용, 원본 데이터 미보관
 
 ---
 
-## NEAR 기술 스택
+## 왜 중요한가
 
-| 기술 | 역할 |
+글로벌 유전자 검사 시장은 2030년 350억 달러 규모로 성장 예상. 현재는 유전자 데이터를 보험사에 제출하면 영구적으로 넘겨야 합니다. MyDNA Insurance Agent는 3계층 프라이버시 아키텍처로 데이터 노출 없이 더 나은 보험을 가능하게 합니다.
+
+---
+
+## Phase 2 진행 현황 (해커톤 이후)
+
+| 항목 | 상태 |
 |---|---|
-| **IronClaw TEE** | 유전자 데이터 격리 분석 + 메모리 소각 (NEAR AI Cloud) |
-| **Intel TDX Attestation** | 하드웨어 인클레이브 검증 — `GET /v1/attestation/report` (API 키 불필요) |
-| **Confidential Intents** | 기밀 보험료 결제 (거래 내용 암호화) |
-| **Chain Signatures** | 멀티체인 보험 상품 결제 (MPC 서명) |
-| **Noir ZKP** | 유전자 수치 비공개 자격 증명 (`circuits/insurance_eligibility/`) |
+| `zkp-prover-wasm` — HMAC-SHA256 커밋먼트 회로 (wasm32-wasip2, 137KB) | 완료 |
+| `prover.ts` — IronClaw Tool Call API 연동 | 완료 |
+| `verifier.ts` — SHA-256 proof hash + 온체인 등록 | 완료 |
+| IronClaw WASM 툴 등록 (`cloud.near.ai`) | 진행 중 (NEAR AI 팀 협의) |
+| Barretenberg ultraplonk (Phase 3) | 로드맵 |
 
 ---
 
-## 아키텍처
+## 투자 문의
 
-```
-사용자 브라우저
-  └─ 파일 업로드 (SHA-256 해시만 저장)
-      └─ NEAR AI Cloud (IronClaw TEE)
-          └─ NormalizedGeneticProfile → TeeAnalysisOutput (분석 후 소각)
-              └─ Noir ZKP proof 생성
-                  └─ 보험 상품 매칭 → 추천 카트
-                      └─ NEAR Confidential Intents 결제
-```
-
-**3계층 프라이버시 모델**
-- Layer 1: TEE 격리 분석 (IronClaw Runtime)
-- Layer 2: Edge DB 메타데이터만 저장 (Turso — 유전자 원본 미저장)
-- Layer 3: Web3 신뢰 레이어 (Confidential Intents + Chain Signatures + ZKP)
+**azerckid@gmail.com**
 
 ---
 
-## 기술 스택
-
-- **Frontend**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, Shadcn/ui, Framer Motion
-- **Backend**: Next.js Server Actions, Drizzle ORM, Turso (Edge SQLite)
-- **AI/TEE**: NEAR AI Cloud (IronClaw) — OpenAI-compatible `/v1/chat/completions`
-- **Web3**: NEAR Wallet Selector, near-api-js, @defuse-protocol/intents-sdk
-- **ZKP**: Noir (`nargo`) — `circuits/insurance_eligibility/src/main.nr`
-
----
-
-## 시작하기
-
-### 사전 요구사항
-
-- Node.js 20+
-- Turso 계정 ([turso.tech](https://turso.tech))
-- NEAR AI Cloud API 키 ([cloud.near.ai](https://cloud.near.ai))
-
-### 설치
-
-```bash
-git clone https://github.com/azerckid/BUIDL-2026_NEAR
-cd BUIDL-2026_NEAR
-npm install
-```
-
-`.env.local` 생성:
-
-```bash
-cp .env.example .env.local
-# 아래 값을 채워주세요
-```
-
-```
-TURSO_DATABASE_URL=libsql://your-db.turso.io
-TURSO_AUTH_TOKEN=your-auth-token
-
-NEXT_PUBLIC_NEAR_WALLET_NETWORK=testnet
-
-IRONCLAW_BASE_URL=https://cloud-api.near.ai/v1
-IRONCLAW_API_KEY=your-nearai-api-key
-
-# IronClaw 실제 분석 활성화 (미설정 시 Mock 사용)
-# USE_REAL_TEE=true
-```
-
-### DB 초기화
-
-```bash
-npx drizzle-kit generate
-npx drizzle-kit migrate
-npx tsx src/lib/db/seed.ts
-```
-
-### 실행
-
-```bash
-npm run dev
-# http://localhost:3000
-```
-
----
-
-## 데모 흐름
-
-1. `http://localhost:3000` — NEAR Testnet 지갑 연결
-2. "샘플 파일로 체험하기" 클릭 → 분석 시작
-3. IronClaw TEE 분석 (5~15초) → Intel TDX Attestation 배지 → 데이터 소각 확인
-4. 보험 추천 대시보드 → 상품 선택
-5. NEAR Confidential Intents 결제 완료
-
----
-
-## 프로젝트 구조
-
-```
-src/
-├── app/                    # Next.js App Router pages
-├── components/modules/     # Domain components
-├── lib/
-│   ├── db/                 # Drizzle schema + Turso client
-│   ├── near/               # Wallet, Chain Signatures
-│   ├── tee/                # IronClaw + Mock TEE
-│   └── zkp/                # Noir ZKP prover
-├── actions/                # Server Actions
-└── types/                  # Zod schemas + TypeScript types
-circuits/
-└── insurance_eligibility/  # Noir ZKP circuit
-```
-
----
-
-## 명령어
-
-```bash
-npm run dev        # 개발 서버
-npm run build      # 프로덕션 빌드
-npm run lint       # ESLint
-
-npx drizzle-kit studio     # DB 브라우저
-npx tsx src/lib/db/seed.ts # 보험 상품 시드
-```
-
----
-
-## 팀
-
-- **azerckid** — Founder & Full-Stack E2E Delivery
-
----
-
-**NEAR Buidl 2026 Hackathon** 출품작 · Powered by NEAR Protocol
+**NEAR Buidl 2026 해커톤** 출품작 · NEAR Protocol 트랙 1위 · Powered by NEAR Protocol
