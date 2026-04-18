@@ -1,5 +1,5 @@
 export interface ZkpProof {
   proofBytes: string;
-  publicInputs: { threshold: number };
+  publicInputs: { threshold: number; nonce?: string };
   verificationKey: string;
 }
