@@ -4,7 +4,7 @@
 
 The only way to get better insurance because of your genes — without exposing them.
 
-[![NEAR Protocol Track 1st Place](https://img.shields.io/badge/NEAR_Protocol_Track-1st_Place-gold?style=for-the-badge)](https://buidl.near.org)
+[![NEAR Protocol Track 1st Place](https://img.shields.io/badge/NEAR_Protocol_Track-1st_Place-gold?style=for-the-badge)](https://www.ludium.world/dashboard/hackathon/builder/f8a6bb25-671a-44c3-a8c3-293a5d048e51?tab=my-buidls)
 [![Live Demo](https://img.shields.io/badge/Live_Demo-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://buidl-2026-near.vercel.app/en)
 [![Demo Video](https://img.shields.io/badge/Demo_Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/zt8yo6XRHNI)
 [![Pitch Deck](https://img.shields.io/badge/Pitch_Deck-4A154B?style=for-the-badge&logo=slides&logoColor=white)](https://buidl-2026-near.vercel.app/en/pitch)
