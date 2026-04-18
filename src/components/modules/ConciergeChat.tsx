@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Bot, User } from "lucide-react";
 import { toast } from "sonner";
@@ -18,6 +19,7 @@ interface ConciergeChatProps {
 }
 
 export function ConciergeChat({ riskProfile }: ConciergeChatProps) {
+  const t = useTranslations("pitch.concierge");
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -73,8 +75,8 @@ export function ConciergeChat({ riskProfile }: ConciergeChatProps) {
           <Bot size={14} className="text-primary" />
         </div>
         <div className="flex flex-col">
-          <span className="text-sm font-semibold text-foreground">The Secret Keeper</span>
-          <span className="text-xs text-muted-foreground">건강·보험 상담 도우미 (Stateless)</span>
+          <span className="text-sm font-semibold text-foreground">{t("title")}</span>
+          <span className="text-xs text-muted-foreground">{t("subtitle")}</span>
         </div>
       </div>
 
@@ -82,7 +84,7 @@ export function ConciergeChat({ riskProfile }: ConciergeChatProps) {
       <div className="flex flex-col gap-3 px-4 py-4 min-h-[180px] max-h-[340px] overflow-y-auto">
         {messages.length === 0 && (
           <p className="text-xs text-muted-foreground text-center pt-6">
-            유전자 분석 결과를 바탕으로 건강·보험에 관한 질문을 입력해 주세요.
+            {t("emptyState")}
           </p>
         )}
         <AnimatePresence initial={false}>
@@ -152,7 +154,7 @@ export function ConciergeChat({ riskProfile }: ConciergeChatProps) {
       <div className="flex items-end gap-2 px-4 py-3 border-t border-border/60 bg-muted/20">
         <textarea
           className="flex-1 resize-none rounded-xl border border-border/60 bg-background px-3 py-2 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 disabled:opacity-50 min-h-[40px] max-h-[100px]"
-          placeholder="질문을 입력하세요... (Shift+Enter로 줄바꿈)"
+          placeholder={t("placeholder")}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -168,6 +170,9 @@ export function ConciergeChat({ riskProfile }: ConciergeChatProps) {
           <Send size={14} />
         </Button>
       </div>
+      <p className="px-4 pb-2 text-[10px] text-muted-foreground/60 text-center">
+        {t("disclaimer")}
+      </p>
     </div>
   );
 }

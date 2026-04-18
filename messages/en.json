@@ -345,6 +345,13 @@
       "p1": "We are open-sourcing our TEE-App Wrapper Boilerplate and Noir ZKP Logic Templates.",
       "p2": "This drops the barrier to entry for building Web3 Privacy apps from weeks to just 10 minutes, fostering a fertile ground for the next generation of healthcare DApps on NEAR."
     },
+    "concierge": {
+      "title": "The Secret Keeper",
+      "subtitle": "Health & Insurance Assistant (Stateless)",
+      "emptyState": "Ask any question about your health or insurance based on your genetic analysis.",
+      "placeholder": "Type your question... (Shift+Enter for new line)",
+      "disclaimer": "Not a medical diagnosis. Please consult a healthcare professional."
+    },
     "s12": {
       "title": "Team & Vision",
       "subtitle": "The endgame of Privacy & Finance",
