@@ -1,0 +1,21 @@
+[package]
+name = "zkp-prover-wasm"
+version = "0.1.0"
+edition = "2021"
+description = "ZKP prover for insurance eligibility — WASI Preview 2 component for IronClaw TEE"
+
+[[bin]]
+name = "zkp-prover"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+hmac = "0.12"
+hex = "0.4"
+
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true
