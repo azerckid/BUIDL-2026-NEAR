@@ -3,6 +3,7 @@
 ## 사전 조건
 
 nearai CLI는 `/tmp/nearai-env`에 설치되어 있습니다.
+로그인은 어느 디렉토리에서 실행해도 됩니다 (`~/.nearai/config.json`에 저장).
 
 ```bash
 /tmp/nearai-env/bin/nearai login   # NEAR 계정으로 인증 (rogulus.testnet)
