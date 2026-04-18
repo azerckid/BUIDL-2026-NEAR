@@ -2,16 +2,17 @@
 
 ## 사전 조건
 
+nearai CLI는 `/tmp/nearai-env`에 설치되어 있습니다.
+
 ```bash
-pip3 install nearai
-nearai login   # NEAR 계정으로 인증 (rogulus.testnet)
+/tmp/nearai-env/bin/nearai login   # NEAR 계정으로 인증 (rogulus.testnet)
 ```
 
 ## 메타데이터 초기화
 
 ```bash
 cd zkp-prover-wasm
-nearai registry metadata-template
+/tmp/nearai-env/bin/nearai registry metadata-template
 ```
 
 `metadata.json` 생성 후 아래 내용으로 수정:
@@ -42,7 +43,7 @@ nearai registry metadata-template
 ## 업로드
 
 ```bash
-nearai registry upload \
+/tmp/nearai-env/bin/nearai registry upload \
   --local-path dist/zkp-prover.wasm \
   --name "azerckid.testnet/zkp-prover/0.1.0"
 ```
@@ -60,11 +61,11 @@ IronClaw 에이전트 설정에서 `tools` 배열에 등록:
 ## 검증
 
 ```bash
-nearai registry info azerckid.testnet/zkp-prover/0.1.0
+/tmp/nearai-env/bin/nearai registry info azerckid.testnet/zkp-prover/0.1.0
 ```
 
 ---
 
 Phase 2 완료 후 Phase 3 업그레이드 경로:
 - Barretenberg ultraplonk 지원 시 동일 인터페이스로 교체
-- `nearai registry upload --name "azerckid.testnet/zkp-prover/0.2.0"`
+- `/tmp/nearai-env/bin/nearai registry upload --name "azerckid.testnet/zkp-prover/0.2.0"`
