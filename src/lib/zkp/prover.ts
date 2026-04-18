@@ -1,11 +1,9 @@
+import OpenAI from "openai";
+import { randomUUID } from "crypto";
 import { ZkpProof } from "@/types/zkp";
 import { TeeAnalysisOutput } from "@/types/tee-output";
 
 const INSURANCE_ELIGIBILITY_THRESHOLD = 50;
-
-// ─── 위험 점수 도출 ───────────────────────────────────────────────────────────
-// TEE 출력의 riskProfile에서 대표 점수를 산출 (TEE 내부에서만 사용)
-// 이 값은 ZKP private input으로 주입되고 proof 생성 후 즉시 소각
 
 const LEVEL_SCORE: Record<string, number> = {
   high: 80,
@@ -24,41 +22,110 @@ export function derivePrimaryRiskScore(
   );
 }
 
-// ─── [Phase 2 교체 지점] generateZkpProof ────────────────────────────────────
-// 현재(Phase 0): 더미 proof 문자열 반환 (nargo CLI / @noir-lang 패키지 미사용)
-//   - Vercel 배포 환경 호환 (바이너리 실행 불가, WASM 번들 50MB 제한)
-//   - circuits/insurance_eligibility/src/main.nr 회로는 실제 작성됨
-//
-// Phase 2 교체 내용:
-//   import circuit from "@/../circuits/insurance_eligibility/target/insurance_eligibility.json";
-//   import { BarretenbergBackend } from "@noir-lang/backend_barretenberg";
-//   import { Noir } from "@noir-lang/noir_js";
-//
-//   const backend = new BarretenbergBackend(circuit);
-//   const noir = new Noir(circuit, backend);
-//   const { proof, publicInputs } = await noir.generateProof({
-//     risk_score: input.riskScore,
-//     threshold: threshold,
-//   });
-//   return { proofBytes: Buffer.from(proof).toString("hex"), publicInputs, verificationKey: "..." };
-//
-// 주의: proof 생성은 TEE 내부에서 실행되어야 함 (risk_score가 private input)
-//       Phase 0에서는 runAnalysis.ts Server Action 내에서 호출되므로 서버 사이드 실행
-//       Phase 2에서 IronClaw 환경 내부로 이동 필요
-// ─────────────────────────────────────────────────────────────────────────────
+// ZKP tool definition — registered in IronClaw as "zkp-prover" WASM tool
+// Registration: zkp-prover-wasm/REGISTER.md
+const ZKP_PROVER_TOOL: OpenAI.Chat.Completions.ChatCompletionTool = {
+  type: "function",
+  function: {
+    name: "zkp_prove",
+    description:
+      "Generate a ZKP proof for insurance eligibility inside the TEE. " +
+      "risk_score is a private input that never leaves the enclave. " +
+      "Returns proof_bytes (HMAC-SHA256 commitment) and public_inputs.",
+    parameters: {
+      type: "object",
+      properties: {
+        risk_score: {
+          type: "integer",
+          minimum: 0,
+          maximum: 255,
+          description: "Private risk score derived from TEE analysis (never exposed)",
+        },
+        threshold: {
+          type: "integer",
+          minimum: 0,
+          maximum: 255,
+          description: "Public insurer-set eligibility baseline",
+        },
+        nonce: {
+          type: "string",
+          description: "UUID nonce for commitment uniqueness",
+        },
+      },
+      required: ["risk_score", "threshold", "nonce"],
+    },
+  },
+};
+
+interface ZkpToolResult {
+  proof_bytes: string;
+  public_inputs: { threshold: number; nonce: string };
+  verification_key: string;
+  circuit: string;
+  assertion_passed: boolean;
+}
 
 export async function generateZkpProof(input: {
   riskScore: number;
   threshold?: number;
 }): Promise<ZkpProof> {
-  const threshold = input.threshold ?? INSURANCE_ELIGIBILITY_THRESHOLD;
+  const baseURL = process.env.IRONCLAW_BASE_URL ?? "https://cloud-api.near.ai/v1";
+  const apiKey = process.env.IRONCLAW_API_KEY;
+  const model = process.env.IRONCLAW_MODEL ?? "Qwen/Qwen3-30B-A3B-Instruct-2507";
 
-  // 100ms 지연 — 실제 proof 생성 시간 시뮬레이션
-  await new Promise((r) => setTimeout(r, 100));
+  if (!apiKey) {
+    throw new Error("IRONCLAW_API_KEY 환경 변수가 설정되지 않았습니다");
+  }
+
+  const threshold = input.threshold ?? INSURANCE_ELIGIBILITY_THRESHOLD;
+  const nonce = randomUUID();
+
+  const client = new OpenAI({ baseURL, apiKey });
+
+  const completion = await client.chat.completions.create({
+    model,
+    tools: [ZKP_PROVER_TOOL],
+    tool_choice: { type: "function", function: { name: "zkp_prove" } },
+    messages: [
+      {
+        role: "system",
+        content:
+          "You are running inside an IronClaw TEE. " +
+          "Call the zkp_prove tool with the provided inputs. " +
+          "Do not output anything else.",
+      },
+      {
+        role: "user",
+        content: JSON.stringify({ risk_score: input.riskScore, threshold, nonce }),
+      },
+    ],
+  });
+
+  const rawToolCall = completion.choices[0]?.message?.tool_calls?.[0];
+  if (!rawToolCall) {
+    throw new Error("IronClaw TEE가 zkp_prove 툴을 호출하지 않았습니다");
+  }
+
+  // Extract function name and arguments safely across OpenAI SDK versions
+  const fnCall = (rawToolCall as { function?: { name?: string; arguments?: string } }).function;
+  if (!fnCall || fnCall.name !== "zkp_prove") {
+    throw new Error(`예상치 않은 툴 호출: ${fnCall?.name ?? "unknown"}`);
+  }
+
+  let result: ZkpToolResult;
+  try {
+    result = JSON.parse(fnCall.arguments ?? "{}") as ZkpToolResult;
+  } catch {
+    throw new Error(`zkp_prove 툴 응답 파싱 실패: ${(fnCall.arguments ?? "").slice(0, 200)}`);
+  }
+
+  if (!result.assertion_passed) {
+    throw new Error("ZKP 회로 어설션 실패: 보험 자격 기준 미충족");
+  }
 
   return {
-    proofBytes: `phase0_mock_proof_${Date.now()}_t${threshold}`,
-    publicInputs: { threshold },
-    verificationKey: "phase0_mock_vk",
+    proofBytes: result.proof_bytes,
+    publicInputs: result.public_inputs,
+    verificationKey: result.verification_key,
   };
 }

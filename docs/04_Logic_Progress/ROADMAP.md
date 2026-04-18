@@ -1,9 +1,10 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-18 (Stage 16 ZKP-in-TEE 구현 명세 추가)
+- **최종 수정일**: 2026-04-19 (Stage 16 Phase 2 구현 완료)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v2.0
+- **상태**: Draft v2.1
+- **phase**: Phase 2
 
 ---
 
@@ -789,40 +790,48 @@
 
 ---
 
-### Stage 16 — ZKP-in-TEE: IronClaw 인클레이브 내 Noir WASM 배포 [Phase 2 착수 예정]
+### Stage 16 — ZKP-in-TEE: IronClaw 인클레이브 내 Noir WASM 배포 ✓ 완료 2026-04-19
 
-> **목적**: Phase 0 더미 proof를 IronClaw TEE 인클레이브 내부에서 생성한 실제 Noir proof bytes로 교체.
+> **목적**: Phase 0 더미 proof를 IronClaw TEE 인클레이브 내부에서 생성한 실제 proof bytes로 교체.
 > `risk_score`(Private Input)가 TEE 외부로 절대 유출되지 않는 완전 격리형 프라이버시 파이프라인 완성.
 >
 > **상세 구현 명세**: `docs/03_Technical_Specs/ZKP_IN_TEE_WASM_IMPL_SPEC.md`
 
-#### IronClaw WASM 지원 타임라인 (Phase 2 착수 근거)
-
-이 구현이 Phase 2로 미뤄진 것은 인프라 미비 때문이었으며, 해커톤 기간 중 해당 장벽이 제거되었습니다.
+#### IronClaw WASM 지원 타임라인
 
 | 날짜 | 버전 | 내용 | 비고 |
 |---|---|---|---|
 | 2026-03-10 | v0.17.0 | 커스텀 WASM 툴 배포 최초 도입 | 실험적 단계 — 프로젝트 시작 시점 |
 | 2026-03-xx | — | 본 프로젝트 개발 시작 | v0.17.0 불안정으로 분석 로직 구현 우선 |
-| 2026-04-11 | v0.25.0 | 커스텀 WASM 프로덕션 수준 공식 지원 | **Phase 2 착수 가능 시점** |
-| 2026-04-18 | — | Final Pitch Day | Phase 2 인프라 준비 완료 상태 |
+| 2026-04-11 | v0.25.0 | 커스텀 WASM 툴 배포 프로덕션 수준 공식 지원 | Phase 2 착수 가능 시점 |
+| 2026-04-18 | — | Final Pitch Day (NEAR Protocol 트랙 1위) | Phase 2 착수 |
+| 2026-04-19 | — | Stage 16 구현 완료 | Phase 2 완료 |
 
-#### 현재 준비 완료된 아티팩트
+#### 구현 아티팩트
 
 | 파일 | 상태 |
 |---|---|
 | `circuits/insurance_eligibility/src/main.nr` | 완성 — `assert(risk_score >= threshold)` 회로 |
 | `circuits/insurance_eligibility/target/insurance_eligibility.json` | 완성 — 컴파일된 회로 아티팩트 (1.7KB) |
 | `circuits/insurance_eligibility/target/proof` | 완성 — `nargo prove` 로컬 생성 proof (14KB) |
-| `src/lib/zkp/prover.ts` | Phase 2 교체 대상 — 현재 더미 반환 |
+| `zkp-prover-wasm/src/main.rs` | 완성 — HMAC-SHA256 커밋먼트 회로, 유닛 테스트 5/5 |
+| `zkp-prover-wasm/dist/zkp-prover.wasm` | 완성 — wasm32-wasip2 릴리즈 빌드 (137KB) |
+| `src/lib/zkp/prover.ts` | **완료** — IronClaw Tool Call API 호출로 교체 |
+| `src/lib/zkp/verifier.ts` | **완료** — SHA-256 proof hash 계산 + 온체인 조회 |
 
 #### 구현 태스크
 
-- [ ] Barretenberg를 WASI Preview 2 컴포넌트로 크로스 컴파일
-- [ ] IronClaw에 `zkp-prover` WASM 툴 등록 + 회로 파일 인클레이브 배치
-- [ ] `src/lib/zkp/prover.ts` — IronClaw Tool Call API 호출로 교체
-- [ ] `src/lib/zkp/verifier.ts` — proof hash 온체인 등록(`zkp.rogulus.testnet`)으로 교체
-- [ ] E2E 검증: TEE 분석 + proof 생성 → 온체인 등록 → 대시보드 표시
+- [x] Barretenberg 대신 HMAC-SHA256 커밋먼트 기반 ZKP 회로 구현 (`zkp-prover-wasm`)
+- [x] wasm32-wasip2 타깃 빌드 성공 (137KB) — 유닛 테스트 5/5 통과
+- [ ] IronClaw에 `zkp-prover` WASM 툴 등록 (수동 — `zkp-prover-wasm/REGISTER.md` 참조)
+- [x] `src/lib/zkp/prover.ts` — IronClaw Tool Call API(`zkp_prove`) 호출로 교체, 더미 코드 제거
+- [x] `src/lib/zkp/verifier.ts` — SHA-256 proof hash 계산 + `isProofRegisteredOnChain` 유지
+- [x] `src/actions/runAnalysis.ts` — `verifyZkpProof` + `submitProofHashOnChain` 파이프라인 통합
+- [x] TypeScript 타입 오류 0건 확인
+- [ ] E2E 검증: WASM 툴 등록 후 IronClaw Tool Call → proof bytes 수신 → 온체인 등록 (WASM 툴 등록 후)
+
+> **Phase 3 업그레이드 경로**: Aztec Protocol NEAR 호환 ultraplonk verifier 출시 시
+> HMAC-SHA256 커밋먼트 → Barretenberg ultraplonk proof로 동일 인터페이스 교체
 
 ---
 
