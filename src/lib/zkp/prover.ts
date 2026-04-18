@@ -1,7 +1,8 @@
 import OpenAI from "openai";
-import { randomUUID } from "crypto";
+import { createHmac, randomUUID } from "crypto";
 import { ZkpProof } from "@/types/zkp";
 import { TeeAnalysisOutput } from "@/types/tee-output";
+import { ZKP_VK_HASH } from "./verifier";
 
 const INSURANCE_ELIGIBILITY_THRESHOLD = 50;
 
@@ -20,6 +21,25 @@ export function derivePrimaryRiskScore(
     LEVEL_SCORE[riskProfile.metabolic.level] ?? 30,
     LEVEL_SCORE[riskProfile.neurological.level] ?? 30
   );
+}
+
+// Local HMAC-SHA256 commitment — mirrors zkp-prover-wasm/src/main.rs
+// Used when USE_REAL_ZKP=false (WASM tool not yet registered on IronClaw)
+function generateLocalProof(riskScore: number, threshold: number, nonce: string): ZkpProof {
+  if (riskScore < threshold) {
+    throw new Error("ZKP 회로 어설션 실패: 보험 자격 기준 미충족");
+  }
+
+  const proofBytes = createHmac("sha256", ZKP_VK_HASH)
+    .update(Buffer.from([riskScore, threshold]))
+    .update(nonce)
+    .digest("hex");
+
+  return {
+    proofBytes,
+    publicInputs: { threshold, nonce },
+    verificationKey: ZKP_VK_HASH,
+  };
 }
 
 // ZKP tool definition — registered in IronClaw as "zkp-prover" WASM tool
@@ -65,20 +85,16 @@ interface ZkpToolResult {
   assertion_passed: boolean;
 }
 
-export async function generateZkpProof(input: {
-  riskScore: number;
-  threshold?: number;
-}): Promise<ZkpProof> {
+async function generateIronClawProof(
+  riskScore: number,
+  threshold: number,
+  nonce: string
+): Promise<ZkpProof> {
   const baseURL = process.env.IRONCLAW_BASE_URL ?? "https://cloud-api.near.ai/v1";
   const apiKey = process.env.IRONCLAW_API_KEY;
   const model = process.env.IRONCLAW_MODEL ?? "Qwen/Qwen3-30B-A3B-Instruct-2507";
 
-  if (!apiKey) {
-    throw new Error("IRONCLAW_API_KEY 환경 변수가 설정되지 않았습니다");
-  }
-
-  const threshold = input.threshold ?? INSURANCE_ELIGIBILITY_THRESHOLD;
-  const nonce = randomUUID();
+  if (!apiKey) throw new Error("IRONCLAW_API_KEY 환경 변수가 설정되지 않았습니다");
 
   const client = new OpenAI({ baseURL, apiKey });
 
@@ -96,17 +112,14 @@ export async function generateZkpProof(input: {
       },
       {
         role: "user",
-        content: JSON.stringify({ risk_score: input.riskScore, threshold, nonce }),
+        content: JSON.stringify({ risk_score: riskScore, threshold, nonce }),
       },
     ],
   });
 
   const rawToolCall = completion.choices[0]?.message?.tool_calls?.[0];
-  if (!rawToolCall) {
-    throw new Error("IronClaw TEE가 zkp_prove 툴을 호출하지 않았습니다");
-  }
+  if (!rawToolCall) throw new Error("IronClaw TEE가 zkp_prove 툴을 호출하지 않았습니다");
 
-  // Extract function name and arguments safely across OpenAI SDK versions
   const fnCall = (rawToolCall as { function?: { name?: string; arguments?: string } }).function;
   if (!fnCall || fnCall.name !== "zkp_prove") {
     throw new Error(`예상치 않은 툴 호출: ${fnCall?.name ?? "unknown"}`);
@@ -119,13 +132,29 @@ export async function generateZkpProof(input: {
     throw new Error(`zkp_prove 툴 응답 파싱 실패: ${(fnCall.arguments ?? "").slice(0, 200)}`);
   }
 
-  if (!result.assertion_passed) {
-    throw new Error("ZKP 회로 어설션 실패: 보험 자격 기준 미충족");
-  }
+  if (!result.assertion_passed) throw new Error("ZKP 회로 어설션 실패: 보험 자격 기준 미충족");
 
   return {
     proofBytes: result.proof_bytes,
     publicInputs: result.public_inputs,
     verificationKey: result.verification_key,
   };
+}
+
+export async function generateZkpProof(input: {
+  riskScore: number;
+  threshold?: number;
+}): Promise<ZkpProof> {
+  const threshold = input.threshold ?? INSURANCE_ELIGIBILITY_THRESHOLD;
+  const nonce = randomUUID();
+  const useRealZkp = process.env.USE_REAL_ZKP === "true";
+
+  if (useRealZkp) {
+    return generateIronClawProof(input.riskScore, threshold, nonce);
+  }
+
+  // USE_REAL_ZKP=false (default): local HMAC-SHA256 commitment
+  // Identical algorithm to zkp-prover-wasm — switch to IronClaw Tool Call
+  // by setting USE_REAL_ZKP=true after WASM tool registration on cloud.near.ai
+  return generateLocalProof(input.riskScore, threshold, nonce);
 }
