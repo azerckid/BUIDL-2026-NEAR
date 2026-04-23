@@ -1,7 +1,7 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-23 (Stage 17 추가 — IronClaw v0.26.0 기반 완전 격리 파이프라인)
+- **최종 수정일**: 2026-04-23 (Stage 18 추가 — Phase 3 완전 격리 파이프라인 스케쥴 및 체크리스트)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v2.1
 - **phase**: Phase 2
@@ -36,11 +36,20 @@
 - 보험사 API 연동 및 상품 매칭 엔진 고도화.
 - Confidential Intents 테스트넷 → 메인넷 전환 대응.
 
-### Phase 3: 정식 서비스 런칭 및 생태계 확장
-- Confidential Intents 메인넷을 활용한 실제 보험 계약 및 결제 시스템 통합.
-- 데이터 리워드(Data Rewards) 및 토크노믹스 모델 적용.
-- 국내외 대형 보험사와의 파트너십 확장 및 규제 샌드박스 신청.
-- Chain Abstraction을 통한 멀티체인 보험 상품 통합.
+### Phase 3: 완전 격리 TEE 파이프라인 + 정식 서비스 런칭
+
+**핵심 목표**: 유전자 데이터가 TEE 외부로 단 한 바이트도 노출되지 않는 완전 격리 파이프라인 완성.
+현재 LLM 분석만 TEE 안에 있으며, 파일 파싱 / ZKP 생성 / risk_score 도출을 TEE 안으로 옮기는 것이 Phase 3의 핵심.
+
+**선행 조건**: NEAR AI 팀 문의 응답 (블로커 1~3 해소) — `PHASE3_BLOCKERS_AND_INQUIRY.md` 참조
+
+**예상 일정**:
+- **Q2 2026**: NEAR AI 팀 문의 응답 → TEE 복호화 경로 확보 → WASM 툴 cloud 등록
+- **Q3 2026**: 완전 격리 파이프라인 완성 → Barretenberg 교체 → 외부 보안 감사
+- **Q4 2026**: Confidential Intents 메인넷 전환 → 보험사 파트너십 → 베타 서비스
+- **Q1 2027**: 글로벌 런칭 (싱가포르, 유럽) → 멀티체인 통합 → 토큰 이코노미
+
+**구현 체크리스트 상세**: Stage 18 (아래) 참조
 
 ---
 
@@ -933,6 +942,149 @@
 > **Barretenberg 크기 제한 초과 시 대안**: 17-1에서 크기 초과가 확인되면
 > Stage 16의 HMAC-SHA256 구조를 유지하되, 17-2(파일 암호화 전송)와
 > 17-4(E2E 검증)만 진행하여 파이프라인 완성도를 높인다.
+
+---
+
+### Stage 18 — Phase 3: 완전 격리 TEE 파이프라인 완성 [구현 예정]
+
+> **목적**: 유전자 파일 파싱 / ZKP proof 생성 / risk_score 도출을 모두 IronClaw TEE 안으로 이동.
+> Stage 17에서 구현된 파일 전달 파이프라인 위에 TEE 복호화와 WASM 툴 실행을 추가.
+>
+> **선행 조건**: NEAR AI 팀 문의 응답 — 블로커 1~3 해소 후 착수
+> **참고 문서**: `docs/03_Technical_Specs/PHASE3_BLOCKERS_AND_INQUIRY.md`
+
+---
+
+#### 18-1. NEAR AI 팀 문의 및 블로커 해소 [Q2 2026]
+
+- [ ] `PHASE3_BLOCKERS_AND_INQUIRY.md` 문의 메일 발송 (team@near.ai 또는 Discord)
+- [ ] 블로커 1 해소: TEE 내부 ECIES 복호화 API 엔드포인트 확인
+- [ ] 블로커 2 해소: cloud.near.ai 사용자 정의 WASM 툴 등록 절차 확인
+- [ ] 블로커 3 해소: WASM 툴 실행 결과 반환 API 또는 Mission API 확인
+- [ ] 블로커 5 해소: IronClaw Cloud TEE WASM 툴 최대 크기 확인
+
+---
+
+#### 18-2. ECIES 암호화 실제 적용 [Q2 2026, 블로커 1 해소 후]
+
+> Stage 17에서 `encryption.ts`와 `FileUploadZone` base64 전달까지 구현 완료.
+> 이 단계에서 실제 ECIES 암호화를 적용하고 TEE 내부 복호화를 연결.
+
+- [ ] `FileUploadZone.tsx` 수정
+  - [ ] 파일 base64 저장 → ECIES 암호화 후 저장으로 교체
+  - [ ] `verifyAttestation()`에서 `signing_public_key` 조회 후 `encryptForTee()` 호출
+  - [ ] 암호화 성공 여부 UI 표시 ("파일이 TEE 공개키로 암호화되었습니다")
+- [ ] `runAnalysis.ts` 수정
+  - [ ] `parseGeneticFile()` 제거 — 복호화는 TEE 내부에서 처리
+  - [ ] 암호화된 파일 bytes를 IronClaw API로 직접 전달
+- [ ] TEE 내부 복호화 동작 E2E 검증
+
+---
+
+#### 18-3. 파일 파싱 WASM 툴 TEE 등록 [Q2 2026, 블로커 2 해소 후]
+
+- [ ] `file-parser.wasm` 신규 작성 (wasm32-wasip2)
+  - [ ] 입력: ECIES 복호화된 유전자 파일 bytes
+  - [ ] 출력: `NormalizedGeneticProfile` JSON
+  - [ ] 지원 포맷: `.txt` (젠톡), `.vcf`, `.csv`
+- [ ] `cargo build --target wasm32-wasip2 --release`
+- [ ] cloud.near.ai에 `file-parser` WASM 툴 등록
+- [ ] IronClaw 분석 프롬프트에 `file-parser` 툴 호출 통합
+
+---
+
+#### 18-4. ZKP Prover WASM 툴 TEE 등록 [Q2 2026, 블로커 2·3 해소 후]
+
+- [ ] `zkp-prover.wasm` (137KB, 기존 빌드 완료) cloud.near.ai 등록
+- [ ] IronClaw WASM 툴 실행 결과 반환 경로 확인 및 `prover.ts` 수정
+  - [ ] wasmtime 서브프로세스 방식 → Cloud TEE Tool Execution API 방식으로 교체
+  - [ ] `risk_score`가 TEE 외부 로그에 노출되지 않음 확인
+- [ ] `USE_REAL_ZKP` 분기 제거 — Cloud TEE 경로만 유지
+- [ ] E2E: 파일 → TEE 복호화 → 분석 → ZKP 생성 → proof bytes 반환
+
+---
+
+#### 18-5. Barretenberg ultraplonk 교체 [Q3 2026]
+
+> 현재 HMAC-SHA256 커밋먼트 → 수학적으로 검증 가능한 ultraplonk ZKP로 교체.
+> Aztec Protocol 팀 협력 또는 공식 NEAR 호환 라이브러리 출시 후 착수.
+
+- [ ] Barretenberg 소스 클론 (`AztecProtocol/barretenberg`)
+- [ ] `wasm32-wasip2` 타깃 크로스 컴파일
+- [ ] IronClaw Cloud TEE WASM 크기 제한 실측 후 등록 가능 여부 판단
+  - [ ] 가능 시: cloud.near.ai에 `barretenberg.wasm` 등록
+  - [ ] 불가 시: `wasm-opt -Oz` 최적화 + 분할 등록 시도
+- [ ] `zkp.rogulus.testnet` 컨트랙트 — `verify_proof_onchain()` 추가 (ultraplonk verifier)
+- [ ] E2E: ultraplonk proof 생성 → 온체인 수학적 검증
+
+---
+
+#### 18-6. Confidential Intents SDK 실연동 [Q3 2026]
+
+> Stage 10에서 near-api-js v7 충돌로 보류. SDK 업데이트 후 착수.
+
+- [ ] `@defuse-protocol/intents-sdk` v7 대응 버전 출시 확인
+- [ ] SDK 설치 및 `chain-signatures.ts` 교체
+  - [ ] `Transfer` 액션 → `IntentsClient.submitIntent()` 호출
+  - [ ] ZKP proof hash를 intent calldata에 첨부
+- [ ] Defuse Protocol Solver 네트워크 실연동 E2E 검증
+- [ ] `next.config.ts` CSP — Defuse Protocol 엔드포인트 추가
+
+---
+
+#### 18-7. Mock 코드 완전 제거 [Q3 2026, 18-2~18-4 완료 후]
+
+- [ ] `src/lib/tee/mock-tee.ts` 삭제
+- [ ] `src/lib/tee/mock-data.ts` 삭제
+- [ ] `src/actions/runAnalysis.ts` — `USE_REAL_TEE` 분기 제거 (항상 실제 TEE)
+- [ ] `src/lib/tee/normalizer.ts` — `parseMockFile()` 제거
+- [ ] `npm run build` TypeScript 오류 0건 확인
+
+---
+
+#### 18-8. 외부 보안 감사 [Q3 2026]
+
+- [ ] 스마트 컨트랙트 감사 (`zkp.rogulus.testnet`)
+- [ ] ECIES 암호화 구현 감사 (`encryption.ts`)
+- [ ] TEE Attestation 검증 로직 감사 (`attestation.ts`)
+- [ ] IDOR, CSRF, 인젝션 취약점 재점검 (`SECURITY_CHECKLIST.md` v2.0)
+- [ ] 유전자 데이터 완전 격리 검증 보고서 작성
+
+---
+
+#### 18-9. 정식 서비스 런칭 준비 [Q4 2026]
+
+- [ ] Confidential Intents 메인넷 전환 (엔드포인트 변경)
+- [ ] 보험사 B2B API 연동 (`B2B_BROKER_CONCEPT.md` 참조)
+- [ ] 규제 샌드박스 신청 (국내 금융당국)
+- [ ] 법률 자문 수령 — 유전자 정보 활용 서비스 규제 프레임 확인
+- [ ] 베타 서비스 운영 (초대 기반, 100명 이내)
+
+---
+
+#### 18-10. 글로벌 확장 [Q1 2027]
+
+- [ ] 싱가포르, 유럽 시장 진출 준비 (PDPA, GDPR 대응)
+- [ ] Chain Abstraction 멀티체인 통합 (ETH, SOL 보험료 결제)
+- [ ] 토큰 이코노미 설계 및 데이터 리워드 모델 적용
+- [ ] Chain Signatures v2 — SOL 파생 주소 실연동
+
+---
+
+#### Stage 18 예상 일정 요약
+
+| 단계 | 항목 | 예상 시기 | 선행 조건 |
+|---|---|---|---|
+| 18-1 | NEAR AI 팀 문의 응답 | 2026-05 | 문의 발송 |
+| 18-2 | ECIES 실제 적용 | 2026-05~06 | 블로커 1 해소 |
+| 18-3 | 파일 파싱 WASM TEE 등록 | 2026-06 | 블로커 2 해소 |
+| 18-4 | ZKP Prover TEE 등록 | 2026-06 | 블로커 2·3 해소 |
+| 18-5 | Barretenberg 교체 | 2026-07~08 | 블로커 5 해소 |
+| 18-6 | Confidential Intents 실연동 | 2026-08 | intents-sdk v7 지원 |
+| 18-7 | Mock 코드 제거 | 2026-08 | 18-2~18-4 완료 |
+| 18-8 | 외부 보안 감사 | 2026-09 | 18-7 완료 |
+| 18-9 | 정식 서비스 런칭 | 2026-10~12 | 18-8 완료 |
+| 18-10 | 글로벌 확장 | 2027-01~ | 18-9 완료 |
 
 ---
 
