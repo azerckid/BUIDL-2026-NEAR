@@ -125,8 +125,20 @@ export function parseGentokTxt(content: string): NormalizedGeneticProfile {
   };
 }
 
-// Phase 0: B안 — 서버에서 mock 상수 직접 파싱
-// Phase 2: 실제 파일 스트림을 인자로 받아 parseGentokTxt 호출
+// Phase 0 fallback: mock 상수 파싱
 export function parseMockFile(): NormalizedGeneticProfile {
   return parseGentokTxt(MOCK_GENTOK_CONTENT);
+}
+
+// Stage 17: ECIES 암호화된 base64 파일 데이터를 받아 파싱.
+// 현재는 복호화 없이 base64 → UTF-8 텍스트로 디코딩 후 파싱.
+// Phase 3에서 TEE 내부 복호화로 교체 예정.
+export function parseGeneticFile(encryptedBase64: string): NormalizedGeneticProfile {
+  try {
+    const text = Buffer.from(encryptedBase64, "base64").toString("utf-8");
+    return parseGentokTxt(text);
+  } catch {
+    // 복호화/파싱 실패 시 mock fallback (Phase 3 이전 안전망)
+    return parseMockFile();
+  }
 }

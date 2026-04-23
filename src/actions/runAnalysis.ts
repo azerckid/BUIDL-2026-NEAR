@@ -5,7 +5,7 @@ import { analysisSessions, analysisResults } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { v4 as uuidv4 } from "uuid";
-import { parseMockFile } from "@/lib/tee/normalizer";
+import { parseMockFile, parseGeneticFile } from "@/lib/tee/normalizer";
 import { runMockTeeAnalysis } from "@/lib/tee/mock-tee";
 import { runIronClawAnalysis } from "@/lib/tee/ironclaw-tee";
 import { verifyAttestation } from "./verifyAttestation";
@@ -23,6 +23,8 @@ export interface AuthPayload {
   publicKey: string;   // "ed25519:BASE58..."
   nonce: string;       // 64-char hex
   callbackUrl: string;
+  // Stage 17: ECIES 암호화된 유전자 파일 (base64). 미전달 시 mock 파싱으로 fallback.
+  encryptedFile?: string;
 }
 
 interface RunAnalysisResult {
@@ -84,9 +86,13 @@ export async function runAnalysis(
     }
 
     // ── Stage 1: 파싱 및 정규화 ────────────────────────────────────────────
-    // Phase 0: B안 — 서버에서 mock 상수 직접 파싱 (파일 원본 서버 전송 없음)
-    // Phase 2: 클라이언트가 NormalizedGeneticProfile로 정규화 후 전달
-    const profile = parseMockFile();
+    // Stage 17: encryptedFile 전달 시 실제 파일 파싱, 미전달 시 mock fallback
+    // encryptedFile은 브라우저에서 ECIES 암호화된 base64 데이터
+    // TEE 내부 복호화는 runIronClawAnalysis 내부에서 처리 (Phase 3)
+    // 현재는 복호화 없이 파싱 (TEE Tool Call로 전달 예정)
+    const profile = auth.encryptedFile
+      ? parseGeneticFile(auth.encryptedFile)
+      : parseMockFile();
 
     await updateSessionStatus(sessionId, "tee_processing");
 

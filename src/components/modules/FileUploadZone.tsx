@@ -47,6 +47,14 @@ async function computeSHA256(file: File): Promise<string> {
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+async function fileToBase64(file: File): Promise<string> {
+  const buffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -152,7 +160,10 @@ export function FileUploadZone() {
 
     try {
       setStage("hashing");
-      const fileHash = await computeSHA256(selectedFile);
+      const [fileHash, fileBase64] = await Promise.all([
+        computeSHA256(selectedFile),
+        fileToBase64(selectedFile),
+      ]);
       const fileType = getExtension(selectedFile.name) as AllowedExtension;
 
       setStage("creating");
@@ -164,6 +175,10 @@ export function FileUploadZone() {
         setStage("idle");
         return;
       }
+
+      // Stage 17: 파일 데이터를 sessionStorage에 임시 보관 → TeeAnalysisProgress에서 runAnalysis로 전달
+      // Phase 3: 여기서 TEE 공개키로 ECIES 암호화 후 저장으로 교체
+      sessionStorage.setItem(`FILE_DATA_${result.sessionId}`, fileBase64);
 
       setStage("done");
       toast.success(t("sessionCreated"));
