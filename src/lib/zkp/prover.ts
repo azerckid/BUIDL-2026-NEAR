@@ -1,5 +1,6 @@
-import OpenAI from "openai";
 import { createHmac, randomUUID } from "crypto";
+import { spawnSync } from "child_process";
+import path from "path";
 import { ZkpProof } from "@/types/zkp";
 import { TeeAnalysisOutput } from "@/types/tee-output";
 import { ZKP_VK_HASH } from "./verifier";
@@ -23,8 +24,8 @@ export function derivePrimaryRiskScore(
   );
 }
 
-// Local HMAC-SHA256 commitment — mirrors zkp-prover-wasm/src/main.rs
-// Used when USE_REAL_ZKP=false (WASM tool not yet registered on IronClaw)
+// In-process HMAC-SHA256 commitment — identical algorithm to zkp-prover-wasm/src/main.rs
+// Fallback when wasmtime is not available (Vercel serverless, CI, etc.)
 function generateLocalProof(riskScore: number, threshold: number, nonce: string): ZkpProof {
   if (riskScore < threshold) {
     throw new Error("ZKP 회로 어설션 실패: 보험 자격 기준 미충족");
@@ -42,42 +43,7 @@ function generateLocalProof(riskScore: number, threshold: number, nonce: string)
   };
 }
 
-// ZKP tool definition — registered in IronClaw as "zkp-prover" WASM tool
-// Registration: zkp-prover-wasm/REGISTER.md
-const ZKP_PROVER_TOOL: OpenAI.Chat.Completions.ChatCompletionTool = {
-  type: "function",
-  function: {
-    name: "zkp_prove",
-    description:
-      "Generate a ZKP proof for insurance eligibility inside the TEE. " +
-      "risk_score is a private input that never leaves the enclave. " +
-      "Returns proof_bytes (HMAC-SHA256 commitment) and public_inputs.",
-    parameters: {
-      type: "object",
-      properties: {
-        risk_score: {
-          type: "integer",
-          minimum: 0,
-          maximum: 255,
-          description: "Private risk score derived from TEE analysis (never exposed)",
-        },
-        threshold: {
-          type: "integer",
-          minimum: 0,
-          maximum: 255,
-          description: "Public insurer-set eligibility baseline",
-        },
-        nonce: {
-          type: "string",
-          description: "UUID nonce for commitment uniqueness",
-        },
-      },
-      required: ["risk_score", "threshold", "nonce"],
-    },
-  },
-};
-
-interface ZkpToolResult {
+interface ZkpWasmOutput {
   proof_bytes: string;
   public_inputs: { threshold: number; nonce: string };
   verification_key: string;
@@ -85,60 +51,43 @@ interface ZkpToolResult {
   assertion_passed: boolean;
 }
 
-async function generateIronClawProof(
-  riskScore: number,
-  threshold: number,
-  nonce: string
-): Promise<ZkpProof> {
-  const baseURL = process.env.IRONCLAW_BASE_URL ?? "https://cloud-api.near.ai/v1";
-  const apiKey = process.env.IRONCLAW_API_KEY;
-  const model = process.env.IRONCLAW_MODEL ?? "Qwen/Qwen3-30B-A3B-Instruct-2507";
+// wasmtime 서브프로세스로 zkp-prover.wasm 실행
+// Stage 17: 검증된 동작 (wasmtime 44.0.0 + wasm32-wasip2 빌드 확인 2026-04-23)
+// Phase 3 업그레이드: Barretenberg ultraplonk 지원 시 동일 인터페이스로 교체
+function generateWasmProof(riskScore: number, threshold: number, nonce: string): ZkpProof {
+  const wasmPath = path.resolve(process.cwd(), "zkp-prover-wasm/dist/zkp-prover.wasm");
+  const input = JSON.stringify({ risk_score: riskScore, threshold, nonce });
 
-  if (!apiKey) throw new Error("IRONCLAW_API_KEY 환경 변수가 설정되지 않았습니다");
-
-  const client = new OpenAI({ baseURL, apiKey });
-
-  const completion = await client.chat.completions.create({
-    model,
-    tools: [ZKP_PROVER_TOOL],
-    tool_choice: { type: "function", function: { name: "zkp_prove" } },
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are running inside an IronClaw TEE. " +
-          "Call the zkp_prove tool with the provided inputs. " +
-          "Do not output anything else.",
-      },
-      {
-        role: "user",
-        content: JSON.stringify({ risk_score: riskScore, threshold, nonce }),
-      },
-    ],
+  const result = spawnSync("wasmtime", ["run", wasmPath], {
+    input,
+    encoding: "utf-8",
+    timeout: 10_000,
   });
 
-  const rawToolCall = completion.choices[0]?.message?.tool_calls?.[0];
-  if (!rawToolCall) throw new Error("IronClaw TEE가 zkp_prove 툴을 호출하지 않았습니다");
+  if (result.error) throw new Error(`wasmtime 실행 실패: ${result.error.message}`);
+  if (result.status !== 0) throw new Error(`zkp-prover WASM 오류: ${result.stderr}`);
 
-  const fnCall = (rawToolCall as { function?: { name?: string; arguments?: string } }).function;
-  if (!fnCall || fnCall.name !== "zkp_prove") {
-    throw new Error(`예상치 않은 툴 호출: ${fnCall?.name ?? "unknown"}`);
-  }
-
-  let result: ZkpToolResult;
+  let output: ZkpWasmOutput;
   try {
-    result = JSON.parse(fnCall.arguments ?? "{}") as ZkpToolResult;
+    output = JSON.parse(result.stdout) as ZkpWasmOutput;
   } catch {
-    throw new Error(`zkp_prove 툴 응답 파싱 실패: ${(fnCall.arguments ?? "").slice(0, 200)}`);
+    throw new Error(`zkp-prover WASM 출력 파싱 실패: ${result.stdout.slice(0, 200)}`);
   }
 
-  if (!result.assertion_passed) throw new Error("ZKP 회로 어설션 실패: 보험 자격 기준 미충족");
+  if (!output.assertion_passed) {
+    throw new Error("ZKP 회로 어설션 실패: 보험 자격 기준 미충족");
+  }
 
   return {
-    proofBytes: result.proof_bytes,
-    publicInputs: result.public_inputs,
-    verificationKey: result.verification_key,
+    proofBytes: output.proof_bytes,
+    publicInputs: output.public_inputs,
+    verificationKey: output.verification_key,
   };
+}
+
+function isWasmtimeAvailable(): boolean {
+  const result = spawnSync("wasmtime", ["--version"], { encoding: "utf-8", timeout: 3_000 });
+  return result.status === 0;
 }
 
 export async function generateZkpProof(input: {
@@ -147,14 +96,13 @@ export async function generateZkpProof(input: {
 }): Promise<ZkpProof> {
   const threshold = input.threshold ?? INSURANCE_ELIGIBILITY_THRESHOLD;
   const nonce = randomUUID();
-  const useRealZkp = process.env.USE_REAL_ZKP === "true";
 
-  if (useRealZkp) {
-    return generateIronClawProof(input.riskScore, threshold, nonce);
+  // wasmtime 가용 시: 실제 WASM 실행 (로컬 개발, 자체 호스팅 환경)
+  // 미가용 시: in-process HMAC-SHA256 fallback (Vercel 서버리스 등)
+  // 두 경로 모두 동일한 HMAC-SHA256 커밋먼트 알고리즘 사용
+  if (isWasmtimeAvailable()) {
+    return generateWasmProof(input.riskScore, threshold, nonce);
   }
 
-  // USE_REAL_ZKP=false (default): local HMAC-SHA256 commitment
-  // Identical algorithm to zkp-prover-wasm — switch to IronClaw Tool Call
-  // by setting USE_REAL_ZKP=true after WASM tool registration on cloud.near.ai
   return generateLocalProof(input.riskScore, threshold, nonce);
 }
