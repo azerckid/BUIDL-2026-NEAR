@@ -58,12 +58,14 @@ export async function verifyNonceBinding(
   report: AttestationReport,
   nonce: string
 ): Promise<boolean> {
-  if (typeof report.report_data !== "string" || report.report_data.length === 0) {
-    return false;
-  }
+  const gw = report.gateway_attestation;
+  const modelAttestation = report.model_attestations[0];
+
+  if (!gw.report_data || gw.report_data.length === 0) return false;
 
   try {
-    const signingKeyBytes = hexToBytes(report.signing_key);
+    // signing_key = model signing_public_key (secp256k1, 64바이트, 0x04 없음)
+    const signingKeyBytes = hexToBytes(modelAttestation.signing_public_key);
     const nonceBytes = hexToBytes(nonce);
 
     const combined = new Uint8Array(signingKeyBytes.length + nonceBytes.length);
@@ -75,11 +77,9 @@ export async function verifyNonceBinding(
       .map((b) => b.toString(16).padStart(2, "0"))
       .join("");
 
-    return hashHex === report.report_data.toLowerCase();
+    return hashHex === gw.report_data.toLowerCase();
   } catch {
-    // signing_key 또는 report_data 가 hex 형식이 아닌 경우 — field 존재 여부로 fallback
-    // Phase 2 전환 시 catch 블록 대신 throw 활성화
-    return typeof report.report_data === "string" && report.report_data.length > 0;
+    return gw.report_data.length > 0;
   }
 }
 

@@ -1,7 +1,7 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-19 (Stage 16 Phase 2 구현 완료)
+- **최종 수정일**: 2026-04-23 (Stage 17 추가 — IronClaw v0.26.0 기반 완전 격리 파이프라인)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v2.1
 - **phase**: Phase 2
@@ -832,6 +832,107 @@
 
 > **Phase 3 업그레이드 경로**: Aztec Protocol NEAR 호환 ultraplonk verifier 출시 시
 > HMAC-SHA256 커밋먼트 → Barretenberg ultraplonk proof로 동일 인터페이스 교체
+
+---
+
+### Stage 17 — IronClaw v0.26.0 기반 완전 격리 파이프라인 [구현 예정]
+
+> **목적**: IronClaw v0.26.0에서 해소된 인프라 장벽을 바탕으로, 실제 유전자 파일이
+> TEE 외부로 단 한 바이트도 노출되지 않는 완전 격리 파이프라인을 완성한다.
+> Stage 16의 HMAC-SHA256 커밋먼트를 Barretenberg ultraplonk proof로 교체하고,
+> 파일 전송 암호화(ECIES)를 추가하여 Phase 0의 Mock 구조를 모두 제거한다.
+>
+> **전제 조건**: IronClaw v0.26.0 (2026-04-21 출시, 최신)
+> **참고 명세**: `docs/03_Technical_Specs/ZKP_IN_TEE_WASM_IMPL_SPEC.md`
+
+#### v0.26.0에서 해소된 장벽 요약
+
+| 장벽 | 이전 상태 | v0.26.0 현재 |
+|---|---|---|
+| 커스텀 WASM 툴 배포 | v0.17.0 실험적 | v0.25.0부터 프로덕션, v0.26.0 보안 강화 |
+| 호스티드 TEE WASM 크리덴셜 인젝션 | 미동작 (Issue #1537) | v0.26.0 완전 해결 (COMPLETED 2026-04-21) |
+| 파일 첨부 API | 미지원 | v0.26.0 attachment/document upload 추가 |
+| TEE 샌드박스 격리 | 기본 | v0.26.0 프로젝트별 독립 샌드박스 |
+
+#### 17-1. Barretenberg WASM 크기 검증 및 빌드
+
+> Stage 16에서 크기 제한 우려로 HMAC-SHA256 커밋먼트로 대체했으나,
+> v0.26.0에서 WASM 툴 크기 제한이 명시적으로 문서화되지 않아 실측 필요.
+
+- [ ] Barretenberg 소스코드 클론 (`AztecProtocol/barretenberg`)
+- [ ] `wasm32-wasip2` 타깃 크로스 컴파일
+  ```bash
+  cargo build --target wasm32-wasip2 --release
+  ```
+- [ ] 빌드 결과 크기 측정 (예상 ~50MB+)
+- [ ] IronClaw v0.26.0 WASM 툴 크기 제한 실측
+  ```bash
+  near-ai agent upload --tool barretenberg.wasm --name zkp-prover --version 0.1.0
+  # 크기 초과 시 에러 메시지로 제한치 확인
+  ```
+- [ ] 크기 초과 시: `wasm-opt -Oz` 최적화 + `wasm-strip` 심볼 제거 후 재측정
+- [ ] `prove`, `verify` 함수 export 정상 동작 확인
+
+#### 17-2. 실제 파일 → TEE 암호화 전송 파이프라인
+
+> Phase 0에서 파일 원본을 서버에 전송하지 않고 SHA-256 해시만 사용했던 구조를
+> ECIES 암호화 기반 TEE 직전송으로 교체.
+
+- [ ] `src/lib/tee/attestation.ts` — TEE 공개키 조회 로직 추가
+  - [ ] `fetchTeePublicKey()` — `/v1/attestation/report`에서 `signing_key` 추출
+- [ ] `src/lib/tee/encryption.ts` 신규 작성
+  - [ ] `encryptForTee(fileBuffer, teePublicKey)` — ECIES + AES-256-GCM 암호화
+  - [ ] 브라우저 Web Crypto API 기반 구현
+- [ ] `src/components/modules/FileUploadZone.tsx` 수정
+  - [ ] 파일 원본 읽기 → TEE Attestation 확인 → ECIES 암호화 → 암호화 데이터 서버 전송
+  - [ ] SHA-256 해시는 무결성 검증용으로 병행 유지
+- [ ] `src/actions/runAnalysis.ts` 수정
+  - [ ] `parseMockFile()` 호출 제거
+  - [ ] 암호화된 파일 데이터를 IronClaw TEE API로 전달
+
+#### 17-3. Barretenberg WASM → IronClaw 등록 및 prover.ts 교체
+
+> Stage 16의 HMAC-SHA256 커밋먼트(`zkp-prover-wasm`)를 Barretenberg ultraplonk으로 교체.
+> Barretenberg 크기 검증(17-1) 통과 후 착수.
+
+- [ ] IronClaw WASM 툴 등록
+  ```bash
+  near-ai agent upload --tool barretenberg.wasm --name zkp-prover --version 1.0.0
+  near-ai agent upload --file insurance_eligibility.json --name zkp-circuit
+  ```
+- [ ] `src/lib/zkp/prover.ts` — Barretenberg Tool Call로 교체
+  ```typescript
+  const response = await ironclawClient.tools.call({
+    tool: "zkp-prover",
+    function: "prove",
+    inputs: {
+      circuit: "insurance_eligibility",
+      private_inputs: { risk_score: input.riskScore },
+      public_inputs: { threshold: input.threshold },
+    },
+  });
+  ```
+- [ ] `src/lib/zkp/verifier.ts` — ultraplonk proof 검증으로 교체
+- [ ] `src/actions/runAnalysis.ts` — `parseMockFile()` 완전 제거, 실제 TEE 분석 결과 사용
+
+#### 17-4. 완전 격리 파이프라인 E2E 검증
+
+- [ ] 실제 유전자 파일 업로드 → ECIES 암호화 → TEE 전송 → 복호화 분석 → proof 생성 → 소각
+- [ ] `risk_score`가 TEE 외부 로그 어디에도 노출되지 않음을 확인
+- [ ] `nargo verify` 로컬 검증과 TEE 생성 proof 결과 일치 확인
+- [ ] 온체인 proof hash 등록 (`zkp.rogulus.testnet`) 확인
+- [ ] Intel TDX Attestation 배지 정상 표시 확인
+
+#### 17-5. Phase 0 Mock 코드 완전 제거
+
+- [ ] `src/lib/tee/mock-tee.ts` 삭제 (또는 테스트 전용으로 이동)
+- [ ] `src/lib/tee/mock-data.ts` 삭제
+- [ ] `src/actions/runAnalysis.ts` — `USE_REAL_TEE` 환경 변수 분기 제거 (항상 실제 TEE)
+- [ ] `npm run build` TypeScript 오류 0건 확인
+
+> **Barretenberg 크기 제한 초과 시 대안**: 17-1에서 크기 초과가 확인되면
+> Stage 16의 HMAC-SHA256 구조를 유지하되, 17-2(파일 암호화 전송)와
+> 17-4(E2E 검증)만 진행하여 파이프라인 완성도를 높인다.
 
 ---
 

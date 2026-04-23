@@ -22,13 +22,16 @@ export async function verifyAttestation(): Promise<AttestationVerificationResult
     includeTlsFingerprint: true,
   });
 
+  const gw = report.gateway_attestation;
+  const modelAttestation = report.model_attestations[0];
+
   const nonceOk = await verifyNonceBinding(report, nonce);
-  const quoteOk = report.intel_quote.length > 0;
+  const quoteOk = gw.intel_quote.length > 0;
 
   return {
     verified: nonceOk && quoteOk,
-    intel_quote: report.intel_quote,
-    signing_key: report.signing_key,
+    intel_quote: gw.intel_quote,
+    signing_public_key: modelAttestation.signing_public_key,
     nonce,
     fetchedAt,
     model: DEFAULT_MODEL,
