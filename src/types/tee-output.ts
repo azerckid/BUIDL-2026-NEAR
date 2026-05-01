@@ -29,8 +29,8 @@ export const teeAnalysisOutputSchema = z.object({
   analysisModel: z.string(),
   // ZKP commitment — TEE 내부에서 생성 (HMAC-SHA256 커밋먼트 표현)
   zkpPassed: z.boolean(),
-  zkpNonce: z.string().length(32),
-  zkpProofHash: z.string().length(64),
+  zkpNonce: z.string().min(16).max(64),
+  zkpProofHash: z.string().min(32).max(128),
 });
 
 export type TeeAnalysisOutput = z.infer<typeof teeAnalysisOutputSchema>;

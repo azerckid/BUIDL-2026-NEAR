@@ -113,11 +113,19 @@ export async function runIronClawAnalysis(
     throw new Error(`IronClaw TEE 응답 JSON 파싱 실패: ${raw.slice(0, 200)}`);
   }
 
+  const p = parsed as Record<string, unknown>;
   const merged = {
-    ...(parsed as object),
+    ...p,
     teeSessionId: sessionId,
     purgeConfirmed: true as const,
     analysisModel: model,
+    // UUID 형식(36자)으로 반환될 경우 대시 제거 후 슬라이스
+    zkpNonce: typeof p.zkpNonce === "string"
+      ? p.zkpNonce.replace(/-/g, "").slice(0, 64)
+      : undefined,
+    zkpProofHash: typeof p.zkpProofHash === "string"
+      ? p.zkpProofHash.replace(/-/g, "").slice(0, 128)
+      : undefined,
   };
 
   return teeAnalysisOutputSchema.parse(merged);

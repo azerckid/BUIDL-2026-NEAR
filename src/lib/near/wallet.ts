@@ -1,6 +1,7 @@
 import type { WalletSelector } from "@near-wallet-selector/core";
 import { setupWalletSelector } from "@near-wallet-selector/core";
 import { setupMyNearWallet } from "@near-wallet-selector/my-near-wallet";
+import { setupMeteorWallet } from "@near-wallet-selector/meteor-wallet";
 
 export type { WalletSelector };
 
@@ -20,7 +21,10 @@ export async function getWalletSelector(): Promise<WalletSelector> {
 
   selectorInstance = await setupWalletSelector({
     network: NEAR_NETWORK,
-    modules: [setupMyNearWallet()],
+    modules: [
+      setupMeteorWallet(),
+      setupMyNearWallet(),
+    ],
   });
 
   return selectorInstance;
