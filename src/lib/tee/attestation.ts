@@ -50,36 +50,32 @@ export async function fetchAttestationReport(params: {
 
 /**
  * nonce 바인딩 검증.
- * SHA-256(signing_key_bytes || nonce_bytes) 를 계산하여 report_data(hex)와 비교.
- * signing_key 또는 report_data 형식이 hex가 아닌 경우(base64 등) catch로 낙하하여
- * field 존재 여부 확인으로 fallback — Phase 2 에서는 throw 활성화 예정.
+ *
+ * NEAR AI report_data 실측 구조 (64바이트 = 128 hex chars):
+ *   [0..39]   signing_address hex (20바이트, 0x 없음)
+ *   [40..63]  zero padding (12바이트)
+ *   [64..127] nonce hex (32바이트)
+ *
+ * 즉 report_data = signing_address_zero_padded_to_32bytes || nonce
+ * SHA-256 해시가 아닌 원문 연결이므로 마지막 64자가 nonce와 일치하는지 확인.
  */
 export async function verifyNonceBinding(
   report: AttestationReport,
   nonce: string
 ): Promise<boolean> {
   const gw = report.gateway_attestation;
-  const modelAttestation = report.model_attestations[0];
 
-  if (!gw.report_data || gw.report_data.length === 0) return false;
+  if (!gw.report_data || gw.report_data.length < 64) return false;
 
   try {
-    // signing_key = model signing_public_key (secp256k1, 64바이트, 0x04 없음)
-    const signingKeyBytes = hexToBytes(modelAttestation.signing_public_key);
-    const nonceBytes = hexToBytes(nonce);
+    const reportData = gw.report_data.toLowerCase();
+    const nonceHex = nonce.toLowerCase();
 
-    const combined = new Uint8Array(signingKeyBytes.length + nonceBytes.length);
-    combined.set(signingKeyBytes, 0);
-    combined.set(nonceBytes, signingKeyBytes.length);
-
-    const hashBuffer = await crypto.subtle.digest("SHA-256", combined);
-    const hashHex = Array.from(new Uint8Array(hashBuffer))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-
-    return hashHex === gw.report_data.toLowerCase();
+    // report_data 마지막 64자(32바이트)가 nonce와 일치해야 함
+    const nonceInReport = reportData.slice(-64);
+    return nonceInReport === nonceHex;
   } catch {
-    return gw.report_data.length > 0;
+    return false;
   }
 }
 
