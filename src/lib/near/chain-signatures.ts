@@ -111,12 +111,14 @@ export async function deriveEthAddress(
 
   for (const rpc of NEAR_TESTNET_RPC_LIST) {
     try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 8000);
       const response = await fetch(rpc, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body,
-        signal: AbortSignal.timeout(8000),
-      });
+        signal: controller.signal,
+      }).finally(() => clearTimeout(timer));
       const json = await response.json() as { result?: { result?: number[] }; error?: unknown };
       if (!json.result?.result) {
         lastError = new Error("MPC view call failed: " + JSON.stringify(json.error ?? json));

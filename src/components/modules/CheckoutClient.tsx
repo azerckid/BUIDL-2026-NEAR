@@ -846,34 +846,26 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
                   className="text-destructive text-[10px] underline underline-offset-2"
                   onClick={() => {
                     setEthAddressError(false);
+                    setEthAddressErrorMsg(null);
                     setEthBalanceError(false);
                     setEthBalance(null);
                     setDerivedEthAddress(null);
                     if (accountId) {
                       deriveEthAddressAction(accountId)
                         .then(async (addrResult) => {
-                          if ("error" in addrResult) { setEthAddressError(true); return; }
+                          if ("error" in addrResult) { setEthAddressError(true); setEthAddressErrorMsg(addrResult.error); return; }
                           setDerivedEthAddress(addrResult.address);
                           const balResult = await getEthBalanceAction(addrResult.address);
                           if ("error" in balResult) { setEthBalanceError(true); return; }
                           setEthBalance(balResult.balance);
                         })
-                        .catch(() => setEthAddressError(true));
+                        .catch((err: unknown) => { setEthAddressError(true); setEthAddressErrorMsg(err instanceof Error ? err.message : "Unknown"); });
                     }
                   }}
                 >
                   {t("ethBalanceRetry")}
                 </button>
-              ) : null}
-            </div>
-            {ethAddressError && ethAddressErrorMsg && (
-              <p className="text-[10px] text-destructive/70 break-all font-mono">
-                {ethAddressErrorMsg}
-              </p>
-            )}
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">{t("ethDerivedAddress")}</span>
-              {derivedEthAddress ? (
+              ) : derivedEthAddress ? (
                 <button
                   type="button"
                   className="flex items-center gap-1.5 font-mono text-foreground hover:text-primary transition-colors"
@@ -889,6 +881,11 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
                 <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
               )}
             </div>
+            {ethAddressError && ethAddressErrorMsg && (
+              <p className="text-[10px] text-destructive/70 break-all font-mono pl-1">
+                {ethAddressErrorMsg}
+              </p>
+            )}
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">{t("ethBalance")}</span>
               {ethBalanceError ? (
