@@ -80,42 +80,57 @@ export async function initiateNearTransaction(
  * rogulus.testnet + "insurance,1" → 항상 동일한 ETH 주소 결정론적 파생
  * 해당 ETH 주소의 개인키는 존재하지 않음 — MPC 노드만 서명 가능
  */
+const NEAR_TESTNET_RPC_LIST = [
+  "https://rpc.testnet.near.org",
+  "https://testnet.rpc.fastnear.com",
+  "https://near-testnet.api.onfinality.io/public",
+];
+
 export async function deriveEthAddress(
   nearAccountId: string,
   derivationPath: string = INSURANCE_DERIVATION_PATH
 ): Promise<string> {
-  // near-api-js v7에서 connect/keyStores 제거됨 → NEAR RPC 직접 호출 (view call)
   const args = Buffer.from(
     JSON.stringify({ path: derivationPath, predecessor: nearAccountId })
   ).toString("base64");
 
-  const response = await fetch("https://rpc.testnet.near.org", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: "dontcare",
-      method: "query",
-      params: {
-        request_type: "call_function",
-        finality: "final",
-        account_id: MPC_CONTRACT_TESTNET,
-        method_name: "derived_public_key",
-        args_base64: args,
-      },
-    }),
+  const body = JSON.stringify({
+    jsonrpc: "2.0",
+    id: "dontcare",
+    method: "query",
+    params: {
+      request_type: "call_function",
+      finality: "final",
+      account_id: MPC_CONTRACT_TESTNET,
+      method_name: "derived_public_key",
+      args_base64: args,
+    },
   });
 
-  const json = await response.json() as { result?: { result?: number[] }; error?: unknown };
-  if (!json.result?.result) {
-    throw new Error("MPC view call failed: " + JSON.stringify(json.error ?? json));
+  let lastError: Error = new Error("All NEAR testnet RPC endpoints failed");
+
+  for (const rpc of NEAR_TESTNET_RPC_LIST) {
+    try {
+      const response = await fetch(rpc, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+        signal: AbortSignal.timeout(8000),
+      });
+      const json = await response.json() as { result?: { result?: number[] }; error?: unknown };
+      if (!json.result?.result) {
+        lastError = new Error("MPC view call failed: " + JSON.stringify(json.error ?? json));
+        continue;
+      }
+      const resultStr = Buffer.from(json.result.result).toString("utf-8");
+      const keyStr = JSON.parse(resultStr) as string;
+      return secp256k1KeyToEthAddress(keyStr);
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+    }
   }
 
-  const resultStr = Buffer.from(json.result.result).toString("utf-8");
-  // MPC 컨트랙트 반환 형식: "secp256k1:<base58-encoded-64-bytes>"
-  const keyStr = JSON.parse(resultStr) as string;
-
-  return secp256k1KeyToEthAddress(keyStr);
+  throw lastError;
 }
 
 /**

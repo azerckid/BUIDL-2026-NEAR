@@ -4,10 +4,12 @@ import { deriveEthAddress } from "@/lib/near/chain-signatures";
 
 // ETH Sepolia RPC 엔드포인트 — 순서대로 시도 (폴백)
 const SEPOLIA_RPC_LIST = [
-  "https://1rpc.io/sepolia",
-  "https://rpc.sepolia.org",
+  "https://rpc.ankr.com/eth_sepolia",
   "https://ethereum-sepolia-rpc.publicnode.com",
+  "https://1rpc.io/sepolia",
   "https://sepolia.drpc.org",
+  "https://eth-sepolia.public.blastapi.io",
+  "https://rpc.sepolia.org",
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

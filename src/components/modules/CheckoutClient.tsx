@@ -204,6 +204,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
   const successRef = useRef<HTMLDivElement>(null);
   const [selectedChain, setSelectedChain] = useState<ChainNetwork>("near");
   const [derivedEthAddress, setDerivedEthAddress] = useState<string | null>(null);
+  const [ethAddressError, setEthAddressError] = useState(false);
   const [ethBalance, setEthBalance] = useState<string | null>(null);
   const [ethBalanceError, setEthBalanceError] = useState(false);
 
@@ -230,17 +231,25 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
 
     setEthBalance(null);
     setEthBalanceError(false);
+    setEthAddressError(false);
+    setDerivedEthAddress(null);
 
     deriveEthAddressAction(accountId)
       .then(async (addrResult) => {
-        if ("error" in addrResult) throw new Error(addrResult.error);
+        if ("error" in addrResult) {
+          setEthAddressError(true);
+          return;
+        }
         setDerivedEthAddress(addrResult.address);
         const balResult = await getEthBalanceAction(addrResult.address);
-        if ("error" in balResult) throw new Error(balResult.error);
+        if ("error" in balResult) {
+          setEthBalanceError(true);
+          return;
+        }
         setEthBalance(balResult.balance);
       })
       .catch(() => {
-        setEthBalanceError(true);
+        setEthAddressError(true);
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedChain, accountId]);
@@ -827,7 +836,31 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
           <div className="rounded-lg border border-border/60 bg-muted/20 px-3 py-2.5 flex flex-col gap-1.5 text-xs">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">{t("ethDerivedAddress")}</span>
-              {derivedEthAddress ? (
+              {ethAddressError ? (
+                <button
+                  type="button"
+                  className="text-destructive text-[10px] underline underline-offset-2"
+                  onClick={() => {
+                    setEthAddressError(false);
+                    setEthBalanceError(false);
+                    setEthBalance(null);
+                    setDerivedEthAddress(null);
+                    if (accountId) {
+                      deriveEthAddressAction(accountId)
+                        .then(async (addrResult) => {
+                          if ("error" in addrResult) { setEthAddressError(true); return; }
+                          setDerivedEthAddress(addrResult.address);
+                          const balResult = await getEthBalanceAction(addrResult.address);
+                          if ("error" in balResult) { setEthBalanceError(true); return; }
+                          setEthBalance(balResult.balance);
+                        })
+                        .catch(() => setEthAddressError(true));
+                    }
+                  }}
+                >
+                  {t("ethBalanceRetry")}
+                </button>
+              ) : derivedEthAddress ? (
                 <button
                   type="button"
                   className="flex items-center gap-1.5 font-mono text-foreground hover:text-primary transition-colors"
@@ -852,14 +885,10 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
                   onClick={() => {
                     setEthBalanceError(false);
                     setEthBalance(null);
-                    setDerivedEthAddress(null);
-                    if (accountId) {
-                      deriveEthAddressAction(accountId)
-                        .then(async (addrResult) => {
-                          if ("error" in addrResult) throw new Error(addrResult.error);
-                          setDerivedEthAddress(addrResult.address);
-                          const balResult = await getEthBalanceAction(addrResult.address);
-                          if ("error" in balResult) throw new Error(balResult.error);
+                    if (derivedEthAddress) {
+                      getEthBalanceAction(derivedEthAddress)
+                        .then((balResult) => {
+                          if ("error" in balResult) { setEthBalanceError(true); return; }
                           setEthBalance(balResult.balance);
                         })
                         .catch(() => setEthBalanceError(true));
@@ -872,9 +901,9 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
                 <span className={parseFloat(ethBalance) < 0.001 ? "text-destructive" : "text-foreground"}>
                   {parseFloat(ethBalance).toFixed(4)} ETH
                 </span>
-              ) : (
+              ) : !ethAddressError ? (
                 <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
-              )}
+              ) : null}
             </div>
             {ethBalance !== null && parseFloat(ethBalance) < 0.001 && (
               <p className="text-destructive text-[10px] pt-0.5">
