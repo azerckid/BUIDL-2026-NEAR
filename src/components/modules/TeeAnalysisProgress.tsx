@@ -112,12 +112,14 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
 
     const { nonce, callbackUrl } = JSON.parse(stored) as { nonce: string; callbackUrl: string };
     sessionStorage.removeItem(NONCE_STORAGE_KEY(sessionId));
-    const encryptedFile = sessionStorage.getItem(`FILE_DATA_${sessionId}`) ?? undefined;
-    sessionStorage.removeItem(`FILE_DATA_${sessionId}`);
+    const fileId = sessionStorage.getItem(`FILE_ID_${sessionId}`) ?? "";
+    const fileContent = sessionStorage.getItem(`FILE_CONTENT_${sessionId}`) ?? "";
+    sessionStorage.removeItem(`FILE_ID_${sessionId}`);
+    sessionStorage.removeItem(`FILE_CONTENT_${sessionId}`);
     // URL 정리 (서명 파라미터 제거)
     window.history.replaceState({}, "", pathname);
 
-    setAuthData({ signature, publicKey, nonce, callbackUrl, encryptedFile });
+    setAuthData({ signature, publicKey, nonce, callbackUrl, fileId, fileContent });
     setAuthPhase("authorized");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -158,14 +160,17 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
       // 리다이렉트 케이스는 이 코드에 도달하지 않고 페이지가 이동됨
       if (result) {
         sessionStorage.removeItem(NONCE_STORAGE_KEY(sessionId));
-        const encryptedFile = sessionStorage.getItem(`FILE_DATA_${sessionId}`) ?? undefined;
-        sessionStorage.removeItem(`FILE_DATA_${sessionId}`);
+        const fileId = sessionStorage.getItem(`FILE_ID_${sessionId}`) ?? "";
+        const fileContent = sessionStorage.getItem(`FILE_CONTENT_${sessionId}`) ?? "";
+        sessionStorage.removeItem(`FILE_ID_${sessionId}`);
+        sessionStorage.removeItem(`FILE_CONTENT_${sessionId}`);
         setAuthData({
           signature: result.signature,
           publicKey: result.publicKey,
           nonce: nonceResult.nonce,
           callbackUrl,
-          encryptedFile,
+          fileId,
+          fileContent,
         });
         setAuthPhase("authorized");
       }

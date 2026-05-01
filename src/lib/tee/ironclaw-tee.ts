@@ -1,14 +1,27 @@
 // IronClaw TEE Analysis — NEAR AI Cloud (OpenAI-compatible API)
-// Phase 2: runMockTeeAnalysis 대체 — 동일 인터페이스
-// 환경 변수: IRONCLAW_BASE_URL, IRONCLAW_API_KEY, IRONCLAW_MODEL
+// 파일을 raw content 그대로 TEE에 전달 — 파싱과 분석 모두 TEE 내부에서 실행
 
 import OpenAI from "openai";
 import { teeAnalysisOutputSchema, TeeAnalysisOutput } from "@/types/tee-output";
-import { NormalizedGeneticProfile } from "@/types/genetic";
 
 const IRONCLAW_SYSTEM_PROMPT = `You are MyDNA Insurance Agent running inside an IronClaw Trusted Execution Environment (TEE) on NEAR Protocol.
 
-Your task: analyze a normalized genetic risk profile and return a JSON object matching the exact schema below. No markdown, no explanation — raw JSON only.
+Your task:
+1. Parse the raw genetic data file (GenTok TXT format) provided in the user message.
+2. Analyze the parsed genetic risk profile.
+3. Return a JSON object matching the exact schema below. No markdown, no explanation — raw JSON only.
+
+GenTok File Format:
+- Section headers: [SECTION: ONCOLOGY], [SECTION: CARDIOVASCULAR], [SECTION: METABOLIC], [SECTION: NEUROLOGICAL]
+- Each entry line: "gene_key: 레이블"
+- Risk levels: "주의 필요" = high, "관심 필요" = moderate, "정상" or "낮음" = normal
+- Lines starting with # are comments — ignore them
+
+Valid gene keys:
+- ONCOLOGY: pancreatic_cancer, liver_cancer, lung_cancer, breast_cancer, colon_cancer
+- CARDIOVASCULAR: myocardial_infarction, stroke, arrhythmia
+- METABOLIC: type2_diabetes, hyperlipidemia, thyroid_disorder
+- NEUROLOGICAL: alzheimers, parkinsons
 
 Schema:
 {
@@ -33,39 +46,27 @@ Schema:
 }
 
 Rules:
-- flags must only contain values present in the input detectedFlags
+- flags must only contain gene keys where level is "high" or "moderate"
 - priorityOrder must contain each category exactly once, sorted by risk level (high first)
 - All advisory messages must be in Korean
 - purgeConfirmed must always be true (TEE purges data after analysis)
 - Return ONLY valid JSON, no surrounding text`;
 
-function buildUserPrompt(sessionId: string, profile: NormalizedGeneticProfile): string {
-  return JSON.stringify({
-    sessionId,
-    geneticProfile: {
-      oncology: {
-        overallLevel: profile.oncology.overallLevel,
-        detectedFlags: profile.oncology.detectedFlags,
-      },
-      cardiovascular: {
-        overallLevel: profile.cardiovascular.overallLevel,
-        detectedFlags: profile.cardiovascular.detectedFlags,
-      },
-      metabolic: {
-        overallLevel: profile.metabolic.overallLevel,
-        detectedFlags: profile.metabolic.detectedFlags,
-      },
-      neurological: {
-        overallLevel: profile.neurological.overallLevel,
-        detectedFlags: profile.neurological.detectedFlags,
-      },
-    },
-  });
+function buildUserPrompt(sessionId: string, fileId: string, rawContent: string): string {
+  const fileRef = fileId ? `\nfile_id: ${fileId}` : "";
+  return `sessionId: ${sessionId}${fileRef}
+
+--- GENETIC DATA FILE ---
+${rawContent}
+--- END FILE ---
+
+Parse the genetic data file above and return the analysis JSON.`;
 }
 
 export async function runIronClawAnalysis(
   sessionId: string,
-  profile: NormalizedGeneticProfile
+  fileId: string,
+  rawContent: string
 ): Promise<TeeAnalysisOutput> {
   const baseURL = process.env.IRONCLAW_BASE_URL ?? "https://cloud-api.near.ai/v1";
   const apiKey = process.env.IRONCLAW_API_KEY;
@@ -83,7 +84,7 @@ export async function runIronClawAnalysis(
     response_format: { type: "json_object" },
     messages: [
       { role: "system", content: IRONCLAW_SYSTEM_PROMPT },
-      { role: "user", content: buildUserPrompt(sessionId, profile) },
+      { role: "user", content: buildUserPrompt(sessionId, fileId, rawContent) },
     ],
   });
 
@@ -99,7 +100,6 @@ export async function runIronClawAnalysis(
     throw new Error(`IronClaw TEE 응답 JSON 파싱 실패: ${raw.slice(0, 200)}`);
   }
 
-  // teeSessionId, purgeConfirmed, analysisModel은 응답에서 덮어씌워서 보장
   const merged = {
     ...(parsed as object),
     teeSessionId: sessionId,

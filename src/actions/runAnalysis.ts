@@ -5,9 +5,8 @@ import { analysisSessions, analysisResults } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { v4 as uuidv4 } from "uuid";
-import { parseMockFile, parseGeneticFile } from "@/lib/tee/normalizer";
-import { runMockTeeAnalysis } from "@/lib/tee/mock-tee";
 import { runIronClawAnalysis } from "@/lib/tee/ironclaw-tee";
+import { MOCK_GENTOK_CONTENT } from "@/lib/tee/mock-data";
 import { verifyAttestation } from "./verifyAttestation";
 import { teeAnalysisOutputSchema } from "@/types/tee-output";
 import { generateZkpProof, derivePrimaryRiskScore } from "@/lib/zkp/prover";
@@ -23,8 +22,8 @@ export interface AuthPayload {
   publicKey: string;   // "ed25519:BASE58..."
   nonce: string;       // 64-char hex
   callbackUrl: string;
-  // Stage 17: ECIES 암호화된 유전자 파일 (base64). 미전달 시 mock 파싱으로 fallback.
-  encryptedFile?: string;
+  fileId: string;      // IronClaw file_id (from /v1/files upload, "" if unavailable)
+  fileContent: string; // base64-encoded raw file content ("" → mock fallback)
 }
 
 interface RunAnalysisResult {
@@ -38,7 +37,6 @@ export async function runAnalysis(
   auth: AuthPayload
 ): Promise<RunAnalysisResult> {
   try {
-    // 세션 조회 + 재실행 가드
     const sessions = await db
       .select({
         status: analysisSessions.status,
@@ -54,21 +52,16 @@ export async function runAnalysis(
 
     const session = sessions[0];
 
-    // 이미 완료된 세션은 재실행 없이 성공 반환
     if (session.status === "completed" || session.status === "purged") {
       return { success: true };
     }
 
     // ── 서명 검증 ─────────────────────────────────────────────────────────────
-    // 1. Nonce 유효성 확인 및 소비 (Replay Attack 방지)
     const nonceCheck = await consumeAuthNonce(auth.nonce, session.walletAddress);
     if (!nonceCheck.valid) {
       return { success: false, error: `인증 실패: ${nonceCheck.error}` };
     }
 
-    // 2. NEP-413 Ed25519 서명 검증
-    // callbackUrl 포함 버전 먼저 시도, 실패 시 null로 재시도
-    // (my-near-wallet 직접 반환 시 callbackUrl이 페이로드에 포함되지 않을 수 있음)
     const baseParams = {
       message: AUTH_MESSAGE,
       nonce: auth.nonce,
@@ -85,73 +78,55 @@ export async function runAnalysis(
       return { success: false, error: "서명 검증 실패: 유효하지 않은 서명입니다" };
     }
 
-    // ── Stage 1: 파싱 및 정규화 ────────────────────────────────────────────
-    // Stage 17: encryptedFile 전달 시 실제 파일 파싱, 미전달 시 mock fallback
-    // encryptedFile은 브라우저에서 ECIES 암호화된 base64 데이터
-    // TEE 내부 복호화는 runIronClawAnalysis 내부에서 처리 (Phase 3)
-    // 현재는 복호화 없이 파싱 (TEE Tool Call로 전달 예정)
-    const profile = auth.encryptedFile
-      ? parseGeneticFile(auth.encryptedFile)
-      : parseMockFile();
+    // ── raw 파일 내용 준비 (파싱은 TEE 내부에서 수행) ─────────────────────────
+    // fileContent가 있으면 base64 디코딩, 없으면 mock 샘플 사용
+    const rawContent = auth.fileContent
+      ? Buffer.from(auth.fileContent, "base64").toString("utf-8")
+      : MOCK_GENTOK_CONTENT;
 
     await updateSessionStatus(sessionId, "tee_processing");
 
-    // ── TEE Attestation 사전 검증 ──────────────────────────────────────────
-    // Phase 0: 실패해도 분석 계속 (nonce + 결과를 DB에 기록)
-    // Phase 2: verified === false 시 throw로 전환
+    // ── TEE Attestation 사전 검증 ──────────────────────────────────────────────
     let attestationNonce: string | null = null;
     let attestationVerified: boolean | null = null;
     try {
       const attestation = await verifyAttestation();
       attestationNonce = attestation.nonce;
       attestationVerified = attestation.verified;
-      if (!attestation.verified) {
-        // Phase 2 전환 시 아래 throw 활성화
-        // throw new Error("TEE Attestation 검증 실패 — 분석 중단");
-      }
     } catch {
-      // 엔드포인트 일시 불가 — Phase 0에서는 분석 계속
+      // 엔드포인트 일시 불가 — 분석 계속
     }
 
-    // attestation 결과를 세션 레코드에 기록
     await db
       .update(analysisSessions)
       .set({ attestationNonce, attestationVerified })
       .where(eq(analysisSessions.id, sessionId));
 
-    // ── Stage 2: TEE 분석 ──────────────────────────────────────────────────
-    // USE_REAL_TEE=true → IronClaw NEAR AI Cloud, 미설정 → Mock (Phase 0)
-    const useRealTee = process.env.USE_REAL_TEE === "true";
-    const teeOutput = useRealTee
-      ? await runIronClawAnalysis(sessionId, profile)
-      : await runMockTeeAnalysis(sessionId, profile);
+    // ── TEE 분석 — 파싱과 분석 모두 IronClaw TEE 내부에서 실행 ─────────────────
+    const teeOutput = await runIronClawAnalysis(sessionId, auth.fileId, rawContent);
 
-    // Zod 검증
     const validated = teeAnalysisOutputSchema.parse(teeOutput);
 
     await updateSessionStatus(sessionId, "zkp_generating");
 
-    // ── Stage 2.5: ZKP proof 생성 + 온체인 등록 ──────────────────────────────
-    // Phase 2: IronClaw TEE Tool Call → HMAC-SHA256 commitment proof
-    // Phase 3 업그레이드: Barretenberg ultraplonk (Aztec verifier 라이브러리 출시 후)
+    // ── ZKP proof 생성 + 온체인 등록 ──────────────────────────────────────────
     const riskScore = derivePrimaryRiskScore(validated.riskProfile);
     const zkpProof = await generateZkpProof({ riskScore, threshold: 50 });
 
     const proofValid = await verifyZkpProof(zkpProof);
     if (!proofValid) throw new Error("ZKP proof 검증 실패");
 
-    // 온체인 등록 — 실패해도 파이프라인 비차단 (NEAR_PRIVATE_KEY 미설정 시 생략)
     const proofHash = await submitProofHashOnChain(zkpProof).catch(() => zkpProof.proofBytes);
 
     await updateSessionStatus(sessionId, "completed");
 
-    // ── Stage 3: DB 상품 매칭 ─────────────────────────────────────────────
+    // ── DB 상품 매칭 ──────────────────────────────────────────────────────────
     const matchedIds = await matchProducts(
       validated.riskProfile,
       validated.priorityOrder
     );
 
-    // ── 결과 저장 ─────────────────────────────────────────────────────────
+    // ── 결과 저장 ─────────────────────────────────────────────────────────────
     const now = DateTime.now();
     await db.insert(analysisResults).values({
       id: uuidv4(),

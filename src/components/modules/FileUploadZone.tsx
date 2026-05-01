@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { createSession } from "@/actions/createSession";
+import { uploadToIronClaw } from "@/actions/uploadToIronClaw";
 import { useWallet } from "@/context/WalletContext";
 
 // ─── 파일 검증 상수 ───────────────────────────────────────────────────────────
@@ -25,11 +26,12 @@ const fileValidationSchema = z.object({
 
 // ─── 처리 단계 ────────────────────────────────────────────────────────────────
 
-type ProcessStage = "idle" | "hashing" | "creating" | "done";
+type ProcessStage = "idle" | "hashing" | "uploading" | "creating" | "done";
 
 const STAGE_PROGRESS: Record<ProcessStage, number> = {
   idle: 0,
-  hashing: 40,
+  hashing: 20,
+  uploading: 55,
   creating: 80,
   done: 100,
 };
@@ -71,6 +73,7 @@ export function FileUploadZone() {
   const STAGE_LABEL: Record<ProcessStage, string> = {
     idle: "",
     hashing: t("hashing"),
+    uploading: "IronClaw TEE에 파일 업로드 중...",
     creating: t("creatingSession"),
     done: t("done"),
   };
@@ -159,6 +162,7 @@ export function FileUploadZone() {
     setIsProcessing(true);
 
     try {
+      // 1. 해시 + base64 변환
       setStage("hashing");
       const [fileHash, fileBase64] = await Promise.all([
         computeSHA256(selectedFile),
@@ -166,25 +170,37 @@ export function FileUploadZone() {
       ]);
       const fileType = getExtension(selectedFile.name) as AllowedExtension;
 
-      setStage("creating");
-      const result = await createSession(accountId, fileHash, fileType);
+      // 2. IronClaw TEE에 파일 업로드 + 세션 생성 (병렬)
+      setStage("uploading");
+      const [uploadResult, sessionResult] = await Promise.all([
+        uploadToIronClaw(fileBase64, selectedFile.name),
+        createSession(accountId, fileHash, fileType),
+      ]);
 
-      if (!result.success || !result.sessionId) {
-        toast.error(result.error ?? t("sessionError"));
+      setStage("creating");
+
+      if (!sessionResult.success || !sessionResult.sessionId) {
+        toast.error(sessionResult.error ?? t("sessionError"));
         setIsProcessing(false);
         setStage("idle");
         return;
       }
 
-      // Stage 17: 파일 데이터를 sessionStorage에 임시 보관 → TeeAnalysisProgress에서 runAnalysis로 전달
-      // Phase 3: 여기서 TEE 공개키로 ECIES 암호화 후 저장으로 교체
-      sessionStorage.setItem(`FILE_DATA_${result.sessionId}`, fileBase64);
+      const fileId = uploadResult.success ? uploadResult.fileId : "";
+      if (!uploadResult.success) {
+        // 업로드 실패 시 경고만 표시하고 계속 진행 (서버에서 mock 콘텐츠 사용)
+        toast.error(`IronClaw 업로드 실패: ${uploadResult.error}`);
+      }
+
+      // 3. fileId + fileContent를 sessionStorage에 보관 → TeeAnalysisProgress에서 사용
+      sessionStorage.setItem(`FILE_ID_${sessionResult.sessionId}`, fileId);
+      sessionStorage.setItem(`FILE_CONTENT_${sessionResult.sessionId}`, fileBase64);
 
       setStage("done");
       toast.success(t("sessionCreated"));
 
       setTimeout(() => {
-        router.push(`/analysis/${result.sessionId}`);
+        router.push(`/analysis/${sessionResult.sessionId}`);
       }, 800);
     } catch {
       toast.error(t("processError"));
@@ -227,7 +243,6 @@ export function FileUploadZone() {
           onChange={handleFileChange}
         />
 
-        {/* 자물쇠 / 업로드 아이콘 */}
         <AnimatePresence mode="wait">
           {isLocked ? (
             <motion.div
@@ -252,7 +267,6 @@ export function FileUploadZone() {
           )}
         </AnimatePresence>
 
-        {/* 파일 정보 / 안내 문구 */}
         {selectedFile ? (
           <div className="flex flex-col items-center gap-1 text-center">
             <div className="flex items-center gap-2 text-emerald-400 font-medium text-sm">
