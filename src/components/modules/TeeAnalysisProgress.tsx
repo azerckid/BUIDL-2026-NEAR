@@ -31,8 +31,8 @@ const STAGE_PROGRESS: Record<AnalysisStage, number> = {
 
 const STAGE_ORDER: AnalysisStage[] = ["parsing", "tee", "zkp", "profiling", "purged"];
 
-// TEE 분석 최대 대기 시간 (60초)
-const ANALYSIS_TIMEOUT_MS = 60_000;
+// TEE 분석 최대 대기 시간 (180초 — IronClaw LLM 응답 지연 대응)
+const ANALYSIS_TIMEOUT_MS = 180_000;
 
 // 애니메이션 타임라인
 const STAGE_TIMELINE: Array<{ stage: AnalysisStage; delay: number }> = [
@@ -427,6 +427,21 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
           >
             <CheckCircle size={13} />
             {t("zkpBadge")}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 애니메이션 완료 후 서버 응답 대기 중 표시 */}
+      <AnimatePresence>
+        {stage === "purged" && !isDone && stage !== "error" && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex items-center gap-2 text-xs text-muted-foreground"
+          >
+            <Loader2 size={13} className="animate-spin" />
+            <span>IronClaw TEE 응답 대기 중...</span>
           </motion.div>
         )}
       </AnimatePresence>
