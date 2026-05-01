@@ -433,7 +433,7 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
 
       {/* 애니메이션 완료 후 서버 응답 대기 중 표시 */}
       <AnimatePresence>
-        {stage === "purged" && !isDone && stage !== "error" && (
+        {stage === "purged" && !isDone && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
