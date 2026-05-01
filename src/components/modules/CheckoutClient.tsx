@@ -205,6 +205,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
   const [selectedChain, setSelectedChain] = useState<ChainNetwork>("near");
   const [derivedEthAddress, setDerivedEthAddress] = useState<string | null>(null);
   const [ethAddressError, setEthAddressError] = useState(false);
+  const [ethAddressErrorMsg, setEthAddressErrorMsg] = useState<string | null>(null);
   const [ethBalance, setEthBalance] = useState<string | null>(null);
   const [ethBalanceError, setEthBalanceError] = useState(false);
 
@@ -232,12 +233,14 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
     setEthBalance(null);
     setEthBalanceError(false);
     setEthAddressError(false);
+    setEthAddressErrorMsg(null);
     setDerivedEthAddress(null);
 
     deriveEthAddressAction(accountId)
       .then(async (addrResult) => {
         if ("error" in addrResult) {
           setEthAddressError(true);
+          setEthAddressErrorMsg(addrResult.error);
           return;
         }
         setDerivedEthAddress(addrResult.address);
@@ -248,8 +251,9 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
         }
         setEthBalance(balResult.balance);
       })
-      .catch(() => {
+      .catch((err: unknown) => {
         setEthAddressError(true);
+        setEthAddressErrorMsg(err instanceof Error ? err.message : "Unknown error");
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedChain, accountId]);
@@ -860,7 +864,16 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
                 >
                   {t("ethBalanceRetry")}
                 </button>
-              ) : derivedEthAddress ? (
+              ) : null}
+            </div>
+            {ethAddressError && ethAddressErrorMsg && (
+              <p className="text-[10px] text-destructive/70 break-all font-mono">
+                {ethAddressErrorMsg}
+              </p>
+            )}
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">{t("ethDerivedAddress")}</span>
+              {derivedEthAddress ? (
                 <button
                   type="button"
                   className="flex items-center gap-1.5 font-mono text-foreground hover:text-primary transition-colors"
