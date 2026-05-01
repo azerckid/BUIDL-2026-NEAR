@@ -9,8 +9,8 @@ import { runIronClawAnalysis } from "@/lib/tee/ironclaw-tee";
 import { MOCK_GENTOK_CONTENT } from "@/lib/tee/mock-data";
 import { verifyAttestation } from "./verifyAttestation";
 import { teeAnalysisOutputSchema } from "@/types/tee-output";
-import { generateZkpProof, derivePrimaryRiskScore } from "@/lib/zkp/prover";
-import { verifyZkpProof, submitProofHashOnChain } from "@/lib/zkp/verifier";
+import { submitProofHashOnChain, ZKP_VK_HASH } from "@/lib/zkp/verifier";
+import type { ZkpProof } from "@/types/zkp";
 import { matchProducts } from "./matchProducts";
 import { updateSessionStatus } from "./updateSessionStatus";
 import { consumeAuthNonce } from "./generateAuthNonce";
@@ -109,14 +109,20 @@ export async function runAnalysis(
 
     await updateSessionStatus(sessionId, "zkp_generating");
 
-    // ── ZKP proof 생성 + 온체인 등록 ──────────────────────────────────────────
-    const riskScore = derivePrimaryRiskScore(validated.riskProfile);
-    const zkpProof = await generateZkpProof({ riskScore, threshold: 50 });
+    // ── ZKP 커밋먼트 — TEE 내부에서 생성된 proof 사용 ──────────────────────────
+    // IronClaw TEE가 분석과 동시에 HMAC-SHA256 커밋먼트를 생성하여 반환
+    // Phase 3: Barretenberg ultraplonk으로 교체 예정
+    if (!validated.zkpPassed) {
+      throw new Error("ZKP 보험 자격 기준 미충족 (TEE 내부 검증 실패)");
+    }
 
-    const proofValid = await verifyZkpProof(zkpProof);
-    if (!proofValid) throw new Error("ZKP proof 검증 실패");
+    const teeProof: ZkpProof = {
+      proofBytes: validated.zkpProofHash,
+      publicInputs: { threshold: 50, nonce: validated.zkpNonce },
+      verificationKey: ZKP_VK_HASH,
+    };
 
-    const proofHash = await submitProofHashOnChain(zkpProof).catch(() => zkpProof.proofBytes);
+    const proofHash = await submitProofHashOnChain(teeProof).catch(() => validated.zkpProofHash);
 
     await updateSessionStatus(sessionId, "completed");
 

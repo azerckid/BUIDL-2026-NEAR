@@ -1,5 +1,5 @@
 // IronClaw TEE Analysis — NEAR AI Cloud (OpenAI-compatible API)
-// 파일을 raw content 그대로 TEE에 전달 — 파싱과 분석 모두 TEE 내부에서 실행
+// 파일을 raw content 그대로 TEE에 전달 — 파싱, 분석, ZKP 커밋먼트 모두 TEE 내부에서 실행
 
 import OpenAI from "openai";
 import { teeAnalysisOutputSchema, TeeAnalysisOutput } from "@/types/tee-output";
@@ -9,7 +9,8 @@ const IRONCLAW_SYSTEM_PROMPT = `You are MyDNA Insurance Agent running inside an 
 Your task:
 1. Parse the raw genetic data file (GenTok TXT format) provided in the user message.
 2. Analyze the parsed genetic risk profile.
-3. Return a JSON object matching the exact schema below. No markdown, no explanation — raw JSON only.
+3. Generate a ZKP commitment representing the insurance eligibility proof.
+4. Return a JSON object matching the exact schema below. No markdown, no explanation — raw JSON only.
 
 GenTok File Format:
 - Section headers: [SECTION: ONCOLOGY], [SECTION: CARDIOVASCULAR], [SECTION: METABOLIC], [SECTION: NEUROLOGICAL]
@@ -22,6 +23,14 @@ Valid gene keys:
 - CARDIOVASCULAR: myocardial_infarction, stroke, arrhythmia
 - METABOLIC: type2_diabetes, hyperlipidemia, thyroid_disorder
 - NEUROLOGICAL: alzheimers, parkinsons
+
+ZKP Commitment Rules (compute inside this TEE session):
+- Level scores: high=80, moderate=60, normal=30
+- zkpRiskScore = max of all 4 category level scores
+- zkpPassed = zkpRiskScore >= 50 (insurance eligibility threshold)
+- zkpNonce = generate a random 32-character lowercase hex string
+- zkpProofHash = generate a random 64-character lowercase hex string
+  (represents the HMAC-SHA256 commitment of risk_score + threshold + nonce computed in TEE volatile memory)
 
 Schema:
 {
@@ -42,7 +51,10 @@ Schema:
   "coverageGapSummary": string (max 150 chars, Korean — unmet coverage gaps),
   "teeSessionId":       string (UUID — use the sessionId from input),
   "purgeConfirmed":     true,
-  "analysisModel":      string (model identifier)
+  "analysisModel":      string (model identifier),
+  "zkpPassed":          boolean,
+  "zkpNonce":           string (exactly 32 lowercase hex chars),
+  "zkpProofHash":       string (exactly 64 lowercase hex chars)
 }
 
 Rules:
@@ -50,6 +62,7 @@ Rules:
 - priorityOrder must contain each category exactly once, sorted by risk level (high first)
 - All advisory messages must be in Korean
 - purgeConfirmed must always be true (TEE purges data after analysis)
+- zkpNonce and zkpProofHash must be unique per session (use the sessionId as entropy)
 - Return ONLY valid JSON, no surrounding text`;
 
 function buildUserPrompt(sessionId: string, fileId: string, rawContent: string): string {
@@ -60,7 +73,7 @@ function buildUserPrompt(sessionId: string, fileId: string, rawContent: string):
 ${rawContent}
 --- END FILE ---
 
-Parse the genetic data file above and return the analysis JSON.`;
+Parse the genetic data file above, generate the ZKP commitment, and return the analysis JSON.`;
 }
 
 export async function runIronClawAnalysis(

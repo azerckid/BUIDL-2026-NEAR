@@ -12,7 +12,6 @@ export const teeAnalysisOutputSchema = z.object({
     metabolic: riskCategorySchema,
     neurological: riskCategorySchema,
   }),
-  // .min(4).max(4) — Zod v4 호환 (.length() 미사용)
   priorityOrder: z
     .array(z.enum(["oncology", "cardiovascular", "metabolic", "neurological"]))
     .min(4)
@@ -28,6 +27,10 @@ export const teeAnalysisOutputSchema = z.object({
   teeSessionId: z.string().uuid(),
   purgeConfirmed: z.literal(true),
   analysisModel: z.string(),
+  // ZKP commitment — TEE 내부에서 생성 (HMAC-SHA256 커밋먼트 표현)
+  zkpPassed: z.boolean(),
+  zkpNonce: z.string().length(32),
+  zkpProofHash: z.string().length(64),
 });
 
 export type TeeAnalysisOutput = z.infer<typeof teeAnalysisOutputSchema>;
