@@ -22,7 +22,7 @@ async function rpcCall(method: string, params: unknown[]): Promise<any> {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
-        signal: (() => { const c = new AbortController(); setTimeout(() => c.abort(), 5000); return c.signal; })(),
+        signal: AbortSignal.timeout(5000),
       });
       const json = (await response.json()) as { result?: unknown; error?: unknown };
       if (json.error || json.result === undefined) {
