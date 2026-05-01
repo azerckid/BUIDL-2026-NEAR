@@ -28,7 +28,7 @@ export async function checkProofRegistration(
   proofHash: string
 ): Promise<boolean> {
   try {
-    const response = await fetch("https://rpc.testnet.near.org", {
+    const response = await fetch("https://test.rpc.fastnear.com", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

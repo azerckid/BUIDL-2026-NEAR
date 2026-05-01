@@ -5,7 +5,7 @@ export const ZKP_VERIFIER_CONTRACT = "zkp.rogulus.testnet";
 export const ZKP_VK_HASH =
   "3d1dc5b490206789edb811dc07f8681ed05d2747d42cc4b3f73ac6547eb64507";
 
-const NEAR_RPC = "https://rpc.testnet.near.org";
+const NEAR_RPC = "https://test.rpc.fastnear.com";
 
 export function computeProofHash(proof: ZkpProof): string {
   return createHash("sha256")

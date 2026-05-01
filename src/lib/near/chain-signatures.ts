@@ -88,7 +88,7 @@ export async function deriveEthAddress(
     JSON.stringify({ path: derivationPath, predecessor: nearAccountId })
   ).toString("base64");
 
-  const response = await fetch("https://rpc.testnet.near.org", {
+  const response = await fetch("https://test.rpc.fastnear.com", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -328,7 +328,7 @@ export async function fetchMpcSignatureFromTxHash(
   txHash: string,
   signerAccountId: string
 ): Promise<{ bigR: string; s: string; recoveryId?: number }> {
-  const response = await fetch("https://rpc.testnet.near.org", {
+  const response = await fetch("https://test.rpc.fastnear.com", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
