@@ -55,6 +55,7 @@ circuits/*/target/proof
 
 # agent
 .agent/*
+.codex/
 
 # Claude Code (worktrees, memory, session files)
 .claude/

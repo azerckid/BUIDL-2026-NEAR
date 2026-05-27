@@ -1,6 +1,6 @@
 # [기술 명세] 보험상품 카탈로그 스키마 확장안
 > Created: 2026-05-27 22:43
-> Last Updated: 2026-05-28 00:55
+> Last Updated: 2026-05-28 01:14
 
 - **레이어**: 03_Technical_Specs
 - **상태**: Approved Design v1
@@ -223,14 +223,14 @@ baseline 상품:
 6. [ ] seed 교체 전, raw source seed와 recommendation snapshot seed를 분리한다.
 7. [x] `matchProducts`에서 risk-target 추천과 baseline 추천을 분리한다.
 8. [x] UI는 추천 카드에 출처, 확인일, 보험료 기준, caveat를 표시한다.
+9. [x] Turso DB에 `0004_panoramic_firebird.sql`과 `0005_common_boom_boom.sql`을 백업 후 적용한다.
 
 ---
 
 ## 10. 비적용 범위
 
-2026-05-28 00:34 KST 기준 스키마 코드, migration SQL, 매칭 분리, 추천 카드 표시까지 완료했다. 아직 다음 작업은 하지 않는다.
+2026-05-28 01:14 KST 기준 스키마 코드, migration SQL, 매칭 분리, 추천 카드 표시, Turso DB migration 적용까지 완료했다. 아직 다음 작업은 하지 않는다.
 
-- DB migration 실제 적용
 - `src/lib/db/seed.ts` 실제 상품 교체
 - 보험료 KRW/USDC 환산 로직 구현
 
@@ -256,3 +256,4 @@ baseline 상품:
 - **Logic_Progress**: [Two Pillars Service Update](../04_Logic_Progress/03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md) - 실제 보험상품 카탈로그 적용 트랙
 - **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - 다음 구현 단계
 - **QA_Validation**: [Hash-backed Product Manual Review](../05_QA_Validation/08_HASH_BACKED_PRODUCT_MANUAL_REVIEW_2026_05_27.md) - 스키마 gap을 만든 검수 근거
+- **QA_Validation**: [DB Migration 0004/0005 Validation](../05_QA_Validation/09_DB_MIGRATION_0004_0005_2026_05_28.md) - Turso 적용 및 검증 결과
