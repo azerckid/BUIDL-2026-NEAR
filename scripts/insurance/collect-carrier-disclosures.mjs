@@ -60,7 +60,21 @@ const CARRIER_PROFILES = {
   현대해상: {
     provider: "현대해상",
     source_url: "https://www.hi.co.kr/bin/CI/ON/CION3200G.jsp",
-    notes: ["상품공시 검색 화면은 JavaScript 검색 결과와 다운로드 버튼을 함께 사용한다."],
+    api_searches: [
+      {
+        kind: "hyundai_direct_terms",
+        endpoint: "https://mdirect.hi.co.kr/DH.json",
+        referer: "https://mdirect.hi.co.kr/service.do?m=b520586974",
+        tran_id: "DHMT9100M01S",
+        product_code: "12M2",
+        product_name: "(무)현대해상다이렉트실손의료비보장보험(갱신형)(Hi2605)",
+        keywords: ["현대해상다이렉트실손의료비보장보험", "실손의료비보장보험", "Hi2605"],
+      },
+    ],
+    notes: [
+      "상품공시 검색 화면은 JavaScript 검색 결과와 다운로드 버튼을 함께 사용한다.",
+      "다이렉트 상품 페이지의 DH.json 상품 설명 API에서 약관 PDF 경로를 조회한다.",
+    ],
   },
   KB손보: {
     provider: "KB손보",
@@ -85,12 +99,39 @@ const CARRIER_PROFILES = {
   신한라이프생명: {
     provider: "신한라이프생명",
     source_url: "https://shinhanlife.co.kr/hp/cdhi0010.do",
-    notes: ["대표 공시실 진입 페이지에서 상품공시 하위 경로를 추가 추적해야 한다."],
+    api_searches: [
+      {
+        kind: "shinhanlife_disclosure_search",
+        endpoint: "https://shinhanlife.co.kr/co/wcms/nodeInfoListPage.pwkjson",
+        referer: "https://shinhanlife.co.kr/hp/cdhi0030.do",
+        category_id: "M160991914330045272",
+        keyword: "신한SOL암보험",
+        product_name: "신한SOL암보험(무배당, 해약환급금 미지급형)",
+        page_size: 50,
+      },
+    ],
+    notes: [
+      "대표 공시실 진입 페이지에서 상품공시 하위 경로를 추가 추적해야 한다.",
+      "상품공시 화면의 wcms API에서 판매중 상품과 PDF 경로를 조회한다.",
+    ],
   },
   삼성생명: {
     provider: "삼성생명",
     source_url: "https://www.samsunglife.com",
-    notes: ["삼성생명 대표 사이트는 상품공시가 JavaScript 앱 내부에 있을 수 있다."],
+    api_searches: [
+      {
+        kind: "samsunglife_policy_url",
+        endpoint: "https://direct.samsunglife.com/api/of/cm/document/getPolicyUrl",
+        referer: "https://direct.samsunglife.com/damoa.eds?cid=di:insmarket:damoa:insmarket:240513",
+        pro_type: "65",
+        product_name: "삼성 인터넷 입원 건강보험(2601)(무배당,무해약환급금형)",
+        keywords: ["삼성 인터넷 입원 건강보험", "입원 건강보험", "2601"],
+      },
+    ],
+    notes: [
+      "삼성생명 대표 사이트는 상품공시가 JavaScript 앱 내부에 있을 수 있다.",
+      "다이렉트 보험 문서 API에서 보험다모아 유입 상품의 통합약관 PDF 경로를 조회한다.",
+    ],
   },
 };
 
@@ -338,18 +379,15 @@ async function collectApiRecords(profile, options) {
   const notes = [];
 
   for (const search of profile.api_searches ?? []) {
-    if (search.kind !== "dbins_product_search") {
-      notes.push(`Unsupported API search kind: ${search.kind}`);
-      continue;
-    }
-
     try {
-      const apiRecords = await fetchDbInsuranceProductRecords(search, options);
+      const apiRecords = await fetchApiSearchRecords(search, options);
       records.push(...apiRecords);
-      notes.push(`DB손보 API search '${search.keyword}' returned ${apiRecords.length} records.`);
+      notes.push(
+        `${profile.provider} API search '${formatApiSearchLabel(search)}' returned ${apiRecords.length} records.`,
+      );
     } catch (error) {
       notes.push(
-        `DB손보 API search '${search.keyword}' failed: ${
+        `${profile.provider} API search '${formatApiSearchLabel(search)}' failed: ${
           error instanceof Error ? error.message : String(error)
         }`,
       );
@@ -357,6 +395,33 @@ async function collectApiRecords(profile, options) {
   }
 
   return { records, notes };
+}
+
+async function fetchApiSearchRecords(search, options) {
+  if (search.kind === "dbins_product_search") {
+    return await fetchDbInsuranceProductRecords(search, options);
+  }
+  if (search.kind === "hyundai_direct_terms") {
+    return await fetchHyundaiDirectTermsRecords(search, options);
+  }
+  if (search.kind === "samsunglife_policy_url") {
+    return await fetchSamsungLifePolicyRecords(search, options);
+  }
+  if (search.kind === "shinhanlife_disclosure_search") {
+    return await fetchShinhanLifeDisclosureRecords(search, options);
+  }
+
+  throw new Error(`Unsupported API search kind: ${search.kind}`);
+}
+
+function formatApiSearchLabel(search) {
+  return (
+    search.keyword ??
+    search.product_name ??
+    search.product_code ??
+    search.pro_type ??
+    search.kind
+  );
 }
 
 async function fetchDbInsuranceProductRecords(search, options) {
@@ -419,6 +484,225 @@ function makeDbInsuranceDocumentLinks(record, discoveredFrom) {
       document_type: documentType,
       discovered_from: discoveredFrom,
     }));
+}
+
+async function fetchHyundaiDirectTermsRecords(search, options) {
+  const body = new URLSearchParams({
+    header: JSON.stringify(makeHyundaiDirectHeader(search.tran_id)),
+    data: JSON.stringify({ prodCd: search.product_code }),
+  });
+
+  const response = await fetchWithTimeout(search.endpoint, {
+    timeoutMs: options.timeoutMs,
+    method: "POST",
+    accept: "application/json,text/plain,*/*",
+    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+    headers: {
+      Origin: "https://mdirect.hi.co.kr",
+      Referer: search.referer,
+    },
+    body,
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const payload = await response.json();
+  const termsUrl = normalizeHttpUrl(payload?.data?.prodExplan, search.endpoint);
+  if (!termsUrl) {
+    throw new Error("Missing prodExplan PDF URL");
+  }
+
+  const text = cleanText(
+    [
+      search.product_name,
+      search.product_code,
+      ...(search.keywords ?? []),
+      payload?.data?.prodExplan,
+    ]
+      .filter(Boolean)
+      .join(" "),
+  );
+
+  return [
+    {
+      text,
+      links: [
+        {
+          url: termsUrl,
+          href: payload.data.prodExplan,
+          text: "상품약관",
+          title: `${search.product_name} 상품약관`,
+          document_type: "terms",
+          discovered_from: search.endpoint,
+        },
+      ],
+    },
+  ];
+}
+
+function makeHyundaiDirectHeader(tranId) {
+  return {
+    userId: "",
+    tranId,
+    gId: "",
+    channelId: "service.do",
+    clientIp: "",
+    menuId: "",
+    responseCode: "",
+    responseMessage: "",
+    messageEnabled: "",
+    deviceId: "",
+    osId: "",
+    osType: "",
+    applicationVersion: "",
+    applicationId: "",
+    networkType: "",
+    phoneNumber: "",
+    compressYn: "",
+    sessionKey: "",
+  };
+}
+
+async function fetchSamsungLifePolicyRecords(search, options) {
+  const response = await fetchWithTimeout(search.endpoint, {
+    timeoutMs: options.timeoutMs,
+    method: "POST",
+    accept: "application/json,text/plain,*/*",
+    contentType: "application/json; charset=UTF-8",
+    headers: {
+      Origin: "https://direct.samsunglife.com",
+      Referer: search.referer,
+    },
+    body: JSON.stringify({
+      proType: search.pro_type,
+      baseHeaderVo: {
+        useChnlScCd: "PC",
+        reqSrnUrl: "/damoa.eds",
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const payload = await response.json();
+  const policy = payload?.data?.policy;
+  const policyUrl = normalizeHttpUrl(policy?.fullPath, search.endpoint);
+  if (!policyUrl) {
+    throw new Error("Missing policy.fullPath PDF URL");
+  }
+
+  const policyName = policy.name ?? search.product_name;
+  const text = cleanText(
+    [search.product_name, policyName, search.pro_type, ...(search.keywords ?? [])]
+      .filter(Boolean)
+      .join(" "),
+  );
+
+  return [
+    {
+      text,
+      links: [
+        {
+          url: policyUrl,
+          href: policy.fullPath,
+          text: "통합약관",
+          title: policyName,
+          document_type: "terms",
+          discovered_from: search.endpoint,
+        },
+      ],
+    },
+  ];
+}
+
+async function fetchShinhanLifeDisclosureRecords(search, options) {
+  const response = await fetchWithTimeout(search.endpoint, {
+    timeoutMs: options.timeoutMs,
+    method: "POST",
+    accept: "application/json,text/javascript,*/*;q=0.01",
+    contentType: "application/json; charset=UTF-8",
+    headers: {
+      Origin: "https://shinhanlife.co.kr",
+      Referer: search.referer,
+      "X-AJAX-CALL": "true",
+      "Proworks-Body": "Y",
+      "Proworks-Lang": "ko",
+    },
+    body: JSON.stringify({
+      elData: {
+        catId: search.category_id,
+        pageSize: search.page_size ?? 50,
+        pageIndex: 1,
+        method: "selectListGoods",
+        title: search.keyword,
+        meta06: "TRUE",
+        scrnId: "cdhi0030",
+      },
+      userHeader: {
+        scrnId: "cdhi0030",
+        appliDtptDutjCd: "DH",
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const payload = await response.json();
+  return (payload?.elData?.nodeInfoVoList ?? []).map((record) => ({
+    text: cleanText(
+      [
+        record.meta01,
+        record.meta02,
+        record.meta03,
+        record.meta05,
+        record.title,
+        record.meta07,
+        record.meta08,
+      ]
+        .filter(Boolean)
+        .join(" "),
+    ),
+    links: makeShinhanLifeDocumentLinks(record, search.endpoint),
+  }));
+}
+
+function makeShinhanLifeDocumentLinks(record, discoveredFrom) {
+  return [
+    ["summary", record.meta09, "상품요약서"],
+    ["business_method", record.meta10, "사업방법서"],
+    ["terms", record.meta11, "판매약관"],
+    ["medical", record.meta13, "실손/특약 문서"],
+  ]
+    .filter(([, path]) => Boolean(path))
+    .map(([documentType, path, label]) => {
+      const publicUrl = normalizeHttpUrl(
+        toShinhanLifePublicFilePath(path, record.wsId),
+        discoveredFrom,
+      );
+      return {
+        url: publicUrl,
+        href: path,
+        text: label,
+        title: `${record.meta05 ?? record.title ?? "신한라이프 상품"} ${label}`,
+        document_type: documentType,
+        discovered_from: discoveredFrom,
+      };
+    })
+    .filter((link) => Boolean(link.url));
+}
+
+function toShinhanLifePublicFilePath(path, workspaceId) {
+  const value = String(path);
+  if (workspaceId && value.startsWith(`/repo/${workspaceId}`)) {
+    return value.replace(`/repo/${workspaceId}`, "/bizxpress");
+  }
+  return value;
 }
 
 function parseCharset(contentType) {
@@ -954,7 +1238,7 @@ async function main() {
       timezone: "Asia/Seoul",
       generator: "scripts/insurance/collect-carrier-disclosures.mjs",
       input_product_probe: args.productProbe,
-      output_version: "1.0",
+      output_version: "1.1",
       target_limit: args.limit,
       max_documents_per_product: args.maxDocumentsPerProduct,
     },
@@ -969,7 +1253,7 @@ async function main() {
         "A product is seed-ready only after official document hash, sale status, premium basis, coverage_category, and risk_targets are approved.",
       ],
       next_actions: [
-        "Add carrier-specific JavaScript/API search adapters for Samsung Life, Hyundai Marine, KB Insurance, and Shinhan Life.",
+        "Add a KB Insurance document-download adapter for disclosure rows that expose product matches without direct PDF links.",
         "Create a review CSV from latest_official_sources_snapshot, latest_product_document_probe, and latest_carrier_disclosure_probe.",
         "Promote only hash-backed and human-approved products into service seed candidates.",
       ],

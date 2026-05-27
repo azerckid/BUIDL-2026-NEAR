@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-05-27T13:42:38.479+09:00",
+    "generated_at": "2026-05-28T01:52:31.714+09:00",
     "timezone": "Asia/Seoul",
     "generator": "scripts/insurance/build-review-queue.mjs",
     "output_version": "1.0",
@@ -12,10 +12,10 @@
   "counts": {
     "review_rows": 56,
     "rows_with_official_product_url": 47,
-    "rows_with_hashed_documents": 3,
-    "hashed_documents": 6,
-    "needs_human_review": 3,
-    "needs_source_document": 44,
+    "rows_with_hashed_documents": 6,
+    "hashed_documents": 11,
+    "needs_human_review": 6,
+    "needs_source_document": 41,
     "needs_official_product_url": 9
   },
   "qa": {
