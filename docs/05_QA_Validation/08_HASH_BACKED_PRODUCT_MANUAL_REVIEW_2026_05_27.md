@@ -1,12 +1,14 @@
-# [QA] Hash-backed 보험상품 수동 검수 결과
+# [QA] Hash-backed 보험상품 매칭 키워드 정리 결과
 > Created: 2026-05-27 15:36
-> Last Updated: 2026-05-28 03:00
+> Last Updated: 2026-05-28 03:56
 
 - **레이어**: 05_QA_Validation
-- **상태**: Manual Review v1.2 완료
-- **범위**: 공식 문서 hash가 확보된 7개 상품을 기준으로 판매상태, 보험료 기준, 보장 카테고리, 매칭 전략을 수동 검수했다.
-- **결론**: 현재 `insurance_products` seed에 바로 넣을 상품은 0개다. 암보험 2개는 `catalog_candidate`, 실손의료보험 4개는 `baseline_candidate`, 삼성생명 입원 건강보험 1개는 `schema_extension_required`로 분류한다. 서비스 seed 승격 전에는 보험료 기준, 판매상태, 보장 caveat, source row 삽입 방식을 추가 승인해야 한다.
+- **상태**: Matching Review v1.3 완료
+- **범위**: 공식 문서 hash가 확보된 7개 상품을 기준으로 판매상태, 보험료 기준, 보장 카테고리, 매칭 전략을 정리했다.
+- **결론**: 현재 `insurance_products` seed에 바로 넣을 만큼 매칭 키워드가 정리된 상품은 0개다. 암보험 2개는 `catalog_candidate`, 실손의료보험 4개는 `baseline_candidate`, 삼성생명 입원 건강보험 1개는 `schema_extension_required`로 분류한다. 서비스 seed 발행 전에는 보험료 기준, 판매상태, 보장 caveat, 질병-보장 매핑을 추가로 정리해야 한다.
 - **보험료 주의**: 현재 `premium_text`는 대표 비교 조건의 예시 보험료다. 나이/성별/납입기간별 변동 가격은 향후 `insurance_premium_quotes`에서 별도 검수한다.
+
+> 용어 주의: 이 문서의 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DNA risk target과 매칭하기 위해 `coverage_category`, `risk_targets`, `matching_strategy`, caveat를 정리하는 내부 데이터 정규화 작업을 뜻한다.
 
 ---
 
@@ -30,13 +32,13 @@
 | `catalog_candidate` | 2개 | 암보험으로 `risk_target` 매칭 후보이나, 보험료 기준과 보장 caveat 승인 전까지 seed에 넣지 않는다 |
 | `baseline_candidate` | 4개 | 실손의료보험으로 `medical_expense` + `baseline` 추천 후보이나, 유전자 질병 특화 추천으로 쓰지 않는다 |
 | `schema_extension_required` | 1개 | 삼성생명 입원 건강보험은 `hospitalization` 또는 `general_health` 계열 카테고리 결정이 필요하다 |
-| `current_insurance_products_seed_ready` | 0개 | 사용자 서비스 seed로 바로 승격할 상품은 없다 |
+| `current_insurance_products_seed_ready` | 0개 | 사용자 서비스 seed로 바로 발행할 상품은 없다 |
 
 ---
 
 ## 2. 상품별 판정
 
-| 보험사 | 상품 | 공식 문서 | 수동 검수 판정 | 추천 카테고리/전략 | 현재 DB seed 가능 여부 |
+| 보험사 | 상품 | 공식 문서 | 매칭 정리 판정 | 추천 카테고리/전략 | 현재 DB seed 가능 여부 |
 |---|---|---|---|---|---|
 | 한화생명 | 한화생명 e암보험(비갱신형)(무)(표준체형) | 상품요약서, 약관 | `catalog_candidate` | `oncology` / `risk_target` | 불가. 보험료 0원 값, 보장 caveat, source row 승인 필요 |
 | 신한라이프생명 | 신한SOL암보험(무배당, 해약환급금 미지급형)(비갱신형) | 상품요약서, 사업방법서, 판매약관 | `catalog_candidate` | `oncology` / `risk_target` | 불가. 90일 면책과 암 급부 caveat 승인 필요 |
@@ -59,7 +61,7 @@
 - 한화생명 보험다모아 수집값의 보험료가 `0원`이므로 실제 월 보험료로 사용할 수 없다.
 - 신한SOL암보험은 상품요약서 기준 비갱신형 인터넷 암보험으로 확인되지만, 암 급부 차이와 90일 면책 caveat를 사용자에게 함께 보여야 한다.
 - 유방암/직결장암 등은 일반암과 다른 급부로 구분될 수 있으므로, 단순 `risk_targets` 배열만으로는 보장 차이를 표현하기 어렵다.
-- source table 삽입 방식과 보험료 산정 기준을 승인하기 전까지 서비스 seed로 승격하지 않는다.
+- source table 삽입 방식과 보험료 산정 기준을 정리하기 전까지 서비스 seed로 발행하지 않는다.
 
 임시 매핑 후보는 다음과 같다.
 
@@ -77,7 +79,7 @@
 }
 ```
 
-이 매핑은 추천 후보 노출용이며, 보장금액과 급부 차이를 설명하는 caveat 필드가 승인된 뒤에만 서비스 seed로 승격한다.
+이 매핑은 추천 후보 노출용이며, 보장금액과 급부 차이를 설명하는 caveat 필드가 정리된 뒤에만 서비스 seed로 발행한다.
 
 ### 3-2. 실손의료보험 baseline 후보
 
@@ -96,7 +98,7 @@ DB손보, KB손보, 삼성화재, 현대해상 실손의료보험은 공식 약�
 1. `hospitalization` 또는 `general_health` 카테고리를 추가해 baseline 건강보험 후보로 관리한다.
 2. 추천 seed가 아니라 source-aware catalog에만 보관하고, 유전자 매칭 추천에는 노출하지 않는다.
 
-이 결정 전에는 seed 후보로 승격하지 않는다.
+이 결정 전에는 seed 후보로 발행하지 않는다.
 
 ---
 
@@ -104,16 +106,16 @@ DB손보, KB손보, 삼성화재, 현대해상 실손의료보험은 공식 약�
 
 | 파일 | 역할 |
 |---|---|
-| `data/insurance/latest_seed_candidate_review.json` | hash-backed 7개 상품의 수동 검수 결과와 문서 hash |
-| `data/insurance/latest_seed_candidate_review.csv` | 사람이 빠르게 볼 수 있는 승격/차단 요약 |
+| `data/insurance/latest_seed_candidate_review.json` | hash-backed 7개 상품의 매칭 키워드 정리 결과와 문서 hash |
+| `data/insurance/latest_seed_candidate_review.csv` | 사람이 빠르게 볼 수 있는 발행/차단 요약 |
 
-이번 산출물은 서비스 DB seed가 아니다. 다음 PR에서 승인된 상품만 source-aware seed 후보로 옮기되, 보험료 기준과 판매상태가 확정되지 않은 상품은 `needs_review` 상태로 유지한다.
+이번 산출물은 서비스 DB seed가 아니다. 다음 PR에서 매칭 키워드 정리 후보를 source-aware seed 후보로 옮기되, 보험료 기준과 판매상태가 확정되지 않은 상품은 `needs_review` 상태로 유지한다.
 
 ---
 
 ## 5. 다음 결정
 
-2026-05-28 02:36 KST 기준 스키마 확장과 DB migration은 완료됐다. 다음 결정은 seed 승격 정책이다.
+2026-05-28 02:36 KST 기준 스키마 확장과 DB migration은 완료됐다. 다음 결정은 seed 발행 정책이다.
 
 1. 한화생명/신한라이프 암보험을 `catalog_candidate`에서 `needs_review` seed 후보로 옮길지 결정한다.
 2. DB손보/KB손보/삼성화재/현대해상 실손의료보험을 `baseline` 추천으로 노출할지 결정한다.
@@ -139,13 +141,14 @@ DB손보, KB손보, 삼성화재, 현대해상 실손의료보험은 공식 약�
 
 ## 7. Related Documents
 
-- **Technical_Specs**: [Insurance Data Collection Pipeline](../03_Technical_Specs/01_INSURANCE_DATA_COLLECTION_PIPELINE.md) - 수집/검수/승격 파이프라인 명세
-- **Technical_Specs**: [Insurance Catalog Schema Extension](../03_Technical_Specs/02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md) - 수동 검수 이후 확정한 스키마 확장안
+- **Technical_Specs**: [Insurance Data Collection Pipeline](../03_Technical_Specs/01_INSURANCE_DATA_COLLECTION_PIPELINE.md) - 수집/매칭 키워드 정리/추천 snapshot 발행 파이프라인 명세
+- **Technical_Specs**: [Insurance Catalog Schema Extension](../03_Technical_Specs/02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md) - 매칭 키워드 정리 이후 확정한 스키마 확장안
 - **Logic_Progress**: [Two Pillars Service Update](../04_Logic_Progress/03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md) - 실제 상품 카탈로그 적용 트랙
-- **Logic_Progress**: [Premium Quote Policy](../04_Logic_Progress/04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md) - 조건별 보험료 matrix와 seed 승격 정책
+- **Logic_Progress**: [Premium Quote Policy](../04_Logic_Progress/04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md) - 조건별 보험료 matrix와 seed 발행 정책
+- **Technical_Specs**: [Insurance Matching Keyword Policy](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md) - DNA risk target과 보험상품 보장 키워드 매칭 기준
 - **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - Track A 다음 작업
-- **QA_Validation**: [Insurance Review Queue](./07_INSURANCE_REVIEW_QUEUE_2026_05_27.md) - 수동 검수 전 대기열 생성 결과
+- **QA_Validation**: [Insurance Matching Queue](./07_INSURANCE_REVIEW_QUEUE_2026_05_27.md) - 매칭 키워드 정리 전 대기열 생성 결과
 - **QA_Validation**: [Carrier Disclosure Crawler](./06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md) - 삼성화재/DB손보/KB손보/삼성생명/현대해상/신한라이프 문서 hash 확보 결과
 - **QA_Validation**: [Product Document Probe](./05_PRODUCT_DOCUMENT_PROBE_2026_05_27.md) - 한화생명 상품요약서/약관 hash 확보 결과
-- **Data**: [Latest Seed Candidate Review JSON](../../data/insurance/latest_seed_candidate_review.json) - 수동 검수 구조화 결과
-- **Data**: [Latest Seed Candidate Review CSV](../../data/insurance/latest_seed_candidate_review.csv) - 수동 검수 요약
+- **Data**: [Latest Seed Candidate Review JSON](../../data/insurance/latest_seed_candidate_review.json) - 매칭 키워드 정리 구조화 결과
+- **Data**: [Latest Seed Candidate Review CSV](../../data/insurance/latest_seed_candidate_review.csv) - 매칭 키워드 정리 요약

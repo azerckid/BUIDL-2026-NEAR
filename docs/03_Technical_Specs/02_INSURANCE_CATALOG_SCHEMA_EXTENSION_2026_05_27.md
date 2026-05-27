@@ -1,24 +1,24 @@
 # [기술 명세] 보험상품 카탈로그 스키마 확장안
 > Created: 2026-05-27 22:43
-> Last Updated: 2026-05-28 03:00
+> Last Updated: 2026-05-28 03:56
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Approved Design v1.1
+- **상태**: Approved Design v1.2
 - **범위**: 실제 한국 보험상품 수집 데이터, 공식 문서 hash, KRW 보험료, 실손의료보험, 서비스 추천 snapshot 스키마
-- **결론**: 원천 수집 테이블과 서비스 추천 테이블을 분리한다. `insurance_product_sources`와 `insurance_source_documents`에 공식 출처를 보존하고, 검수 승인된 상품만 확장된 `insurance_products`로 승격한다.
+- **결론**: 원천 수집 테이블과 서비스 추천 테이블을 분리한다. `insurance_product_sources`와 `insurance_source_documents`에 공식 출처를 보존하고, 질병-보장 매핑과 매칭 키워드 정리가 끝난 상품만 확장된 `insurance_products`로 발행한다.
 
 ---
 
 ## 1. 결정 요약
 
-Hash-backed 7개 상품 수동 검수 결과, 현재 `insurance_products`만으로는 실제 한국 보험상품과 조건별 보험료를 안전하게 담을 수 없다.
+Hash-backed 7개 상품의 매칭 키워드 정리 결과, 현재 `insurance_products`만으로는 실제 한국 보험상품과 조건별 보험료를 안전하게 담을 수 없다.
 
 따라서 스키마 확장 방향은 다음과 같이 확정한다.
 
 | 결정 | 내용 |
 |---|---|
 | 원천 데이터 저장 | `insurance_product_sources`, `insurance_source_documents`, `insurance_carriers`를 신설한다 |
-| 서비스 추천 저장 | 기존 `insurance_products`는 검수 승인된 추천 snapshot으로 유지하되 필드를 확장한다 |
+| 서비스 추천 저장 | 기존 `insurance_products`는 매칭 키워드 정리가 끝난 추천 snapshot으로 유지하되 필드를 확장한다 |
 | 실손의료보험 처리 | `coverage_category`에 `medical_expense`를 추가한다 |
 | 매칭 방식 분리 | `matching_strategy`를 추가해 유전자 위험 매칭과 기본 의료비 보장을 분리한다 |
 | 원화 보험료 | `monthly_premium_krw`, `premium_currency`, `premium_basis`를 추가한다 |
@@ -26,7 +26,7 @@ Hash-backed 7개 상품 수동 검수 결과, 현재 `insurance_products`만으�
 | 출처 신뢰성 | `source_url`, `source_checked_at`, `primary_source_document_id` 또는 source table FK를 저장한다 |
 | 보장 caveat | `coverage_details_json`, `coverage_caveats_json`으로 급부 차이와 제한사항을 보존한다 |
 
-핵심 원칙은 “수집된 상품”과 “추천 가능한 상품”을 섞지 않는 것이다. 보험다모아/공시실에서 가져온 모든 상품은 먼저 원천 테이블에 들어가고, 사람이 검수한 뒤에만 추천 snapshot이 된다.
+핵심 원칙은 “수집된 상품”과 “추천 매칭 가능한 상품”을 섞지 않는 것이다. 보험다모아/공시실에서 가져온 모든 상품은 먼저 원천 테이블에 들어가고, 질병-보장 매핑과 매칭 키워드 정리가 끝난 뒤에만 추천 snapshot이 된다. 여기서 `approved`는 외부 승인이나 보험상품 심사가 아니라 내부 추천 매칭 가능 상태를 뜻한다.
 
 ---
 
@@ -39,7 +39,7 @@ Hash-backed 7개 상품 수동 검수 결과, 현재 `insurance_products`만으�
 | `risk_targets`가 필수 | 실손처럼 특정 유전자 플래그에 직접 연결하면 안 되는 상품을 표현할 수 없음 |
 | 출처 필드 없음 | 추천 결과에 공식 문서, 확인일, hash를 표시할 수 없음 |
 | 급부 세부사항 없음 | 암보험의 일반암/소액암/유사암처럼 다른 보장 조건을 표현할 수 없음 |
-| 판매상태 검수 필드 없음 | 판매중/판매중지/확인불가 상태를 구분할 수 없음 |
+| 매칭 준비 상태 필드 없음 | 수집 완료/매칭 키워드 정리 필요/추천 매칭 가능 상태를 구분할 수 없음 |
 
 ---
 
@@ -50,12 +50,12 @@ insurance_carriers (1)
   ├──< insurance_product_sources (N)
   │       ├──< insurance_source_documents (N)
   │       ├──< insurance_premium_quotes (N, future)
-  │       └──< insurance_products (0..N, approved snapshots)
+  │       └──< insurance_products (0..N, matching-ready snapshots)
   │
 insurance_products (N) >──< recommendation_carts (N:M, via cart_items JSON)
 ```
 
-`insurance_product_sources`는 원천 카탈로그다. `insurance_products`는 사용자에게 추천 가능한 승인 snapshot이다.
+`insurance_product_sources`는 원천 카탈로그다. `insurance_products`는 사용자에게 추천 가능한 matching-ready snapshot이다.
 `insurance_premium_quotes`는 나이/성별/납입기간/보장금액별 가격 matrix를 저장하는 향후 확장 테이블이다.
 
 ---
@@ -169,11 +169,11 @@ insurance_products (N) >──< recommendation_carts (N:M, via cart_items JSON)
 
 ## 5. `insurance_products` 확장
 
-기존 테이블은 추천 가능한 승인 snapshot으로 유지한다. 다만 실제 한국 상품을 표시하기 위해 다음 필드를 추가한다.
+기존 테이블은 추천 매칭 가능한 snapshot으로 유지한다. 다만 실제 한국 상품을 표시하기 위해 다음 필드를 추가한다.
 
 | 컬럼 | 타입 | 설명 |
 |---|---|---|
-| `product_source_id` | TEXT NULL | 승인된 원천 상품 FK |
+| `product_source_id` | TEXT NULL | 매칭 키워드 정리가 끝난 원천 상품 FK |
 | `monthly_premium_krw` | INTEGER NULL | 공식 KRW 월 보험료 |
 | `premium_currency` | TEXT NOT NULL DEFAULT `KRW` | 원 보험료 통화 |
 | `premium_basis` | TEXT NULL | 보험료 산정 기준 |
@@ -184,9 +184,9 @@ insurance_products (N) >──< recommendation_carts (N:M, via cart_items JSON)
 | `primary_source_document_id` | TEXT NULL | 대표 문서 FK |
 | `catalog_status` | TEXT NOT NULL DEFAULT `approved` | `approved`, `needs_review`, `archived` |
 
-`monthly_premium_usdc`는 계속 `NOT NULL`로 유지한다. 한국 공식 원천 가격은 `monthly_premium_krw`와 `premium_basis`에 보존하지만, 현재 checkout/demo 정산 경로와 Confidential Intents + USDC 결제 설계는 USDC 금액을 기준으로 동작하기 때문이다. 따라서 KRW-only 원천 상품을 추천 snapshot으로 승격할 때는 검수 시점의 환산 USDC 값을 함께 저장한다.
+`monthly_premium_usdc`는 계속 `NOT NULL`로 유지한다. 한국 공식 원천 가격은 `monthly_premium_krw`와 `premium_basis`에 보존하지만, 현재 checkout/demo 정산 경로와 Confidential Intents + USDC 결제 설계는 USDC 금액을 기준으로 동작하기 때문이다. 따라서 KRW-only 원천 상품을 추천 snapshot으로 발행할 때는 매칭 키워드 정리 시점의 환산 USDC 값을 함께 저장한다.
 
-`monthly_premium_krw`와 `premium_basis`는 대표 보험료 snapshot이다. 사용자의 나이/성별에 따라 동적으로 바뀌는 보험료로 해석하면 안 된다. 조건별 보험료 비교가 필요해지면 `insurance_premium_quotes`에서 승인된 quote row를 조회한다.
+`monthly_premium_krw`와 `premium_basis`는 대표 보험료 snapshot이다. 사용자의 나이/성별에 따라 동적으로 바뀌는 보험료로 해석하면 안 된다. 조건별 보험료 비교가 필요해지면 `insurance_premium_quotes`에서 조건별 산정 기준이 정리된 quote row를 조회한다.
 
 `coverage_category` enum은 다음처럼 확장한다.
 
@@ -211,7 +211,7 @@ insurance_products (N) >──< recommendation_carts (N:M, via cart_items JSON)
 | 암보험 | `oncology` | `risk_target` | 암 관련 플래그 | 유전자 위험 기반 추천 |
 | 심혈관/대사/신경계 질병보험 | 기존 3개 카테고리 | `risk_target` | 관련 플래그 | 유전자 위험 기반 추천 |
 | 실손의료보험 | `medical_expense` | `baseline` | 빈 배열 허용 | 기본 의료비 보장 후보 |
-| 검수 보류 상품 | 원천 상품군 유지 | 없음 | 없음 | 추천 미노출 |
+| 매칭 키워드 정리 필요 상품 | 원천 상품군 유지 | 없음 | 없음 | 추천 미노출 |
 
 `matchProducts`의 결정론적 매칭은 유지한다. 단, `baseline` 상품은 위험 플래그 교집합 점수에 넣지 않고 별도 섹션으로 노출한다.
 
@@ -225,32 +225,32 @@ baseline 상품:
 
 ---
 
-## 7. 승격 워크플로우
+## 7. 추천 snapshot 발행 워크플로우
 
 ```text
 1. Collector/Crawler가 raw product row와 source document hash를 저장
 2. Parser가 보험료, 보장 요약, caveat 후보를 추출
-3. 사람이 sale_status, premium_basis, coverage_category, matching_strategy를 검수
-4. 대표 보험료의 premium_basis가 불명확하면 approved snapshot으로 승격하지 않음
-5. review_status=approved인 원천 상품만 insurance_products snapshot으로 승격
+3. 질병-보장 매핑과 coverage_category, risk_targets, matching_strategy를 정리
+4. 대표 보험료의 premium_basis가 불명확하면 matching-ready snapshot으로 발행하지 않음
+5. review_status=approved인 원천 상품만 insurance_products snapshot으로 발행
 6. source document hash가 변경되면 catalog_status=needs_review로 되돌림
-7. 재검수 후 snapshot을 갱신하거나 archived 처리
+7. 매칭 키워드 재정리 후 snapshot을 갱신하거나 archived 처리
 ```
 
 서비스 화면은 `insurance_products`만 읽고, 상세 출처/감사 화면은 source tables를 참조한다.
 
 ---
 
-## 8. hash-backed 검수 상품 적용 판정
+## 8. hash-backed 매칭 키워드 정리 상품 적용 판정
 
-| 상품 | 원천 테이블 저장 | 추천 snapshot 승격 | 이유 |
+| 상품 | 원천 테이블 저장 | 추천 snapshot 발행 | 이유 |
 |---|---|---|---|
-| 한화생명 e암보험 | 가능 | 보류 | `oncology/risk_target` 후보이나 `0원` 보험료와 caveat 검수 필요 |
-| 신한SOL암보험 | 가능 | 보류 | `oncology/risk_target` 후보이나 90일 면책, 암 급부 차이, premium_basis 승인 필요 |
-| DB손보 다이렉트 실손 | 가능 | 보류 | `medical_expense/baseline` 후보이나 premium_basis 승인 필요 |
-| KB손보 다이렉트 실손 | 가능 | 보류 | `medical_expense/baseline` 후보이나 premium_basis 승인 필요 |
-| 삼성화재 다이렉트 실손 | 가능 | 보류 | `medical_expense/baseline` 후보이나 판매상태와 premium_basis 승인 필요 |
-| 현대해상 다이렉트 실손 | 가능 | 보류 | `medical_expense/baseline` 후보이나 갱신형 caveat와 premium_basis 승인 필요 |
+| 한화생명 e암보험 | 가능 | 보류 | `oncology/risk_target` 후보이나 `0원` 보험료와 암 급부 caveat 정리 필요 |
+| 신한SOL암보험 | 가능 | 보류 | `oncology/risk_target` 후보이나 90일 면책, 암 급부 차이, premium_basis 정리 필요 |
+| DB손보 다이렉트 실손 | 가능 | 보류 | `medical_expense/baseline` 후보이나 premium_basis 정리 필요 |
+| KB손보 다이렉트 실손 | 가능 | 보류 | `medical_expense/baseline` 후보이나 premium_basis 정리 필요 |
+| 삼성화재 다이렉트 실손 | 가능 | 보류 | `medical_expense/baseline` 후보이나 판매상태와 premium_basis 확인 필요 |
+| 현대해상 다이렉트 실손 | 가능 | 보류 | `medical_expense/baseline` 후보이나 갱신형 caveat와 premium_basis 정리 필요 |
 | 삼성생명 인터넷 입원 건강보험 | 가능 | 보류 | `hospitalization` 또는 `general_health` 카테고리 결정 필요 |
 
 ---
@@ -285,7 +285,7 @@ baseline 상품:
 
 | Rubric | 영향 |
 |---|---|
-| Functionality | 실제 보험상품을 수집, 검수, 추천 snapshot으로 승격하는 흐름을 구현 가능하게 한다 |
+| Functionality | 실제 보험상품을 수집하고 매칭 키워드를 정리해 추천 snapshot으로 발행하는 흐름을 구현 가능하게 한다 |
 | Potential Impact | 실손의료보험과 암보험을 함께 다룰 수 있어 한국 시장 커버리지가 넓어진다 |
 | Novelty | 공식 문서 hash와 유전자 위험 매칭을 분리해 검증 가능한 보험 추천을 만든다 |
 | UX | 사용자는 추천 이유, 보험료 기준, 출처 확인일, caveat를 함께 볼 수 있다 |
@@ -297,9 +297,10 @@ baseline 상품:
 ## 12. Related Documents
 
 - **Technical_Specs**: [DB Schema](./DB_SCHEMA.md) - 현재 구현 스키마와 기존 `insurance_products` 구조
-- **Technical_Specs**: [Insurance Data Collection Pipeline](./01_INSURANCE_DATA_COLLECTION_PIPELINE.md) - 수집/검수/승격 파이프라인
+- **Technical_Specs**: [Insurance Data Collection Pipeline](./01_INSURANCE_DATA_COLLECTION_PIPELINE.md) - 수집/매칭 키워드 정리/추천 snapshot 발행 파이프라인
+- **Technical_Specs**: [Insurance Matching Keyword Policy](./03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md) - DNA risk target과 보험상품 보장 키워드 매칭 기준
 - **Logic_Progress**: [Two Pillars Service Update](../04_Logic_Progress/03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md) - 실제 보험상품 카탈로그 적용 트랙
-- **Logic_Progress**: [Premium Quote Policy](../04_Logic_Progress/04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md) - 조건별 보험료 matrix와 seed 승격 정책
+- **Logic_Progress**: [Premium Quote Policy](../04_Logic_Progress/04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md) - 조건별 보험료 matrix와 seed 발행 정책
 - **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - 다음 구현 단계
-- **QA_Validation**: [Hash-backed Product Manual Review](../05_QA_Validation/08_HASH_BACKED_PRODUCT_MANUAL_REVIEW_2026_05_27.md) - 스키마 gap을 만든 검수 근거
+- **QA_Validation**: [Hash-backed Matching Keyword Review](../05_QA_Validation/08_HASH_BACKED_PRODUCT_MANUAL_REVIEW_2026_05_27.md) - 스키마 gap을 만든 매칭 키워드 정리 근거
 - **QA_Validation**: [DB Migration 0004/0005 Validation](../05_QA_Validation/09_DB_MIGRATION_0004_0005_2026_05_28.md) - Turso 적용 및 검증 결과
