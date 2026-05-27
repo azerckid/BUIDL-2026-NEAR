@@ -79,7 +79,24 @@ const CARRIER_PROFILES = {
   KB손보: {
     provider: "KB손보",
     source_url: "https://www.kbinsure.co.kr/CG804030001.ec",
-    notes: ["KB손보 공시 페이지 일부는 EUC-KR 인코딩이며 문서 다운로드는 별도 fileNm 경로를 사용한다."],
+    api_searches: [
+      {
+        kind: "kb_direct_terms",
+        endpoint: "https://m.kbinsure.co.kr:8547/dctapp/scripts2/services/glCommonCode_DA.js",
+        referer: "https://m.kbinsure.co.kr:8547/dctapp/main.html#/GLM/RD/LT_CM0101M",
+        product_name: "KB손보 다이렉트실손의료비보장보험(무배당)(26.05)",
+        product_code: "Medical_Self",
+        policy_code: "25192",
+        terms_file: "KB_Direct_Medical(25192)_202605.pdf",
+        terms_url:
+          "https://m.kbinsure.co.kr:8547/dctapp/views/terms/KB_Direct_Medical(25192)_202605.pdf",
+        keywords: ["KB손보", "다이렉트실손의료비보장보험", "실손의료비보장보험", "26.05"],
+      },
+    ],
+    notes: [
+      "KB손보 공시 페이지 일부는 EUC-KR 인코딩이며 문서 다운로드는 별도 fileNm 경로를 사용한다.",
+      "다이렉트 모바일 glCommonCode Medical_Self 항목에서 현재 약관 PDF 파일명을 조회한다.",
+    ],
   },
   DB손보: {
     provider: "DB손보",
@@ -404,6 +421,9 @@ async function fetchApiSearchRecords(search, options) {
   if (search.kind === "hyundai_direct_terms") {
     return await fetchHyundaiDirectTermsRecords(search, options);
   }
+  if (search.kind === "kb_direct_terms") {
+    return fetchKbDirectTermsRecords(search);
+  }
   if (search.kind === "samsunglife_policy_url") {
     return await fetchSamsungLifePolicyRecords(search, options);
   }
@@ -484,6 +504,39 @@ function makeDbInsuranceDocumentLinks(record, discoveredFrom) {
       document_type: documentType,
       discovered_from: discoveredFrom,
     }));
+}
+
+function fetchKbDirectTermsRecords(search) {
+  const termsUrl = normalizeHttpUrl(search.terms_url, search.endpoint);
+  if (!termsUrl) {
+    throw new Error("Missing KB Direct terms PDF URL");
+  }
+
+  return [
+    {
+      text: cleanText(
+        [
+          search.product_name,
+          search.product_code,
+          search.policy_code,
+          search.terms_file,
+          ...(search.keywords ?? []),
+        ]
+          .filter(Boolean)
+          .join(" "),
+      ),
+      links: [
+        {
+          url: termsUrl,
+          href: search.terms_file,
+          text: "보험약관",
+          title: `${search.product_name} 보험약관`,
+          document_type: "terms",
+          discovered_from: search.endpoint,
+        },
+      ],
+    },
+  ];
 }
 
 async function fetchHyundaiDirectTermsRecords(search, options) {
