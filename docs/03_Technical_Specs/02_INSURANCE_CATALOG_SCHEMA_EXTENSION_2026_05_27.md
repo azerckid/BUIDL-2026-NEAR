@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 카탈로그 스키마 확장안
 > Created: 2026-05-27 22:43
-> Last Updated: 2026-05-28 01:14
+> Last Updated: 2026-05-28 03:00
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Approved Design v1
+- **상태**: Approved Design v1.1
 - **범위**: 실제 한국 보험상품 수집 데이터, 공식 문서 hash, KRW 보험료, 실손의료보험, 서비스 추천 snapshot 스키마
 - **결론**: 원천 수집 테이블과 서비스 추천 테이블을 분리한다. `insurance_product_sources`와 `insurance_source_documents`에 공식 출처를 보존하고, 검수 승인된 상품만 확장된 `insurance_products`로 승격한다.
 
@@ -11,7 +11,7 @@
 
 ## 1. 결정 요약
 
-Hash-backed 3개 상품 수동 검수 결과, 현재 `insurance_products`만으로는 실제 한국 보험상품을 안전하게 담을 수 없다.
+Hash-backed 7개 상품 수동 검수 결과, 현재 `insurance_products`만으로는 실제 한국 보험상품과 조건별 보험료를 안전하게 담을 수 없다.
 
 따라서 스키마 확장 방향은 다음과 같이 확정한다.
 
@@ -22,6 +22,7 @@ Hash-backed 3개 상품 수동 검수 결과, 현재 `insurance_products`만으�
 | 실손의료보험 처리 | `coverage_category`에 `medical_expense`를 추가한다 |
 | 매칭 방식 분리 | `matching_strategy`를 추가해 유전자 위험 매칭과 기본 의료비 보장을 분리한다 |
 | 원화 보험료 | `monthly_premium_krw`, `premium_currency`, `premium_basis`를 추가한다 |
+| 조건별 보험료 | 대표 보험료와 분리해 향후 `insurance_premium_quotes` 테이블로 관리한다 |
 | 출처 신뢰성 | `source_url`, `source_checked_at`, `primary_source_document_id` 또는 source table FK를 저장한다 |
 | 보장 caveat | `coverage_details_json`, `coverage_caveats_json`으로 급부 차이와 제한사항을 보존한다 |
 
@@ -48,12 +49,14 @@ Hash-backed 3개 상품 수동 검수 결과, 현재 `insurance_products`만으�
 insurance_carriers (1)
   ├──< insurance_product_sources (N)
   │       ├──< insurance_source_documents (N)
+  │       ├──< insurance_premium_quotes (N, future)
   │       └──< insurance_products (0..N, approved snapshots)
   │
 insurance_products (N) >──< recommendation_carts (N:M, via cart_items JSON)
 ```
 
 `insurance_product_sources`는 원천 카탈로그다. `insurance_products`는 사용자에게 추천 가능한 승인 snapshot이다.
+`insurance_premium_quotes`는 나이/성별/납입기간/보장금액별 가격 matrix를 저장하는 향후 확장 테이블이다.
 
 ---
 
@@ -130,6 +133,38 @@ insurance_products (N) >──< recommendation_carts (N:M, via cart_items JSON)
 | `extracted_text_hash` | TEXT NULL | 텍스트 추출 결과 hash |
 | `created_at` | INTEGER NOT NULL | 생성 시각 |
 
+### 4-4. `insurance_premium_quotes` (향후 확장)
+
+현재 `insurance_product_sources.monthly_premium_krw`와 `insurance_products.monthly_premium_krw`는 대표 보험료 1개만 보존한다. 나이, 성별, 납입기간, 보장금액에 따라 달라지는 보험료는 같은 상품에 여러 row가 생기므로 별도 quote table로 분리한다.
+
+이 테이블은 이번 seed 정책 PR에서 바로 구현하지 않고, 보험다모아/보험사 quote 재조회 PoC 이후 별도 DB schema PR로 추가한다.
+
+| 컬럼 | 타입 | 설명 |
+|---|---|---|
+| `id` | TEXT PK | quote row ID |
+| `product_source_id` | TEXT FK | `insurance_product_sources.id` |
+| `carrier_id` | TEXT FK | `insurance_carriers.id` |
+| `age` | INTEGER NULL | 조회 기준 나이 |
+| `sex` | TEXT NULL | `male`, `female`, `source_unknown` 등 정규화 값 |
+| `source_sex_code` | TEXT NULL | 원문 파라미터. 예: `M`, `2` |
+| `payment_cycle` | TEXT NULL | 월납, 연납 등 |
+| `payment_period_years` | INTEGER NULL | 납입기간 |
+| `insurance_period_years` | INTEGER NULL | 보험기간 |
+| `coverage_amount_krw` | INTEGER NULL | 기준 가입금액 또는 보장금액 |
+| `plan_name` | TEXT NULL | 기본형/표준체/비흡연체/해약환급금 미지급형 등 |
+| `renewal_type` | TEXT NULL | 갱신형, 비갱신형, 혼합 |
+| `riders_json` | TEXT NULL | 특약 조합 JSON |
+| `premium_currency` | TEXT NOT NULL | 기본 `KRW` |
+| `monthly_premium_krw` | INTEGER NULL | 조건별 월 보험료 |
+| `premium_text` | TEXT NULL | 원문 표시값 |
+| `quote_source_type` | TEXT NOT NULL | `e_insmarket`, `carrier_quote`, `association`, `manual` |
+| `quote_source_url` | TEXT NULL | 조회 URL |
+| `quote_params_json` | TEXT NULL | 조회 파라미터 원문 JSON |
+| `quote_hash_sha256` | TEXT NULL | 응답 본문 또는 가격 원문 hash |
+| `retrieved_at` | INTEGER NOT NULL | 수집 시각 |
+| `review_status` | TEXT NOT NULL | `raw`, `needs_review`, `approved`, `rejected` |
+| `created_at` | INTEGER NOT NULL | 생성 시각 |
+
 ---
 
 ## 5. `insurance_products` 확장
@@ -150,6 +185,8 @@ insurance_products (N) >──< recommendation_carts (N:M, via cart_items JSON)
 | `catalog_status` | TEXT NOT NULL DEFAULT `approved` | `approved`, `needs_review`, `archived` |
 
 `monthly_premium_usdc`는 계속 `NOT NULL`로 유지한다. 한국 공식 원천 가격은 `monthly_premium_krw`와 `premium_basis`에 보존하지만, 현재 checkout/demo 정산 경로와 Confidential Intents + USDC 결제 설계는 USDC 금액을 기준으로 동작하기 때문이다. 따라서 KRW-only 원천 상품을 추천 snapshot으로 승격할 때는 검수 시점의 환산 USDC 값을 함께 저장한다.
+
+`monthly_premium_krw`와 `premium_basis`는 대표 보험료 snapshot이다. 사용자의 나이/성별에 따라 동적으로 바뀌는 보험료로 해석하면 안 된다. 조건별 보험료 비교가 필요해지면 `insurance_premium_quotes`에서 승인된 quote row를 조회한다.
 
 `coverage_category` enum은 다음처럼 확장한다.
 
@@ -194,22 +231,27 @@ baseline 상품:
 1. Collector/Crawler가 raw product row와 source document hash를 저장
 2. Parser가 보험료, 보장 요약, caveat 후보를 추출
 3. 사람이 sale_status, premium_basis, coverage_category, matching_strategy를 검수
-4. review_status=approved인 원천 상품만 insurance_products snapshot으로 승격
-5. source document hash가 변경되면 catalog_status=needs_review로 되돌림
-6. 재검수 후 snapshot을 갱신하거나 archived 처리
+4. 대표 보험료의 premium_basis가 불명확하면 approved snapshot으로 승격하지 않음
+5. review_status=approved인 원천 상품만 insurance_products snapshot으로 승격
+6. source document hash가 변경되면 catalog_status=needs_review로 되돌림
+7. 재검수 후 snapshot을 갱신하거나 archived 처리
 ```
 
 서비스 화면은 `insurance_products`만 읽고, 상세 출처/감사 화면은 source tables를 참조한다.
 
 ---
 
-## 8. 3개 검수 상품 적용 판정
+## 8. hash-backed 검수 상품 적용 판정
 
 | 상품 | 원천 테이블 저장 | 추천 snapshot 승격 | 이유 |
 |---|---|---|---|
-| 한화생명 e암보험 | 가능 | 스키마 확장 후 가능 | `oncology/risk_target` 후보이나 보험료 기준과 caveat 필드 필요 |
-| DB손보 다이렉트 실손 | 가능 | 스키마 확장 후 가능 | `medical_expense/baseline` 필요 |
-| 삼성화재 다이렉트 실손 | 가능 | 추가 문서 확인 후 가능 | `medical_expense/baseline` 필요, 판매상태/요약서 추가 확인 필요 |
+| 한화생명 e암보험 | 가능 | 보류 | `oncology/risk_target` 후보이나 `0원` 보험료와 caveat 검수 필요 |
+| 신한SOL암보험 | 가능 | 보류 | `oncology/risk_target` 후보이나 90일 면책, 암 급부 차이, premium_basis 승인 필요 |
+| DB손보 다이렉트 실손 | 가능 | 보류 | `medical_expense/baseline` 후보이나 premium_basis 승인 필요 |
+| KB손보 다이렉트 실손 | 가능 | 보류 | `medical_expense/baseline` 후보이나 premium_basis 승인 필요 |
+| 삼성화재 다이렉트 실손 | 가능 | 보류 | `medical_expense/baseline` 후보이나 판매상태와 premium_basis 승인 필요 |
+| 현대해상 다이렉트 실손 | 가능 | 보류 | `medical_expense/baseline` 후보이나 갱신형 caveat와 premium_basis 승인 필요 |
+| 삼성생명 인터넷 입원 건강보험 | 가능 | 보류 | `hospitalization` 또는 `general_health` 카테고리 결정 필요 |
 
 ---
 
@@ -224,6 +266,7 @@ baseline 상품:
 7. [x] `matchProducts`에서 risk-target 추천과 baseline 추천을 분리한다.
 8. [x] UI는 추천 카드에 출처, 확인일, 보험료 기준, caveat를 표시한다.
 9. [x] Turso DB에 `0004_panoramic_firebird.sql`과 `0005_common_boom_boom.sql`을 백업 후 적용한다.
+10. [ ] 조건별 보험료 matrix는 `insurance_premium_quotes`로 별도 설계한다.
 
 ---
 
@@ -233,6 +276,8 @@ baseline 상품:
 
 - `src/lib/db/seed.ts` 실제 상품 교체
 - 보험료 KRW/USDC 환산 로직 구현
+- `insurance_premium_quotes` DB migration
+- 나이/성별/납입기간별 보험료 matrix 수집
 
 ---
 
@@ -254,6 +299,7 @@ baseline 상품:
 - **Technical_Specs**: [DB Schema](./DB_SCHEMA.md) - 현재 구현 스키마와 기존 `insurance_products` 구조
 - **Technical_Specs**: [Insurance Data Collection Pipeline](./01_INSURANCE_DATA_COLLECTION_PIPELINE.md) - 수집/검수/승격 파이프라인
 - **Logic_Progress**: [Two Pillars Service Update](../04_Logic_Progress/03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md) - 실제 보험상품 카탈로그 적용 트랙
+- **Logic_Progress**: [Premium Quote Policy](../04_Logic_Progress/04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md) - 조건별 보험료 matrix와 seed 승격 정책
 - **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - 다음 구현 단계
 - **QA_Validation**: [Hash-backed Product Manual Review](../05_QA_Validation/08_HASH_BACKED_PRODUCT_MANUAL_REVIEW_2026_05_27.md) - 스키마 gap을 만든 검수 근거
 - **QA_Validation**: [DB Migration 0004/0005 Validation](../05_QA_Validation/09_DB_MIGRATION_0004_0005_2026_05_28.md) - Turso 적용 및 검증 결과
