@@ -1,9 +1,9 @@
 # [실행 전략] 두 기둥 기반 서비스 업데이트 계획
 > Created: 2026-05-27 02:55
-> Last Updated: 2026-05-28 02:28
+> Last Updated: 2026-05-28 02:36
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v1.8
+- **상태**: Draft v1.9
 - **범위**: 실제 보험상품 카탈로그 적용 준비, NEAR 기술 업데이트 적용 준비
 - **결론**: 서비스 적용의 두 기둥은 `실제 보험상품 탐색`과 `NEAR 프라이버시 기술 적용`이며, 두 영역은 결정론적 매칭 엔진으로 연결한다.
 
@@ -164,7 +164,7 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - [x] 보험사 공시실 PDF crawler v1 작성 및 삼성화재 실손 약관 hash 확보
 - [x] DB손보 공시실 JavaScript/API adapter로 실손 약관/사업방법서/상품요약서 hash 확보
 - [x] 검수 CSV v1 생성 (`latest_insurance_review_queue.csv`)
-- [x] hash-backed 3개 상품 수동 검수 후 seed 후보 승격 여부 결정
+- [x] hash-backed 1차 상품 수동 검수 후 seed 후보 승격 여부 결정
 - [x] 실제 상품 seed 반영 전 `medical_expense`, KRW 보험료, 출처 hash 필드의 스키마 확장안 확정
 - [x] Drizzle schema와 Zod schema에 보험 카탈로그 확장안 반영
 - [x] Drizzle migration SQL 생성 (`drizzle/0004_panoramic_firebird.sql`)
@@ -173,10 +173,11 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - [x] 추천 카드 UI에 baseline/출처/보험료 기준/caveat 표시
 - [x] 삼성생명, 현대해상, 신한라이프 공시/상품 JavaScript API adapter로 PDF 후보 보강
 - [x] KB손보 공시 row의 별도 문서 다운로드 경로 보강
+- [x] hash-backed 7개 상품 수동 검수 후 catalog/baseline/schema-extension 후보 분류
 - [ ] 전체 상품별 출처 URL, 확인일, 원문 hash, 보험료 산정 기준 기록
 - [x] PDF 다운로드 가능성 PoC 수행
 - [x] 월간/분기 정기 갱신 체크리스트 작성 (`03_INSURANCE_DATA_REFRESH_QA.md`)
-- [ ] 기존 `seed.ts` mock 상품을 실제 seed 후보로 교체하는 PR 준비
+- [ ] source-aware seed 후보 승격 정책 확정 및 기존 `seed.ts` mock 상품 교체 PR 준비
 - [ ] `monthly_premium_krw`와 `monthly_premium_usdc` 병행 저장 여부 결정
 - [ ] HIRA 질병 통계를 `risk_targets` 근거 보강 자료로 연결
 

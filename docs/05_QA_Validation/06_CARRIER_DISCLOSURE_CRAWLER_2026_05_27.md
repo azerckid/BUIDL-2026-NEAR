@@ -1,6 +1,6 @@
 # [QA] 보험사 공시실 PDF Crawler v1.2 결과
 > Created: 2026-05-27 13:23
-> Last Updated: 2026-05-28 02:28
+> Last Updated: 2026-05-28 02:36
 
 - **레이어**: 05_QA_Validation
 - **상태**: Crawler v1.2 완료
@@ -76,7 +76,7 @@ npm run collect:insurance:disclosures
 
 ## 5. 다음 작업
 
-1. hash-backed 7개 row의 판매상태, 보험료 기준, 보장 카테고리, risk_targets를 수동 검수한다.
+1. 수동 검수 완료된 7개 row의 source-aware seed 승격 정책을 확정한다.
 2. `latest_official_sources_snapshot.json`, `latest_product_document_probe.json`, `latest_carrier_disclosure_probe.json`을 결합한 검수 CSV를 운영한다.
 3. hash와 사람이 승인한 상품만 `review_status=needs_review` 또는 seed 후보로 승격한다.
 
