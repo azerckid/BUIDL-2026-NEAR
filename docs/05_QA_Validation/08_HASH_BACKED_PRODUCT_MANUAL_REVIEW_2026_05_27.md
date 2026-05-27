@@ -1,11 +1,11 @@
 # [QA] Hash-backed 보험상품 수동 검수 결과
 > Created: 2026-05-27 15:36
-> Last Updated: 2026-05-28 01:52
+> Last Updated: 2026-05-28 02:28
 
 - **레이어**: 05_QA_Validation
-- **상태**: Manual Review v1 완료, v1.1 추가 검수 대기
-- **범위**: v1 수동 검수는 공식 문서 hash가 확보된 3개 상품 기준으로 완료했다. 2026-05-28 crawler v1.1 이후 hash-backed row는 6개로 늘어났으며, 신규 3개는 아직 수동 검수 전이다.
-- **결론**: v1 기준 현재 `insurance_products` 스키마에 바로 넣을 수 있는 상품은 0개다. 한화생명 e암보험은 출처 기반 카탈로그 후보로 승격 가능하지만, DB손보/삼성화재 실손의료보험은 `medical_expense` 계열 스키마가 먼저 필요하다. v1.1 신규 상품은 판매상태, 보험료 산정 기준, 보장 카테고리, risk_targets 검수 전까지 seed 후보로 승격하지 않는다.
+- **상태**: Manual Review v1 완료, v1.2 추가 검수 대기
+- **범위**: v1 수동 검수는 공식 문서 hash가 확보된 3개 상품 기준으로 완료했다. 2026-05-28 crawler v1.2 이후 hash-backed row는 7개로 늘어났으며, 신규 4개는 아직 수동 검수 전이다.
+- **결론**: v1 기준 현재 `insurance_products` 스키마에 바로 넣을 수 있는 상품은 0개다. 한화생명 e암보험은 출처 기반 카탈로그 후보로 승격 가능하지만, DB손보/삼성화재 실손의료보험은 `medical_expense` 계열 스키마가 먼저 필요하다. v1.2 신규 상품은 판매상태, 보험료 산정 기준, 보장 카테고리, risk_targets 검수 전까지 seed 후보로 승격하지 않는다.
 
 ---
 
@@ -22,11 +22,12 @@
 
 ### 1-1. 2026-05-28 추가 검수 대기
 
-보험사 공시실 crawler v1.1에서 아래 상품이 새로 `needs_human_review`에 포함됐다. 아직 PDF 내용 수동 검수와 카테고리 매핑을 완료하지 않았으므로 `latest_seed_candidate_review.*` 산출물에는 반영하지 않는다.
+보험사 공시실 crawler v1.2에서 아래 상품이 새로 `needs_human_review`에 포함됐다. 아직 PDF 내용 수동 검수와 카테고리 매핑을 완료하지 않았으므로 `latest_seed_candidate_review.*` 산출물에는 반영하지 않는다.
 
 | 보험사 | 상품 | 확보 문서 | 현재 상태 |
 |---|---|---|---|
 | 신한라이프생명 | 신한SOL암보험(무배당, 해약환급금 미지급형)(비갱신형) | 상품요약서, 사업방법서, 판매약관 | `pending_manual_review` |
+| KB손보 | KB손보 다이렉트실손의료비보장보험(무배당)(26.05) | 약관 | `pending_manual_review` |
 | 현대해상 | (무)현대해상다이렉트실손의료비보장보험(갱신형)(Hi2605) | 약관 | `pending_manual_review` |
 | 삼성생명 | 삼성 인터넷 입원 건강보험(2601)(무배당,무해약환급금형) | 통합약관 | `pending_manual_review` |
 
@@ -133,7 +134,7 @@ DB손보와 같은 이유로 현재 enum에 직접 매핑하지 않는다. 또�
 - **Logic_Progress**: [Two Pillars Service Update](../04_Logic_Progress/03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md) - 실제 상품 카탈로그 적용 트랙
 - **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - Track A 다음 작업
 - **QA_Validation**: [Insurance Review Queue](./07_INSURANCE_REVIEW_QUEUE_2026_05_27.md) - 수동 검수 전 대기열 생성 결과
-- **QA_Validation**: [Carrier Disclosure Crawler](./06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md) - 삼성화재/DB손보/삼성생명/현대해상/신한라이프 문서 hash 확보 결과
+- **QA_Validation**: [Carrier Disclosure Crawler](./06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md) - 삼성화재/DB손보/KB손보/삼성생명/현대해상/신한라이프 문서 hash 확보 결과
 - **QA_Validation**: [Product Document Probe](./05_PRODUCT_DOCUMENT_PROBE_2026_05_27.md) - 한화생명 상품요약서/약관 hash 확보 결과
 - **Data**: [Latest Seed Candidate Review JSON](../../data/insurance/latest_seed_candidate_review.json) - 수동 검수 구조화 결과
 - **Data**: [Latest Seed Candidate Review CSV](../../data/insurance/latest_seed_candidate_review.csv) - 수동 검수 요약

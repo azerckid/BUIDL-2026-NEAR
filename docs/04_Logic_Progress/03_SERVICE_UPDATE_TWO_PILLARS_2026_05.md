@@ -1,9 +1,9 @@
 # [실행 전략] 두 기둥 기반 서비스 업데이트 계획
 > Created: 2026-05-27 02:55
-> Last Updated: 2026-05-28 01:50
+> Last Updated: 2026-05-28 02:28
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v1.7
+- **상태**: Draft v1.8
 - **범위**: 실제 보험상품 카탈로그 적용 준비, NEAR 기술 업데이트 적용 준비
 - **결론**: 서비스 적용의 두 기둥은 `실제 보험상품 탐색`과 `NEAR 프라이버시 기술 적용`이며, 두 영역은 결정론적 매칭 엔진으로 연결한다.
 
@@ -172,7 +172,7 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - [x] `matchProducts`에서 `risk_target` 추천과 `baseline` 추천 분리
 - [x] 추천 카드 UI에 baseline/출처/보험료 기준/caveat 표시
 - [x] 삼성생명, 현대해상, 신한라이프 공시/상품 JavaScript API adapter로 PDF 후보 보강
-- [ ] KB손보 공시 row의 별도 문서 다운로드 경로 보강
+- [x] KB손보 공시 row의 별도 문서 다운로드 경로 보강
 - [ ] 전체 상품별 출처 URL, 확인일, 원문 hash, 보험료 산정 기준 기록
 - [x] PDF 다운로드 가능성 PoC 수행
 - [x] 월간/분기 정기 갱신 체크리스트 작성 (`03_INSURANCE_DATA_REFRESH_QA.md`)
