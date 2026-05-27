@@ -1,11 +1,12 @@
 # [QA] Hash-backed 보험상품 수동 검수 결과
 > Created: 2026-05-27 15:36
-> Last Updated: 2026-05-28 02:36
+> Last Updated: 2026-05-28 03:00
 
 - **레이어**: 05_QA_Validation
 - **상태**: Manual Review v1.2 완료
 - **범위**: 공식 문서 hash가 확보된 7개 상품을 기준으로 판매상태, 보험료 기준, 보장 카테고리, 매칭 전략을 수동 검수했다.
 - **결론**: 현재 `insurance_products` seed에 바로 넣을 상품은 0개다. 암보험 2개는 `catalog_candidate`, 실손의료보험 4개는 `baseline_candidate`, 삼성생명 입원 건강보험 1개는 `schema_extension_required`로 분류한다. 서비스 seed 승격 전에는 보험료 기준, 판매상태, 보장 caveat, source row 삽입 방식을 추가 승인해야 한다.
+- **보험료 주의**: 현재 `premium_text`는 대표 비교 조건의 예시 보험료다. 나이/성별/납입기간별 변동 가격은 향후 `insurance_premium_quotes`에서 별도 검수한다.
 
 ---
 
@@ -119,6 +120,7 @@ DB손보, KB손보, 삼성화재, 현대해상 실손의료보험은 공식 약�
 3. 삼성생명 입원 건강보험을 위해 `hospitalization`/`general_health` 카테고리를 추가할지, source catalog 전용으로 둘지 결정한다.
 4. 보험다모아 보험료의 산정 기준을 seed에 어떤 문구로 기록할지 확정한다.
 5. 각 상품의 source row와 source document row 삽입 기준을 확정한다.
+6. 조건별 보험료 quote matrix를 수집할 수 있는지 보험다모아/보험사 페이지 파라미터 재조회 PoC를 수행한다.
 
 ---
 
@@ -140,6 +142,7 @@ DB손보, KB손보, 삼성화재, 현대해상 실손의료보험은 공식 약�
 - **Technical_Specs**: [Insurance Data Collection Pipeline](../03_Technical_Specs/01_INSURANCE_DATA_COLLECTION_PIPELINE.md) - 수집/검수/승격 파이프라인 명세
 - **Technical_Specs**: [Insurance Catalog Schema Extension](../03_Technical_Specs/02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md) - 수동 검수 이후 확정한 스키마 확장안
 - **Logic_Progress**: [Two Pillars Service Update](../04_Logic_Progress/03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md) - 실제 상품 카탈로그 적용 트랙
+- **Logic_Progress**: [Premium Quote Policy](../04_Logic_Progress/04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md) - 조건별 보험료 matrix와 seed 승격 정책
 - **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - Track A 다음 작업
 - **QA_Validation**: [Insurance Review Queue](./07_INSURANCE_REVIEW_QUEUE_2026_05_27.md) - 수동 검수 전 대기열 생성 결과
 - **QA_Validation**: [Carrier Disclosure Crawler](./06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md) - 삼성화재/DB손보/KB손보/삼성생명/현대해상/신한라이프 문서 hash 확보 결과

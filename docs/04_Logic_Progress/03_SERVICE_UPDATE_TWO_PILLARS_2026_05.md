@@ -1,9 +1,9 @@
 # [실행 전략] 두 기둥 기반 서비스 업데이트 계획
 > Created: 2026-05-27 02:55
-> Last Updated: 2026-05-28 02:36
+> Last Updated: 2026-05-28 03:00
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v1.9
+- **상태**: Draft v2.0
 - **범위**: 실제 보험상품 카탈로그 적용 준비, NEAR 기술 업데이트 적용 준비
 - **결론**: 서비스 적용의 두 기둥은 `실제 보험상품 탐색`과 `NEAR 프라이버시 기술 적용`이며, 두 영역은 결정론적 매칭 엔진으로 연결한다.
 
@@ -51,6 +51,8 @@
 - 상품명, 보험사, 보장 카테고리, 월 보험료 기준, 출처 URL, 확인일을 함께 기록한다.
 - 보험료는 원 출처의 KRW 기준을 보존하고, `monthly_premium_usdc`는 화면 및 결제 데모를 위한 환산값으로 취급한다.
 - 가입 조건은 상품별로 다르므로 데모 단계에서는 `premium_basis`를 문서화한다. 예: 40세 남성, 월납, 20년납, 갱신형 여부.
+- 나이, 성별, 납입기간, 보장금액별 보험료 변화는 대표 상품 row에 넣지 않고 향후 `insurance_premium_quotes` table로 분리한다.
+- seed PR에서는 대표 보험료를 "공식 비교 조건 기준 예시 보험료"로만 표시하고, 개인 맞춤 확정 견적으로 표현하지 않는다.
 - `coverage_category`는 기존 enum인 `oncology`, `cardiovascular`, `metabolic`, `neurological`에 우선 매핑한다.
 - `risk_targets`는 유전자 위험 플래그와 직접 매칭되는 키만 넣는다. 상품 설명 문구를 AI가 임의로 확장하지 않는다.
 
@@ -67,6 +69,7 @@
 | `premium_basis` | 보험료 산정 조건 |
 | `monthly_premium_krw` | 실제 공시 보험료 원화 값 |
 | `catalog_status` | `active`, `archived`, `needs_review` |
+| 향후 `insurance_premium_quotes` | 나이, 성별, 납입기간, 보장금액별 보험료 matrix |
 
 ---
 
@@ -174,11 +177,14 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - [x] 삼성생명, 현대해상, 신한라이프 공시/상품 JavaScript API adapter로 PDF 후보 보강
 - [x] KB손보 공시 row의 별도 문서 다운로드 경로 보강
 - [x] hash-backed 7개 상품 수동 검수 후 catalog/baseline/schema-extension 후보 분류
+- [x] 조건별 보험료 matrix는 대표 상품 컬럼이 아니라 별도 `insurance_premium_quotes` 정책으로 관리하기로 문서화
 - [ ] 전체 상품별 출처 URL, 확인일, 원문 hash, 보험료 산정 기준 기록
 - [x] PDF 다운로드 가능성 PoC 수행
 - [x] 월간/분기 정기 갱신 체크리스트 작성 (`03_INSURANCE_DATA_REFRESH_QA.md`)
 - [ ] source-aware seed 후보 승격 정책 확정 및 기존 `seed.ts` mock 상품 교체 PR 준비
 - [ ] `monthly_premium_krw`와 `monthly_premium_usdc` 병행 저장 여부 결정
+- [ ] 보험다모아/보험사 페이지에서 나이·성별별 보험료 재조회 가능성 PoC 수행
+- [ ] `insurance_premium_quotes` Drizzle schema/migration 설계
 - [ ] HIRA 질병 통계를 `risk_targets` 근거 보강 자료로 연결
 
 ### Track B. NEAR 기술 재검증
@@ -206,6 +212,7 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 현재 적용 범위에서는 다음을 아직 하지 않는다.
 
 - `seed.ts` 실제 상품 교체
+- 조건별 보험료 quote matrix 수집 및 DB migration
 - IronClaw CLI 업그레이드
 - Confidential Intents SDK 설치 또는 교체
 - NEAR AI 팀 문의 메일 발송
@@ -220,6 +227,7 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - **Technical_Specs**: [Insurance Data Collection Pipeline](../03_Technical_Specs/01_INSURANCE_DATA_COLLECTION_PIPELINE.md) - 한국 보험상품 수집/PDF/API 정규화 명세
 - **Technical_Specs**: [DB Schema](../03_Technical_Specs/DB_SCHEMA.md) - `insurance_products` 현재 스키마와 향후 확장 후보
 - **Technical_Specs**: [Insurance Catalog Schema Extension](../03_Technical_Specs/02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md) - 실제 보험상품 카탈로그 확장 확정안
+- **Logic_Progress**: [Premium Quote Policy](./04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md) - 조건별 보험료 matrix와 seed 승격 정책
 - **Technical_Specs**: [Deployment Strategy](../03_Technical_Specs/DEPLOYMENT_STRATEGY.md) - Confidential Intents와 배포 전략의 기존 정리
 - **QA_Validation**: [Insurance Data Refresh QA](../05_QA_Validation/03_INSURANCE_DATA_REFRESH_QA.md) - 보험상품 데이터 정기 갱신 체크리스트
 - **QA_Validation**: [Insurance Data Acquisition PoC](../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md) - 공식 출처 수집 가능성 검증 결과
