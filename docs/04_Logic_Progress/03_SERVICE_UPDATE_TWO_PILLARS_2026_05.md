@@ -1,9 +1,9 @@
 # [실행 전략] 두 기둥 기반 서비스 업데이트 계획
 > Created: 2026-05-27 02:55
-> Last Updated: 2026-05-28 03:00
+> Last Updated: 2026-05-28 03:56
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v2.0
+- **상태**: Draft v2.2
 - **범위**: 실제 보험상품 카탈로그 적용 준비, NEAR 기술 업데이트 적용 준비
 - **결론**: 서비스 적용의 두 기둥은 `실제 보험상품 탐색`과 `NEAR 프라이버시 기술 적용`이며, 두 영역은 결정론적 매칭 엔진으로 연결한다.
 
@@ -26,7 +26,7 @@
 
 | 기둥 | 목표 | 프로젝트 적용 지점 | 현재 판단 |
 |---|---|---|---|
-| Pillar A. 실제 보험상품 카탈로그 | 사용자가 실제 판매 상품을 비교할 수 있게 한다 | `insurance_products`, `matchProducts`, seed 데이터, 향후 출처 메타데이터 | 공식 공시/PDF/API 수집 파이프라인을 먼저 설계하고, MVP는 검수된 P0 상품군부터 적용 |
+| Pillar A. 실제 보험상품 카탈로그 | 사용자가 실제 판매 상품을 비교할 수 있게 한다 | `insurance_product_sources`, `insurance_products`, `matchProducts`, 향후 출처 메타데이터 | 공식 공시/PDF/API 수집 파이프라인을 먼저 설계하고, MVP는 매칭 키워드가 정리된 P0 상품군부터 적용 |
 | Pillar B. NEAR 프라이버시 기술 | 민감 유전자 분석과 결제를 TEE/ZKP/Confidential Intents로 보호한다 | `runAnalysis`, `zkp-prover-wasm`, IronClaw, Chain Signatures, Confidential Intents | IronClaw v0.28.2까지 재검증, USDC+Confidential Intents는 Layer 3 재설계 후보 |
 | Bridge. 결정론적 매칭 | AI가 상품명을 지어내지 않고 검증 가능한 추천만 수행한다 | `riskProfile.flags` -> `insurance_products.risk_targets` | 기존 설계 유지. AI는 해석, DB는 상품 추천의 SSOT |
 
@@ -55,6 +55,9 @@
 - seed PR에서는 대표 보험료를 "공식 비교 조건 기준 예시 보험료"로만 표시하고, 개인 맞춤 확정 견적으로 표현하지 않는다.
 - `coverage_category`는 기존 enum인 `oncology`, `cardiovascular`, `metabolic`, `neurological`에 우선 매핑한다.
 - `risk_targets`는 유전자 위험 플래그와 직접 매칭되는 키만 넣는다. 상품 설명 문구를 AI가 임의로 확장하지 않는다.
+- 매칭 키워드 정리 전 상품은 `insurance_products`의 active 추천 row가 아니라 `insurance_product_sources`와 `insurance_source_documents`에 먼저 보관한다.
+- 여기서 말하는 정리는 보험상품의 외부 승인이나 품질 심사가 아니라, DNA risk target과 연결할 `coverage_category`, `risk_targets`, `matching_strategy`, caveat를 정리하는 작업이다.
+- 현재 hash-backed 7개 상품은 모두 `review_status=needs_review`로 보관하며, 기존 active demo 상품은 실제 상품의 매칭 키워드 정리 완료 전까지 서비스 흐름 보존용으로 유지한다.
 
 ### 3-3. 구현된 스키마 확장
 
@@ -62,14 +65,27 @@
 
 | 후보 필드 | 목적 |
 |---|---|
-| `source_type` | `life_association`, `general_association`, `e_insmarket`, `data_go_kr`, `manual_review` 등 출처 구분 |
+| `source_type` | `association`, `e_insmarket`, `carrier_disclosure`, `data_go_kr`, `postal_api`, `manual` 등 출처 구분 |
 | `source_url` | 공시 또는 비교 페이지 원문 링크 |
 | `source_checked_at` | 상품 정보 확인일 |
 | `premium_currency` | 원 보험료 통화. 국내 상품은 기본 `KRW` |
 | `premium_basis` | 보험료 산정 조건 |
 | `monthly_premium_krw` | 실제 공시 보험료 원화 값 |
-| `catalog_status` | `active`, `archived`, `needs_review` |
+| `catalog_status` | `approved`, `needs_review`, `archived` |
 | 향후 `insurance_premium_quotes` | 나이, 성별, 납입기간, 보장금액별 보험료 matrix |
+
+### 3-4. 2026-05-28 source-aware seed 적용 기준
+
+이번 적용은 실제 상품을 사용자 추천으로 활성화하는 작업이 아니라, 공식 출처 후보를 DB seed 경로에 올리는 작업이다.
+
+| 대상 | 적용 방식 | 사용자 추천 노출 |
+|---|---|---|
+| 7개 보험사 | `insurance_carriers` seed row | 직접 노출 없음 |
+| 7개 hash-backed 매칭 정리 후보 | `insurance_product_sources` seed row, `review_status=needs_review` | 노출 없음 |
+| 12개 PDF 원문 | `insurance_source_documents` seed row, hash와 URL 보관 | 노출 없음 |
+| 기존 demo 상품 5개 | `insurance_products` active row 유지 | 기존 데모 흐름 유지 |
+
+이 기준을 둔 이유는 현재 `insurance_products`에 바로 넣을 수 있을 만큼 매칭 키워드가 정리된 실제 상품이 0개이기 때문이다. 특히 보험료 산정 기준, 판매상태, 암 급부 caveat, 실손 baseline 노출 문구가 정리되기 전에는 실제 상품명을 추천 카드에 표시하지 않는다.
 
 ---
 
@@ -166,8 +182,8 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - [x] 대표 상품 8개 공식 페이지/PDF 후보 교차검증 PoC 수행
 - [x] 보험사 공시실 PDF crawler v1 작성 및 삼성화재 실손 약관 hash 확보
 - [x] DB손보 공시실 JavaScript/API adapter로 실손 약관/사업방법서/상품요약서 hash 확보
-- [x] 검수 CSV v1 생성 (`latest_insurance_review_queue.csv`)
-- [x] hash-backed 1차 상품 수동 검수 후 seed 후보 승격 여부 결정
+- [x] 매칭 키워드 정리 CSV v1 생성 (`latest_insurance_review_queue.csv`)
+- [x] hash-backed 1차 상품 매칭 키워드 정리 후 seed 후보 반영 여부 결정
 - [x] 실제 상품 seed 반영 전 `medical_expense`, KRW 보험료, 출처 hash 필드의 스키마 확장안 확정
 - [x] Drizzle schema와 Zod schema에 보험 카탈로그 확장안 반영
 - [x] Drizzle migration SQL 생성 (`drizzle/0004_panoramic_firebird.sql`)
@@ -176,12 +192,14 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - [x] 추천 카드 UI에 baseline/출처/보험료 기준/caveat 표시
 - [x] 삼성생명, 현대해상, 신한라이프 공시/상품 JavaScript API adapter로 PDF 후보 보강
 - [x] KB손보 공시 row의 별도 문서 다운로드 경로 보강
-- [x] hash-backed 7개 상품 수동 검수 후 catalog/baseline/schema-extension 후보 분류
+- [x] hash-backed 7개 상품 매칭 키워드 정리 후 catalog/baseline/schema-extension 후보 분류
 - [x] 조건별 보험료 matrix는 대표 상품 컬럼이 아니라 별도 `insurance_premium_quotes` 정책으로 관리하기로 문서화
-- [ ] 전체 상품별 출처 URL, 확인일, 원문 hash, 보험료 산정 기준 기록
+- [x] 전체 상품별 출처 URL, 확인일, 원문 hash, 보험료 산정 기준 기록
 - [x] PDF 다운로드 가능성 PoC 수행
 - [x] 월간/분기 정기 갱신 체크리스트 작성 (`03_INSURANCE_DATA_REFRESH_QA.md`)
-- [ ] source-aware seed 후보 승격 정책 확정 및 기존 `seed.ts` mock 상품 교체 PR 준비
+- [x] source-aware seed 후보 발행 정책 확정 및 `seed.ts` 출처 후보 반영
+- [x] 매칭 키워드 정리 정책 문서화 (`03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md`)
+- [ ] 매칭 키워드가 정리된 실제 상품 snapshot 생성 및 기존 active demo 상품 교체
 - [ ] `monthly_premium_krw`와 `monthly_premium_usdc` 병행 저장 여부 결정
 - [ ] 보험다모아/보험사 페이지에서 나이·성별별 보험료 재조회 가능성 PoC 수행
 - [ ] `insurance_premium_quotes` Drizzle schema/migration 설계
@@ -211,7 +229,8 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 
 현재 적용 범위에서는 다음을 아직 하지 않는다.
 
-- `seed.ts` 실제 상품 교체
+- 매칭 키워드가 정리된 실제 상품의 `insurance_products` active row 발행
+- 기존 active demo 상품 제거 또는 비활성화
 - 조건별 보험료 quote matrix 수집 및 DB migration
 - IronClaw CLI 업그레이드
 - Confidential Intents SDK 설치 또는 교체
@@ -227,11 +246,13 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - **Technical_Specs**: [Insurance Data Collection Pipeline](../03_Technical_Specs/01_INSURANCE_DATA_COLLECTION_PIPELINE.md) - 한국 보험상품 수집/PDF/API 정규화 명세
 - **Technical_Specs**: [DB Schema](../03_Technical_Specs/DB_SCHEMA.md) - `insurance_products` 현재 스키마와 향후 확장 후보
 - **Technical_Specs**: [Insurance Catalog Schema Extension](../03_Technical_Specs/02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md) - 실제 보험상품 카탈로그 확장 확정안
-- **Logic_Progress**: [Premium Quote Policy](./04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md) - 조건별 보험료 matrix와 seed 승격 정책
+- **Technical_Specs**: [Insurance Matching Keyword Policy](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md) - DNA risk target과 보험상품 보장 키워드 매칭 기준
+- **Logic_Progress**: [Premium Quote Policy](./04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md) - 조건별 보험료 matrix와 seed 발행 정책
 - **Technical_Specs**: [Deployment Strategy](../03_Technical_Specs/DEPLOYMENT_STRATEGY.md) - Confidential Intents와 배포 전략의 기존 정리
 - **QA_Validation**: [Insurance Data Refresh QA](../05_QA_Validation/03_INSURANCE_DATA_REFRESH_QA.md) - 보험상품 데이터 정기 갱신 체크리스트
 - **QA_Validation**: [Insurance Data Acquisition PoC](../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md) - 공식 출처 수집 가능성 검증 결과
 - **QA_Validation**: [Product Document Probe](../05_QA_Validation/05_PRODUCT_DOCUMENT_PROBE_2026_05_27.md) - 대표 상품 공식 문서/PDF hash 검증 결과
 - **QA_Validation**: [Carrier Disclosure Crawler](../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md) - 보험사 공시실 crawler v1 검증 결과
-- **QA_Validation**: [Insurance Review Queue](../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md) - 검수 CSV 생성 결과
-- **QA_Validation**: [Hash-backed Product Manual Review](../05_QA_Validation/08_HASH_BACKED_PRODUCT_MANUAL_REVIEW_2026_05_27.md) - 수동 검수 결과와 seed 차단 사유
+- **QA_Validation**: [Insurance Matching Queue](../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md) - 매칭 키워드 정리 CSV 생성 결과
+- **QA_Validation**: [Hash-backed Matching Keyword Review](../05_QA_Validation/08_HASH_BACKED_PRODUCT_MANUAL_REVIEW_2026_05_27.md) - hash-backed 7개 상품 매칭 키워드 정리 결과와 추천 미노출 사유
+- **QA_Validation**: [Source-aware Seed Policy QA](../05_QA_Validation/10_SOURCE_AWARE_SEED_POLICY_2026_05_28.md) - seed 후보 반영 방식과 노출 차단 검증
