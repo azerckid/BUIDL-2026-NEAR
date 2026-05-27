@@ -4,7 +4,7 @@
 // React Three Fiber (Three.js WebGL) — lazy import로 번들 분리
 // 마우스 틸트 + 마우스 근접 시 색상 변경 + prefers-reduced-motion 대응
 
-import { useRef, useMemo, useEffect } from "react";
+import { useRef, useMemo, useEffect, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -221,23 +221,40 @@ function DnaHelix({ mouseRef }: { mouseRef: React.RefObject<MouseNorm> }) {
 
 // ─── 배경 컴포넌트 (export) ───────────────────────────────────────────────────
 export function DnaBackground() {
-  if (typeof window !== "undefined") {
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReduced) return null;
-  }
-
   const mouseRef = useRef<MouseNorm>({ x: 0, y: 0 });
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updatePreference = () => setPrefersReducedMotion(mediaQuery.matches);
+
+    updatePreference();
+    mediaQuery.addEventListener("change", updatePreference);
+    return () => mediaQuery.removeEventListener("change", updatePreference);
+  }, []);
+
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      return;
+    }
+
     const onMouseMove = (e: MouseEvent) => {
       mouseRef.current = {
         x: (e.clientX / window.innerWidth) * 2 - 1,
         y: -((e.clientY / window.innerHeight) * 2 - 1),
       };
     };
-    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mousemove", onMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", onMouseMove);
-  }, []);
+  }, [prefersReducedMotion]);
+
+  if (prefersReducedMotion) {
+    return null;
+  }
 
   return (
     <div
