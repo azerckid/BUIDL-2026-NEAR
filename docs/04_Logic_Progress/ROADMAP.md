@@ -1,9 +1,9 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-28 00:34
+> Last Updated: 2026-05-28 01:14
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-28 (보험 추천 카드 출처/caveat 표시)
+- **최종 수정일**: 2026-05-28 (보험 카탈로그 DB migration 적용 완료)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v2.3
 - **phase**: Phase 2
@@ -60,14 +60,14 @@
 
 | 트랙 | 핵심 질문 | 다음 작업 |
 |---|---|---|
-| 실제 보험상품 카탈로그 | 실제 판매 상품을 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | DB migration 적용 전 백업/검토, 잔여 보험사 JS/API 어댑터, 실제 seed 후보 승격 준비 |
+| 실제 보험상품 카탈로그 | 실제 판매 상품을 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | 잔여 보험사 JS/API 어댑터, 실제 seed 후보 승격 준비 |
 | NEAR 프라이버시 기술 | IronClaw v0.28.2까지의 업데이트가 블로커 2~3을 해소하는가 | WIT-compatible WASM runtime, `tool_install`, WASM 실행 결과 반환 경로 실측 |
 | 매칭 브리지 | AI 해석과 DB 상품 추천의 경계를 어떻게 유지할 것인가 | `riskProfile.flags` -> `insurance_products.risk_targets` 결정론적 매칭 유지 |
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 검수 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.
 hash-backed 3개 상품 수동 검수 결과는 `../../data/insurance/latest_seed_candidate_review.json`, `../../data/insurance/latest_seed_candidate_review.csv`, `../05_QA_Validation/08_HASH_BACKED_PRODUCT_MANUAL_REVIEW_2026_05_27.md`에 둔다. 결론상 현재 `insurance_products` seed에 바로 넣을 상품은 없고, 먼저 출처 기반 카탈로그 스키마와 `medical_expense` 처리 방식을 결정해야 한다.
-스키마 확장안은 `../03_Technical_Specs/02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md`에 확정했고, Drizzle/Zod schema, `drizzle/0004_panoramic_firebird.sql`, `matchProducts`의 `risk_target`/`baseline` 분리, 추천 카드의 baseline/출처/보험료 기준/caveat 표시까지 완료했다. 다음 작업은 migration 실제 적용 전 백업/검토와 잔여 보험사 공시실 JS/API 어댑터 보강이다.
+스키마 확장안은 `../03_Technical_Specs/02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md`에 확정했고, Drizzle/Zod schema, `drizzle/0004_panoramic_firebird.sql`, `drizzle/0005_common_boom_boom.sql`, `matchProducts`의 `risk_target`/`baseline` 분리, 추천 카드의 baseline/출처/보험료 기준/caveat 표시, Turso DB migration 적용까지 완료했다. 적용 검증은 `../05_QA_Validation/09_DB_MIGRATION_0004_0005_2026_05_28.md`에 기록한다. 다음 작업은 잔여 보험사 공시실 JS/API 어댑터 보강과 실제 seed 후보 승격 준비다.
 
 ## 2. 세부 실행 계획 (Detailed Execution)
 
@@ -1119,6 +1119,7 @@ hash-backed 3개 상품 수동 검수 결과는 `../../data/insurance/latest_see
 - [DB 스키마 명세](../03_Technical_Specs/DB_SCHEMA.md)
 - [보험상품 데이터 수집 파이프라인](../03_Technical_Specs/01_INSURANCE_DATA_COLLECTION_PIPELINE.md)
 - [보험상품 데이터 정기 갱신 QA](../05_QA_Validation/03_INSURANCE_DATA_REFRESH_QA.md)
+- [보험 카탈로그 DB Migration 0004/0005 검증](../05_QA_Validation/09_DB_MIGRATION_0004_0005_2026_05_28.md)
 - [AI 매칭 파이프라인](./AI_MATCHING_PIPELINE.md)
 - [두 기둥 기반 서비스 업데이트 계획](./03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md)
 - [구현 계획 (초기 세팅)](./IMPLEMENTATION_PLAN.md)

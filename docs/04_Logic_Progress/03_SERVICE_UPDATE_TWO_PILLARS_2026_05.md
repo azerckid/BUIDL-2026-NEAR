@@ -1,9 +1,9 @@
 # [실행 전략] 두 기둥 기반 서비스 업데이트 계획
 > Created: 2026-05-27 02:55
-> Last Updated: 2026-05-28 00:34
+> Last Updated: 2026-05-28 01:14
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v1.5
+- **상태**: Draft v1.6
 - **범위**: 실제 보험상품 카탈로그 적용 준비, NEAR 기술 업데이트 적용 준비
 - **결론**: 서비스 적용의 두 기둥은 `실제 보험상품 탐색`과 `NEAR 프라이버시 기술 적용`이며, 두 영역은 결정론적 매칭 엔진으로 연결한다.
 
@@ -168,7 +168,7 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - [x] 실제 상품 seed 반영 전 `medical_expense`, KRW 보험료, 출처 hash 필드의 스키마 확장안 확정
 - [x] Drizzle schema와 Zod schema에 보험 카탈로그 확장안 반영
 - [x] Drizzle migration SQL 생성 (`drizzle/0004_panoramic_firebird.sql`)
-- [ ] DB migration 실제 적용 전 백업/검토
+- [x] DB migration 실제 적용 전 백업/검토 및 Turso 적용 완료 (`0004`, `0005`)
 - [x] `matchProducts`에서 `risk_target` 추천과 `baseline` 추천 분리
 - [x] 추천 카드 UI에 baseline/출처/보험료 기준/caveat 표시
 - [ ] 잔여 보험사 공시실 JavaScript/API 검색 어댑터로 PDF 후보 보강
@@ -199,9 +199,10 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 
 ## 8. 비적용 범위
 
+2026-05-28 01:14 KST 기준 `0004`와 `0005` Turso DB migration은 백업 후 적용 완료했다. 적용 결과는 `09_DB_MIGRATION_0004_0005_2026_05_28.md`에 기록한다.
+
 현재 적용 범위에서는 다음을 아직 하지 않는다.
 
-- DB migration 실제 적용
 - `seed.ts` 실제 상품 교체
 - IronClaw CLI 업그레이드
 - Confidential Intents SDK 설치 또는 교체
