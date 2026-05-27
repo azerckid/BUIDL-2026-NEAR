@@ -1,23 +1,24 @@
 {
   "metadata": {
-    "reviewed_at": "2026-05-27T15:36:00+09:00",
+    "reviewed_at": "2026-05-28T02:34:41.374+09:00",
     "timezone": "Asia/Seoul",
     "reviewer": "codex_manual_review",
     "input_review_queue": "data/insurance/latest_insurance_review_queue.csv",
     "input_product_probe": "data/insurance/latest_product_document_probe.json",
     "input_disclosure_probe": "data/insurance/latest_carrier_disclosure_probe.json",
-    "output_version": "1.0",
-    "scope": "hash-backed 3 products only"
+    "output_version": "1.2",
+    "scope": "hash-backed 7 products"
   },
   "qa": {
-    "catalog_candidate_count": 1,
-    "schema_extension_required_count": 2,
+    "catalog_candidate_count": 2,
+    "baseline_candidate_count": 4,
+    "schema_extension_required_count": 1,
     "current_insurance_products_seed_ready_count": 0,
-    "decision": "No product should be inserted into the current insurance_products seed without a source-aware schema update.",
+    "decision": "Hash-backed products can move to source-aware review, but no product should be inserted into service seed until premium basis, sale status, coverage caveats, and matching strategy are approved.",
     "blockers": [
-      "The current insurance_products table has no KRW premium, premium_basis, source_url, source_checked_at, or source_document_hash fields.",
-      "The current coverage_category enum has no medical_expense or general_health category for indemnity medical expense products.",
-      "The current risk_targets array cannot represent tiered cancer benefit caveats or broad medical expense reimbursement products."
+      "Premium basis and sale status remain unapproved for service seed use.",
+      "Medical expense products should be baseline recommendations, not disease-specific genetic matches.",
+      "Samsung Life hospitalization health product needs a hospitalization/general_health category or manual-only catalog treatment."
     ]
   },
   "reviews": [
@@ -28,13 +29,15 @@
       "e_insmarket_product_code": "L01C009000009",
       "premium_text": "0원",
       "official_product_url": "https://direct.hanwhalife.com/products/CMS00012?utm_source=einsmarket_mo&utm_medium=association&utm_campaign=cancer",
+      "carrier_result_status": "not_probed",
       "manual_review_status": "catalog_candidate",
-      "current_db_seed_status": "blocked_until_source_aware_schema",
+      "current_db_seed_status": "blocked_until_premium_basis_and_source_record_approved",
       "identity_verified": true,
       "sale_status_review": "official_product_page_accessible_but_sale_status_not_approved",
       "premium_basis_review": "unapproved_zero_krw_value_not_usable_for_service_seed",
       "recommended_mapping": {
         "coverage_category": "oncology",
+        "matching_strategy": "risk_target",
         "risk_targets": [
           "pancreatic_cancer",
           "liver_cancer",
@@ -42,8 +45,13 @@
           "breast_cancer",
           "colon_cancer"
         ],
-        "risk_target_caveat": "Broad oncology mapping is useful for matching, but breast and colon-related benefits are tiered differently in the official documents and need a coverage caveat field."
+        "risk_target_caveat": "Broad oncology mapping is useful for matching, but breast and colon-related benefits are tiered differently in the official documents and need coverage caveats."
       },
+      "blockers": [
+        "premium_basis_unapproved",
+        "zero_krw_value",
+        "coverage_caveats_required"
+      ],
       "source_documents": [
         {
           "document_type": "summary",
@@ -56,7 +64,56 @@
           "url": "https://direct.hanwhalife.com/products/downloadProxy/%ED%95%9C%ED%99%94%EC%83%9D%EB%AA%85%20e%EC%95%94%EB%B3%B4%ED%97%98(%EB%B9%84%EA%B0%B1%EC%8B%A0%ED%98%95)%20%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%95%BD%EA%B4%80_20260417.pdf?docUrl=dynamic/direct/product/cms_T3jquWCZurf6YKm6_1776383470397.pdf"
         }
       ],
-      "next_action": "Add source-aware catalog fields and a coverage caveat field before promoting to service seed."
+      "next_action": "Approve premium basis and coverage caveats before promoting to service seed."
+    },
+    {
+      "provider": "신한라이프생명",
+      "product_group": "암보험",
+      "raw_product_name": "신한SOL암보험(무배당, 해약환급금 미지급형)(비갱신형)",
+      "e_insmarket_product_code": "L11C009000006",
+      "premium_text": "6,750원",
+      "official_product_url": "https://s.shinhanlife.co.kr/sht/6Nf1STxRv62YxH2X1wZxjQYN2qx3K.cs",
+      "carrier_result_status": "hashed",
+      "manual_review_status": "catalog_candidate",
+      "current_db_seed_status": "blocked_until_premium_basis_and_source_record_approved",
+      "identity_verified": true,
+      "sale_status_review": "carrier_disclosure_wcms_row_indicates_active_sale_meta06_TRUE",
+      "premium_basis_review": "e_insmarket_premium_text_present_but_basis_unapproved",
+      "recommended_mapping": {
+        "coverage_category": "oncology",
+        "matching_strategy": "risk_target",
+        "risk_targets": [
+          "pancreatic_cancer",
+          "liver_cancer",
+          "lung_cancer",
+          "breast_cancer",
+          "colon_cancer"
+        ],
+        "risk_target_caveat": "Summary identifies this as a non-renewable internet cancer insurance product; cancer subtype benefits and 90-day waiting period must be surfaced as caveats."
+      },
+      "blockers": [
+        "premium_basis_unapproved",
+        "coverage_caveats_required",
+        "risk_targets_need_human_approval"
+      ],
+      "source_documents": [
+        {
+          "document_type": "summary",
+          "sha256": "d557ed911adc877976863155e45fec5217ebfe485aed8f0c685797d0d7314c03",
+          "url": "https://shinhanlife.co.kr/bizxpress/cdh/cdhi/gd/pr/__media/%EC%83%81%ED%92%88%EC%9A%94%EC%95%BD%EC%84%9C_%EC%8B%A0%ED%95%9CSOL%EC%95%94%EB%B3%B4%ED%97%98(%EB%AC%B4%EB%B0%B0%EB%8B%B9_%ED%95%B4%EC%95%BD%ED%99%98%EA%B8%89%EA%B8%88%20%EB%AF%B8%EC%A7%80%EA%B8%89%ED%98%95)_260101.pdf"
+        },
+        {
+          "document_type": "business_method",
+          "sha256": "9aa1ed61e51a9c67a339430266f8551cd6739bcb48d725bf298e3742fe3797ea",
+          "url": "https://shinhanlife.co.kr/bizxpress/cdh/cdhi/gd/pr/__etc/%EC%82%AC%EC%97%85%EB%B0%A9%EB%B2%95%EC%84%9C_%EC%8B%A0%ED%95%9CSOL%EC%95%94%EB%B3%B4%ED%97%98(%EB%AC%B4%EB%B0%B0%EB%8B%B9,%20%ED%95%B4%EC%95%BD%ED%99%98%EA%B8%89%EA%B8%88%20%EB%AF%B8%EC%A7%80%EA%B8%89%ED%98%95)_260101.pdf"
+        },
+        {
+          "document_type": "terms",
+          "sha256": "fcd915ee2e5440cf9542711dabd1c3014a1f5f3efef9c0a1f8fc88ed7ca40ffa",
+          "url": "https://shinhanlife.co.kr/bizxpress/cdh/cdhi/gd/pr/__etc/%ED%8C%90%EB%A7%A4%EC%95%BD%EA%B4%80_%EC%8B%A0%ED%95%9CSOL%EC%95%94%EB%B3%B4%ED%97%98(%EB%AC%B4%EB%B0%B0%EB%8B%B9,%20%ED%95%B4%EC%95%BD%ED%99%98%EA%B8%89%EA%B8%88%20%EB%AF%B8%EC%A7%80%EA%B8%89%ED%98%95)_260101.pdf"
+        }
+      ],
+      "next_action": "Review cancer benefit tiers and 90-day waiting period before promoting as oncology seed candidate."
     },
     {
       "provider": "DB손보",
@@ -65,17 +122,22 @@
       "e_insmarket_product_code": "N11G004000001G",
       "premium_text": "6,219원",
       "official_product_url": "https://m.directdb.co.kr/ltm/prd/pmimdcs/custInfoView.do?searchPdcCd=31020&searchPdcTrtHistCd=00&pdcDvcd=l_pmi",
-      "carrier_disclosure_url": "https://www.idbins.com/FWMAIV1534.do",
-      "manual_review_status": "schema_extension_required",
-      "current_db_seed_status": "blocked_by_missing_medical_expense_category",
+      "carrier_result_status": "hashed",
+      "manual_review_status": "baseline_candidate",
+      "current_db_seed_status": "blocked_until_premium_basis_and_source_record_approved",
       "identity_verified": true,
       "sale_status_review": "carrier_disclosure_record_indicates_active_sale",
       "premium_basis_review": "e_insmarket_premium_text_present_but_basis_unapproved",
       "recommended_mapping": {
         "coverage_category": "medical_expense",
+        "matching_strategy": "baseline",
         "risk_targets": [],
-        "risk_target_caveat": "Indemnity medical expense coverage reimburses illness and injury treatment costs broadly; it should not be mapped to disease-specific genetic flags without a separate rule."
+        "risk_target_caveat": "Indemnity medical expense coverage reimburses illness and injury treatment costs broadly; it should remain baseline rather than disease-specific genetic matching."
       },
+      "blockers": [
+        "premium_basis_unapproved",
+        "baseline_positioning_required"
+      ],
       "source_documents": [
         {
           "document_type": "terms",
@@ -93,7 +155,39 @@
           "url": "https://www.idbins.com/cYakgwanDown.do?FilePath=InsProduct/%EC%9A%94%EC%95%BD_31227(00)_20260506.pdf"
         }
       ],
-      "next_action": "Add a medical_expense product category or a separate non-genetic baseline coverage track before service recommendation use."
+      "next_action": "Promote only as baseline medical_expense candidate after premium basis and source rows are approved."
+    },
+    {
+      "provider": "KB손보",
+      "product_group": "실손의료보험",
+      "raw_product_name": "KB손보 다이렉트실손의료비보장보험(무배당)(26.05)",
+      "e_insmarket_product_code": "N10G004000002G",
+      "premium_text": "6,400원",
+      "official_product_url": "https://m.kbinsure.co.kr:8547/dctapp/main.html#/GLM/RD/LT_CM0101M",
+      "carrier_result_status": "hashed",
+      "manual_review_status": "baseline_candidate",
+      "current_db_seed_status": "blocked_until_premium_basis_and_source_record_approved",
+      "identity_verified": true,
+      "sale_status_review": "direct_mobile_terms_current_2605_hash_verified_but_sale_status_needs_final_approval",
+      "premium_basis_review": "e_insmarket_premium_text_present_but_basis_unapproved",
+      "recommended_mapping": {
+        "coverage_category": "medical_expense",
+        "matching_strategy": "baseline",
+        "risk_targets": [],
+        "risk_target_caveat": "Direct indemnity medical expense coverage should be displayed as broad baseline protection, not as a genetic-risk-specific recommendation."
+      },
+      "blockers": [
+        "premium_basis_unapproved",
+        "baseline_positioning_required"
+      ],
+      "source_documents": [
+        {
+          "document_type": "terms",
+          "sha256": "4c5927fb929cae39c4f5a4957945a75e208769a6d7c46d7e892c2942ffe8e98a",
+          "url": "https://m.kbinsure.co.kr:8547/dctapp/views/terms/KB_Direct_Medical(25192)_202605.pdf"
+        }
+      ],
+      "next_action": "Promote only as baseline medical_expense candidate after premium basis and source rows are approved."
     },
     {
       "provider": "삼성화재",
@@ -102,17 +196,23 @@
       "e_insmarket_product_code": "N08G004000002G",
       "premium_text": "6,575원",
       "official_product_url": "http://direct.samsungfire.com/CR_MyAnycarWeb/overture_index.jsp?OTK=Q1510OB0001",
-      "carrier_disclosure_url": "https://www.samsungfire.com/publication/P_U02_05_16_262.html",
-      "manual_review_status": "schema_extension_required",
-      "current_db_seed_status": "blocked_by_missing_medical_expense_category",
+      "carrier_result_status": "hashed",
+      "manual_review_status": "baseline_candidate",
+      "current_db_seed_status": "blocked_until_premium_basis_and_source_record_approved",
       "identity_verified": true,
       "sale_status_review": "official_document_hash_verified_but_sale_status_not_approved",
       "premium_basis_review": "e_insmarket_premium_text_present_but_basis_unapproved",
       "recommended_mapping": {
         "coverage_category": "medical_expense",
+        "matching_strategy": "baseline",
         "risk_targets": [],
-        "risk_target_caveat": "Indemnity medical expense coverage reimburses illness and injury treatment costs broadly; it should not be mapped to disease-specific genetic flags without a separate rule."
+        "risk_target_caveat": "Indemnity medical expense coverage reimburses illness and injury treatment costs broadly; it should remain baseline rather than disease-specific genetic matching."
       },
+      "blockers": [
+        "premium_basis_unapproved",
+        "sale_status_unapproved",
+        "baseline_positioning_required"
+      ],
       "source_documents": [
         {
           "document_type": "terms",
@@ -120,7 +220,73 @@
           "url": "https://direct.samsungfire.com/docs/realloss.pdf"
         }
       ],
-      "next_action": "Confirm sale status and add medical_expense schema support before service recommendation use."
+      "next_action": "Confirm sale status and promote only as baseline medical_expense candidate after source rows are approved."
+    },
+    {
+      "provider": "현대해상",
+      "product_group": "실손의료보험",
+      "raw_product_name": "(무)현대해상다이렉트실손의료비보장보험(갱신형)(Hi2605)",
+      "e_insmarket_product_code": "N09G004000001G",
+      "premium_text": "6,740원",
+      "official_product_url": "https://mdirect.hi.co.kr/service.do?m=16baef8710&simpCalc=Y&embrYn=Y&utm_source=damoa&utm_medium=partner&utm_campaign=medical_mo&HDMS1=partner&HDMS2=damoa&HDMS3=damoa&HDMS4=medical_mo&inpath=e_sure_market",
+      "carrier_result_status": "hashed",
+      "manual_review_status": "baseline_candidate",
+      "current_db_seed_status": "blocked_until_premium_basis_and_source_record_approved",
+      "identity_verified": true,
+      "sale_status_review": "direct_product_terms_hash_verified_but_sale_status_needs_final_approval",
+      "premium_basis_review": "e_insmarket_premium_text_present_but_basis_unapproved",
+      "recommended_mapping": {
+        "coverage_category": "medical_expense",
+        "matching_strategy": "baseline",
+        "risk_targets": [],
+        "risk_target_caveat": "Renewable indemnity medical expense coverage should be displayed as baseline protection with renewal/re-enrollment caveats."
+      },
+      "blockers": [
+        "premium_basis_unapproved",
+        "renewal_caveats_required",
+        "baseline_positioning_required"
+      ],
+      "source_documents": [
+        {
+          "document_type": "terms",
+          "sha256": "af92c7ee0f31d3aaf8eb4f05f9918b81795405bb51dbeb5346dbff910aea5f4a",
+          "url": "https://mdirect.hi.co.kr/dhNAS/terms/CM12M2_20260506.pdf"
+        }
+      ],
+      "next_action": "Promote only as baseline medical_expense candidate after renewal caveats, premium basis, and source rows are approved."
+    },
+    {
+      "provider": "삼성생명",
+      "product_group": "질병보험",
+      "raw_product_name": "삼성 인터넷 입원 건강보험(2601)(무배당,무해약환급금형)",
+      "e_insmarket_product_code": "L03C001000015",
+      "premium_text": "8,650원",
+      "official_product_url": "https://direct.samsunglife.com/damoa.eds?cid=di:insmarket:damoa:insmarket:240513",
+      "carrier_result_status": "hashed",
+      "manual_review_status": "schema_extension_required",
+      "current_db_seed_status": "blocked_by_missing_hospitalization_or_general_health_category",
+      "identity_verified": true,
+      "sale_status_review": "direct_policy_api_hash_verified_but_sale_status_not_approved",
+      "premium_basis_review": "e_insmarket_premium_text_present_but_basis_unapproved",
+      "recommended_mapping": {
+        "coverage_category": "hospitalization_general_health_required",
+        "matching_strategy": "baseline_or_manual",
+        "risk_targets": [],
+        "risk_target_caveat": "This is an inpatient health/life protection product, not oncology/cardiovascular/metabolic/neurological/medical_expense. A hospitalization or general_health category is needed before seed use."
+      },
+      "blockers": [
+        "coverage_category_missing",
+        "premium_basis_unapproved",
+        "sale_status_unapproved"
+      ],
+      "source_documents": [
+        {
+          "document_type": "terms",
+          "sha256": "ce40ecf0629246dd761d63c9badbc04d32e74839fce8a4d74176277b8e5d1363",
+          "url": "https://direct.samsunglife.com/contents/policy_was/%EA%B8%B0%ED%83%80_%EC%82%BC%EC%84%B1%20%EC%9D%B8%ED%84%B0%EB%84%B7%20%EC%9E%85%EC%9B%90%20%EA%B1%B4%EA%B0%95%EB%B3%B4%ED%97%98(2601)(%EB%AC%B4%EB%B0%B0%EB%8B%B9,%EB%AC%B4%ED%95%B4%EC%95%BD%ED%99%98%EA%B8%89%EA%B8%88%ED%98%95)_%ED%86%B5%ED%95%A9%EC%95%BD%EA%B4%80_20260101.pdf"
+        }
+      ],
+      "next_action": "Decide whether to add hospitalization/general_health category or keep this product only in source catalog review."
     }
   ]
 }
