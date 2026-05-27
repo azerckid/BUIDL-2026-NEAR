@@ -13,8 +13,8 @@ import { RiskProfileCard } from "./RiskProfileCard";
 import { InsuranceProductCard } from "./InsuranceProductCard";
 import { ConciergeChat } from "./ConciergeChat";
 import { createCart } from "@/actions/createCart";
-import type { DashboardData, PriorityOrder } from "@/actions/getDashboardData";
-import type { RiskProfile, RiskLevel, InsuranceProduct } from "@/lib/db/schema";
+import type { DashboardData, DashboardProduct, PriorityOrder } from "@/actions/getDashboardData";
+import type { RiskProfile, RiskLevel } from "@/lib/db/schema";
 
 const LEVEL_ORDER: Record<RiskLevel, number> = { high: 0, moderate: 1, normal: 2 };
 
@@ -33,7 +33,7 @@ function sortedCategories(
 // ─── 카트 + 결제 공통 UI ──────────────────────────────────────────────────────
 
 interface CartSummaryProps {
-  products: InsuranceProduct[];
+  products: DashboardProduct[];
   selectedIds: Set<string>;
   onToggle: (id: string) => void;
   onCheckout: () => void;

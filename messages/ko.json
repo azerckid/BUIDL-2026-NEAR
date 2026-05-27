@@ -225,9 +225,15 @@
       "oncology": "종양·암",
       "cardiovascular": "심혈관",
       "metabolic": "대사·내분비",
-      "neurological": "신경·뇌"
+      "neurological": "신경·뇌",
+      "medical_expense": "실손·의료비"
     },
     "zkpDiscount": "ZKP 할인",
+    "baseline": "기본 의료비",
+    "premiumBasis": "보험료 기준",
+    "caveat": "유의사항",
+    "sourceChecked": "출처 확인",
+    "officialSource": "공식 출처",
     "perMonth": "/mo"
   },
   "pitch": {

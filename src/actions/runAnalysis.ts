@@ -11,7 +11,7 @@ import { verifyAttestation } from "./verifyAttestation";
 import { teeAnalysisOutputSchema } from "@/types/tee-output";
 import { submitProofHashOnChain, ZKP_VK_HASH } from "@/lib/zkp/verifier";
 import type { ZkpProof } from "@/types/zkp";
-import { matchProducts } from "./matchProducts";
+import { matchProductGroups } from "./matchProducts";
 import { updateSessionStatus } from "./updateSessionStatus";
 import { consumeAuthNonce } from "./generateAuthNonce";
 import { verifyNearSignature } from "@/lib/near/verify-signature";
@@ -127,7 +127,7 @@ export async function runAnalysis(
     await updateSessionStatus(sessionId, "completed");
 
     // ── DB 상품 매칭 ──────────────────────────────────────────────────────────
-    const matchedIds = await matchProducts(
+    const matchGroups = await matchProductGroups(
       validated.riskProfile,
       validated.priorityOrder
     );
@@ -139,7 +139,7 @@ export async function runAnalysis(
       sessionId,
       walletAddress: session.walletAddress,
       riskProfile: JSON.stringify(validated.riskProfile),
-      recommendedProductIds: JSON.stringify(matchedIds),
+      recommendedProductIds: JSON.stringify(matchGroups.recommendedProductIds),
       zkpProofHash: proofHash,
       advisoryMessages: JSON.stringify(validated.advisoryMessages),
       reasoning: validated.reasoning,
