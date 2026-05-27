@@ -1,7 +1,9 @@
 # [기술 명세] 데이터 모델 및 DB 스키마 상세 명세
+> Created: 2026-04-01 00:00
+> Last Updated: 2026-05-27 22:43
 
 - **작성일**: 2026-04-01
-- **최종 수정일**: 2026-04-01
+- **최종 수정일**: 2026-05-27
 - **레이어**: 03_Technical_Specs
 - **상태**: Draft v1.0
 
@@ -88,6 +90,8 @@ export const userProfileInsertSchema = z.object({
 ### 2-2. `insurance_products`
 
 플랫폼이 취급하는 보험 상품 카탈로그. 보험사로부터 수집하거나 수동 등록한 상품 목록.
+
+> 2026-05-27 기준 이 섹션은 현재 구현된 v1 스키마다. 실제 한국 보험상품 공시자료, PDF hash, KRW 보험료, 실손의료보험을 반영하는 확장안은 `02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md`를 기준으로 한다.
 
 | 컬럼명 | 타입 | 제약 | 설명 |
 |---|---|---|---|
@@ -508,8 +512,9 @@ export const SEED_PRODUCTS = [
 
 ---
 
-## 관련 문서
+## Related Documents
 
 - [프로젝트 셋업 가이드](./PROJECT_SETUP_GUIDE.md)
 - [AI 매칭 파이프라인](../04_Logic_Progress/AI_MATCHING_PIPELINE.md)
 - [NEAR 프라이버시 아키텍처](./NEAR_PRIVACY_STACK_ARCH.md)
+- [보험상품 카탈로그 스키마 확장안](./02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md)
