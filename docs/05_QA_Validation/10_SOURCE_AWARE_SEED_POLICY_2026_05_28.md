@@ -1,9 +1,9 @@
 # [QA] Source-aware Seed 정책 검증
 > Created: 2026-05-28 03:27
-> Last Updated: 2026-05-28 03:56
+> Last Updated: 2026-05-28 04:18
 
 - **레이어**: 05_QA_Validation
-- **상태**: Seed Policy QA v1.1 완료
+- **상태**: Seed Policy QA v1.2 완료
 - **범위**: `src/lib/db/seed.ts`가 hash-backed 매칭 정리 후보를 어떤 테이블에 넣고, 사용자 추천 노출을 어떻게 차단하는지 검증한다.
 - **결론**: hash-backed 7개 상품은 실제 추천 상품으로 활성화하지 않고, source-aware 매칭 키워드 정리 후보로만 seed에 반영한다. 기존 active demo 상품 5개는 서비스 흐름 보존용으로 유지한다.
 
@@ -30,6 +30,16 @@
 | `insurance_product_sources` | 7 | 모두 `review_status=needs_review` | 추천 노출 없음 |
 | `insurance_source_documents` | 12 | 모두 `usage_status=link_only`, `parse_status=not_parsed` | 추천 노출 없음 |
 | `insurance_products` | 5 | 기존 demo 상품 active 유지 | 기존 데모 추천 유지 |
+
+한화생명 e암보험 약관 PDF는 `sourceUrl`에서 다시 다운로드해 파일 hash를 재계산했다.
+
+| 문서 | 검증값 |
+|---|---|
+| `doc_hanwha_life_e_cancer_terms_202604` | `918796d28b8274195258621c08c32c87159c18b1a50fb6e6f653a8c42ba8f7ed` |
+| 파일 크기 | 3,661,413 bytes |
+| 파일 식별 | PDF 1.4, 181 pages |
+
+`seed.ts`에는 `fileHashSha256`이 64자 lowercase hex인지 확인하는 가드를 추가했다. seed 실행 시 잘린 SHA-256 값이 남아 있으면 DB insert 전에 실패한다.
 
 실제 상품 후보를 `insurance_products`에 넣지 않은 이유는 다음과 같다. 여기서 `review_status=needs_review`는 외부 승인 대기가 아니라 DNA risk target 매칭을 위한 키워드 정리가 아직 남았다는 뜻이다.
 
@@ -63,6 +73,7 @@
 | `npx tsc --noEmit` | 통과 |
 | `npx eslint src/lib/db/seed.ts` | 통과 |
 | `npx eslint src --quiet` | 통과 |
+| `node -e "...fileHashSha256..."` | `seed.ts`의 모든 source document hash 64자 hex 통과 |
 
 DB 쓰기 명령인 `npx tsx src/lib/db/seed.ts`는 실행하지 않았다. 실행 전에는 `.env.local`이 로컬 DB를 가리키는지 확인하고, 운영 DB라면 백업 후 진행한다.
 

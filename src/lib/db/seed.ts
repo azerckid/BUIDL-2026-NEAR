@@ -27,6 +27,8 @@ type InsuranceProductSeed = typeof insuranceProducts.$inferInsert;
 const COMMON_PREMIUM_BASIS =
   "보험다모아 비교 조건 기준 월 보험료입니다. 실제 보험료는 나이, 성별, 가입금액, 납입기간, 갱신 여부, 특약, 인수심사 결과에 따라 달라질 수 있습니다.";
 
+const SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
+
 const SOURCE_AWARE_CARRIERS: InsuranceCarrierSeed[] = [
   {
     id: "carrier_hanwha_life",
@@ -388,9 +390,9 @@ const SOURCE_AWARE_DOCUMENTS: InsuranceSourceDocumentSeed[] = [
     documentType: "terms",
     sourceUrl:
       "https://direct.hanwhalife.com/products/downloadProxy/%ED%95%9C%ED%99%94%EC%83%9D%EB%AA%85%20e%EC%95%94%EB%B3%B4%ED%97%98(%EB%B9%84%EA%B0%B1%EC%8B%A0%ED%98%95)%20%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%95%BD%EA%B4%80_20260417.pdf?docUrl=dynamic/direct/product/cms_T3jquWCZurf6YKm6_1776383470397.pdf",
-    fileHashSha256: "918796d28b8274195258621c08c32c87159c18b1a50fb6e6f653a8f7ed",
+    fileHashSha256: "918796d28b8274195258621c08c32c87159c18b1a50fb6e6f653a8c42ba8f7ed",
     contentType: "application/pdf",
-    contentLengthBytes: null,
+    contentLengthBytes: 3661413,
     retrievedAt: reviewedAt,
     usageStatus: "link_only",
     parseStatus: "not_parsed",
@@ -635,7 +637,19 @@ const DEMO_PRODUCTS: InsuranceProductSeed[] = [
   },
 ];
 
+function assertValidSourceDocumentHashes(documents: InsuranceSourceDocumentSeed[]) {
+  for (const document of documents) {
+    if (!SHA256_HEX_PATTERN.test(document.fileHashSha256)) {
+      throw new Error(
+        `Invalid SHA-256 hash for source document ${document.id}: ${document.fileHashSha256}`
+      );
+    }
+  }
+}
+
 async function seed() {
+  assertValidSourceDocumentHashes(SOURCE_AWARE_DOCUMENTS);
+
   console.log("Seeding insurance carriers...");
   for (const carrier of SOURCE_AWARE_CARRIERS) {
     await db
