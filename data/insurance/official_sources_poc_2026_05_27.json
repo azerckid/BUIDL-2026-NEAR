@@ -1,0 +1,154 @@
+{
+  "metadata": {
+    "name": "Korea insurance official sources PoC",
+    "generated_at": "2026-05-27 03:30 KST",
+    "scope": "official carrier universe, public product comparison pages, PDF/API feasibility",
+    "status": "poc_verified",
+    "notes": [
+      "This file is a PoC evidence inventory, not a production product catalog.",
+      "Product recommendation DB updates still require human review for sale status, premium basis, coverage_category, and risk_targets."
+    ]
+  },
+  "official_source_status": [
+    {
+      "source_id": "klia_member_list",
+      "name": "생명보험협회 회원사 안내",
+      "url": "https://www.klia.or.kr/klia/company/member/list.do",
+      "method": "GET HTML",
+      "status": "accessible",
+      "evidence": "HTML image alt/link values exposed life insurer names and homepages."
+    },
+    {
+      "source_id": "knia_member_list",
+      "name": "손해보험협회 회원사",
+      "url": "https://www.knia.or.kr/about/partner/partner01",
+      "method": "GET HTML with browser User-Agent",
+      "status": "accessible",
+      "evidence": "HTML contains member names, addresses, phones, and homepage buttons."
+    },
+    {
+      "source_id": "knia_lost_health_disclosure",
+      "name": "손해보험협회 공시실 실손의료보험 공시",
+      "url": "https://kpub.knia.or.kr/productDisc/lostHealth/lostHealthDisclosure.do",
+      "method": "GET HTML with browser User-Agent",
+      "status": "accessible",
+      "evidence": "HTML contains insurer filter values including 메리츠화재, 흥국화재, 삼성화재, 현대해상."
+    },
+    {
+      "source_id": "e_insmarket_cancer_mobile",
+      "name": "보험다모아 모바일 암보험 상품비교",
+      "url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "method": "GET HTML with browser User-Agent",
+      "status": "accessible",
+      "evidence": "Product name, carrier logo alt text, and premium text were extracted from static HTML.",
+      "caution": "Root and HEAD requests returned 400 or redirect loops; crawler should use direct category URLs and GET."
+    },
+    {
+      "source_id": "epostlife_openapi_info",
+      "name": "우체국금융 보험상품 OpenAPI 안내",
+      "url": "https://www.epostlife.go.kr/IPUIOP0000.do",
+      "method": "GET HTML with browser User-Agent",
+      "status": "accessible_documentation",
+      "evidence": "OpenAPI page lists XML API services for 보험상품정보 조회 and 1회 보험료 조회.",
+      "api_endpoints": [
+        "http://apis.data.go.kr/1721301/KpostInsuranceProductView/insuranceGoods",
+        "http://apis.data.go.kr/1721301/KpostInsuranceFeeCalculationView/insuranceFee"
+      ],
+      "caution": "Actual API calls require a data.go.kr service key."
+    },
+    {
+      "source_id": "samsunglife_pdf_probe",
+      "name": "삼성생명 공개 PDF 접근성 확인",
+      "url": "https://www.samsunglife.com/dcms/down/w3sli/disclosure/disclosure_guide.pdf",
+      "method": "HEAD PDF",
+      "status": "accessible_pdf",
+      "evidence": {
+        "http_status": 200,
+        "content_type": "application/pdf",
+        "content_length_bytes": 11332054,
+        "last_modified": "Wed, 07 Aug 2013 05:14:02 GMT"
+      },
+      "caution": "This probe confirms PDF download feasibility; product-specific terms/summary PDFs still need discovery and hashing."
+    }
+  ],
+  "carrier_universe_poc": {
+    "life_product_carriers_from_klia": [
+      { "name_ko": "한화생명", "homepage_url": "http://www.hanwhalife.com", "carrier_type": "life" },
+      { "name_ko": "ABL생명", "homepage_url": "http://www.abllife.co.kr", "carrier_type": "life" },
+      { "name_ko": "삼성생명", "homepage_url": "http://www.samsunglife.com", "carrier_type": "life" },
+      { "name_ko": "흥국생명", "homepage_url": "https://www.heungkuklife.co.kr", "carrier_type": "life" },
+      { "name_ko": "교보생명", "homepage_url": "http://www.kyobo.co.kr", "carrier_type": "life" },
+      { "name_ko": "iM라이프", "homepage_url": "http://www.dgbfnlife.com/", "carrier_type": "life" },
+      { "name_ko": "미래에셋생명", "homepage_url": "https://life.miraeasset.com/", "carrier_type": "life" },
+      { "name_ko": "KDB생명", "homepage_url": "http://www.kdblife.co.kr", "carrier_type": "life" },
+      { "name_ko": "DB생명", "homepage_url": "http://www.idblife.com", "carrier_type": "life" },
+      { "name_ko": "동양생명", "homepage_url": "http://www.myangel.co.kr", "carrier_type": "life" },
+      { "name_ko": "메트라이프생명", "homepage_url": "http://www.metlife.co.kr", "carrier_type": "life" },
+      { "name_ko": "KB라이프생명보험", "homepage_url": "https://www.kblife.co.kr", "carrier_type": "life" },
+      { "name_ko": "신한생명", "homepage_url": "http://www.shinhanlife.co.kr", "carrier_type": "life" },
+      { "name_ko": "처브라이프생명", "homepage_url": "http://www.chubblife.co.kr", "carrier_type": "life" },
+      { "name_ko": "하나생명", "homepage_url": "http://www.hanalife.co.kr", "carrier_type": "life" },
+      { "name_ko": "BNP파리바카디프생명", "homepage_url": "http://www.cardif.co.kr", "carrier_type": "life" },
+      { "name_ko": "푸본현대생명", "homepage_url": "http://www.fubonhyundai.com/", "carrier_type": "life" },
+      { "name_ko": "라이나생명", "homepage_url": "http://www.lina.co.kr", "carrier_type": "life" },
+      { "name_ko": "AIA생명", "homepage_url": "http://www.aia.co.kr", "carrier_type": "life" },
+      { "name_ko": "NH농협생명", "homepage_url": "http://www.nhlife.co.kr", "carrier_type": "life" },
+      { "name_ko": "IBK연금보험", "homepage_url": "http://www.ibki.co.kr", "carrier_type": "life" },
+      { "name_ko": "교보라이프플래닛", "homepage_url": "http://www.lifeplanet.co.kr", "carrier_type": "life" }
+    ],
+    "life_non_primary_members_from_klia": [
+      { "name_ko": "코리안리재보험", "homepage_url": "http://www.koreanre.co.kr", "carrier_type": "reinsurance" },
+      { "name_ko": "RGA재보험 한국지점", "homepage_url": "http://www.rgare.com", "carrier_type": "reinsurance" },
+      { "name_ko": "한화생명금융서비스", "homepage_url": "http://www.hanwhalifefs.com", "carrier_type": "agency" },
+      { "name_ko": "미래에셋금융서비스", "homepage_url": "http://www.miraeassetfp.co.kr", "carrier_type": "agency" },
+      { "name_ko": "한화라이프랩", "homepage_url": "http://www.hanwhalifelab.co.kr", "carrier_type": "agency" },
+      { "name_ko": "KB라이프파트너스", "homepage_url": "http://www.kblifepartners.co.kr", "carrier_type": "agency" },
+      { "name_ko": "동양생명금융서비스", "homepage_url": "https://www.myangelfs.co.kr", "carrier_type": "agency" }
+    ],
+    "general_primary_carriers_from_knia": [
+      { "name_ko": "메리츠화재해상보험주식회사", "homepage_url": "https://www.meritzfire.com", "carrier_type": "general" },
+      { "name_ko": "한화손해보험주식회사", "homepage_url": "https://www.hwgeneralins.com", "carrier_type": "general" },
+      { "name_ko": "롯데손해보험주식회사", "homepage_url": "https://www.lotteins.co.kr/", "carrier_type": "general" },
+      { "name_ko": "흥국화재해상보험주식회사", "homepage_url": "https://www.heungkukfire.co.kr", "carrier_type": "general" },
+      { "name_ko": "삼성화재해상보험주식회사", "homepage_url": "https://www.samsungfire.com", "carrier_type": "general" },
+      { "name_ko": "현대해상화재보험주식회사", "homepage_url": "https://www.hi.co.kr", "carrier_type": "general" },
+      { "name_ko": "KB손해보험주식회사", "homepage_url": "https://www.kbinsure.co.kr", "carrier_type": "general" },
+      { "name_ko": "DB손해보험주식회사", "homepage_url": "https://www.idbins.com", "carrier_type": "general" },
+      { "name_ko": "AXA손해보험주식회사", "homepage_url": "https://www.axa.co.kr", "carrier_type": "general" },
+      { "name_ko": "AIG손해보험주식회사", "homepage_url": "https://www.aig.co.kr", "carrier_type": "general" },
+      { "name_ko": "하나손해보험주식회사", "homepage_url": "https://www.educar.co.kr", "carrier_type": "general" },
+      { "name_ko": "농협손해보험주식회사", "homepage_url": "https://www.nhfire.co.kr/", "carrier_type": "general" },
+      { "name_ko": "(주)카카오페이손해보험", "homepage_url": "https://kakaopayinscorp.co.kr", "carrier_type": "general" },
+      { "name_ko": "MG손해보험주식회사", "homepage_url": "https://www.mggeneralins.com", "carrier_type": "general" }
+    ],
+    "general_specialty_or_reinsurance_from_knia": [
+      { "name_ko": "코리안리재보험주식회사", "homepage_url": "https://www.koreanre.co.kr", "carrier_type": "reinsurance" },
+      { "name_ko": "서울보증보험주식회사", "homepage_url": "https://www.sgic.co.kr", "carrier_type": "surety" }
+    ]
+  },
+  "sample_products_from_e_insmarket_cancer": {
+    "basis": "보험다모아 모바일 암보험 비교 URL parameters: age=34, sex=2, enterType=A, indemnityTypeA=1, prdtSmlClsCd=D001, renewTypeA=C1",
+    "retrieved_at": "2026-05-27 03:30 KST",
+    "products": [
+      { "rank": 1, "provider": "한화생명", "raw_product_name": "한화생명 e암보험(비갱신형)(무)(표준체형)", "premium_text": "0원", "review_status": "needs_review" },
+      { "rank": 2, "provider": "한화생명", "raw_product_name": "한화생명 e암보험(비갱신형)(무)(비흡연체형)", "premium_text": "0원", "review_status": "needs_review" },
+      { "rank": 3, "provider": "미래에셋생명", "raw_product_name": "온라인 암보험 무배당 [기본형]", "premium_text": "4,510원", "review_status": "raw" },
+      { "rank": 4, "provider": "미래에셋생명", "raw_product_name": "온라인 암보험 무배당 [해약환급금이없는유형]", "premium_text": "6,490원", "review_status": "raw" },
+      { "rank": 5, "provider": "신한라이프생명", "raw_product_name": "신한SOL암보험(무배당, 해약환급금 미지급형)(비갱신형)", "premium_text": "6,750원", "review_status": "raw" },
+      { "rank": 6, "provider": "신한라이프생명", "raw_product_name": "신한SOL암보험(무배당)(비갱신형)", "premium_text": "7,870원", "review_status": "raw" },
+      { "rank": 7, "provider": "KDB생명", "raw_product_name": "KDB다이렉트 암보험(해약환급금 미지급형III)(무)", "premium_text": "8,020원", "review_status": "raw" },
+      { "rank": 8, "provider": "교보라이프플래닛", "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 비흡연체)", "premium_text": "8,410원", "review_status": "raw" },
+      { "rank": 9, "provider": "교보라이프플래닛", "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 표준체)", "premium_text": "8,490원", "review_status": "raw" },
+      { "rank": 10, "provider": "DB생명", "raw_product_name": "(무)e로운 암보험(해약환급금 미지급형)(2601)", "premium_text": "9,700원", "review_status": "raw" },
+      { "rank": 11, "provider": "동양생명", "raw_product_name": "(무)우리WON하는실속하나로암보험", "premium_text": "11,000원", "review_status": "raw" },
+      { "rank": 12, "provider": "한화손보", "raw_product_name": "한화 다이렉트 내가고른 암보험 무배당2604", "premium_text": "12,204원", "review_status": "raw" }
+    ]
+  },
+  "next_actions": [
+    "Create a repeatable collector script that fetches KLIA carriers, KNIA carriers, and e-insmarket P0 product pages without writing to production DB.",
+    "Apply for or configure data.go.kr service key before calling Korea Post insurance APIs.",
+    "Expand sample parsing from cancer insurance to 실손의료비, 질병/건강, 간병/치매 categories.",
+    "Discover product-specific PDF URLs from representative carrier disclosure pages and store URL plus hash.",
+    "Do not expose products in user recommendations until coverage_category and risk_targets are human-approved."
+  ]
+}

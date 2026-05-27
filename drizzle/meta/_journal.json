@@ -29,6 +29,20 @@
       "when": 1776061127583,
       "tag": "0003_purple_stardust",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1779890494489,
+      "tag": "0004_panoramic_firebird",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1779897328095,
+      "tag": "0005_common_boom_boom",
+      "breakpoints": true
     }
   ]
 }

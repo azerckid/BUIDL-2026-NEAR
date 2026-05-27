@@ -1,9 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
+> Created: 2026-03-31 00:00
+> Last Updated: 2026-05-28 00:34
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-23 (Stage 18 추가 — Phase 3 완전 격리 파이프라인 스케쥴 및 체크리스트)
+- **최종 수정일**: 2026-05-28 (보험 추천 카드 출처/caveat 표시)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v2.1
+- **상태**: Draft v2.3
 - **phase**: Phase 2
 
 ---
@@ -27,13 +29,14 @@
 - 기존 보험 증권 분석을 통한 보장 공백 진단 로직 구현.
 
 ### Phase 2: NEAR TEE 및 프라이버시 스택 통합
-- **Confidential Intents 실연동**: Defuse Protocol SDK를 통해 실제 기밀 결제 인텐트를 Solver 네트워크에 제출. ZKP proof hash를 calldata에 첨부.
+- **Confidential Intents + USDC 결제 레일 재검토**: 2026-05 NEAR AI의 USDC + Confidential Intents 통합을 기준으로 보험료 결제 Layer 3를 재설계. SDK/엔드포인트는 실측 전까지 확정하지 않음.
 - **Noir ZKP 온체인 수학적 검증**: `@aztec/bb.js` 기반 실제 proof 생성 및 NEAR 컨트랙트 제출.
 - **MPC Chain Signatures 고도화**: v1.signer 실연동으로 NEAR 지갑 하나로 ETH/SOL 보험료 결제 지원.
 - **NEAR AI Cloud 연동 고도화**: Qwen 30B 이상 모델 활용, TEE 내부 분석 정확도 향상.
 - **AI 상담 레이어 추가 (부가 기능)**: TEE 분석 후 생성된 위험 레이블을 컨텍스트로 주입하여, 사용자가 보험·질병 관련 질문을 할 수 있는 채팅 인터페이스 제공. LLM 내장 지식 기반 답변, Stateless 설계. 세부 구현 명세는 `SECRET_KEEPER_IMPL_SPEC.md` 참조.
 - 암호화된 유전자 Raw Data(VCF 등)의 안전한 로딩 및 처리 테스트.
-- 보험사 API 연동 및 상품 매칭 엔진 고도화.
+- 실제 보험상품 카탈로그 고도화: 생명보험협회/손해보험협회/보험다모아/우체국보험 API 후보를 기준으로 seed 데이터를 공시 기반 상품으로 교체.
+- 보험사 API 또는 공시 데이터 연동 및 상품 매칭 엔진 고도화.
 - Confidential Intents 테스트넷 → 메인넷 전환 대응.
 
 ### Phase 3: 완전 격리 TEE 파이프라인 + 정식 서비스 런칭
@@ -41,10 +44,10 @@
 **핵심 목표**: 유전자 데이터가 TEE 외부로 단 한 바이트도 노출되지 않는 완전 격리 파이프라인 완성.
 현재 LLM 분석만 TEE 안에 있으며, 파일 파싱 / ZKP 생성 / risk_score 도출을 TEE 안으로 옮기는 것이 Phase 3의 핵심.
 
-**선행 조건**: NEAR AI 팀 문의 응답 (블로커 1~3 해소) — `PHASE3_BLOCKERS_AND_INQUIRY.md` 참조
+**선행 조건(2026-05-27 재검토)**: 로컬 IronClaw CLI는 v0.26.0이며, 공개 릴리스는 v0.28.2까지 확인했다. v0.29.0과 PR #3122는 공개 근거 확인 전까지 로드맵 전제로 두지 않는다. 블로커 2~3은 v0.28.0~v0.28.2로 재실측하고, 블로커 1은 NEAR AI 팀 확인이 계속 필요하다. 상세는 `PHASE3_BLOCKERS_AND_INQUIRY.md` 참조.
 
 **예상 일정**:
-- **Q2 2026**: NEAR AI 팀 문의 응답 → TEE 복호화 경로 확보 → WASM 툴 cloud 등록
+- **Q2 2026**: IronClaw v0.28.2 재검증 → NEAR AI 문의 보강 → TEE 복호화 경로 확보 → WASM 툴 cloud 등록
 - **Q3 2026**: 완전 격리 파이프라인 완성 → Barretenberg 교체 → 외부 보안 감사
 - **Q4 2026**: Confidential Intents 메인넷 전환 → 보험사 파트너십 → 베타 서비스
 - **Q1 2027**: 글로벌 런칭 (싱가포르, 유럽) → 멀티체인 통합 → 토큰 이코노미
@@ -52,6 +55,19 @@
 **구현 체크리스트 상세**: Stage 18 (아래) 참조
 
 ---
+
+### 2026-05-27 적용 업데이트: 두 기둥 실행 트랙
+
+| 트랙 | 핵심 질문 | 다음 작업 |
+|---|---|---|
+| 실제 보험상품 카탈로그 | 실제 판매 상품을 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | DB migration 적용 전 백업/검토, 잔여 보험사 JS/API 어댑터, 실제 seed 후보 승격 준비 |
+| NEAR 프라이버시 기술 | IronClaw v0.28.2까지의 업데이트가 블로커 2~3을 해소하는가 | WIT-compatible WASM runtime, `tool_install`, WASM 실행 결과 반환 경로 실측 |
+| 매칭 브리지 | AI 해석과 DB 상품 추천의 경계를 어떻게 유지할 것인가 | `riskProfile.flags` -> `insurance_products.risk_targets` 결정론적 매칭 유지 |
+
+적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
+보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 검수 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.
+hash-backed 3개 상품 수동 검수 결과는 `../../data/insurance/latest_seed_candidate_review.json`, `../../data/insurance/latest_seed_candidate_review.csv`, `../05_QA_Validation/08_HASH_BACKED_PRODUCT_MANUAL_REVIEW_2026_05_27.md`에 둔다. 결론상 현재 `insurance_products` seed에 바로 넣을 상품은 없고, 먼저 출처 기반 카탈로그 스키마와 `medical_expense` 처리 방식을 결정해야 한다.
+스키마 확장안은 `../03_Technical_Specs/02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md`에 확정했고, Drizzle/Zod schema, `drizzle/0004_panoramic_firebird.sql`, `matchProducts`의 `risk_target`/`baseline` 분리, 추천 카드의 baseline/출처/보험료 기준/caveat 표시까지 완료했다. 다음 작업은 migration 실제 적용 전 백업/검토와 잔여 보험사 공시실 JS/API 어댑터 보강이다.
 
 ## 2. 세부 실행 계획 (Detailed Execution)
 
@@ -844,29 +860,31 @@
 
 ---
 
-### Stage 17 — IronClaw v0.26.0 기반 완전 격리 파이프라인 [구현 예정]
+### Stage 17 — IronClaw v0.28.x 재검증 기반 완전 격리 파이프라인 [재검토]
 
-> **목적**: IronClaw v0.26.0에서 해소된 인프라 장벽을 바탕으로, 실제 유전자 파일이
+> **목적**: IronClaw v0.28.x 계열에서 재확인할 인프라 장벽을 바탕으로, 실제 유전자 파일이
 > TEE 외부로 단 한 바이트도 노출되지 않는 완전 격리 파이프라인을 완성한다.
 > Stage 16의 HMAC-SHA256 커밋먼트를 Barretenberg ultraplonk proof로 교체하고,
 > 파일 전송 암호화(ECIES)를 추가하여 Phase 0의 Mock 구조를 모두 제거한다.
 >
-> **전제 조건**: IronClaw v0.26.0 (2026-04-21 출시, 최신)
+> **전제 조건(업데이트 2026-05-27)**: 로컬 CLI는 v0.26.0, 공개 확인 최신 릴리스는 v0.28.2. v0.26.0 최신 전제는 폐기하고 v0.28.2에서 WASM 등록/실행/결과 반환 경로를 재검증한다. v0.29.0/PR #3122는 공개 근거 확인 전까지 후보로만 관리한다.
 > **참고 명세**: `docs/03_Technical_Specs/ZKP_IN_TEE_WASM_IMPL_SPEC.md`
 
-#### v0.26.0에서 해소된 장벽 요약
+#### IronClaw 릴리스 업데이트에서 재검증할 장벽 요약
 
-| 장벽 | 이전 상태 | v0.26.0 현재 |
+| 장벽 | 4월 기준 가정 | 2026-05-27 업데이트 판단 |
 |---|---|---|
-| 커스텀 WASM 툴 배포 | v0.17.0 실험적 | v0.25.0부터 프로덕션, v0.26.0 보안 강화 |
-| 호스티드 TEE WASM 크리덴셜 인젝션 | 미동작 (Issue #1537) | v0.26.0 완전 해결 (COMPLETED 2026-04-21) |
-| 파일 첨부 API | 미지원 | v0.26.0 attachment/document upload 추가 |
-| TEE 샌드박스 격리 | 기본 | v0.26.0 프로젝트별 독립 샌드박스 |
+| 커스텀 WASM 툴 배포 | v0.25.0부터 프로덕션, v0.26.0 보안 강화 | v0.28.0 WIT-compatible WASM runtime 기준으로 재실측 |
+| 호스티드 TEE WASM 크리덴셜 인젝션 | v0.26.0 완전 해결 가정 | v0.27.0 path-based credentials는 보조 신호. TEE 내부 복호화 API를 대체한다고 단정 불가 |
+| 파일 첨부/API 파이프라인 | v0.26.0 attachment/document upload 추가 | 파일 전달과 TEE 내부 복호화는 분리 검증 필요 |
+| WASM 툴 설치 경로 | local install과 cloud 반영 경로 불명확 | v0.28.2 chat-driven `tool_install` 복원으로 재검증 |
+| WASM 실행 결과 반환 | Chat tool call 결과가 입력 인자만 반환 | v0.28.0 WIT runtime에서 tool result 반환 경로 실측 필요 |
+| TEE 샌드박스 격리 | 프로젝트별 독립 샌드박스 | v0.28.1 multi-tenant memory isolation/headless WASM 채널 반영 여부 확인 |
 
 #### 17-1. Barretenberg WASM 크기 검증 및 빌드
 
 > Stage 16에서 크기 제한 우려로 HMAC-SHA256 커밋먼트로 대체했으나,
-> v0.26.0에서 WASM 툴 크기 제한이 명시적으로 문서화되지 않아 실측 필요.
+> v0.28.2 기준에서도 WASM 툴 크기 제한이 명시적으로 문서화되지 않아 실측 필요.
 
 - [ ] Barretenberg 소스코드 클론 (`AztecProtocol/barretenberg`)
 - [ ] `wasm32-wasip2` 타깃 크로스 컴파일
@@ -874,7 +892,7 @@
   cargo build --target wasm32-wasip2 --release
   ```
 - [ ] 빌드 결과 크기 측정 (예상 ~50MB+)
-- [ ] IronClaw v0.26.0 WASM 툴 크기 제한 실측
+- [ ] IronClaw v0.28.2 WASM 툴 크기 제한 실측
   ```bash
   near-ai agent upload --tool barretenberg.wasm --name zkp-prover --version 0.1.0
   # 크기 초과 시 에러 메시지로 제한치 확인
@@ -950,13 +968,16 @@
 > **목적**: 유전자 파일 파싱 / ZKP proof 생성 / risk_score 도출을 모두 IronClaw TEE 안으로 이동.
 > Stage 17에서 구현된 파일 전달 파이프라인 위에 TEE 복호화와 WASM 툴 실행을 추가.
 >
-> **선행 조건**: NEAR AI 팀 문의 응답 — 블로커 1~3 해소 후 착수
+> **선행 조건**: IronClaw v0.28.2 재검증 및 NEAR AI 팀 문의 응답 — 블로커 1~3 해소 후 착수
 > **참고 문서**: `docs/03_Technical_Specs/PHASE3_BLOCKERS_AND_INQUIRY.md`
 
 ---
 
 #### 18-1. NEAR AI 팀 문의 및 블로커 해소 [Q2 2026]
 
+- [ ] IronClaw v0.28.2 기준 로컬 CLI/API 업그레이드 테스트
+- [ ] v0.28.0 WIT-compatible WASM runtime에서 `zkp-prover.wasm` 실행 결과 반환 여부 확인
+- [ ] v0.28.2 chat-driven `tool_install`이 cloud.near.ai hosted TEE까지 반영되는지 확인
 - [ ] `PHASE3_BLOCKERS_AND_INQUIRY.md` 문의 메일 발송 (team@near.ai 또는 Discord)
 - [ ] 블로커 1 해소: TEE 내부 ECIES 복호화 API 엔드포인트 확인
 - [ ] 블로커 2 해소: cloud.near.ai 사용자 정의 WASM 툴 등록 절차 확인
@@ -1075,12 +1096,12 @@
 
 | 단계 | 항목 | 예상 시기 | 선행 조건 |
 |---|---|---|---|
-| 18-1 | NEAR AI 팀 문의 응답 | 2026-05 | 문의 발송 |
+| 18-1 | IronClaw v0.28.2 재검증 + NEAR AI 문의 보강 | 2026-05 | 공개 릴리스 확인 |
 | 18-2 | ECIES 실제 적용 | 2026-05~06 | 블로커 1 해소 |
 | 18-3 | 파일 파싱 WASM TEE 등록 | 2026-06 | 블로커 2 해소 |
 | 18-4 | ZKP Prover TEE 등록 | 2026-06 | 블로커 2·3 해소 |
 | 18-5 | Barretenberg 교체 | 2026-07~08 | 블로커 5 해소 |
-| 18-6 | Confidential Intents 실연동 | 2026-08 | intents-sdk v7 지원 |
+| 18-6 | Confidential Intents + USDC 실연동 | 2026-08 | SDK/API/엔드포인트 실측 |
 | 18-7 | Mock 코드 제거 | 2026-08 | 18-2~18-4 완료 |
 | 18-8 | 외부 보안 감사 | 2026-09 | 18-7 완료 |
 | 18-9 | 정식 서비스 런칭 | 2026-10~12 | 18-8 완료 |
@@ -1088,7 +1109,7 @@
 
 ---
 
-## 관련 문서
+## Related Documents
 - [비즈니스 기획안](../01_Concept_Design/GENETIC_AI_INSURANCE_AGENT.md)
 - [기술 아키텍처 명세](../03_Technical_Specs/NEAR_PRIVACY_STACK_ARCH.md)
 - [TEE Attestation 구현 명세](../03_Technical_Specs/TEE_ATTESTATION_SPEC.md)
@@ -1096,5 +1117,8 @@
 - [AI 상담 레이어 구현 명세](../03_Technical_Specs/SECRET_KEEPER_IMPL_SPEC.md)
 - [ZKP-in-TEE WASM 배포 구현 명세](../03_Technical_Specs/ZKP_IN_TEE_WASM_IMPL_SPEC.md)
 - [DB 스키마 명세](../03_Technical_Specs/DB_SCHEMA.md)
+- [보험상품 데이터 수집 파이프라인](../03_Technical_Specs/01_INSURANCE_DATA_COLLECTION_PIPELINE.md)
+- [보험상품 데이터 정기 갱신 QA](../05_QA_Validation/03_INSURANCE_DATA_REFRESH_QA.md)
 - [AI 매칭 파이프라인](./AI_MATCHING_PIPELINE.md)
+- [두 기둥 기반 서비스 업데이트 계획](./03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md)
 - [구현 계획 (초기 세팅)](./IMPLEMENTATION_PLAN.md)

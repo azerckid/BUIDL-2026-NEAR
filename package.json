@@ -7,6 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "collect:insurance": "node scripts/insurance/collect-official-sources.mjs",
+    "collect:insurance:docs": "node scripts/insurance/collect-product-documents.mjs",
+    "collect:insurance:disclosures": "node scripts/insurance/collect-carrier-disclosures.mjs",
+    "collect:insurance:review": "node scripts/insurance/build-review-queue.mjs",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
     "e2e:report": "playwright show-report"

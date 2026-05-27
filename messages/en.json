@@ -225,9 +225,15 @@
       "oncology": "Oncology",
       "cardiovascular": "Cardiovascular",
       "metabolic": "Metabolic",
-      "neurological": "Neurological"
+      "neurological": "Neurological",
+      "medical_expense": "Medical Expense"
     },
     "zkpDiscount": "ZKP Discount",
+    "baseline": "Baseline Coverage",
+    "premiumBasis": "Premium basis",
+    "caveat": "Caveat",
+    "sourceChecked": "Source checked",
+    "officialSource": "Official source",
     "perMonth": "/mo"
   },
   "pitch": {

@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "generated_at": "2026-05-27T13:42:38.479+09:00",
+    "timezone": "Asia/Seoul",
+    "generator": "scripts/insurance/build-review-queue.mjs",
+    "output_version": "1.0",
+    "input_snapshot": "data/insurance/latest_official_sources_snapshot.json",
+    "input_product_probe": "data/insurance/latest_product_document_probe.json",
+    "input_disclosure_probe": "data/insurance/latest_carrier_disclosure_probe.json",
+    "output_csv": "data/insurance/latest_insurance_review_queue.csv"
+  },
+  "counts": {
+    "review_rows": 56,
+    "rows_with_official_product_url": 47,
+    "rows_with_hashed_documents": 3,
+    "hashed_documents": 6,
+    "needs_human_review": 3,
+    "needs_source_document": 44,
+    "needs_official_product_url": 9
+  },
+  "qa": {
+    "service_db_ready": false,
+    "blockers": [
+      "The CSV is a human review queue, not an approved service seed.",
+      "coverage_category and risk_targets must be approved before recommendation use.",
+      "Premium basis and sale status must be verified against official documents."
+    ],
+    "next_actions": [
+      "Review hash-backed rows first.",
+      "Add carrier-specific JS/API adapters for rows that still need source documents.",
+      "Promote approved rows into insurance_product_sources or seed candidates."
+    ]
+  }
+}

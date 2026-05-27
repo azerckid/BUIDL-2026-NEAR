@@ -1,0 +1,1234 @@
+{
+  "metadata": {
+    "generated_at": "2026-05-27T12:40:49.973+09:00",
+    "timezone": "Asia/Seoul",
+    "generator": "scripts/insurance/collect-official-sources.mjs",
+    "output_version": "1.0"
+  },
+  "source_status": [
+    {
+      "source_id": "klia_member_list",
+      "name": "생명보험협회 회원사 안내",
+      "url": "https://www.klia.or.kr/klia/company/member/list.do",
+      "method": "GET HTML",
+      "status": "accessible",
+      "http_status": 200,
+      "evidence": "Extracted 30 KLIA member records from HTML."
+    },
+    {
+      "source_id": "knia_member_list",
+      "name": "손해보험협회 회원사",
+      "url": "https://www.knia.or.kr/about/partner/partner01",
+      "method": "GET HTML",
+      "status": "accessible",
+      "http_status": 200,
+      "evidence": "Extracted 32 KNIA member records from HTML."
+    },
+    {
+      "source_id": "knia_lost_health_disclosure",
+      "name": "손해보험협회 실손의료보험 공시",
+      "url": "https://kpub.knia.or.kr/productDisc/lostHealth/lostHealthDisclosure.do",
+      "method": "GET HTML",
+      "status": "accessible",
+      "http_status": 200,
+      "evidence": "Detected 4 insurer names on lost-health disclosure page."
+    },
+    {
+      "source_id": "e_insmarket_cancer_mobile",
+      "name": "보험다모아 모바일 암보험 상품비교",
+      "url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "method": "GET HTML",
+      "status": "accessible",
+      "http_status": 200,
+      "evidence": "Extracted 12 암보험 product rows from HTML."
+    },
+    {
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "name": "보험다모아 모바일 5세대 실손의료보험 상품비교",
+      "url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "method": "POST HTML",
+      "status": "accessible",
+      "http_status": 200,
+      "evidence": "Extracted 9 실손의료보험 product rows from HTML."
+    },
+    {
+      "source_id": "e_insmarket_medical_impaired_mobile",
+      "name": "보험다모아 모바일 유병력자실손의료보험 상품비교",
+      "url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "method": "POST HTML",
+      "status": "accessible",
+      "http_status": 200,
+      "evidence": "Extracted 3 유병력자실손의료보험 product rows from HTML."
+    },
+    {
+      "source_id": "e_insmarket_disease_mobile",
+      "name": "보험다모아 모바일 질병보험 상품비교",
+      "url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+      "method": "GET HTML",
+      "status": "accessible",
+      "http_status": 200,
+      "evidence": "Extracted 31 질병보험 product rows from HTML."
+    },
+    {
+      "source_id": "e_insmarket_nursing_dementia_mobile",
+      "name": "보험다모아 모바일 간병/치매보험 상품비교",
+      "url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C012",
+      "method": "GET HTML",
+      "status": "accessible",
+      "http_status": 200,
+      "evidence": "Extracted 1 간병/치매보험 product rows from HTML."
+    },
+    {
+      "source_id": "epostlife_openapi_info",
+      "name": "우체국금융 보험상품 OpenAPI 안내",
+      "url": "https://www.epostlife.go.kr/IPUIOP0000.do",
+      "method": "GET HTML",
+      "status": "accessible",
+      "http_status": 200,
+      "evidence": "Detected 3 Korea Post insurance OpenAPI endpoint candidates."
+    },
+    {
+      "source_id": "samsunglife_pdf_probe",
+      "name": "삼성생명 공개 PDF 접근성 확인",
+      "url": "https://www.samsunglife.com/dcms/down/w3sli/disclosure/disclosure_guide.pdf",
+      "method": "HEAD PDF",
+      "status": "accessible",
+      "http_status": 200,
+      "evidence": "content-type=application/pdf; content-length=11332054; last-modified=Wed, 07 Aug 2013 05:14:02 GMT"
+    }
+  ],
+  "carriers": {
+    "life_product_carriers": [
+      {
+        "name_ko": "한화생명",
+        "homepage_url": "http://www.hanwhalife.com/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "ABL생명",
+        "homepage_url": "http://www.abllife.co.kr/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "삼성생명",
+        "homepage_url": "http://www.samsunglife.com/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "흥국생명",
+        "homepage_url": "https://www.heungkuklife.co.kr/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "교보생명",
+        "homepage_url": "http://www.kyobo.co.kr/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "iM라이프",
+        "homepage_url": "http://www.dgbfnlife.com/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "미래에셋생명",
+        "homepage_url": "https://life.miraeasset.com/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "KDB생명",
+        "homepage_url": "http://www.kdblife.co.kr/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "DB생명",
+        "homepage_url": "http://www.idblife.com/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "동양생명",
+        "homepage_url": "http://www.myangel.co.kr/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "메트라이프생명",
+        "homepage_url": "http://www.metlife.co.kr/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "KB라이프생명보험",
+        "homepage_url": "https://www.kblife.co.kr/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "신한생명",
+        "homepage_url": "http://www.shinhanlife.co.kr/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "처브라이프생명",
+        "homepage_url": "http://www.chubblife.co.kr/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "하나생명",
+        "homepage_url": "http://www.hanalife.co.kr/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "BNP파리바카디프생명",
+        "homepage_url": "http://www.cardif.co.kr/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "푸본현대생명",
+        "homepage_url": "http://www.fubonhyundai.com/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "라이나생명",
+        "homepage_url": "http://www.lina.co.kr/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "AIA생명",
+        "homepage_url": "http://www.aia.co.kr/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "NH농협생명",
+        "homepage_url": "http://www.nhlife.co.kr/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "IBK연금보험",
+        "homepage_url": "http://www.ibki.co.kr/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "교보라이프플래닛",
+        "homepage_url": "http://www.lifeplanet.co.kr/",
+        "carrier_type": "life",
+        "source_id": "klia_member_list"
+      }
+    ],
+    "life_non_primary_members": [
+      {
+        "name_ko": "코리안리재보험",
+        "homepage_url": "http://www.koreanre.co.kr/",
+        "carrier_type": "reinsurance",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "RGA재보험 한국지점",
+        "homepage_url": "http://www.rgare.com/",
+        "carrier_type": "reinsurance",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "한화생명금융서비스",
+        "homepage_url": "http://www.hanwhalifefs.com/",
+        "carrier_type": "agency",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "미래에셋금융서비스",
+        "homepage_url": "http://www.miraeassetfp.co.kr/",
+        "carrier_type": "agency",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "한화라이프랩",
+        "homepage_url": "http://www.hanwhalifelab.co.kr/",
+        "carrier_type": "agency",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "KB라이프파트너스",
+        "homepage_url": "http://www.kblifepartners.co.kr/",
+        "carrier_type": "agency",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "동양생명금융서비스",
+        "homepage_url": "https://www.myangelfs.co.kr/",
+        "carrier_type": "agency",
+        "source_id": "klia_member_list"
+      },
+      {
+        "name_ko": "AIA프리미어파트너스",
+        "homepage_url": "https://www.aiapremierpartners.co.kr/",
+        "carrier_type": "agency",
+        "source_id": "klia_member_list"
+      }
+    ],
+    "general_primary_carriers": [
+      {
+        "name_ko": "메리츠화재해상보험주식회사",
+        "homepage_url": "https://www.meritzfire.com",
+        "carrier_type": "general",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "한화손해보험주식회사",
+        "homepage_url": "https://www.hwgeneralins.com",
+        "carrier_type": "general",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "롯데손해보험주식회사",
+        "homepage_url": "https://www.lotteins.co.kr/",
+        "carrier_type": "general",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "흥국화재해상보험주식회사",
+        "homepage_url": "https://www.heungkukfire.co.kr",
+        "carrier_type": "general",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "삼성화재해상보험주식회사",
+        "homepage_url": "https://www.samsungfire.com",
+        "carrier_type": "general",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "현대해상화재보험주식회사",
+        "homepage_url": "https://www.hi.co.kr",
+        "carrier_type": "general",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "KB손해보험주식회사",
+        "homepage_url": "https://www.kbinsure.co.kr",
+        "carrier_type": "general",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "DB손해보험주식회사",
+        "homepage_url": "https://www.idbins.com",
+        "carrier_type": "general",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "AXA손해보험주식회사",
+        "homepage_url": "https://www.axa.co.kr",
+        "carrier_type": "general",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "AIG손해보험주식회사",
+        "homepage_url": "https://www.aig.co.kr",
+        "carrier_type": "general",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "하나손해보험주식회사",
+        "homepage_url": "https://www.educar.co.kr",
+        "carrier_type": "general",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "농협손해보험주식회사",
+        "homepage_url": "https://www.nhfire.co.kr/",
+        "carrier_type": "general",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "(주)카카오페이손해보험",
+        "homepage_url": "https://kakaopayinscorp.co.kr",
+        "carrier_type": "general",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "신한EZ손해보험(주)",
+        "homepage_url": "https://www.shinhanez.co.kr/",
+        "carrier_type": "general",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "에이스아메리칸화재해상보험주식회사",
+        "homepage_url": "https://www.chubb.com",
+        "carrier_type": "general",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "MG손해보험주식회사",
+        "homepage_url": "https://www.mggeneralins.com",
+        "carrier_type": "general",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "예별손해보험",
+        "homepage_url": "https://www.yebyeol.co.kr/HO011010DM.scp",
+        "carrier_type": "general",
+        "source_id": "knia_member_list"
+      }
+    ],
+    "general_non_primary_members": [
+      {
+        "name_ko": "코리안리재보험주식회사",
+        "homepage_url": "https://www.koreanre.co.kr",
+        "carrier_type": "reinsurance",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "서울보증보험주식회사",
+        "homepage_url": "https://www.sgic.co.kr",
+        "carrier_type": "surety",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "퍼스트어메리칸권원보험",
+        "homepage_url": "https://www.firstam.co.kr/",
+        "carrier_type": "specialty_or_foreign",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "뮌헨재보험(Munich Re)",
+        "homepage_url": "https://www.munichre.kr/",
+        "carrier_type": "reinsurance",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "제네럴재보험",
+        "homepage_url": "https://www.genre.com/?c=n",
+        "carrier_type": "reinsurance",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "스위스리아시아 피티이엘티디 한국지점",
+        "homepage_url": "https://www.swissre.com",
+        "carrier_type": "specialty_or_foreign",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "미쓰이스미토모",
+        "homepage_url": "https://www.ms-ins.co.kr",
+        "carrier_type": "specialty_or_foreign",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "SCOR",
+        "homepage_url": "https://www.scor.com/www/index.php?id=221",
+        "carrier_type": "reinsurance",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "RGA",
+        "homepage_url": "https://www.rgare.com",
+        "carrier_type": "reinsurance",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "퍼시픽라이프리",
+        "homepage_url": "https://www.pacificlifere.com/home/contact.html",
+        "carrier_type": "reinsurance",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "알리안츠글로벌코퍼레이트앤스페셜티 에스이",
+        "homepage_url": "https://www.agcs.allianz.com/ko/global-offices/agcs-south-korea/",
+        "carrier_type": "specialty_or_foreign",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "팩토리뮤추얼인슈런스컴퍼니 한국지점",
+        "homepage_url": "https://www.fmglobal.kr/",
+        "carrier_type": "specialty_or_foreign",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "스타인터내셔널인슈어런스싱가포르피티이엘티디 한국지점",
+        "homepage_url": "https://starrcompanies.com/Country-Pages/Korea",
+        "carrier_type": "specialty_or_foreign",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "마이브라운반려동물전문보험",
+        "homepage_url": "https://www.mybrown.co.kr",
+        "carrier_type": "specialty_or_foreign",
+        "source_id": "knia_member_list"
+      },
+      {
+        "name_ko": "하노버재보험(Hannover Re)",
+        "homepage_url": "https://www.hannover-re.com/en/local-offices/asia/south-korea/life-and-health/",
+        "carrier_type": "reinsurance",
+        "source_id": "knia_member_list"
+      }
+    ]
+  },
+  "product_samples": {
+    "e_insmarket_cancer": {
+      "source_id": "e_insmarket_cancer_mobile",
+      "source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "product_group": "암보험",
+      "basis": "보험다모아 모바일 암보험 비교 URL parameters: age=34, sex=2, enterType=A, indemnityTypeA=1, prdtSmlClsCd=D001, renewTypeA=C1",
+      "count": 12,
+      "products": [
+        {
+          "rank": 1,
+          "provider": "한화생명",
+          "raw_product_name": "한화생명 e암보험(비갱신형)(무)(표준체형)",
+          "premium_text": "0원",
+          "source_id": "e_insmarket_cancer_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+          "product_group": "암보험",
+          "official_product_url": "https://direct.hanwhalife.com/products/CMS00012?utm_source=einsmarket_mo&utm_medium=association&utm_campaign=cancer",
+          "e_insmarket_product_code": "L01C009000009",
+          "review_status": "raw"
+        },
+        {
+          "rank": 2,
+          "provider": "한화생명",
+          "raw_product_name": "한화생명 e암보험(비갱신형)(무)(비흡연체형)",
+          "premium_text": "0원",
+          "source_id": "e_insmarket_cancer_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+          "product_group": "암보험",
+          "official_product_url": "https://direct.hanwhalife.com/products/CMS00012?utm_source=einsmarket_mo&utm_medium=association&utm_campaign=cancer",
+          "e_insmarket_product_code": "L01C009000010",
+          "review_status": "raw"
+        },
+        {
+          "rank": 3,
+          "provider": "미래에셋생명",
+          "raw_product_name": "온라인 암보험 무배당 [기본형]",
+          "premium_text": "4,510원",
+          "source_id": "e_insmarket_cancer_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+          "product_group": "암보험",
+          "official_product_url": "https://life.miraeasset.com/online/index.do?_OC_=1363#MO-DR-020000-000000",
+          "e_insmarket_product_code": "L34C009000021",
+          "review_status": "raw"
+        },
+        {
+          "rank": 4,
+          "provider": "미래에셋생명",
+          "raw_product_name": "온라인 암보험 무배당 [해약환급금이없는유형]",
+          "premium_text": "6,490원",
+          "source_id": "e_insmarket_cancer_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+          "product_group": "암보험",
+          "official_product_url": "https://life.miraeasset.com/online/index.do?_OC_=1363#MO-DR-020000-000000",
+          "e_insmarket_product_code": "L34C009000022",
+          "review_status": "raw"
+        },
+        {
+          "rank": 5,
+          "provider": "신한라이프생명",
+          "raw_product_name": "신한SOL암보험(무배당, 해약환급금 미지급형)(비갱신형)",
+          "premium_text": "6,750원",
+          "source_id": "e_insmarket_cancer_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+          "product_group": "암보험",
+          "official_product_url": "https://s.shinhanlife.co.kr/sht/6Nf1STxRv62YxH2X1wZxjQYN2qx3K.cs",
+          "e_insmarket_product_code": "L11C009000006",
+          "review_status": "raw"
+        },
+        {
+          "rank": 6,
+          "provider": "신한라이프생명",
+          "raw_product_name": "신한SOL암보험(무배당)(비갱신형)",
+          "premium_text": "7,870원",
+          "source_id": "e_insmarket_cancer_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+          "product_group": "암보험",
+          "official_product_url": "https://s.shinhanlife.co.kr/sht/6Nf1STxRv62YxH2X1wZxjQYN2qx3K.cs",
+          "e_insmarket_product_code": "L11C009000007",
+          "review_status": "raw"
+        },
+        {
+          "rank": 7,
+          "provider": "KDB생명",
+          "raw_product_name": "KDB다이렉트 암보험(해약환급금 미지급형III)(무)",
+          "premium_text": "8,020원",
+          "source_id": "e_insmarket_cancer_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+          "product_group": "암보험",
+          "official_product_url": "https://direct.kdblife.co.kr/p/p.do?ev=1533801",
+          "e_insmarket_product_code": "L33C009000025",
+          "review_status": "raw"
+        },
+        {
+          "rank": 8,
+          "provider": "교보라이프플래닛",
+          "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 비흡연체)",
+          "premium_text": "8,410원",
+          "source_id": "e_insmarket_cancer_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+          "product_group": "암보험",
+          "official_product_url": "https://m.lifeplanet.co.kr:444/lpds2/insurance/protection-cancer-insurance.dev",
+          "e_insmarket_product_code": "L43C009000022",
+          "review_status": "raw"
+        },
+        {
+          "rank": 9,
+          "provider": "교보라이프플래닛",
+          "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 표준체)",
+          "premium_text": "8,490원",
+          "source_id": "e_insmarket_cancer_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+          "product_group": "암보험",
+          "official_product_url": "https://m.lifeplanet.co.kr:444/lpds2/insurance/protection-cancer-insurance.dev",
+          "e_insmarket_product_code": "L43C009000019",
+          "review_status": "raw"
+        },
+        {
+          "rank": 10,
+          "provider": "DB생명",
+          "raw_product_name": "(무)e로운 암보험(해약환급금 미지급형)(2601)",
+          "premium_text": "9,700원",
+          "source_id": "e_insmarket_cancer_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+          "product_group": "암보험",
+          "official_product_url": "https://direct.idblife.com/",
+          "e_insmarket_product_code": "L71C009000006",
+          "review_status": "raw"
+        },
+        {
+          "rank": 11,
+          "provider": "동양생명",
+          "raw_product_name": "(무)우리WON하는실속하나로암보험",
+          "premium_text": "11,000원",
+          "source_id": "e_insmarket_cancer_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+          "product_group": "암보험",
+          "official_product_url": null,
+          "e_insmarket_product_code": "L74C009000006",
+          "review_status": "raw"
+        },
+        {
+          "rank": 12,
+          "provider": "한화손보",
+          "raw_product_name": "한화 다이렉트 내가고른 암보험 무배당2604",
+          "premium_text": "12,204원",
+          "source_id": "e_insmarket_cancer_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+          "product_group": "암보험",
+          "official_product_url": "https://www.hanwhadirect.com/landing.do?cmpgId=1000001444",
+          "e_insmarket_product_code": "N02C009000016",
+          "review_status": "raw"
+        }
+      ]
+    },
+    "e_insmarket_medical_5th": {
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "product_group": "실손의료보험",
+      "basis": "보험다모아 모바일 5세대 실손의료보험 POST parameters: age=34, sex=M, prdtSmlClsCd=G004, realLossDivCd=3, basic coverage A/B, listed non-life insurers",
+      "count": 9,
+      "products": [
+        {
+          "rank": 1,
+          "provider": "농협손보",
+          "raw_product_name": "(무) 헤아림실손의료비보험2605",
+          "premium_text": "5,745원",
+          "source_id": "e_insmarket_medical_5th_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+          "product_group": "실손의료보험",
+          "official_product_url": "https://www.nhfire.co.kr/product/retrieveProduct.nhfire?pdtCd=D711117",
+          "e_insmarket_product_code": "N71G004000001G",
+          "review_status": "raw"
+        },
+        {
+          "rank": 2,
+          "provider": "DB손보",
+          "raw_product_name": "(무)다이렉트 실손의료비보험2605(CM)",
+          "premium_text": "6,219원",
+          "source_id": "e_insmarket_medical_5th_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+          "product_group": "실손의료보험",
+          "official_product_url": "https://m.directdb.co.kr/ltm/prd/pmimdcs/custInfoView.do?searchPdcCd=31020&searchPdcTrtHistCd=00&pdcDvcd=l_pmi",
+          "e_insmarket_product_code": "N11G004000001G",
+          "review_status": "raw"
+        },
+        {
+          "rank": 3,
+          "provider": "한화손보",
+          "raw_product_name": "한화다이렉트실손의료보험(갱신형)Ⅴ 무배당",
+          "premium_text": "6,394원",
+          "source_id": "e_insmarket_medical_5th_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+          "product_group": "실손의료보험",
+          "official_product_url": null,
+          "e_insmarket_product_code": "N02G004000001G",
+          "review_status": "raw"
+        },
+        {
+          "rank": 4,
+          "provider": "KB손보",
+          "raw_product_name": "KB손보 다이렉트실손의료비보장보험(무배당)(26.05)",
+          "premium_text": "6,400원",
+          "source_id": "e_insmarket_medical_5th_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+          "product_group": "실손의료보험",
+          "official_product_url": "https://m.kbinsure.co.kr:8547/dctapp/main.html#/GLM/RD/LT_CM0101M",
+          "e_insmarket_product_code": "N10G004000002G",
+          "review_status": "raw"
+        },
+        {
+          "rank": 5,
+          "provider": "삼성화재",
+          "raw_product_name": "무배당 삼성화재 다이렉트 실손의료비보험(2605.1)",
+          "premium_text": "6,575원",
+          "source_id": "e_insmarket_medical_5th_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+          "product_group": "실손의료보험",
+          "official_product_url": "http://direct.samsungfire.com/CR_MyAnycarWeb/overture_index.jsp?OTK=Q1510OB0001",
+          "e_insmarket_product_code": "N08G004000002G",
+          "review_status": "raw"
+        },
+        {
+          "rank": 6,
+          "provider": "메리츠화재",
+          "raw_product_name": "(무) 메리츠 다이렉트 실손의료비보험2605",
+          "premium_text": "6,643원",
+          "source_id": "e_insmarket_medical_5th_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+          "product_group": "실손의료보험",
+          "official_product_url": "https://www.meritzdirect.com/DMI1610DM000001/southeaster.do#!/",
+          "e_insmarket_product_code": "N01G004000002G",
+          "review_status": "raw"
+        },
+        {
+          "rank": 7,
+          "provider": "현대해상",
+          "raw_product_name": "(무)현대해상다이렉트실손의료비보장보험(갱신형)(Hi2605)",
+          "premium_text": "6,740원",
+          "source_id": "e_insmarket_medical_5th_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+          "product_group": "실손의료보험",
+          "official_product_url": "https://mdirect.hi.co.kr/service.do?m=16baef8710&simpCalc=Y&embrYn=Y&utm_source=damoa&utm_medium=partner&utm_campaign=medical_mo&HDMS1=partner&HDMS2=damoa&HDMS3=damoa&HDMS4=medical_mo&inpath=e_sure_market",
+          "e_insmarket_product_code": "N09G004000001G",
+          "review_status": "raw"
+        },
+        {
+          "rank": 8,
+          "provider": "흥국화재",
+          "raw_product_name": "(무)흥Good 다이렉트 실손의료보험(26.05)",
+          "premium_text": "7,995원",
+          "source_id": "e_insmarket_medical_5th_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+          "product_group": "실손의료보험",
+          "official_product_url": "https://direct.heungkukfire.co.kr/?ccid=0606001007#/CMMOBDPRM4001",
+          "e_insmarket_product_code": "N05G004000001G",
+          "review_status": "raw"
+        },
+        {
+          "rank": 9,
+          "provider": "롯데손보",
+          "raw_product_name": "무배당 let:care 실손의료보험Ⅴ(2605)",
+          "premium_text": "12,183원",
+          "source_id": "e_insmarket_medical_5th_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+          "product_group": "실손의료보험",
+          "official_product_url": null,
+          "e_insmarket_product_code": "N03G004000001G",
+          "review_status": "raw"
+        }
+      ]
+    },
+    "e_insmarket_medical_impaired": {
+      "source_id": "e_insmarket_medical_impaired_mobile",
+      "source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "product_group": "유병력자실손의료보험",
+      "basis": "보험다모아 모바일 유병력자실손의료보험 POST parameters: age=34, sex=M, prdtSmlClsCd=G002, realLossDivCd=3, coverage A/B/C/D, listed non-life insurers",
+      "count": 3,
+      "products": [
+        {
+          "rank": 1,
+          "provider": "KB손보",
+          "raw_product_name": "KB손보 다이렉트간편가입 실손의료비보장보험(무배당)(26.01)",
+          "premium_text": "29,422원",
+          "source_id": "e_insmarket_medical_impaired_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+          "product_group": "유병력자실손의료보험",
+          "official_product_url": "https://m.kbinsure.co.kr:8547/dctapp/main.html#/GLM/LSM/LT_CM0101M?mdmn=LBF0204",
+          "e_insmarket_product_code": "N10G002000011A",
+          "review_status": "raw"
+        },
+        {
+          "rank": 2,
+          "provider": "DB손보",
+          "raw_product_name": "다이렉트 간편실손의료비보험(유병력자용)2604(CM)",
+          "premium_text": "31,561원",
+          "source_id": "e_insmarket_medical_impaired_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+          "product_group": "유병력자실손의료보험",
+          "official_product_url": "https://m.directdb.co.kr/contents/contents.do?rtnUrl=cms/product/ltmgnrl/splcarc.cms.product",
+          "e_insmarket_product_code": "N11G002000008A",
+          "review_status": "raw"
+        },
+        {
+          "rank": 3,
+          "provider": "삼성화재",
+          "raw_product_name": "무배당 삼성화재 다이렉트 유병력자실손의료비보험(2601.10)",
+          "premium_text": "32,126원",
+          "source_id": "e_insmarket_medical_impaired_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+          "product_group": "유병력자실손의료보험",
+          "official_product_url": "https://direct.samsungfire.com/CR_MyAnycarWeb/overture_index.jsp?OTK=QA2003OB001",
+          "e_insmarket_product_code": "N08G002000010A",
+          "review_status": "raw"
+        }
+      ]
+    },
+    "e_insmarket_disease": {
+      "source_id": "e_insmarket_disease_mobile",
+      "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+      "product_group": "질병보험",
+      "basis": "보험다모아 모바일 보장성보험 > 질병보험 default search parameters: menuId=C001",
+      "count": 31,
+      "products": [
+        {
+          "rank": 1,
+          "provider": "신한라이프생명",
+          "raw_product_name": "신한SOL뇌심보험(무배당)(실속형)",
+          "premium_text": "1,200원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://s.shinhanlife.co.kr/sht/7usgRFru7NSq5M9u646KH1ot4epnD.cs",
+          "e_insmarket_product_code": "L11C001000010",
+          "review_status": "raw"
+        },
+        {
+          "rank": 2,
+          "provider": "신한EZ손해보험",
+          "raw_product_name": "신한 SOL 면역질환보험(무배당)(자동갱신형)",
+          "premium_text": "1,817원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://sh.ez.shinhanez.co.kr/8b2xdc",
+          "e_insmarket_product_code": "N66C003000006",
+          "review_status": "raw"
+        },
+        {
+          "rank": 3,
+          "provider": "농협생명",
+          "raw_product_name": "NHe뇌심건강보험(무배당)",
+          "premium_text": "3,600원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://www.nhelife.co.kr/ni/ig/NIIG0007M00.nhl",
+          "e_insmarket_product_code": "L42C001000006",
+          "review_status": "raw"
+        },
+        {
+          "rank": 4,
+          "provider": "신한라이프생명",
+          "raw_product_name": "신한SOL뇌심보험(무배당)(고급형)",
+          "premium_text": "4,200원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://s.shinhanlife.co.kr/sht/7usgRFru7NSq5M9u646KH1ot4epnD.cs",
+          "e_insmarket_product_code": "L11C001000009",
+          "review_status": "raw"
+        },
+        {
+          "rank": 5,
+          "provider": "신한EZ손해보험",
+          "raw_product_name": "신한 SOL 뇌·심장보험(무배당)(자동갱신형)",
+          "premium_text": "5,972원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://sh.ez.shinhanez.co.kr/x53b9u",
+          "e_insmarket_product_code": "N66C003000007",
+          "review_status": "raw"
+        },
+        {
+          "rank": 6,
+          "provider": "신한EZ손해보험",
+          "raw_product_name": "신한 SOL 종합건강보험 (무배당)(자동갱신형)",
+          "premium_text": "8,356원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://sh.ez.shinhanez.co.kr/mwi2f0",
+          "e_insmarket_product_code": "N66C003000008",
+          "review_status": "raw"
+        },
+        {
+          "rank": 7,
+          "provider": "삼성생명",
+          "raw_product_name": "삼성 인터넷 입원 건강보험(2601)(무배당,무해약환급금형)",
+          "premium_text": "8,650원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://direct.samsunglife.com/damoa.eds?cid=di:insmarket:damoa:insmarket:240513",
+          "e_insmarket_product_code": "L03C001000015",
+          "review_status": "raw"
+        },
+        {
+          "rank": 8,
+          "provider": "삼성생명",
+          "raw_product_name": "삼성 인터넷 뇌심건강보험(2505)(갱신형,무배당)",
+          "premium_text": "9,396원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": null,
+          "e_insmarket_product_code": "L03C001000012",
+          "review_status": "raw"
+        },
+        {
+          "rank": 9,
+          "provider": "삼성생명",
+          "raw_product_name": "삼성 인터넷 경증간편 입원 건강보험(2601)(무배당,무해약환급금형)",
+          "premium_text": "10,662원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://direct.samsunglife.com/damoa.eds?diytype=2&cid=di:insmarket:damoa2:damoa",
+          "e_insmarket_product_code": "L03C001000010",
+          "review_status": "raw"
+        },
+        {
+          "rank": 10,
+          "provider": "한화생명",
+          "raw_product_name": "한화생명 e건강보험 무배당",
+          "premium_text": "11,491원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": null,
+          "e_insmarket_product_code": "L01C001000011",
+          "review_status": "raw"
+        },
+        {
+          "rank": 11,
+          "provider": "한화생명",
+          "raw_product_name": "한화생명 걸음e건강보험 무배당",
+          "premium_text": "11,491원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": null,
+          "e_insmarket_product_code": "L01C001000012",
+          "review_status": "raw"
+        },
+        {
+          "rank": 12,
+          "provider": "DB생명",
+          "raw_product_name": "(무)e로운 뇌혈관질환보장보험(해약환급금 미지급형)(2601)",
+          "premium_text": "11,500원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://direct.idblife.com/",
+          "e_insmarket_product_code": "L71C001000017",
+          "review_status": "raw"
+        },
+        {
+          "rank": 13,
+          "provider": "삼성생명",
+          "raw_product_name": "삼성 시그널건강보험(2601)(무배당,무해약환급금형)",
+          "premium_text": "11,712원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://direct.samsunglife.com/signal.eds?cid=di:insmarket:signal:insmarket:250924",
+          "e_insmarket_product_code": "L03C001000014",
+          "review_status": "raw"
+        },
+        {
+          "rank": 14,
+          "provider": "DB생명",
+          "raw_product_name": "(무)e로운 허혈성심장질환보장보험(해약환급금 미지급형)(2601)",
+          "premium_text": "12,200원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://direct.idblife.com/",
+          "e_insmarket_product_code": "L71C001000016",
+          "review_status": "raw"
+        },
+        {
+          "rank": 15,
+          "provider": "삼성생명",
+          "raw_product_name": "삼성 인터넷 신간편 뇌심건강보험(2505)(갱신형,무배당)",
+          "premium_text": "12,236원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": null,
+          "e_insmarket_product_code": "L03C001000013",
+          "review_status": "raw"
+        },
+        {
+          "rank": 16,
+          "provider": "삼성화재",
+          "raw_product_name": "무배당 삼성화재 다이렉트 비갱신 건강보험(2504.17)(해약환급금 미지급형Ⅱ) - 365일 간병비 플랜",
+          "premium_text": "12,556원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "http://direct.samsungfire.com/CR_MyAnycarWeb/overture_index.jsp?OTK=H2110OB0009",
+          "e_insmarket_product_code": "N08C001000011",
+          "review_status": "raw"
+        },
+        {
+          "rank": 17,
+          "provider": "삼성생명",
+          "raw_product_name": "삼성 인터넷 암치료보험(2501)(갱신형,무배당)",
+          "premium_text": "14,611원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://direct.samsunglife.com/tcancer.eds?type=1&cid=di:insmarket:tcancer:damoa",
+          "e_insmarket_product_code": "L03C002000008",
+          "review_status": "raw"
+        },
+        {
+          "rank": 18,
+          "provider": "교보라이프플래닛",
+          "raw_product_name": "(무)교보라플 2대질병보험(해약환급금 미지급형)",
+          "premium_text": "14,710원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://m.lifeplanet.co.kr:444/lpds2/insurance/brain-heart-insurance.dev",
+          "e_insmarket_product_code": "L43C001000019",
+          "review_status": "raw"
+        },
+        {
+          "rank": 19,
+          "provider": "교보라이프플래닛",
+          "raw_product_name": "(무)교보라플 여성건강보험(순수보장형)",
+          "premium_text": "17,560원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://m.lifeplanet.co.kr:444/lpds2/insurance/woman-health-insurance.dev",
+          "e_insmarket_product_code": "L43C001000014",
+          "review_status": "raw"
+        },
+        {
+          "rank": 20,
+          "provider": "삼성생명",
+          "raw_product_name": "삼성 인터넷 신간편 암치료보험(2501)(갱신형,무배당)",
+          "premium_text": "18,822원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://direct.samsunglife.com/tcancer.eds?type=2&cid=di:insmarket:tcancer2:damoa",
+          "e_insmarket_product_code": "L03C002000003",
+          "review_status": "raw"
+        },
+        {
+          "rank": 21,
+          "provider": "삼성화재",
+          "raw_product_name": "무배당 삼성화재 다이렉트 AI맞춤보장보험(2601.5)(자동갱신형)",
+          "premium_text": "21,486원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "http://direct.samsungfire.com/CR_MyAnycarWeb/overture_index.jsp?OTK=S0001OB0001",
+          "e_insmarket_product_code": "N08C001000004",
+          "review_status": "raw"
+        },
+        {
+          "rank": 22,
+          "provider": "신한EZ손해보험",
+          "raw_product_name": "신한 SOL 입원비보험 (무배당 )(자동갱신형)",
+          "premium_text": "23,437원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://sh.ez.shinhanez.co.kr/mwi2f0",
+          "e_insmarket_product_code": "N66C003000009",
+          "review_status": "raw"
+        },
+        {
+          "rank": 23,
+          "provider": "삼성화재",
+          "raw_product_name": "무배당 삼성화재 다이렉트 비갱신 건강보험(2601.19)(해약환급금 미지급형Ⅱ)",
+          "premium_text": "26,342원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "http://direct.samsungfire.com/CR_MyAnycarWeb/overture_index.jsp?OTK=H2306OB0002",
+          "e_insmarket_product_code": "N08C001000016",
+          "review_status": "raw"
+        },
+        {
+          "rank": 24,
+          "provider": "카카오페이손해보험",
+          "raw_product_name": "무배당 건강보험",
+          "premium_text": "30,458원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://talk.kakaoinsure.com/bridge/corp/products?productCode=HEALTH&dc=DMA100&utm_source=partner_damoa&utm_medium=b2c_damoa&utm_campaign=damoa_health_250612&utm_content=health",
+          "e_insmarket_product_code": "N70C001000001",
+          "review_status": "raw"
+        },
+        {
+          "rank": 25,
+          "provider": "삼성화재",
+          "raw_product_name": "무배당 삼성화재 다이렉트 건강보험(2601.16)(자동갱신형)",
+          "premium_text": "30,564원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "http://direct.samsungfire.com/CR_MyAnycarWeb/overture_index.jsp?OTK=H1704OB0001",
+          "e_insmarket_product_code": "N08C001000012",
+          "review_status": "raw"
+        },
+        {
+          "rank": 26,
+          "provider": "라이나생명",
+          "raw_product_name": "무배당 라이나 당뇨플러스건강보험",
+          "premium_text": "30,800원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://spot.wooribank.com/pot/Dream?withyou=ISBAC0075&cc=c026260:c026254;c012263:c012399&PRD_CD=P050000601&pPLM_BIZ_DSCD=05",
+          "e_insmarket_product_code": "L51C001000015",
+          "review_status": "raw"
+        },
+        {
+          "rank": 27,
+          "provider": "삼성화재",
+          "raw_product_name": "무배당 삼성화재 다이렉트 Smart 간편보험(2601.4)(자동갱신형) 1종(납입면제, 해약환급금 미지급형)",
+          "premium_text": "32,565원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "http://direct.samsungfire.com/CR_MyAnycarWeb/overture_index.jsp?OTK=SS2307OB002",
+          "e_insmarket_product_code": "N08C003000006",
+          "review_status": "raw"
+        },
+        {
+          "rank": 28,
+          "provider": "교보라이프플래닛",
+          "raw_product_name": "(무)교보라플 여성건강보험(만기환급형)",
+          "premium_text": "37,840원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://m.lifeplanet.co.kr:444/lpds2/insurance/woman-health-insurance.dev",
+          "e_insmarket_product_code": "L43C001000016",
+          "review_status": "raw"
+        },
+        {
+          "rank": 29,
+          "provider": "삼성생명",
+          "raw_product_name": "삼성 팩 건강보험(2604)(무배당,무해약환급금형)",
+          "premium_text": "45,501원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": "https://direct.samsunglife.com/fcarecbh.eds?int=di:main:fcarecbh:menu",
+          "e_insmarket_product_code": "L03C001000016",
+          "review_status": "raw"
+        },
+        {
+          "rank": 30,
+          "provider": "교보라이프플래닛",
+          "raw_product_name": "(무)교보라플안심보험(생활비보장형(장해), 해약환급금 일부지급형)",
+          "premium_text": "130,100원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": null,
+          "e_insmarket_product_code": "L43C012000004",
+          "review_status": "raw"
+        },
+        {
+          "rank": 31,
+          "provider": "교보라이프플래닛",
+          "raw_product_name": "(무)교보라플안심보험(생활비보장형(장해), 표준형)",
+          "premium_text": "135,600원",
+          "source_id": "e_insmarket_disease_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C001",
+          "product_group": "질병보험",
+          "official_product_url": null,
+          "e_insmarket_product_code": "L43C012000002",
+          "review_status": "raw"
+        }
+      ]
+    },
+    "e_insmarket_nursing_dementia": {
+      "source_id": "e_insmarket_nursing_dementia_mobile",
+      "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C012",
+      "product_group": "간병/치매보험",
+      "basis": "보험다모아 모바일 보장성보험 > 간병/치매보험 default search parameters: menuId=C012",
+      "count": 1,
+      "products": [
+        {
+          "rank": 1,
+          "provider": "DB생명",
+          "raw_product_name": "(무)e로운 간병입원수술보험(해약환급금 미지급형)(2601)",
+          "premium_text": "32,410원",
+          "source_id": "e_insmarket_nursing_dementia_mobile",
+          "source_url": "https://e-insmarket.or.kr/m/guaranteeIns/guaranteeInsList.knia?menuId=C012",
+          "product_group": "간병/치매보험",
+          "official_product_url": "https://direct.idblife.com/",
+          "e_insmarket_product_code": "L71C012000002",
+          "review_status": "raw"
+        }
+      ]
+    }
+  },
+  "api_candidates": [
+    {
+      "source_id": "epostlife_openapi_info",
+      "name": "우체국보험 보험상품정보 조회",
+      "endpoint": "http://apis.data.go.kr/1721301/KpostInsuranceProductView/insuranceGoods",
+      "auth_requirement": "data.go.kr service key required"
+    },
+    {
+      "source_id": "epostlife_openapi_info",
+      "name": "우체국보험 보험상품정보 조회",
+      "endpoint": "http://apis.data.go.kr/1721301/KpostInsuranceInterestRateView/insuranceInterestRate",
+      "auth_requirement": "data.go.kr service key required"
+    },
+    {
+      "source_id": "epostlife_openapi_info",
+      "name": "우체국보험 1회 보험료 조회",
+      "endpoint": "http://apis.data.go.kr/1721301/KpostInsuranceFeeCalculationView/insuranceFee",
+      "auth_requirement": "data.go.kr service key required"
+    }
+  ],
+  "qa": {
+    "service_db_ready": false,
+    "blockers": [
+      "data.go.kr service key is required before Korea Post API calls can be verified.",
+      "Product-specific terms, summary PDFs, sale status, premium basis, coverage_category, and risk_targets still require review.",
+      "Insurance recommendation DB must not consume raw product rows before human approval."
+    ],
+    "next_actions": [
+      "Discover product-specific carrier PDF URLs and store source_url plus response hash.",
+      "Create a human review CSV or admin workflow for coverage_category and risk_targets approval.",
+      "Verify Korea Post OpenAPI calls after a data.go.kr service key is configured."
+    ]
+  }
+}

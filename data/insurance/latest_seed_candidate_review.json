@@ -1,0 +1,126 @@
+{
+  "metadata": {
+    "reviewed_at": "2026-05-27T15:36:00+09:00",
+    "timezone": "Asia/Seoul",
+    "reviewer": "codex_manual_review",
+    "input_review_queue": "data/insurance/latest_insurance_review_queue.csv",
+    "input_product_probe": "data/insurance/latest_product_document_probe.json",
+    "input_disclosure_probe": "data/insurance/latest_carrier_disclosure_probe.json",
+    "output_version": "1.0",
+    "scope": "hash-backed 3 products only"
+  },
+  "qa": {
+    "catalog_candidate_count": 1,
+    "schema_extension_required_count": 2,
+    "current_insurance_products_seed_ready_count": 0,
+    "decision": "No product should be inserted into the current insurance_products seed without a source-aware schema update.",
+    "blockers": [
+      "The current insurance_products table has no KRW premium, premium_basis, source_url, source_checked_at, or source_document_hash fields.",
+      "The current coverage_category enum has no medical_expense or general_health category for indemnity medical expense products.",
+      "The current risk_targets array cannot represent tiered cancer benefit caveats or broad medical expense reimbursement products."
+    ]
+  },
+  "reviews": [
+    {
+      "provider": "한화생명",
+      "product_group": "암보험",
+      "raw_product_name": "한화생명 e암보험(비갱신형)(무)(표준체형)",
+      "e_insmarket_product_code": "L01C009000009",
+      "premium_text": "0원",
+      "official_product_url": "https://direct.hanwhalife.com/products/CMS00012?utm_source=einsmarket_mo&utm_medium=association&utm_campaign=cancer",
+      "manual_review_status": "catalog_candidate",
+      "current_db_seed_status": "blocked_until_source_aware_schema",
+      "identity_verified": true,
+      "sale_status_review": "official_product_page_accessible_but_sale_status_not_approved",
+      "premium_basis_review": "unapproved_zero_krw_value_not_usable_for_service_seed",
+      "recommended_mapping": {
+        "coverage_category": "oncology",
+        "risk_targets": [
+          "pancreatic_cancer",
+          "liver_cancer",
+          "lung_cancer",
+          "breast_cancer",
+          "colon_cancer"
+        ],
+        "risk_target_caveat": "Broad oncology mapping is useful for matching, but breast and colon-related benefits are tiered differently in the official documents and need a coverage caveat field."
+      },
+      "source_documents": [
+        {
+          "document_type": "summary",
+          "sha256": "acea8fcef33624a66dd898a729e283004f2a520f8a77daa55db9a3a22bed4d3f",
+          "url": "https://direct.hanwhalife.com/products/downloadProxy/%ED%95%9C%ED%99%94%EC%83%9D%EB%AA%85%20e%EC%95%94%EB%B3%B4%ED%97%98(%EB%B9%84%EA%B0%B1%EC%8B%A0%ED%98%95)%20%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%83%81%ED%92%88%EC%9A%94%EC%95%BD%EC%84%9C_20260417.pdf?docUrl=dynamic/direct/product/cms_edaqInsr09Jt0RKh_1776383454363.pdf"
+        },
+        {
+          "document_type": "terms",
+          "sha256": "918796d28b8274195258621c08c32c87159c18b1a50fb6e6f653a8c42ba8f7ed",
+          "url": "https://direct.hanwhalife.com/products/downloadProxy/%ED%95%9C%ED%99%94%EC%83%9D%EB%AA%85%20e%EC%95%94%EB%B3%B4%ED%97%98(%EB%B9%84%EA%B0%B1%EC%8B%A0%ED%98%95)%20%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%95%BD%EA%B4%80_20260417.pdf?docUrl=dynamic/direct/product/cms_T3jquWCZurf6YKm6_1776383470397.pdf"
+        }
+      ],
+      "next_action": "Add source-aware catalog fields and a coverage caveat field before promoting to service seed."
+    },
+    {
+      "provider": "DB손보",
+      "product_group": "실손의료보험",
+      "raw_product_name": "(무)다이렉트 실손의료비보험2605(CM)",
+      "e_insmarket_product_code": "N11G004000001G",
+      "premium_text": "6,219원",
+      "official_product_url": "https://m.directdb.co.kr/ltm/prd/pmimdcs/custInfoView.do?searchPdcCd=31020&searchPdcTrtHistCd=00&pdcDvcd=l_pmi",
+      "carrier_disclosure_url": "https://www.idbins.com/FWMAIV1534.do",
+      "manual_review_status": "schema_extension_required",
+      "current_db_seed_status": "blocked_by_missing_medical_expense_category",
+      "identity_verified": true,
+      "sale_status_review": "carrier_disclosure_record_indicates_active_sale",
+      "premium_basis_review": "e_insmarket_premium_text_present_but_basis_unapproved",
+      "recommended_mapping": {
+        "coverage_category": "medical_expense",
+        "risk_targets": [],
+        "risk_target_caveat": "Indemnity medical expense coverage reimburses illness and injury treatment costs broadly; it should not be mapped to disease-specific genetic flags without a separate rule."
+      },
+      "source_documents": [
+        {
+          "document_type": "terms",
+          "sha256": "db24ea2e2dbf2f4200d0aabe86d92a26e0b3d4962e521f99a6ee35f901997074",
+          "url": "https://www.idbins.com/cYakgwanDown.do?FilePath=InsProduct/%EC%95%BD%EA%B4%80_31227(00)_20260506.pdf"
+        },
+        {
+          "document_type": "business_method",
+          "sha256": "3a7a855b44c2d58eb0845cb4031ce8e71e62241fbe3987a9c3895e5ecfb27019",
+          "url": "https://www.idbins.com/cYakgwanDown.do?FilePath=InsProduct/%EC%82%AC%EB%B0%A9_31227(00)_20260506.pdf"
+        },
+        {
+          "document_type": "summary",
+          "sha256": "334fd0bd1c7d49e1729b8584eefbb7bd02cdb5112de6e8371357be09befc77ac",
+          "url": "https://www.idbins.com/cYakgwanDown.do?FilePath=InsProduct/%EC%9A%94%EC%95%BD_31227(00)_20260506.pdf"
+        }
+      ],
+      "next_action": "Add a medical_expense product category or a separate non-genetic baseline coverage track before service recommendation use."
+    },
+    {
+      "provider": "삼성화재",
+      "product_group": "실손의료보험",
+      "raw_product_name": "무배당 삼성화재 다이렉트 실손의료비보험(2605.1)",
+      "e_insmarket_product_code": "N08G004000002G",
+      "premium_text": "6,575원",
+      "official_product_url": "http://direct.samsungfire.com/CR_MyAnycarWeb/overture_index.jsp?OTK=Q1510OB0001",
+      "carrier_disclosure_url": "https://www.samsungfire.com/publication/P_U02_05_16_262.html",
+      "manual_review_status": "schema_extension_required",
+      "current_db_seed_status": "blocked_by_missing_medical_expense_category",
+      "identity_verified": true,
+      "sale_status_review": "official_document_hash_verified_but_sale_status_not_approved",
+      "premium_basis_review": "e_insmarket_premium_text_present_but_basis_unapproved",
+      "recommended_mapping": {
+        "coverage_category": "medical_expense",
+        "risk_targets": [],
+        "risk_target_caveat": "Indemnity medical expense coverage reimburses illness and injury treatment costs broadly; it should not be mapped to disease-specific genetic flags without a separate rule."
+      },
+      "source_documents": [
+        {
+          "document_type": "terms",
+          "sha256": "db0ed9738c9f59fbb28b678b910e0bdd3ef4bf08bdac52643c2e2dd167003415",
+          "url": "https://direct.samsungfire.com/docs/realloss.pdf"
+        }
+      ],
+      "next_action": "Confirm sale status and add medical_expense schema support before service recommendation use."
+    }
+  ]
+}

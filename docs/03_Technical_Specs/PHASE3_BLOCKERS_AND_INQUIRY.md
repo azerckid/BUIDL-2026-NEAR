@@ -1,9 +1,11 @@
 # [명세] Phase 3 구현 블로커 및 NEAR AI 팀 문의
+> Created: 2026-04-23 00:00
+> Last Updated: 2026-05-27 02:55
 
 - **작성일**: 2026-04-23
-- **최종 수정일**: 2026-04-23
+- **최종 수정일**: 2026-05-27
 - **레이어**: 03_Technical_Specs
-- **상태**: 문의 대기 중
+- **상태**: 재검증 필요 — IronClaw v0.28.2 공개 릴리스 반영
 - **관련 단계**: Stage 17 (ROADMAP.md), ZKP_IN_TEE_WASM_IMPL_SPEC.md
 
 ---
@@ -21,7 +23,28 @@ Phase 3 완성을 위해 아래 5가지 블로커를 확인했으며, 일부는 
 
 ---
 
-## 2. 블로커 상세
+## 2. 2026-05-27 기술 업데이트 재검토
+
+| 확인 항목 | 업데이트 | 블로커 영향 |
+|---|---|---|
+| 로컬 상태 | 현재 로컬 CLI는 `ironclaw 0.26.0` 기준 | 코드 변경 전 v0.28.2 업그레이드 실측 필요 |
+| 공개 릴리스 | v0.28.2까지 확인 | v0.27.0~v0.28.2 변경사항을 블로커 2~3에 우선 반영 |
+| v0.29.0 / PR #3122 | 공개 근거 미확인 | 확인 전까지 로드맵 전제와 구현 전제에서 제외 |
+| v0.27.0 path-based credentials | endpoint별 credential 라우팅 가능성 | 블로커 1 보조 신호. TEE 내부 복호화 경로 해소로 단정 불가 |
+| v0.28.0 WIT-compatible WASM runtime | WASM tool runtime 및 host runtime contract 개선 | 블로커 2, 3 재검증 1순위 |
+| v0.28.1 memory/headless server | multi-tenant memory isolation, headless WASM 채널 | hosted 환경 격리와 서버 실행 경로 검증 필요 |
+| v0.28.2 chat-driven `tool_install` restore | 도구 설치 경로 복원 | cloud.near.ai 등록/실행 경로 재검증 필요 |
+
+**재분류 결론**
+
+- 블로커 1은 여전히 NEAR AI의 공식 복호화 경로 확인이 필요하다.
+- 블로커 2와 3은 "문의 전 자체 재실측" 단계로 이동한다. v0.28.0 WIT runtime과 v0.28.2 `tool_install` 복원을 먼저 확인한다.
+- 블로커 4는 WIT host runtime 또는 Mission API로 상태 유지 가능성을 다시 검토한다.
+- 블로커 5는 유지한다. 50MB+ Barretenberg보다 137KB `zkp-prover.wasm`으로 cloud 실행 경로를 먼저 확정한다.
+
+---
+
+## 3. 블로커 상세
 
 ### 문제 1 — TEE 개인키 접근 불가 [심각도: 매우 높음]
 
@@ -114,7 +137,7 @@ tool_choice: { type: "function", function: { name: "zkp_prove" } }
 - 단일 API 호출로 5단계를 처리하거나, 상태를 유지하는 세션 API가 필요
 
 **가능한 해결 방향**
-- IronClaw v0.26.0의 `engine-v2` Mission/Job API 활용 (상태 유지 가능성)
+- IronClaw `engine-v2` Mission/Job API 또는 v0.28.0 WIT host runtime 활용 (상태 유지 가능성)
 - 단일 LLM 시스템 프롬프트로 5단계를 한 번의 호출에서 처리하는 방식
 
 **담당**: IronClaw Mission API 문서 확인 후 자체 구현 가능성 있음
@@ -141,19 +164,21 @@ tool_choice: { type: "function", function: { name: "zkp_prove" } }
 
 ---
 
-## 3. 블로커 요약
+## 4. 블로커 요약
 
 | # | 문제 | 심각도 | 해결 주체 | 자체 해결 가능 |
 |---|---|---|---|---|
 | 1 | TEE 개인키 접근 불가 | 매우 높음 | NEAR AI 팀 | 불가 |
-| 2 | cloud.near.ai WASM 등록 경로 미확인 | 높음 | NEAR AI 팀 | 불가 |
-| 3 | WASM 실행 결과 반환 경로 없음 | 높음 | NEAR AI 팀 | 불가 |
+| 2 | cloud.near.ai WASM 등록 경로 미확인 | 높음 | 자체 실측 + NEAR AI 팀 | 재검증 후 판단 |
+| 3 | WASM 실행 결과 반환 경로 없음 | 높음 | 자체 실측 + NEAR AI 팀 | 재검증 후 판단 |
 | 4 | 무상태 API 파이프라인 제약 | 중간 | 자체 + NEAR AI | 부분 가능 |
 | 5 | Barretenberg 크기 제한 미확인 | 중간 | NEAR AI 팀 확인 | 실측 가능 |
 
 ---
 
-## 4. NEAR AI 팀 문의 메일 초안
+## 5. NEAR AI 팀 문의 메일 초안
+
+> 아래 초안은 2026-04-23 기준으로 작성되었다. 발송 전 v0.28.0 WIT runtime, v0.28.2 `tool_install`, v0.29.0/PR #3122 공개 확인 여부를 반영해 보강한다.
 
 ---
 
@@ -193,6 +218,7 @@ IronClaw Cloud TEE에 등록하고 싶습니다.
 
 - `nearai registry` CLI가 폐기(410 Gone)된 이후,
   `cloud.near.ai`에서 사용자 정의 WASM 툴을 등록하는 방법이 있나요?
+- v0.28.2에서 복원된 chat-driven `tool_install`이 hosted TEE 환경의 사용자 정의 WASM 등록에도 적용되나요?
 - 등록 API 엔드포인트 또는 웹 UI 접근 방법을 안내해 주실 수 있나요?
 
 ---
@@ -205,7 +231,7 @@ IronClaw Cloud TEE에 등록하고 싶습니다.
 
 - 등록된 WASM 툴을 IronClaw Cloud TEE에서 실행하고
   실제 출력 결과를 받는 전용 API 엔드포인트가 있나요?
-- v0.26.0에서 추가된 `engine-v2` Mission API를 통해
+- v0.28.0 WIT-compatible WASM runtime 또는 `engine-v2` Mission API를 통해
   WASM 툴 실행 결과를 외부에서 받을 수 있나요?
 
 ---
@@ -234,9 +260,10 @@ NEAR Buidl Asia 2026 — NEAR Protocol Track 1st Place
 
 ---
 
-## 관련 문서
+## Related Documents
 
 - [ROADMAP.md](../04_Logic_Progress/ROADMAP.md) — Stage 17
+- [03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md](../04_Logic_Progress/03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md) — 두 기둥 기반 적용 업데이트 계획
 - [ZKP_IN_TEE_WASM_IMPL_SPEC.md](./ZKP_IN_TEE_WASM_IMPL_SPEC.md)
 - [PHASE2_IMPLEMENTATION_SPEC.md](./PHASE2_IMPLEMENTATION_SPEC.md)
 - [TEE_ATTESTATION_SPEC.md](./TEE_ATTESTATION_SPEC.md)

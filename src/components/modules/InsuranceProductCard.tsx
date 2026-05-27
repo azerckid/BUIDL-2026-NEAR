@@ -1,9 +1,11 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { ExternalLink } from "lucide-react";
+import { DateTime } from "luxon";
+import { useLocale, useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import type { InsuranceProduct } from "@/lib/db/schema";
+import type { DashboardProduct } from "@/actions/getDashboardData";
 
 const NETWORK_LABELS: Record<string, string> = {
   near: "NEAR",
@@ -12,14 +14,52 @@ const NETWORK_LABELS: Record<string, string> = {
 };
 
 interface InsuranceProductCardProps {
-  product: InsuranceProduct;
+  product: DashboardProduct;
   selected: boolean;
   onToggle: (id: string) => void;
 }
 
+function parseCoverageCaveats(rawCaveats: string | null): string[] {
+  if (!rawCaveats) return [];
+
+  try {
+    const parsed: unknown = JSON.parse(rawCaveats);
+    if (Array.isArray(parsed)) {
+      return parsed.filter((caveat): caveat is string => typeof caveat === "string");
+    }
+    if (typeof parsed === "string") return [parsed];
+    if (parsed && typeof parsed === "object") {
+      return Object.values(parsed).filter((caveat): caveat is string => typeof caveat === "string");
+    }
+  } catch {
+    return [rawCaveats];
+  }
+
+  return [];
+}
+
+function formatKrw(amount: number) {
+  return new Intl.NumberFormat("ko-KR", {
+    style: "currency",
+    currency: "KRW",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+function formatSourceDate(value: string | null, locale: string) {
+  if (!value) return null;
+  const date = DateTime.fromISO(value).setLocale(locale);
+  return date.isValid ? date.toFormat("yyyy.LL.dd") : null;
+}
+
 export function InsuranceProductCard({ product, selected, onToggle }: InsuranceProductCardProps) {
   const t = useTranslations("insuranceProduct");
+  const locale = useLocale();
   const isDiscount = product.discountEligible === 1 && product.originalPremiumUsdc != null;
+  const isBaseline = product.matchingStrategy === "baseline";
+  const caveats = parseCoverageCaveats(product.coverageCaveatsJson);
+  const sourceDate = formatSourceDate(product.sourceCheckedAtIso, locale);
+  const sourceUrl = product.sourceUrl ?? product.officialProductUrl;
 
   return (
     <Card
@@ -56,10 +96,20 @@ export function InsuranceProductCard({ product, selected, onToggle }: InsuranceP
               <span className="text-sm font-bold text-foreground">
                 ${product.monthlyPremiumUsdc.toFixed(1)}{t("perMonth")}
               </span>
+              {product.monthlyPremiumKrw != null && (
+                <span className="text-xs text-muted-foreground">
+                  {formatKrw(product.monthlyPremiumKrw)}{t("perMonth")}
+                </span>
+              )}
             </div>
           </div>
 
           <div className="mt-2 flex items-center gap-1.5">
+            {isBaseline && (
+              <Badge className="text-xs px-1.5 py-0 bg-sky-100 text-sky-700 border-sky-200 hover:bg-sky-100">
+                {t("baseline")}
+              </Badge>
+            )}
             <Badge variant="outline" className="text-xs px-1.5 py-0">
               {t.has(`categories.${product.coverageCategory}`)
                 ? t(`categories.${product.coverageCategory}` as Parameters<typeof t>[0])
@@ -74,6 +124,45 @@ export function InsuranceProductCard({ product, selected, onToggle }: InsuranceP
               </Badge>
             )}
           </div>
+
+          {(product.premiumBasis || sourceUrl || caveats.length > 0) && (
+            <div className="mt-3 flex flex-col gap-1.5 border-t border-border/50 pt-2.5">
+              {product.premiumBasis && (
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  <span className="font-medium text-foreground">{t("premiumBasis")}: </span>
+                  {product.premiumBasis}
+                </p>
+              )}
+              {caveats.slice(0, 2).map((caveat, index) => (
+                <p key={`${index}-${caveat}`} className="text-xs leading-relaxed text-muted-foreground">
+                  <span className="font-medium text-foreground">{t("caveat")}: </span>
+                  {caveat}
+                </p>
+              ))}
+              {(sourceUrl || sourceDate) && (
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                  {sourceDate && (
+                    <span>
+                      <span className="font-medium text-foreground">{t("sourceChecked")}: </span>
+                      {sourceDate}
+                    </span>
+                  )}
+                  {sourceUrl && (
+                    <a
+                      href={sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      {t("officialSource")}
+                      <ExternalLink size={12} />
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

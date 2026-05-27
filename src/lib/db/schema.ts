@@ -27,24 +27,160 @@ export const userProfileInsertSchema = z.object({
   updatedAt: z.number().int().positive(),
 });
 
+// ─── insurance catalog ────────────────────────────────────────────────────────
+
+const coverageCategoryValues = [
+  "oncology",
+  "cardiovascular",
+  "metabolic",
+  "neurological",
+  "medical_expense",
+] as const;
+
+const matchingStrategyValues = ["risk_target", "baseline", "manual"] as const;
+const premiumCurrencyValues = ["KRW", "USDC"] as const;
+const carrierTypeValues = ["life", "general", "postal", "reinsurance", "other"] as const;
+const associationSourceValues = ["klia", "knia", "postal", "manual"] as const;
+const saleStatusValues = ["active", "suspended", "archived", "unknown"] as const;
+const productReviewStatusValues = ["raw", "parsed", "needs_review", "approved", "rejected"] as const;
+const sourceTypeValues = [
+  "association",
+  "e_insmarket",
+  "carrier_disclosure",
+  "data_go_kr",
+  "postal_api",
+  "manual",
+] as const;
+const documentTypeValues = [
+  "terms",
+  "summary",
+  "business_method",
+  "price_disclosure",
+  "product_page",
+  "api_response",
+] as const;
+const usageStatusValues = ["internal_only", "link_only", "public_metadata_allowed"] as const;
+const parseStatusValues = ["not_parsed", "parsed", "parse_failed"] as const;
+const catalogStatusValues = ["approved", "needs_review", "archived"] as const;
+
+export const insuranceCarriers = sqliteTable("insurance_carriers", {
+  id: text("id").primaryKey(),
+  nameKo: text("name_ko").notNull(),
+  nameEn: text("name_en"),
+  carrierType: text("carrier_type", { enum: carrierTypeValues }).notNull(),
+  associationSource: text("association_source", { enum: associationSourceValues }).notNull(),
+  homepageUrl: text("homepage_url"),
+  disclosureUrl: text("disclosure_url"),
+  isActive: integer("is_active").notNull().default(1),
+  lastCheckedAt: integer("last_checked_at", { mode: "timestamp" }),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+}, (table) => [
+  index("carriers_name_idx").on(table.nameKo),
+]);
+
+export const insuranceProductSources = sqliteTable("insurance_product_sources", {
+  id: text("id").primaryKey(),
+  carrierId: text("carrier_id")
+    .notNull()
+    .references(() => insuranceCarriers.id),
+  rawProductName: text("raw_product_name").notNull(),
+  normalizedProductName: text("normalized_product_name").notNull(),
+  productGroup: text("product_group").notNull(),
+  eInsmarketProductCode: text("e_insmarket_product_code"),
+  officialProductUrl: text("official_product_url"),
+  saleStatus: text("sale_status", { enum: saleStatusValues }).notNull().default("unknown"),
+  saleStatusEvidence: text("sale_status_evidence"),
+  premiumCurrency: text("premium_currency", { enum: premiumCurrencyValues })
+    .notNull()
+    .default("KRW"),
+  monthlyPremiumKrw: integer("monthly_premium_krw"),
+  premiumText: text("premium_text"),
+  premiumBasis: text("premium_basis"),
+  renewalType: text("renewal_type"),
+  coverageSummary: text("coverage_summary"),
+  exclusionsSummary: text("exclusions_summary"),
+  coverageDetailsJson: text("coverage_details_json"),
+  coverageCaveatsJson: text("coverage_caveats_json"),
+  reviewStatus: text("review_status", { enum: productReviewStatusValues })
+    .notNull()
+    .default("raw"),
+  reviewedAt: integer("reviewed_at", { mode: "timestamp" }),
+  lastVerifiedAt: integer("last_verified_at", { mode: "timestamp" }),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+}, (table) => [
+  index("product_sources_carrier_review_idx").on(table.carrierId, table.reviewStatus),
+  index("product_sources_code_idx").on(table.eInsmarketProductCode),
+]);
+
+export const insuranceSourceDocuments = sqliteTable("insurance_source_documents", {
+  id: text("id").primaryKey(),
+  productSourceId: text("product_source_id")
+    .notNull()
+    .references(() => insuranceProductSources.id),
+  carrierId: text("carrier_id")
+    .notNull()
+    .references(() => insuranceCarriers.id),
+  sourceType: text("source_type", { enum: sourceTypeValues }).notNull(),
+  documentType: text("document_type", { enum: documentTypeValues }).notNull(),
+  sourceUrl: text("source_url").notNull(),
+  fileHashSha256: text("file_hash_sha256").notNull(),
+  contentType: text("content_type"),
+  contentLengthBytes: integer("content_length_bytes"),
+  retrievedAt: integer("retrieved_at", { mode: "timestamp" }).notNull(),
+  effectiveDate: text("effective_date"),
+  publishedAt: text("published_at"),
+  usageStatus: text("usage_status", { enum: usageStatusValues })
+    .notNull()
+    .default("link_only"),
+  parseStatus: text("parse_status", { enum: parseStatusValues }).notNull().default("not_parsed"),
+  extractedTextHash: text("extracted_text_hash"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+}, (table) => [
+  index("source_documents_product_idx").on(table.productSourceId),
+  index("source_documents_hash_idx").on(table.fileHashSha256),
+]);
+
 // ─── insurance_products ───────────────────────────────────────────────────────
 
 export const insuranceProducts = sqliteTable("insurance_products", {
   id: text("id").primaryKey(),
+  productSourceId: text("product_source_id").references(() => insuranceProductSources.id),
   name: text("name").notNull(),
   provider: text("provider").notNull(),
   chainNetwork: text("chain_network", { enum: ["near", "ethereum", "solana"] }).notNull(),
   contractAddress: text("contract_address"),
+  // KRW is the official Korean catalog price; USDC remains required for checkout/demo settlement.
   monthlyPremiumUsdc: real("monthly_premium_usdc").notNull(),
-  coverageCategory: text("coverage_category", {
-    enum: ["oncology", "cardiovascular", "metabolic", "neurological"],
-  }).notNull(),
+  monthlyPremiumKrw: integer("monthly_premium_krw"),
+  premiumCurrency: text("premium_currency", { enum: premiumCurrencyValues })
+    .notNull()
+    .default("KRW"),
+  premiumBasis: text("premium_basis"),
+  coverageCategory: text("coverage_category", { enum: coverageCategoryValues }).notNull(),
   riskTargets: text("risk_targets").notNull(),
+  matchingStrategy: text("matching_strategy", { enum: matchingStrategyValues })
+    .notNull()
+    .default("risk_target"),
+  coverageDetailsJson: text("coverage_details_json"),
+  coverageCaveatsJson: text("coverage_caveats_json"),
+  sourceCheckedAt: integer("source_checked_at", { mode: "timestamp" }),
+  primarySourceDocumentId: text("primary_source_document_id").references(
+    () => insuranceSourceDocuments.id
+  ),
+  catalogStatus: text("catalog_status", { enum: catalogStatusValues })
+    .notNull()
+    .default("approved"),
   discountEligible: integer("discount_eligible").notNull().default(0),
   originalPremiumUsdc: real("original_premium_usdc"),
   isActive: integer("is_active").notNull().default(1),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-});
+}, (table) => [
+  index("products_active_category_idx").on(table.isActive, table.coverageCategory),
+  index("products_active_matching_idx").on(table.isActive, table.matchingStrategy),
+  index("products_source_idx").on(table.productSourceId),
+]);
 
 const riskTargetEnum = z.enum([
   "pancreatic_cancer",
@@ -64,16 +200,93 @@ const riskTargetEnum = z.enum([
 
 export const insuranceProductInsertSchema = z.object({
   id: z.string().uuid(),
+  productSourceId: z.string().nullable().default(null),
   name: z.string().min(2).max(100),
   provider: z.string().min(1).max(50),
   chainNetwork: z.enum(["near", "ethereum", "solana"]),
   contractAddress: z.string().nullable().default(null),
   monthlyPremiumUsdc: z.number().positive().max(10000),
-  coverageCategory: z.enum(["oncology", "cardiovascular", "metabolic", "neurological"]),
-  riskTargets: z.array(riskTargetEnum).min(1),
+  monthlyPremiumKrw: z.number().int().positive().nullable().default(null),
+  premiumCurrency: z.enum(premiumCurrencyValues).default("KRW"),
+  premiumBasis: z.string().nullable().default(null),
+  coverageCategory: z.enum(coverageCategoryValues),
+  riskTargets: z.array(riskTargetEnum).default([]),
+  matchingStrategy: z.enum(matchingStrategyValues).default("risk_target"),
+  coverageDetailsJson: z.string().nullable().default(null),
+  coverageCaveatsJson: z.string().nullable().default(null),
+  sourceCheckedAt: z.number().int().positive().nullable().default(null),
+  primarySourceDocumentId: z.string().nullable().default(null),
+  catalogStatus: z.enum(catalogStatusValues).default("approved"),
   discountEligible: z.boolean().default(false),
   originalPremiumUsdc: z.number().positive().nullable().default(null),
   isActive: z.boolean().default(true),
+  createdAt: z.number().int().positive(),
+}).superRefine((product, ctx) => {
+  if (product.matchingStrategy !== "baseline" && product.riskTargets.length === 0) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["riskTargets"],
+      message: "baseline이 아닌 보험상품은 최소 1개 이상의 risk target이 필요합니다.",
+    });
+  }
+});
+
+export const insuranceCarrierInsertSchema = z.object({
+  id: z.string().min(1),
+  nameKo: z.string().min(1).max(100),
+  nameEn: z.string().max(100).nullable().default(null),
+  carrierType: z.enum(carrierTypeValues),
+  associationSource: z.enum(associationSourceValues),
+  homepageUrl: z.string().url().nullable().default(null),
+  disclosureUrl: z.string().url().nullable().default(null),
+  isActive: z.boolean().default(true),
+  lastCheckedAt: z.number().int().positive().nullable().default(null),
+  createdAt: z.number().int().positive(),
+  updatedAt: z.number().int().positive(),
+});
+
+export const insuranceProductSourceInsertSchema = z.object({
+  id: z.string().min(1),
+  carrierId: z.string().min(1),
+  rawProductName: z.string().min(1).max(200),
+  normalizedProductName: z.string().min(1).max(200),
+  productGroup: z.string().min(1).max(50),
+  eInsmarketProductCode: z.string().nullable().default(null),
+  officialProductUrl: z.string().url().nullable().default(null),
+  saleStatus: z.enum(saleStatusValues).default("unknown"),
+  saleStatusEvidence: z.string().nullable().default(null),
+  premiumCurrency: z.enum(premiumCurrencyValues).default("KRW"),
+  monthlyPremiumKrw: z.number().int().positive().nullable().default(null),
+  premiumText: z.string().nullable().default(null),
+  premiumBasis: z.string().nullable().default(null),
+  renewalType: z.string().nullable().default(null),
+  coverageSummary: z.string().nullable().default(null),
+  exclusionsSummary: z.string().nullable().default(null),
+  coverageDetailsJson: z.string().nullable().default(null),
+  coverageCaveatsJson: z.string().nullable().default(null),
+  reviewStatus: z.enum(productReviewStatusValues).default("raw"),
+  reviewedAt: z.number().int().positive().nullable().default(null),
+  lastVerifiedAt: z.number().int().positive().nullable().default(null),
+  createdAt: z.number().int().positive(),
+  updatedAt: z.number().int().positive(),
+});
+
+export const insuranceSourceDocumentInsertSchema = z.object({
+  id: z.string().min(1),
+  productSourceId: z.string().min(1),
+  carrierId: z.string().min(1),
+  sourceType: z.enum(sourceTypeValues),
+  documentType: z.enum(documentTypeValues),
+  sourceUrl: z.string().url(),
+  fileHashSha256: z.string().length(64),
+  contentType: z.string().nullable().default(null),
+  contentLengthBytes: z.number().int().positive().nullable().default(null),
+  retrievedAt: z.number().int().positive(),
+  effectiveDate: z.string().nullable().default(null),
+  publishedAt: z.string().nullable().default(null),
+  usageStatus: z.enum(usageStatusValues).default("link_only"),
+  parseStatus: z.enum(parseStatusValues).default("not_parsed"),
+  extractedTextHash: z.string().length(64).nullable().default(null),
   createdAt: z.number().int().positive(),
 });
 
@@ -107,7 +320,9 @@ export const analysisSessions = sqliteTable("analysis_sessions", {
   purgedAt: integer("purged_at", { mode: "timestamp" }),
   attestationNonce: text("attestation_nonce"),
   attestationVerified: integer("attestation_verified", { mode: "boolean" }),
-});
+}, (table) => [
+  index("analysis_sessions_wallet_idx").on(table.walletAddress),
+]);
 
 export const analysisSessionInsertSchema = z.object({
   id: z.string().uuid(),
@@ -153,7 +368,9 @@ export const analysisResults = sqliteTable("analysis_results", {
   priorityOrder: text("priority_order"),
   generatedAt: integer("generated_at", { mode: "timestamp" }).notNull(),
   expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
-});
+}, (table) => [
+  index("analysis_results_wallet_idx").on(table.walletAddress),
+]);
 
 const riskLevelSchema = z.enum(["high", "moderate", "normal"]);
 
@@ -189,7 +406,9 @@ export const recommendationCarts = sqliteTable("recommendation_carts", {
     .default("active"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
-});
+}, (table) => [
+  index("carts_wallet_status_idx").on(table.walletAddress, table.status),
+]);
 
 // ─── transactions ─────────────────────────────────────────────────────────────
 
@@ -242,29 +461,15 @@ export const authNonces = sqliteTable("auth_nonces", {
 
 export type AuthNonce = typeof authNonces.$inferSelect;
 
-// ─── Indexes ─────────────────────────────────────────────────────────────────
-
-export const analysisSessionsIdx = index("analysis_sessions_wallet_idx").on(
-  analysisSessions.walletAddress
-);
-
-export const analysisResultsWalletIdx = index("analysis_results_wallet_idx").on(
-  analysisResults.walletAddress
-);
-
-export const cartsWalletStatusIdx = index("carts_wallet_status_idx").on(
-  recommendationCarts.walletAddress,
-  recommendationCarts.status
-);
-
-export const productsActiveCategoryIdx = index("products_active_category_idx").on(
-  insuranceProducts.isActive,
-  insuranceProducts.coverageCategory
-);
+// Indexes are declared in each sqliteTable extraConfig block so Drizzle Kit can
+// include them in migration snapshots.
 
 // ─── Inferred types ──────────────────────────────────────────────────────────
 
 export type UserProfile = typeof userProfiles.$inferSelect;
+export type InsuranceCarrier = typeof insuranceCarriers.$inferSelect;
+export type InsuranceProductSource = typeof insuranceProductSources.$inferSelect;
+export type InsuranceSourceDocument = typeof insuranceSourceDocuments.$inferSelect;
 export type InsuranceProduct = typeof insuranceProducts.$inferSelect;
 export type AnalysisSession = typeof analysisSessions.$inferSelect;
 export type AnalysisResult = typeof analysisResults.$inferSelect;

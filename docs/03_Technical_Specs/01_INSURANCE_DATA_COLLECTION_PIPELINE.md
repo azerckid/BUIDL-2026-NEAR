@@ -1,0 +1,372 @@
+# [기술 명세] 한국 보험상품 데이터 수집 파이프라인
+> Created: 2026-05-27 03:14
+> Last Updated: 2026-05-27 22:43
+
+- **레이어**: 03_Technical_Specs
+- **상태**: Draft v1.5
+- **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
+- **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
+
+---
+
+## 1. 목적
+
+OHmyDNA Insurance Agent가 유저에게 실제 보험상품을 추천하려면 한국에서 판매 중인 보험상품을 주기적으로 수집하고, 추천 가능한 구조로 정규화해야 한다.
+
+한국 보험상품 데이터는 공개 REST API보다 공시 웹페이지와 PDF 문서에 많이 존재한다. 따라서 이 명세는 API 연동만이 아니라 PDF 다운로드, 원문 해시, 텍스트 추출, 정규화, 사람이 확인하는 검수 단계를 포함한다.
+
+---
+
+## 2. 핵심 원칙
+
+1. **공식 출처 우선**: 생명보험협회, 손해보험협회, 보험다모아, 보험사 공식 공시실, 공공데이터포털을 우선한다.
+2. **학습보다 검색/정규화**: 원문 PDF를 LLM에 영구 학습시키지 않는다. 구조화 DB와 RAG 검색에 연결한다.
+3. **원문 재배포 금지**: 약관/PDF 원문은 내부 검증용 또는 링크/해시 보존용으로만 다룬다. 서비스 화면에는 원문 출처 링크와 확인일을 표시한다.
+4. **보험료와 추천 분리**: 공시 보험료는 표준 조건 기준일 수 있으므로 실제 견적/청약 보험료로 단정하지 않는다.
+5. **사람 검수 필수**: `coverage_category`, `risk_targets`, 판매상태, 보험료 기준은 자동 추출 후 사람이 승인한다.
+6. **주기적 갱신**: 보험상품은 변경·판매중지·개정될 수 있으므로 월간 갱신과 분기별 전체 감사를 수행한다.
+
+---
+
+## 3. 수집 대상 범위
+
+### 3-1. 보험사 기준
+
+| 구분 | 기준 출처 | 수집 목적 |
+|---|---|---|
+| 생명보험사 | 생명보험협회 회원사 안내 | 삼성생명, 한화생명, 교보생명, 신한라이프, KB라이프, NH농협생명 등 전체 생보사 목록 확보 |
+| 손해보험사 | 손해보험협회 공시실/회원사 공시 | 삼성화재, 현대해상, KB손보, DB손보, 메리츠화재, 한화손보 등 전체 손보사 목록 확보 |
+| 준회원/온라인 전업/우체국 | 협회 회원사, 공공데이터포털, 우체국금융 OpenAPI | 온라인 전업사와 공공 보험상품 후보 포함 여부 판단 |
+
+### 3-2. 상품 범위
+
+MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
+
+| 우선순위 | 상품군 | 이유 |
+|---|---|---|
+| P0 | 암보험, 질병보험, 실손의료비, 간병/치매보험 | 유전자 위험 플래그와 직접 매칭 가능 |
+| P1 | 건강보험, 상해보험, 어린이보험, 정기보험 | 위험 보장 구조가 명확하고 보험다모아/협회 공시 가능성 높음 |
+| P2 | 연금보험, 저축보험, 종신보험, 변액보험 | 서비스 확장 후보. 유전자 위험 추천과 직접성은 낮음 |
+| 제외 후보 | 자동차, 화재, 배상책임, 기업성 보험 | 초기 유전자 기반 추천과 직접 관련 낮음 |
+
+---
+
+## 4. 출처 우선순위
+
+| Tier | 출처 | 수집 방식 | 용도 |
+|---|---|---|---|
+| 0 | 생명보험협회/손해보험협회 회원사 목록 | HTML 조회 | 전체 보험사 universe 확정 |
+| 1 | 생명보험협회/손해보험협회 상품비교공시 | HTML/PDF/다운로드 링크 | 보험사별 상품 목록과 비교 기준 확보 |
+| 1 | 보험다모아 | HTML 조회 | 소비자 관점 비교, 온라인 가입 가능 상품 후보 |
+| 2 | 개별 보험사 공시실 | PDF/HTML 다운로드 | 약관, 상품요약서, 사업방법서, 보험가격공시 원문 검증 |
+| 3 | 공공데이터포털/우체국금융 OpenAPI | API 호출 | API 파이프라인 PoC와 구조화 데이터 샘플 |
+| 3 | HIRA 보건의료빅데이터 OpenAPI | API 호출 | 질병 통계와 `risk_targets` 근거 보강 |
+| 4 | CODEF/제휴/B2B API | 계약 기반 API | 운영 단계 자동화 후보 |
+
+---
+
+## 5. 수집 파이프라인
+
+```text
+1. 보험사 목록 동기화
+2. 보험사별 공시실/협회/보험다모아 상품 인덱스 수집
+3. 상품별 원문 URL/PDF 다운로드 후보 추출
+4. PDF 또는 HTML 원문 다운로드
+5. source_url, retrieved_at, file_hash, source_type 저장
+6. 텍스트 추출 및 표 파싱
+7. 상품 메타데이터 정규화
+8. coverage_category/risk_targets 자동 후보 생성
+9. 사람이 검수하고 승인
+10. 서비스용 insurance_products snapshot 발행
+11. 변경 감지와 주기적 재검증
+```
+
+---
+
+## 6. 정규화 데이터 모델 후보
+
+현재 코드 변경은 하지 않는다. 실제 구현 전 아래 테이블 후보를 DB 스키마 문서에 반영한다.
+
+### 6-1. `insurance_carriers`
+
+| 필드 | 설명 |
+|---|---|
+| `id` | 내부 보험사 ID |
+| `name_ko` | 보험사 한글명 |
+| `carrier_type` | `life`, `general`, `postal`, `reinsurance`, `other` |
+| `association_source` | `klia`, `knia`, `manual` |
+| `homepage_url` | 보험사 공식 홈페이지 |
+| `disclosure_url` | 보험사 공시실 URL |
+| `is_active` | 영업/수집 대상 여부 |
+| `last_checked_at` | 보험사 정보 마지막 확인일 |
+
+### 6-2. `insurance_source_documents`
+
+| 필드 | 설명 |
+|---|---|
+| `id` | 원문 문서 ID |
+| `carrier_id` | 보험사 ID |
+| `product_source_id` | 상품 원천 ID |
+| `source_type` | `association`, `e_insmarket`, `carrier_disclosure`, `data_go_kr`, `postal_api`, `manual` |
+| `source_url` | 원문 URL |
+| `document_type` | `terms`, `summary`, `business_method`, `price_disclosure`, `product_page`, `api_response` |
+| `file_hash` | 다운로드 파일 또는 응답 본문 해시 |
+| `retrieved_at` | 수집 시각 |
+| `effective_date` | 상품/약관 적용일 |
+| `usage_status` | `internal_only`, `link_only`, `public_metadata_allowed` |
+
+### 6-3. `insurance_product_sources`
+
+| 필드 | 설명 |
+|---|---|
+| `id` | 원천 상품 ID |
+| `carrier_id` | 보험사 ID |
+| `raw_product_name` | 원문 상품명 |
+| `normalized_product_name` | 정규화 상품명 |
+| `product_group` | 암, 질병, 실손, 치매, 건강, 상해 등 |
+| `sale_status` | `active`, `suspended`, `archived`, `unknown` |
+| `premium_basis` | 보험료 산정 기준 |
+| `monthly_premium_krw` | 표준 조건 월 보험료 |
+| `coverage_summary` | 주요 보장 요약 |
+| `exclusions_summary` | 주요 면책/제한 요약 |
+| `review_status` | `raw`, `parsed`, `needs_review`, `approved`, `rejected` |
+| `last_verified_at` | 사람이 마지막 검수한 시각 |
+
+---
+
+## 7. 서비스 매핑 규칙
+
+| 원천 데이터 | 서비스 필드 |
+|---|---|
+| 보험사명 | `insurance_products.provider` |
+| 정규화 상품명 | `insurance_products.name` |
+| 상품군 | `insurance_products.coverage_category` |
+| 보장 질병/담보 키워드 | `insurance_products.risk_targets` |
+| 원 보험료 KRW | 향후 `monthly_premium_krw` |
+| USDC 환산값 | `insurance_products.monthly_premium_usdc` |
+| 출처 URL/확인일 | 향후 source table 또는 UI citation |
+| 판매상태 | `is_active` |
+
+`coverage_category`와 `risk_targets`는 자동 추출 결과를 그대로 사용하지 않는다. 추천 결과에 영향을 주는 필드이므로 검수 승인 후 서비스 DB에 반영한다.
+
+---
+
+## 8. PDF 처리 정책
+
+| 항목 | 정책 |
+|---|---|
+| 다운로드 | 공식 공시실 또는 협회/보험다모아에서 공개된 문서만 대상으로 한다 |
+| 저장 | 원문 재배포 권한이 불명확하면 내부 저장 또는 URL+해시 저장만 허용한다 |
+| 파싱 | 텍스트, 표, 보장명, 가입조건, 면책사항을 추출한다 |
+| 표시 | 사용자 화면에는 원문 전문 대신 요약, 출처, 확인일, 원문 링크를 표시한다 |
+| 변경 감지 | 동일 URL이라도 `file_hash`가 바뀌면 재파싱/재검수한다 |
+| LLM 사용 | 원문 전체를 모델에 학습시키지 않고, 승인된 추출 결과 또는 RAG 컨텍스트로만 사용한다 |
+
+---
+
+## 9. 정기 업데이트 운영
+
+| 주기 | 작업 | 산출물 |
+|---|---|---|
+| 주간 | 핵심 출처 접근 가능성 확인, API 상태 확인, 다운로드 실패 목록 점검 | `source_health` 로그 |
+| 월간 | P0/P1 상품군 신규·개정·판매중지 상품 확인, PDF hash 변경 감지 | 월간 카탈로그 변경 리포트 |
+| 분기 | 전체 보험사 목록 재확인, 협회/보험다모아/보험사 공시실 링크 재검증 | 분기 전체 감사 리포트 |
+| 이벤트 발생 시 | 금융당국 제도 변경, 보험사 공지, 상품 대규모 개정, API 스키마 변경 대응 | 긴급 업데이트 기록 |
+
+초기 구현에서는 자동 크론보다 수동 실행 가능한 스크립트와 체크리스트를 먼저 만든다. 안정화 후 Vercel Cron 또는 별도 worker로 전환한다.
+
+### 9-1. Collector v1 수동 실행
+
+반복 가능한 첫 수집기는 다음 명령으로 실행한다.
+
+```bash
+npm run collect:insurance
+```
+
+기본 출력 파일은 `data/insurance/latest_official_sources_snapshot.json`이다. 이 파일은 서비스 DB에 바로 넣는 상품 카탈로그가 아니라, 공식 출처 접근성·보험사 목록·보험다모아 샘플·공식 상품 이동 URL·API 후보를 기록하는 snapshot이다.
+
+현재 Collector v1 범위는 다음과 같다.
+
+| 수집 대상 | 결과 |
+|---|---|
+| 생명보험협회 회원사 | 생명보험사 22개, 비주요 회원 별도 분류 |
+| 손해보험협회 회원사 | 손해보험사/화재보험사 17개, 재보험/보증/특수보험 별도 분류 |
+| 손해보험협회 실손의료보험 공시 | 공시 페이지 접근성과 일부 보험사명 감지 |
+| 보험다모아 P0 상품군 | 암보험 12개, 실손의료보험 9개, 유병력자실손 3개, 질병보험 31개, 간병/치매보험 1개 추출 |
+| 우체국금융 OpenAPI 안내 | 보험상품정보/이율/보험료 API 후보 3개 감지 |
+| 삼성생명 공개 PDF | PDF HEAD 응답, content-type, length, last-modified 확인 |
+
+운영 DB 반영은 여전히 금지한다. `sale_status`, `premium_basis`, `coverage_category`, `risk_targets`는 사람 검수 후 승인된 값만 서비스 추천에 사용할 수 있다.
+
+### 9-2. Product Document Probe v1 수동 실행
+
+대표 상품의 공식 상품 페이지와 PDF 후보는 다음 명령으로 확인한다.
+
+```bash
+npm run collect:insurance:docs
+```
+
+기본 출력 파일은 `data/insurance/latest_product_document_probe.json`이다. 2026-05-27 12:49 KST 기준 결과는 다음과 같다.
+
+| 항목 | 결과 |
+|---|---|
+| 대표 상품 probe | 8개 |
+| 공식 상품 페이지 접근 | 8개 성공 |
+| PDF 후보 URL | 5개 |
+| 실제 PDF hash | 2개 |
+| hash 확보 상품 | 한화생명 e암보험(비갱신형)(무)(표준체형) 상품요약서/약관 |
+
+다수 보험사의 direct landing page는 초기 HTML에 PDF 링크를 노출하지 않는다. 이 경우 상품 페이지가 아니라 보험사 공시실 crawler로 상품요약서/약관 URL을 찾아야 한다.
+
+### 9-3. Carrier Disclosure Crawler v1 수동 실행
+
+공식 상품 페이지에서 PDF를 찾지 못한 대표 상품은 보험사 공시실/상품공시 페이지를 추가로 탐색한다.
+
+```bash
+npm run collect:insurance:disclosures
+```
+
+기본 출력 파일은 `data/insurance/latest_carrier_disclosure_probe.json`이다. 2026-05-27 13:23 KST 기준 결과는 다음과 같다.
+
+| 항목 | 결과 |
+|---|---|
+| 대상 상품 | 7개 |
+| 공시실 profile 적용 보험사 | 6개 |
+| 공시실 페이지 접근 | 6개 성공 |
+| PDF hash | 1개 |
+| hash 확보 상품 | 삼성화재 다이렉트 실손의료비보험(2605.1) 약관 |
+
+Crawler v1은 상품명 매칭 임계값을 보수적으로 적용한다. 예를 들어 DB생명 `(무)e로운 암보험(해약환급금 미지급형)(2601)`과 DB생명 공시실의 `(무)AI 라이프케어 암보험(2605)`처럼 일부 단어만 겹치는 경우는 false positive로 보고 제외한다.
+
+2026-05-27 13:43 KST 기준 DB손보 공시실 JavaScript/API adapter를 추가했다. DB손보 `insuPcPbanFindProductStep5_AX.do` 검색 API에서 `(무)다이렉트 실손의료비보험2605(CM)`의 약관, 사업방법서, 상품요약서 PDF 파일명을 확보하고 hash까지 기록했다. 이에 따라 `latest_carrier_disclosure_probe.json` 기준 PDF hash는 4개로 증가했다.
+
+이번 결과에서 확인된 다음 병목은 보험사별 JavaScript/API 검색 어댑터다. 삼성생명, 현대해상, KB손보, 신한라이프는 공시실 페이지 접근은 가능하지만 HTML 초기 응답만으로는 약관/상품요약서 PDF 링크를 충분히 얻지 못했다.
+
+### 9-4. Review Queue CSV v1 수동 생성
+
+서비스 DB seed로 승격하기 전에 사람이 검수할 CSV를 생성한다.
+
+```bash
+npm run collect:insurance:review
+```
+
+출력 파일은 다음과 같다.
+
+| 파일 | 역할 |
+|---|---|
+| `data/insurance/latest_insurance_review_queue.csv` | 상품 row별 검수 작업표 |
+| `data/insurance/latest_insurance_review_queue_summary.json` | row 수, hash 확보 수, QA blocker 요약 |
+
+2026-05-27 13:43 KST 기준 결과는 다음과 같다.
+
+| 항목 | 결과 |
+|---|---|
+| 전체 검수 row | 56개 |
+| 공식 상품 URL 보유 row | 47개 |
+| 공식 문서 hash 보유 row | 3개 |
+| hash 문서 수 | 6개 |
+| 우선 검수 대상 | 한화생명 e암보험, DB손보 다이렉트 실손의료비보험2605(CM), 삼성화재 다이렉트 실손의료비보험(2605.1) |
+
+CSV의 `needs_human_review`는 추천 DB 반영 승인이 아니라 검수 우선순위다. `sale_status`, `premium_basis`, `coverage_category`, `risk_targets`가 승인되기 전까지 서비스 추천에 사용하지 않는다.
+
+### 9-5. Hash-backed 상품 수동 검수 v1
+
+2026-05-27 15:36 KST 기준 공식 문서 hash가 확보된 3개 상품을 수동 검수했다.
+
+| 항목 | 결과 |
+|---|---|
+| 검수 대상 | 한화생명 e암보험, DB손보 다이렉트 실손의료비보험2605(CM), 삼성화재 다이렉트 실손의료비보험(2605.1) |
+| 출처 기반 카탈로그 후보 | 1개: 한화생명 e암보험 |
+| 스키마 확장 필요 | 2개: DB손보/삼성화재 실손의료보험 |
+| 현재 `insurance_products` seed 바로 반영 | 0개 |
+| 산출물 | `data/insurance/latest_seed_candidate_review.json`, `data/insurance/latest_seed_candidate_review.csv` |
+
+수동 검수에서 확인한 핵심 gap은 현재 `insurance_products` 테이블이 실제 한국 보험상품 카탈로그에 필요한 출처와 보험료 기준을 담지 못한다는 점이다. 다음 구현 전에는 최소한 `monthly_premium_krw`, `premium_basis`, `source_url`, `source_checked_at`, `source_document_hash` 또는 별도 `insurance_product_sources`/`insurance_source_documents` 테이블을 확정해야 한다.
+
+또한 실손의료보험은 특정 유전자 위험 플래그가 아니라 질병/상해 의료비를 폭넓게 보상하는 상품이다. 이를 추천하려면 `coverage_category`에 `medical_expense`를 추가하거나, 유전자 특화 보장과 일반 의료비 보장을 분리한 매칭 트랙이 필요하다.
+
+### 9-6. Schema Extension Decision v1
+
+2026-05-27 22:43 KST 기준 스키마 확장 방향을 확정했다. 원천 상품과 추천 snapshot을 분리한다.
+
+| 구분 | 결정 |
+|---|---|
+| 원천 상품 | `insurance_product_sources`에 저장 |
+| 원문 문서 hash | `insurance_source_documents`에 저장 |
+| 보험사 기준 정보 | `insurance_carriers`에 저장 |
+| 추천 가능 상품 | 검수 승인 후 확장된 `insurance_products`에 snapshot으로 승격 |
+| 실손의료보험 | `coverage_category=medical_expense`, `matching_strategy=baseline` |
+| 유전자 위험 상품 | 기존 결정론적 `risk_targets` 교집합 매칭 유지 |
+
+상세 필드와 구현 순서는 `02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md`를 기준으로 한다.
+
+---
+
+## 10. 법무·신뢰 고지
+
+서비스 문구는 다음 원칙을 따른다.
+
+- 이 서비스는 보험 가입 권유 또는 판매가 아니라 정보 제공과 비교 보조를 목적으로 한다.
+- 보험료는 공시 기준 또는 표준 조건 기준이며 실제 보험료와 다를 수 있다.
+- 최종 가입 전 보험사 공식 상품설명서, 약관, 청약 단계의 고지사항을 확인해야 한다.
+- 추천 결과는 유전자 위험 분석과 공개 상품정보의 매칭이며, 질병 진단 또는 의학적 판단이 아니다.
+
+---
+
+## 11. 구현 전 체크리스트
+
+- [x] 생명보험협회 회원사 목록 수집 방식 확인
+- [x] 손해보험협회 회원사 목록 수집 방식 확인
+- [x] 보험다모아 상품 카테고리별 목록 수집 가능성 확인
+- [x] 삼성생명/삼성화재 등 대표 보험사 공시실 PDF 다운로드 가능성 확인
+- [x] 우체국금융 보험상품정보 OpenAPI 엔드포인트 확인
+- [ ] 우체국금융 보험상품정보 OpenAPI 서비스키 기반 실제 호출 PoC
+- [x] `scripts/insurance/collect-official-sources.mjs` Collector v1 작성
+- [x] `data/insurance/latest_official_sources_snapshot.json` 생성 검증
+- [x] 보험다모아 product code와 공식 상품 이동 URL 추출
+- [x] `scripts/insurance/collect-product-documents.mjs` Product Document Probe v1 작성
+- [x] 대표 상품 8개 공식 상품 페이지 접근성 확인
+- [x] 대표 상품 중 한화생명 상품요약서/약관 PDF hash 확보
+- [x] `scripts/insurance/collect-carrier-disclosures.mjs` Carrier Disclosure Crawler v1 작성
+- [x] 삼성화재 다이렉트 실손의료비보험(2605.1) 공식 약관 PDF hash 확보
+- [x] DB손보 공시실 JavaScript/API adapter로 약관/사업방법서/상품요약서 PDF hash 확보
+- [x] `scripts/insurance/build-review-queue.mjs` Review Queue CSV v1 작성
+- [x] `data/insurance/latest_insurance_review_queue.csv` 생성
+- [x] hash-backed 3개 상품 수동 검수 결과 작성
+- [x] 보험상품 카탈로그 스키마 확장안 확정
+- [ ] PDF 원문 저장 정책 결정
+- [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
+- [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
+- [x] P0 암보험 상품군 12개 샘플 파싱
+- [x] P0 상품군 20개 이상 샘플 파싱
+- [ ] 수동 검수 UI 또는 검수 CSV 포맷 결정
+- [ ] 서비스 화면의 출처/확인일 표시 요구사항 확정
+
+---
+
+## 12. 365 Rubric 영향
+
+| Rubric | 영향 |
+|---|---|
+| Functionality | 실제 보험상품 기반 추천으로 mock 상품 한계를 제거한다 |
+| Potential Impact | 한국 보험상품 전체 카탈로그를 장기적으로 커버할 수 있는 데이터 기반을 만든다 |
+| Novelty | 유전자 위험 분석과 공식 보험 공시자료를 연결하는 추천 구조를 만든다 |
+| UX | 유저가 추천 이유, 출처, 확인일을 함께 확인할 수 있어 신뢰도가 높아진다 |
+| Open-source | 수집/정규화 명세를 공개하면 다른 금융/헬스케어 빌더가 재사용할 수 있다 |
+| Business Plan | 최신 상품 카탈로그와 결제 레일이 있어야 제휴·중개·구독 모델 검토가 가능하다 |
+
+---
+
+## 13. Related Documents
+
+- **Logic_Progress**: [Two Pillars Service Update](../04_Logic_Progress/03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md) - 실제 보험상품 카탈로그 적용 전략
+- **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - Track A와 Stage 18 전후 일정
+- **Logic_Progress**: [AI Matching Pipeline](../04_Logic_Progress/AI_MATCHING_PIPELINE.md) - AI 설명과 DB 상품 추천의 경계
+- **Technical_Specs**: [DB Schema](./DB_SCHEMA.md) - 현재 `insurance_products` 스키마와 확장 후보
+- **Technical_Specs**: [Insurance Catalog Schema Extension](./02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md) - 실제 보험상품 카탈로그 스키마 확장 확정안
+- **QA_Validation**: [Insurance Data Refresh QA](../05_QA_Validation/03_INSURANCE_DATA_REFRESH_QA.md) - 정기 갱신 검증 체크리스트
+- **QA_Validation**: [Insurance Data Acquisition PoC](../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md) - 공식 출처 수집 가능성 검증 결과
+- **QA_Validation**: [Product Document Probe](../05_QA_Validation/05_PRODUCT_DOCUMENT_PROBE_2026_05_27.md) - 대표 상품 공식 문서/PDF hash 검증 결과
+- **QA_Validation**: [Carrier Disclosure Crawler](../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md) - 보험사 공시실 crawler v1 검증 결과
+- **QA_Validation**: [Insurance Review Queue](../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md) - 검수 CSV 생성 결과
+- **QA_Validation**: [Hash-backed Product Manual Review](../05_QA_Validation/08_HASH_BACKED_PRODUCT_MANUAL_REVIEW_2026_05_27.md) - hash-backed 3개 상품 수동 검수 결과
