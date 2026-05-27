@@ -133,8 +133,8 @@ export function InsuranceProductCard({ product, selected, onToggle }: InsuranceP
                   {product.premiumBasis}
                 </p>
               )}
-              {caveats.slice(0, 2).map((caveat) => (
-                <p key={caveat} className="text-xs leading-relaxed text-muted-foreground">
+              {caveats.slice(0, 2).map((caveat, index) => (
+                <p key={`${index}-${caveat}`} className="text-xs leading-relaxed text-muted-foreground">
                   <span className="font-medium text-foreground">{t("caveat")}: </span>
                   {caveat}
                 </p>

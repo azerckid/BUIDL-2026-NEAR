@@ -1,6 +1,6 @@
 # [기술 명세] 보험상품 카탈로그 스키마 확장안
 > Created: 2026-05-27 22:43
-> Last Updated: 2026-05-28 00:34
+> Last Updated: 2026-05-28 00:55
 
 - **레이어**: 03_Technical_Specs
 - **상태**: Approved Design v1
@@ -148,6 +148,8 @@ insurance_products (N) >──< recommendation_carts (N:M, via cart_items JSON)
 | `source_checked_at` | INTEGER NULL | 추천 snapshot 기준 출처 확인일 |
 | `primary_source_document_id` | TEXT NULL | 대표 문서 FK |
 | `catalog_status` | TEXT NOT NULL DEFAULT `approved` | `approved`, `needs_review`, `archived` |
+
+`monthly_premium_usdc`는 계속 `NOT NULL`로 유지한다. 한국 공식 원천 가격은 `monthly_premium_krw`와 `premium_basis`에 보존하지만, 현재 checkout/demo 정산 경로와 Confidential Intents + USDC 결제 설계는 USDC 금액을 기준으로 동작하기 때문이다. 따라서 KRW-only 원천 상품을 추천 snapshot으로 승격할 때는 검수 시점의 환산 USDC 값을 함께 저장한다.
 
 `coverage_category` enum은 다음처럼 확장한다.
 

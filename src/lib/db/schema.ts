@@ -75,7 +75,9 @@ export const insuranceCarriers = sqliteTable("insurance_carriers", {
   lastCheckedAt: integer("last_checked_at", { mode: "timestamp" }),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
-});
+}, (table) => [
+  index("carriers_name_idx").on(table.nameKo),
+]);
 
 export const insuranceProductSources = sqliteTable("insurance_product_sources", {
   id: text("id").primaryKey(),
@@ -107,7 +109,10 @@ export const insuranceProductSources = sqliteTable("insurance_product_sources", 
   lastVerifiedAt: integer("last_verified_at", { mode: "timestamp" }),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
-});
+}, (table) => [
+  index("product_sources_carrier_review_idx").on(table.carrierId, table.reviewStatus),
+  index("product_sources_code_idx").on(table.eInsmarketProductCode),
+]);
 
 export const insuranceSourceDocuments = sqliteTable("insurance_source_documents", {
   id: text("id").primaryKey(),
@@ -132,7 +137,10 @@ export const insuranceSourceDocuments = sqliteTable("insurance_source_documents"
   parseStatus: text("parse_status", { enum: parseStatusValues }).notNull().default("not_parsed"),
   extractedTextHash: text("extracted_text_hash"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-});
+}, (table) => [
+  index("source_documents_product_idx").on(table.productSourceId),
+  index("source_documents_hash_idx").on(table.fileHashSha256),
+]);
 
 // ─── insurance_products ───────────────────────────────────────────────────────
 
@@ -143,6 +151,7 @@ export const insuranceProducts = sqliteTable("insurance_products", {
   provider: text("provider").notNull(),
   chainNetwork: text("chain_network", { enum: ["near", "ethereum", "solana"] }).notNull(),
   contractAddress: text("contract_address"),
+  // KRW is the official Korean catalog price; USDC remains required for checkout/demo settlement.
   monthlyPremiumUsdc: real("monthly_premium_usdc").notNull(),
   monthlyPremiumKrw: integer("monthly_premium_krw"),
   premiumCurrency: text("premium_currency", { enum: premiumCurrencyValues })
@@ -167,7 +176,11 @@ export const insuranceProducts = sqliteTable("insurance_products", {
   originalPremiumUsdc: real("original_premium_usdc"),
   isActive: integer("is_active").notNull().default(1),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-});
+}, (table) => [
+  index("products_active_category_idx").on(table.isActive, table.coverageCategory),
+  index("products_active_matching_idx").on(table.isActive, table.matchingStrategy),
+  index("products_source_idx").on(table.productSourceId),
+]);
 
 const riskTargetEnum = z.enum([
   "pancreatic_cancer",
@@ -307,7 +320,9 @@ export const analysisSessions = sqliteTable("analysis_sessions", {
   purgedAt: integer("purged_at", { mode: "timestamp" }),
   attestationNonce: text("attestation_nonce"),
   attestationVerified: integer("attestation_verified", { mode: "boolean" }),
-});
+}, (table) => [
+  index("analysis_sessions_wallet_idx").on(table.walletAddress),
+]);
 
 export const analysisSessionInsertSchema = z.object({
   id: z.string().uuid(),
@@ -353,7 +368,9 @@ export const analysisResults = sqliteTable("analysis_results", {
   priorityOrder: text("priority_order"),
   generatedAt: integer("generated_at", { mode: "timestamp" }).notNull(),
   expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
-});
+}, (table) => [
+  index("analysis_results_wallet_idx").on(table.walletAddress),
+]);
 
 const riskLevelSchema = z.enum(["high", "moderate", "normal"]);
 
@@ -389,7 +406,9 @@ export const recommendationCarts = sqliteTable("recommendation_carts", {
     .default("active"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
-});
+}, (table) => [
+  index("carts_wallet_status_idx").on(table.walletAddress, table.status),
+]);
 
 // ─── transactions ─────────────────────────────────────────────────────────────
 
@@ -442,53 +461,8 @@ export const authNonces = sqliteTable("auth_nonces", {
 
 export type AuthNonce = typeof authNonces.$inferSelect;
 
-// ─── Indexes ─────────────────────────────────────────────────────────────────
-
-export const analysisSessionsIdx = index("analysis_sessions_wallet_idx").on(
-  analysisSessions.walletAddress
-);
-
-export const analysisResultsWalletIdx = index("analysis_results_wallet_idx").on(
-  analysisResults.walletAddress
-);
-
-export const cartsWalletStatusIdx = index("carts_wallet_status_idx").on(
-  recommendationCarts.walletAddress,
-  recommendationCarts.status
-);
-
-export const carriersNameIdx = index("carriers_name_idx").on(insuranceCarriers.nameKo);
-
-export const productSourcesCarrierReviewIdx = index("product_sources_carrier_review_idx").on(
-  insuranceProductSources.carrierId,
-  insuranceProductSources.reviewStatus
-);
-
-export const productSourcesCodeIdx = index("product_sources_code_idx").on(
-  insuranceProductSources.eInsmarketProductCode
-);
-
-export const sourceDocumentsProductIdx = index("source_documents_product_idx").on(
-  insuranceSourceDocuments.productSourceId
-);
-
-export const sourceDocumentsHashIdx = index("source_documents_hash_idx").on(
-  insuranceSourceDocuments.fileHashSha256
-);
-
-export const productsActiveCategoryIdx = index("products_active_category_idx").on(
-  insuranceProducts.isActive,
-  insuranceProducts.coverageCategory
-);
-
-export const productsActiveMatchingIdx = index("products_active_matching_idx").on(
-  insuranceProducts.isActive,
-  insuranceProducts.matchingStrategy
-);
-
-export const productsSourceIdx = index("products_source_idx").on(
-  insuranceProducts.productSourceId
-);
+// Indexes are declared in each sqliteTable extraConfig block so Drizzle Kit can
+// include them in migration snapshots.
 
 // ─── Inferred types ──────────────────────────────────────────────────────────
 

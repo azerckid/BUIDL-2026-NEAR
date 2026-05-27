@@ -1,9 +1,9 @@
 # [기술 명세] 데이터 모델 및 DB 스키마 상세 명세
 > Created: 2026-04-01 00:00
-> Last Updated: 2026-05-27 22:43
+> Last Updated: 2026-05-28 00:55
 
 - **작성일**: 2026-04-01
-- **최종 수정일**: 2026-05-27
+- **최종 수정일**: 2026-05-28
 - **레이어**: 03_Technical_Specs
 - **상태**: Draft v1.0
 
@@ -420,19 +420,18 @@ transactions.status:
 ## 4. 인덱스 전략
 
 ```typescript
-// 자주 조회되는 패턴 기준 인덱스
-export const analysisSessionsIdx = index("analysis_sessions_wallet_idx")
-  .on(analysisSessions.walletAddress);
-
-export const analysisResultsWalletIdx = index("analysis_results_wallet_idx")
-  .on(analysisResults.walletAddress);
-
-export const cartsWalletStatusIdx = index("carts_wallet_status_idx")
-  .on(recommendationCarts.walletAddress, recommendationCarts.status);
-
-export const productsActiveCategoryIdx = index("products_active_category_idx")
-  .on(insuranceProducts.isActive, insuranceProducts.coverageCategory);
+// Drizzle 0.45 기준: 인덱스는 sqliteTable extraConfig 안에 선언해야
+// migration snapshot과 CREATE INDEX SQL에 반영된다.
+export const insuranceProducts = sqliteTable("insurance_products", {
+  // columns...
+}, (table) => [
+  index("products_active_category_idx").on(table.isActive, table.coverageCategory),
+  index("products_active_matching_idx").on(table.isActive, table.matchingStrategy),
+  index("products_source_idx").on(table.productSourceId),
+]);
 ```
+
+보험 원천 수집 테이블도 같은 방식으로 `carriers_name_idx`, `product_sources_carrier_review_idx`, `product_sources_code_idx`, `source_documents_product_idx`, `source_documents_hash_idx`를 선언한다.
 
 ---
 
