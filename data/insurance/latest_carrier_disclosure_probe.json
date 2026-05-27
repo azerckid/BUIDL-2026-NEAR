@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "generated_at": "2026-05-27T13:40:38.065+09:00",
+    "generated_at": "2026-05-28T01:50:33.548+09:00",
     "timezone": "Asia/Seoul",
     "generator": "scripts/insurance/collect-carrier-disclosures.mjs",
     "input_product_probe": "data/insurance/latest_product_document_probe.json",
-    "output_version": "1.0",
+    "output_version": "1.1",
     "target_limit": 12,
     "max_documents_per_product": 5
   },
@@ -75,10 +75,12 @@
       "final_url": "https://www.samsunglife.com/",
       "content_type": "text/html",
       "charset": null,
-      "disclosure_record_count": 0,
-      "matched_product_count": 0,
+      "disclosure_record_count": 1,
+      "matched_product_count": 1,
       "notes": [
-        "삼성생명 대표 사이트는 상품공시가 JavaScript 앱 내부에 있을 수 있다."
+        "삼성생명 대표 사이트는 상품공시가 JavaScript 앱 내부에 있을 수 있다.",
+        "다이렉트 보험 문서 API에서 보험다모아 유입 상품의 통합약관 PDF 경로를 조회한다.",
+        "삼성생명 API search '삼성 인터넷 입원 건강보험(2601)(무배당,무해약환급금형)' returned 1 records."
       ]
     },
     {
@@ -132,10 +134,12 @@
       "final_url": "https://www.hi.co.kr/serviceAction.do?menuId=100932",
       "content_type": "text/html; charset=UTF-8",
       "charset": "utf-8",
-      "disclosure_record_count": 9,
-      "matched_product_count": 0,
+      "disclosure_record_count": 10,
+      "matched_product_count": 1,
       "notes": [
-        "상품공시 검색 화면은 JavaScript 검색 결과와 다운로드 버튼을 함께 사용한다."
+        "상품공시 검색 화면은 JavaScript 검색 결과와 다운로드 버튼을 함께 사용한다.",
+        "다이렉트 상품 페이지의 DH.json 상품 설명 API에서 약관 PDF 경로를 조회한다.",
+        "현대해상 API search '(무)현대해상다이렉트실손의료비보장보험(갱신형)(Hi2605)' returned 1 records."
       ]
     },
     {
@@ -160,10 +164,12 @@
       "final_url": "https://shinhanlife.co.kr/hp/cdhi0010.do",
       "content_type": "text/html; charset=utf-8",
       "charset": "utf-8",
-      "disclosure_record_count": 0,
-      "matched_product_count": 0,
+      "disclosure_record_count": 1,
+      "matched_product_count": 1,
       "notes": [
-        "대표 공시실 진입 페이지에서 상품공시 하위 경로를 추가 추적해야 한다."
+        "대표 공시실 진입 페이지에서 상품공시 하위 경로를 추가 추적해야 한다.",
+        "상품공시 화면의 wcms API에서 판매중 상품과 PDF 경로를 조회한다.",
+        "신한라이프생명 API search '신한SOL암보험' returned 1 records."
       ]
     }
   ],
@@ -176,13 +182,24 @@
       "e_insmarket_product_code": "L03C001000015",
       "official_product_url": "https://direct.samsunglife.com/damoa.eds?cid=di:insmarket:damoa:insmarket:240513",
       "carrier_disclosure_url": "https://www.samsunglife.com",
-      "result_status": "no_match",
-      "best_match_score": 0,
-      "matched_record_text": null,
-      "document_candidates": [],
-      "notes": [
-        "No disclosure row passed the product-name matching threshold."
-      ]
+      "result_status": "hashed",
+      "best_match_score": 1,
+      "matched_record_text": "삼성 인터넷 입원 건강보험(2601)(무배당,무해약환급금형) 기타_삼성 인터넷 입원 건강보험(2601)(무배당,무해약환급금형)_통합약관_20260101.pdf 65 삼성 인터넷 입원 건강보험 입원 건강보험 2601",
+      "document_candidates": [
+        {
+          "url": "https://direct.samsunglife.com/contents/policy_was/%EA%B8%B0%ED%83%80_%EC%82%BC%EC%84%B1%20%EC%9D%B8%ED%84%B0%EB%84%B7%20%EC%9E%85%EC%9B%90%20%EA%B1%B4%EA%B0%95%EB%B3%B4%ED%97%98(2601)(%EB%AC%B4%EB%B0%B0%EB%8B%B9,%EB%AC%B4%ED%95%B4%EC%95%BD%ED%99%98%EA%B8%89%EA%B8%88%ED%98%95)_%ED%86%B5%ED%95%A9%EC%95%BD%EA%B4%80_20260101.pdf",
+          "document_type": "terms",
+          "discovered_from": "https://direct.samsunglife.com/api/of/cm/document/getPolicyUrl",
+          "source_context": "기타_삼성 인터넷 입원 건강보험(2601)(무배당,무해약환급금형)_통합약관_20260101.pdf",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/pdf",
+          "content_length_bytes": 6151112,
+          "sha256": "ce40ecf0629246dd761d63c9badbc04d32e74839fce8a4d74176277b8e5d1363",
+          "retrieved_at": "2026-05-28T01:50:27.708+09:00"
+        }
+      ],
+      "notes": []
     },
     {
       "provider": "삼성화재",
@@ -206,7 +223,7 @@
           "content_type": "application/pdf",
           "content_length_bytes": 2519879,
           "sha256": "db0ed9738c9f59fbb28b678b910e0bdd3ef4bf08bdac52643c2e2dd167003415",
-          "retrieved_at": "2026-05-27T13:40:34.783+09:00"
+          "retrieved_at": "2026-05-28T01:50:28.654+09:00"
         }
       ],
       "notes": []
@@ -249,7 +266,7 @@
           "content_type": "application/pdf;charset=UTF-8",
           "content_length_bytes": 4970694,
           "sha256": "db24ea2e2dbf2f4200d0aabe86d92a26e0b3d4962e521f99a6ee35f901997074",
-          "retrieved_at": "2026-05-27T13:40:36.855+09:00"
+          "retrieved_at": "2026-05-28T01:50:30.620+09:00"
         },
         {
           "url": "https://www.idbins.com/cYakgwanDown.do?FilePath=InsProduct/%EC%82%AC%EB%B0%A9_31227(00)_20260506.pdf",
@@ -261,7 +278,7 @@
           "content_type": "application/pdf;charset=UTF-8",
           "content_length_bytes": 449198,
           "sha256": "3a7a855b44c2d58eb0845cb4031ce8e71e62241fbe3987a9c3895e5ecfb27019",
-          "retrieved_at": "2026-05-27T13:40:37.801+09:00"
+          "retrieved_at": "2026-05-28T01:50:31.074+09:00"
         },
         {
           "url": "https://www.idbins.com/cYakgwanDown.do?FilePath=InsProduct/%EC%9A%94%EC%95%BD_31227(00)_20260506.pdf",
@@ -273,7 +290,7 @@
           "content_type": "application/pdf;charset=UTF-8",
           "content_length_bytes": 352446,
           "sha256": "334fd0bd1c7d49e1729b8584eefbb7bd02cdb5112de6e8371357be09befc77ac",
-          "retrieved_at": "2026-05-27T13:40:38.063+09:00"
+          "retrieved_at": "2026-05-28T01:50:31.247+09:00"
         }
       ],
       "notes": []
@@ -286,13 +303,24 @@
       "e_insmarket_product_code": "N09G004000001G",
       "official_product_url": "https://mdirect.hi.co.kr/service.do?m=16baef8710&simpCalc=Y&embrYn=Y&utm_source=damoa&utm_medium=partner&utm_campaign=medical_mo&HDMS1=partner&HDMS2=damoa&HDMS3=damoa&HDMS4=medical_mo&inpath=e_sure_market",
       "carrier_disclosure_url": "https://www.hi.co.kr/bin/CI/ON/CION3200G.jsp",
-      "result_status": "no_match",
-      "best_match_score": 0,
-      "matched_record_text": null,
-      "document_candidates": [],
-      "notes": [
-        "No disclosure row passed the product-name matching threshold."
-      ]
+      "result_status": "hashed",
+      "best_match_score": 1,
+      "matched_record_text": "(무)현대해상다이렉트실손의료비보장보험(갱신형)(Hi2605) 12M2 현대해상다이렉트실손의료비보장보험 실손의료비보장보험 Hi2605 https://mdirect.hi.co.kr/dhNAS/terms/CM12M2_20260506.pdf",
+      "document_candidates": [
+        {
+          "url": "https://mdirect.hi.co.kr/dhNAS/terms/CM12M2_20260506.pdf",
+          "document_type": "terms",
+          "discovered_from": "https://mdirect.hi.co.kr/DH.json",
+          "source_context": "(무)현대해상다이렉트실손의료비보장보험(갱신형)(Hi2605) 상품약관",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/pdf",
+          "content_length_bytes": 4058773,
+          "sha256": "af92c7ee0f31d3aaf8eb4f05f9918b81795405bb51dbeb5346dbff910aea5f4a",
+          "retrieved_at": "2026-05-28T01:50:32.532+09:00"
+        }
+      ],
+      "notes": []
     },
     {
       "provider": "KB손보",
@@ -318,13 +346,48 @@
       "e_insmarket_product_code": "L11C009000006",
       "official_product_url": "https://s.shinhanlife.co.kr/sht/6Nf1STxRv62YxH2X1wZxjQYN2qx3K.cs",
       "carrier_disclosure_url": "https://shinhanlife.co.kr/hp/cdhi0010.do",
-      "result_status": "no_match",
-      "best_match_score": 0,
-      "matched_record_text": null,
-      "document_candidates": [],
-      "notes": [
-        "No disclosure row passed the product-name matching threshold."
-      ]
+      "result_status": "hashed",
+      "best_match_score": 0.85,
+      "matched_record_text": "신한라이프 인터넷모바일 보장 신한SOL암보험(무배당, 해약환급금 미지급형) 신한SOL암보험(무배당, 해약환급금 미지급형)_판매중_03 20260101000000 99991231235959",
+      "document_candidates": [
+        {
+          "url": "https://shinhanlife.co.kr/bizxpress/cdh/cdhi/gd/pr/__media/%EC%83%81%ED%92%88%EC%9A%94%EC%95%BD%EC%84%9C_%EC%8B%A0%ED%95%9CSOL%EC%95%94%EB%B3%B4%ED%97%98(%EB%AC%B4%EB%B0%B0%EB%8B%B9_%ED%95%B4%EC%95%BD%ED%99%98%EA%B8%89%EA%B8%88%20%EB%AF%B8%EC%A7%80%EA%B8%89%ED%98%95)_260101.pdf",
+          "document_type": "summary",
+          "discovered_from": "https://shinhanlife.co.kr/co/wcms/nodeInfoListPage.pwkjson",
+          "source_context": "신한SOL암보험(무배당, 해약환급금 미지급형) 상품요약서",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/pdf",
+          "content_length_bytes": 153356,
+          "sha256": "d557ed911adc877976863155e45fec5217ebfe485aed8f0c685797d0d7314c03",
+          "retrieved_at": "2026-05-28T01:50:32.994+09:00"
+        },
+        {
+          "url": "https://shinhanlife.co.kr/bizxpress/cdh/cdhi/gd/pr/__etc/%EC%82%AC%EC%97%85%EB%B0%A9%EB%B2%95%EC%84%9C_%EC%8B%A0%ED%95%9CSOL%EC%95%94%EB%B3%B4%ED%97%98(%EB%AC%B4%EB%B0%B0%EB%8B%B9,%20%ED%95%B4%EC%95%BD%ED%99%98%EA%B8%89%EA%B8%88%20%EB%AF%B8%EC%A7%80%EA%B8%89%ED%98%95)_260101.pdf",
+          "document_type": "business_method",
+          "discovered_from": "https://shinhanlife.co.kr/co/wcms/nodeInfoListPage.pwkjson",
+          "source_context": "신한SOL암보험(무배당, 해약환급금 미지급형) 사업방법서",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/pdf",
+          "content_length_bytes": 95659,
+          "sha256": "9aa1ed61e51a9c67a339430266f8551cd6739bcb48d725bf298e3742fe3797ea",
+          "retrieved_at": "2026-05-28T01:50:33.354+09:00"
+        },
+        {
+          "url": "https://shinhanlife.co.kr/bizxpress/cdh/cdhi/gd/pr/__etc/%ED%8C%90%EB%A7%A4%EC%95%BD%EA%B4%80_%EC%8B%A0%ED%95%9CSOL%EC%95%94%EB%B3%B4%ED%97%98(%EB%AC%B4%EB%B0%B0%EB%8B%B9,%20%ED%95%B4%EC%95%BD%ED%99%98%EA%B8%89%EA%B8%88%20%EB%AF%B8%EC%A7%80%EA%B8%89%ED%98%95)_260101.pdf",
+          "document_type": "terms",
+          "discovered_from": "https://shinhanlife.co.kr/co/wcms/nodeInfoListPage.pwkjson",
+          "source_context": "신한SOL암보험(무배당, 해약환급금 미지급형) 판매약관",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/pdf",
+          "content_length_bytes": 2940426,
+          "sha256": "fcd915ee2e5440cf9542711dabd1c3014a1f5f3efef9c0a1f8fc88ed7ca40ffa",
+          "retrieved_at": "2026-05-28T01:50:33.547+09:00"
+        }
+      ],
+      "notes": []
     }
   ],
   "qa": {
@@ -335,7 +398,7 @@
       "A product is seed-ready only after official document hash, sale status, premium basis, coverage_category, and risk_targets are approved."
     ],
     "next_actions": [
-      "Add carrier-specific JavaScript/API search adapters for Samsung Life, Hyundai Marine, KB Insurance, and Shinhan Life.",
+      "Add a KB Insurance document-download adapter for disclosure rows that expose product matches without direct PDF links.",
       "Create a review CSV from latest_official_sources_snapshot, latest_product_document_probe, and latest_carrier_disclosure_probe.",
       "Promote only hash-backed and human-approved products into service seed candidates."
     ]
