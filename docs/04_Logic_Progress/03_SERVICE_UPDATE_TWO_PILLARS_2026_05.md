@@ -1,9 +1,9 @@
 # [실행 전략] 두 기둥 기반 서비스 업데이트 계획
 > Created: 2026-05-27 02:55
-> Last Updated: 2026-05-28 19:28
+> Last Updated: 2026-05-28 20:55
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v2.5
+- **상태**: Draft v2.6
 - **범위**: 실제 보험상품 카탈로그 적용 준비, NEAR 기술 업데이트 적용 준비
 - **결론**: 서비스 적용의 두 기둥은 `실제 보험상품 탐색`과 `NEAR 프라이버시 기술 적용`이며, 두 영역은 결정론적 매칭 엔진으로 연결한다.
 
@@ -204,8 +204,9 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - [x] 보험다모아/보험사 페이지에서 나이·성별별 보험료 재조회 가능성 PoC 수행
 - [x] `monthly_premium_krw`와 `monthly_premium_usdc` 병행 저장 정책 결정: source row는 KRW, active 추천 발행 시 USDC 환산 기준 별도 승인
 - [x] `insurance_premium_quotes` Drizzle schema/migration 설계
+- [x] 백업 후 `0006_real_war_machine.sql` Turso DB migration 적용
 - [ ] 매칭 키워드가 정리된 실제 상품 snapshot 생성 및 기존 active demo 상품 교체
-- [ ] 백업 후 `0006_real_war_machine.sql` Turso DB migration 적용
+- [ ] P0 암보험/실손의료보험 quote row crawler 작성 및 raw row 적재
 - [ ] 실손의료보험 여성 조건 quote 파라미터 확인
 - [ ] HIRA 질병 통계를 `risk_targets` 근거 보강 자료로 연결
 
@@ -263,3 +264,4 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - **QA_Validation**: [Source-aware Seed DB Apply](../05_QA_Validation/11_SOURCE_AWARE_SEED_DB_APPLY_2026_05_28.md) - Turso DB seed 적용 결과와 row count 검증
 - **QA_Validation**: [Premium Quote Matrix PoC](../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md) - 나이/성별 조건별 보험료 재조회 가능성 검증
 - **QA_Validation**: [Premium Quotes Schema Migration](../05_QA_Validation/13_PREMIUM_QUOTES_SCHEMA_MIGRATION_2026_05_28.md) - `0006` migration 생성 검증
+- **QA_Validation**: [Premium Quotes DB Apply](../05_QA_Validation/14_PREMIUM_QUOTES_DB_APPLY_2026_05_28.md) - `0006` Turso DB 적용 검증

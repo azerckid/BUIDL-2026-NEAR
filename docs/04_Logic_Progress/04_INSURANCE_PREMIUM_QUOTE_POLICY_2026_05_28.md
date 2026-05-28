@@ -1,11 +1,11 @@
 # [정책] 조건별 보험료 Quote Matrix 관리 방침
 > Created: 2026-05-28 03:00
-> Last Updated: 2026-05-28 19:28
+> Last Updated: 2026-05-28 20:55
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v1.3
+- **상태**: Draft v1.4
 - **범위**: 보험다모아/보험사 공시에서 수집한 보험료의 해석, 조건별 보험료 matrix 수집, seed 승격 정책
-- **결론**: 현재 수집된 `premium_text`는 특정 비교 조건의 대표 보험료일 뿐이다. 2026-05-28 PoC에서 암보험과 일부 실손의료보험은 나이/성별 재조회 가능성이 확인됐고, 이를 저장할 `insurance_premium_quotes` schema/migration을 추가했다. 실제 quote row 적재와 운영 DB 적용은 별도 단계로 진행한다.
+- **결론**: 현재 수집된 `premium_text`는 특정 비교 조건의 대표 보험료일 뿐이다. 2026-05-28 PoC에서 암보험과 일부 실손의료보험은 나이/성별 재조회 가능성이 확인됐고, 이를 저장할 `insurance_premium_quotes` schema/migration을 운영 Turso DB에 적용했다. 실제 quote row 적재는 별도 단계로 진행한다.
 
 ---
 
@@ -153,8 +153,8 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 | 1 | source-aware seed 정책에 대표 보험료와 `premium_basis` 문구 반영 | 완료 |
 | 2 | 보험다모아/보험사 페이지에서 age/sex 파라미터 재조회 가능성 확인 | 부분 완료. 실손 여성 파라미터 후속 확인 필요 |
 | 3 | `insurance_premium_quotes` Drizzle schema와 migration 설계 | 완료. `0006_real_war_machine.sql` 생성 |
-| 4 | 백업 후 `0006` Turso DB migration 적용 | DB apply PR |
-| 5 | P0 상품 3~5개의 조건별 quote matrix 수집 | crawler PR |
+| 4 | 백업 후 `0006` Turso DB migration 적용 | 완료. DB table 생성 |
+| 5 | P0 상품 3~5개의 조건별 quote matrix 수집 | 다음 crawler PR |
 | 6 | UI에서 "대표 보험료"와 "조건별 예상 보험료"를 분리 표시 | UI PR |
 
 ---
@@ -182,3 +182,4 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 - **QA_Validation**: [Source-aware Seed Policy QA](../05_QA_Validation/10_SOURCE_AWARE_SEED_POLICY_2026_05_28.md) - 대표 보험료를 source row에만 보관한 검증 결과
 - **QA_Validation**: [Premium Quote Matrix PoC](../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md) - 조건별 보험료 재조회 가능성 검증 결과
 - **QA_Validation**: [Premium Quotes Schema Migration](../05_QA_Validation/13_PREMIUM_QUOTES_SCHEMA_MIGRATION_2026_05_28.md) - `insurance_premium_quotes` schema와 `0006` migration 검증
+- **QA_Validation**: [Premium Quotes DB Apply](../05_QA_Validation/14_PREMIUM_QUOTES_DB_APPLY_2026_05_28.md) - `0006` Turso DB 적용 검증

@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-28 19:28
+> Last Updated: 2026-05-28 20:55
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-28 (`insurance_premium_quotes` schema)
+- **최종 수정일**: 2026-05-28 (`insurance_premium_quotes` DB 적용)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v2.8
+- **상태**: Draft v2.9
 - **phase**: Phase 2
 
 ---
@@ -60,7 +60,7 @@
 
 | 트랙 | 핵심 질문 | 다음 작업 |
 |---|---|---|
-| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | `insurance_premium_quotes` schema/migration 생성 완료, 백업 후 `0006` DB 적용 준비 |
+| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | `insurance_premium_quotes` 운영 DB 적용 완료, P0 quote row crawler 준비 |
 | NEAR 프라이버시 기술 | IronClaw v0.28.2까지의 업데이트가 블로커 2~3을 해소하는가 | WIT-compatible WASM runtime, `tool_install`, WASM 실행 결과 반환 경로 실측 |
 | 매칭 브리지 | AI 해석과 DB 상품 추천의 경계를 어떻게 유지할 것인가 | `riskProfile.flags` -> `insurance_products.risk_targets` 결정론적 매칭 유지 |
 
@@ -71,7 +71,7 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 
 2026-05-28 source-aware seed 정책 PR에서는 7개 보험사, 7개 hash-backed 매칭 정리 후보, 12개 PDF 원문 hash를 `seed.ts`의 `insurance_carriers`, `insurance_product_sources`, `insurance_source_documents` 입력으로 반영했다. 2026-05-28 10:43 KST 기준 Turso DB에도 백업 후 seed 적용을 완료했고, 적용 검증은 `../05_QA_Validation/11_SOURCE_AWARE_SEED_DB_APPLY_2026_05_28.md`에 기록한다. 단, 실제 추천 상품으로 바로 발행할 수 있을 만큼 `coverage_category`, `risk_targets`, `matching_strategy`, caveat가 정리된 row는 0개이므로 모든 실제 상품 후보는 `review_status=needs_review`로 유지하고, 기존 active demo 상품 5개는 서비스 흐름 보존을 위해 남긴다. 매칭 키워드 정리 정책은 `../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md`, seed 정책 검증은 `../05_QA_Validation/10_SOURCE_AWARE_SEED_POLICY_2026_05_28.md`에 기록한다.
 
-2026-05-28 보험료 quote matrix PoC에서는 보험다모아 모바일 출처로 8개 source probe와 66개 quote row를 재조회했다. 암보험은 34세/44세 남성/여성 조건이 모두 조회됐고, 실손의료보험은 남성 34세/44세 조건에서 DB손보, KB손보, 삼성화재, 현대해상 상품의 보험료 변동이 확인됐다. 실손의료보험 여성 조건은 현재 `sexDiv=F`, `sex=F` 파라미터로 HTTP 500을 반환하므로 후속 확인이 필요하다. 이 PoC를 근거로 `insurance_premium_quotes` Drizzle schema와 `drizzle/0006_real_war_machine.sql` migration을 생성했다. 검증 결과는 `../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md`와 `../05_QA_Validation/13_PREMIUM_QUOTES_SCHEMA_MIGRATION_2026_05_28.md`, 산출물은 `../../data/insurance/latest_premium_quote_probe.json`에 기록한다. 다음 작업은 백업 후 `0006` Turso DB 적용, 실손 여성 파라미터 확인, P0 quote row crawler 작성이다.
+2026-05-28 보험료 quote matrix PoC에서는 보험다모아 모바일 출처로 8개 source probe와 66개 quote row를 재조회했다. 암보험은 34세/44세 남성/여성 조건이 모두 조회됐고, 실손의료보험은 남성 34세/44세 조건에서 DB손보, KB손보, 삼성화재, 현대해상 상품의 보험료 변동이 확인됐다. 실손의료보험 여성 조건은 현재 `sexDiv=F`, `sex=F` 파라미터로 HTTP 500을 반환하므로 후속 확인이 필요하다. 이 PoC를 근거로 `insurance_premium_quotes` Drizzle schema와 `drizzle/0006_real_war_machine.sql` migration을 생성했고, 2026-05-28 20:55 KST 기준 백업 후 Turso DB 적용까지 완료했다. 검증 결과는 `../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md`, `../05_QA_Validation/13_PREMIUM_QUOTES_SCHEMA_MIGRATION_2026_05_28.md`, `../05_QA_Validation/14_PREMIUM_QUOTES_DB_APPLY_2026_05_28.md`에 기록한다. 다음 작업은 실손 여성 파라미터 확인과 P0 quote row crawler 작성이다.
 
 ## 2. 세부 실행 계획 (Detailed Execution)
 
@@ -1128,6 +1128,7 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 - [Source-aware Seed DB 적용 검증](../05_QA_Validation/11_SOURCE_AWARE_SEED_DB_APPLY_2026_05_28.md)
 - [보험료 Quote Matrix 재조회 PoC](../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md)
 - [보험료 Quote Schema Migration 검증](../05_QA_Validation/13_PREMIUM_QUOTES_SCHEMA_MIGRATION_2026_05_28.md)
+- [보험료 Quote DB Migration 0006 적용 검증](../05_QA_Validation/14_PREMIUM_QUOTES_DB_APPLY_2026_05_28.md)
 - [보험상품 매칭 키워드 정리 정책](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md)
 - [AI 매칭 파이프라인](./AI_MATCHING_PIPELINE.md)
 - [두 기둥 기반 서비스 업데이트 계획](./03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md)
