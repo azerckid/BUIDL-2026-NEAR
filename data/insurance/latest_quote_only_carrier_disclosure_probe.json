@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-05-29T01:49:10.998+09:00",
+    "generated_at": "2026-05-29T02:26:24.721+09:00",
     "timezone": "Asia/Seoul",
     "generator": "scripts/insurance/collect-carrier-disclosures.mjs",
     "input_product_probe": "data/insurance/latest_quote_only_product_document_probe.json",
@@ -92,6 +92,22 @@
   ],
   "carrier_pages": [
     {
+      "provider": "교보라이프플래닛",
+      "source_url": "https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev",
+      "content_type": "text/html; charset=UTF-8",
+      "charset": "utf-8",
+      "disclosure_record_count": 2,
+      "matched_product_count": 2,
+      "notes": [
+        "공시실 HPDA01S0 화면의 ProdMainList JSON에서 판매중 상품과 문서 파일명을 조회한다.",
+        "공식 문서는 /common/file/FileDownload.dev의 fileName/downloadPathType query로 다운로드한다.",
+        "교보라이프플래닛 API search '(무)교보라플 비갱신암보험' returned 1 records."
+      ]
+    },
+    {
       "provider": "신한라이프생명",
       "source_url": "https://shinhanlife.co.kr/hp/cdhi0010.do",
       "page_status": "accessible",
@@ -178,14 +194,49 @@
       "premium_text": "8,410원",
       "e_insmarket_product_code": "L43C009000022",
       "official_product_url": "https://m.lifeplanet.co.kr:444/lpds2/insurance/protection-cancer-insurance.dev",
-      "carrier_disclosure_url": null,
-      "result_status": "no_profile",
-      "best_match_score": 0,
-      "matched_record_text": null,
-      "document_candidates": [],
-      "notes": [
-        "No carrier disclosure profile is configured for this provider."
-      ]
+      "carrier_disclosure_url": "https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev",
+      "result_status": "hashed",
+      "best_match_score": 1,
+      "matched_record_text": "(무)교보라플 비갱신암보험 (무)교보라플비갱신암보험 10054 1005409 판매중 20260401 99991231 교보라플 비갱신암보험 비갱신암보험 해약환급금 미지급형 비흡연체 표준체",
+      "document_candidates": [
+        {
+          "url": "https://www.lifeplanet.co.kr/common/file/FileDownload.dev?fileName=20260401_10054_01.pdf&downloadPathType=1",
+          "document_type": "summary",
+          "discovered_from": "https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev",
+          "source_context": "(무)교보라플비갱신암보험 상품요약서",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/octet-stream;charset=UTF-8",
+          "content_length_bytes": 923678,
+          "sha256": "00e46751ef624c207f8a6aebee3b5768585216d8aeeecddf16b7d4c7bd947780",
+          "retrieved_at": "2026-05-29T02:26:16.737+09:00"
+        },
+        {
+          "url": "https://www.lifeplanet.co.kr/common/file/FileDownload.dev?fileName=20260401_10054_02.pdf&downloadPathType=2",
+          "document_type": "business_method",
+          "discovered_from": "https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev",
+          "source_context": "(무)교보라플비갱신암보험 사업방법서",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/octet-stream;charset=UTF-8",
+          "content_length_bytes": 203145,
+          "sha256": "7ab6f8dd927ef2b2ea95607f483cf8b6e34fe4a8c6d5844424515afc18c1cff2",
+          "retrieved_at": "2026-05-29T02:26:17.667+09:00"
+        },
+        {
+          "url": "https://www.lifeplanet.co.kr/common/file/FileDownload.dev?fileName=20260401_10054_03.pdf&downloadPathType=0",
+          "document_type": "terms",
+          "discovered_from": "https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev",
+          "source_context": "(무)교보라플비갱신암보험 보험약관",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/octet-stream;charset=UTF-8",
+          "content_length_bytes": 3474212,
+          "sha256": "a61c106f431fb98cf4d839694a1f02d282173b5732aefa62b08e17f47afaa30a",
+          "retrieved_at": "2026-05-29T02:26:19.886+09:00"
+        }
+      ],
+      "notes": []
     },
     {
       "provider": "교보라이프플래닛",
@@ -194,14 +245,49 @@
       "premium_text": "8,490원",
       "e_insmarket_product_code": "L43C009000019",
       "official_product_url": "https://m.lifeplanet.co.kr:444/lpds2/insurance/protection-cancer-insurance.dev",
-      "carrier_disclosure_url": null,
-      "result_status": "no_profile",
-      "best_match_score": 0,
-      "matched_record_text": null,
-      "document_candidates": [],
-      "notes": [
-        "No carrier disclosure profile is configured for this provider."
-      ]
+      "carrier_disclosure_url": "https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev",
+      "result_status": "hashed",
+      "best_match_score": 1,
+      "matched_record_text": "(무)교보라플 비갱신암보험 (무)교보라플비갱신암보험 10054 1005409 판매중 20260401 99991231 교보라플 비갱신암보험 비갱신암보험 해약환급금 미지급형 비흡연체 표준체",
+      "document_candidates": [
+        {
+          "url": "https://www.lifeplanet.co.kr/common/file/FileDownload.dev?fileName=20260401_10054_01.pdf&downloadPathType=1",
+          "document_type": "summary",
+          "discovered_from": "https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev",
+          "source_context": "(무)교보라플비갱신암보험 상품요약서",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/octet-stream;charset=UTF-8",
+          "content_length_bytes": 923678,
+          "sha256": "00e46751ef624c207f8a6aebee3b5768585216d8aeeecddf16b7d4c7bd947780",
+          "retrieved_at": "2026-05-29T02:26:20.682+09:00"
+        },
+        {
+          "url": "https://www.lifeplanet.co.kr/common/file/FileDownload.dev?fileName=20260401_10054_02.pdf&downloadPathType=2",
+          "document_type": "business_method",
+          "discovered_from": "https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev",
+          "source_context": "(무)교보라플비갱신암보험 사업방법서",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/octet-stream;charset=UTF-8",
+          "content_length_bytes": 203145,
+          "sha256": "7ab6f8dd927ef2b2ea95607f483cf8b6e34fe4a8c6d5844424515afc18c1cff2",
+          "retrieved_at": "2026-05-29T02:26:21.224+09:00"
+        },
+        {
+          "url": "https://www.lifeplanet.co.kr/common/file/FileDownload.dev?fileName=20260401_10054_03.pdf&downloadPathType=0",
+          "document_type": "terms",
+          "discovered_from": "https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev",
+          "source_context": "(무)교보라플비갱신암보험 보험약관",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/octet-stream;charset=UTF-8",
+          "content_length_bytes": 3474212,
+          "sha256": "a61c106f431fb98cf4d839694a1f02d282173b5732aefa62b08e17f47afaa30a",
+          "retrieved_at": "2026-05-29T02:26:22.871+09:00"
+        }
+      ],
+      "notes": []
     },
     {
       "provider": "미래에셋생명",
@@ -257,7 +343,7 @@
           "content_type": "application/pdf",
           "content_length_bytes": 153356,
           "sha256": "d557ed911adc877976863155e45fec5217ebfe485aed8f0c685797d0d7314c03",
-          "retrieved_at": "2026-05-29T01:49:10.156+09:00"
+          "retrieved_at": "2026-05-29T02:26:23.714+09:00"
         },
         {
           "url": "https://shinhanlife.co.kr/bizxpress/cdh/cdhi/gd/pr/__etc/%EC%82%AC%EC%97%85%EB%B0%A9%EB%B2%95%EC%84%9C_%EC%8B%A0%ED%95%9CSOL%EC%95%94%EB%B3%B4%ED%97%98(%EB%AC%B4%EB%B0%B0%EB%8B%B9,%20%ED%95%B4%EC%95%BD%ED%99%98%EA%B8%89%EA%B8%88%20%EB%AF%B8%EC%A7%80%EA%B8%89%ED%98%95)_260101.pdf",
@@ -269,7 +355,7 @@
           "content_type": "application/pdf",
           "content_length_bytes": 95659,
           "sha256": "9aa1ed61e51a9c67a339430266f8551cd6739bcb48d725bf298e3742fe3797ea",
-          "retrieved_at": "2026-05-29T01:49:10.242+09:00"
+          "retrieved_at": "2026-05-29T02:26:24.194+09:00"
         },
         {
           "url": "https://shinhanlife.co.kr/bizxpress/cdh/cdhi/gd/pr/__etc/%ED%8C%90%EB%A7%A4%EC%95%BD%EA%B4%80_%EC%8B%A0%ED%95%9CSOL%EC%95%94%EB%B3%B4%ED%97%98(%EB%AC%B4%EB%B0%B0%EB%8B%B9,%20%ED%95%B4%EC%95%BD%ED%99%98%EA%B8%89%EA%B8%88%20%EB%AF%B8%EC%A7%80%EA%B8%89%ED%98%95)_260101.pdf",
@@ -281,7 +367,7 @@
           "content_type": "application/pdf",
           "content_length_bytes": 2940426,
           "sha256": "fcd915ee2e5440cf9542711dabd1c3014a1f5f3efef9c0a1f8fc88ed7ca40ffa",
-          "retrieved_at": "2026-05-29T01:49:10.997+09:00"
+          "retrieved_at": "2026-05-29T02:26:24.718+09:00"
         }
       ],
       "notes": []
@@ -327,9 +413,9 @@
       "A product is seed-ready only after official document hash, sale status, premium basis, coverage_category, and risk_targets are approved."
     ],
     "next_actions": [
-      "Add a KB Insurance document-download adapter for disclosure rows that expose product matches without direct PDF links.",
-      "Create a review CSV from latest_official_sources_snapshot, latest_product_document_probe, and latest_carrier_disclosure_probe.",
-      "Promote only hash-backed and human-approved products into service seed candidates."
+      "Add carrier-specific disclosure adapters for quote-only products that still have no profile.",
+      "Manually verify the document variants for KDB Life, Hanwha Life, Shinhan Life, and Lifeplanet before source-document seeding.",
+      "Promote only hash-backed and matching-keyword-reviewed products into service seed candidates."
     ]
   }
 }

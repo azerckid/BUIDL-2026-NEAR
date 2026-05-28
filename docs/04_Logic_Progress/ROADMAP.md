@@ -1,9 +1,9 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-29 01:55
+> Last Updated: 2026-05-29 02:26
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-29 (quote-only source 공식 문서 probe 1차)
+- **최종 수정일**: 2026-05-29 (교보라이프플래닛 carrier adapter 검증)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v3.5
 - **phase**: Phase 2
@@ -60,7 +60,7 @@
 
 | 트랙 | 핵심 질문 | 다음 작업 |
 |---|---|---|
-| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | quote-only 후보 15개 공식 문서 probe 1차 완료, 다음은 미확보 carrier adapter 보강 |
+| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | 교보라이프플래닛 adapter로 2개 후보/6개 hash 추가 확보, 다음은 variant 검수와 미확보 carrier adapter 보강 |
 | NEAR 프라이버시 기술 | IronClaw v0.28.2까지의 업데이트가 블로커 2~3을 해소하는가 | WIT-compatible WASM runtime, `tool_install`, WASM 실행 결과 반환 경로 실측 |
 | 매칭 브리지 | AI 해석과 DB 상품 추천의 경계를 어떻게 유지할 것인가 | `riskProfile.flags` -> `insurance_products.risk_targets` 결정론적 매칭 유지 |
 
@@ -73,7 +73,9 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 
 2026-05-28 보험료 quote matrix PoC에서는 보험다모아 모바일 출처로 8개 source probe와 66개 quote row를 재조회했다. 암보험은 34세/44세 남성/여성 조건이 모두 조회됐고, 실손의료보험은 남성 34세/44세 조건에서 DB손보, KB손보, 삼성화재, 현대해상 상품의 보험료 변동이 확인됐다. 이후 실손의료보험 여성 조건은 모바일 폼 기준 성별 코드가 `F`가 아니라 `L`임을 확인해 HTTP 500을 해소했다. 최신 probe는 8개 source 모두 HTTP 200, 84개 raw quote row를 생성하며, 2026-05-29 기준 84건 전부 `insurance_premium_quotes.review_status=needs_review` 상태로 Turso DB에 적재했다. 검증 결과는 `../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md`, `../05_QA_Validation/13_PREMIUM_QUOTES_SCHEMA_MIGRATION_2026_05_28.md`, `../05_QA_Validation/14_PREMIUM_QUOTES_DB_APPLY_2026_05_28.md`, `../05_QA_Validation/15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md`, `../05_QA_Validation/17_MEDICAL_FEMALE_QUOTE_PARAMS_2026_05_28.md`, `../05_QA_Validation/18_SOURCE_CATALOG_QUOTE_EXPANSION_2026_05_29.md`, `../05_QA_Validation/19_SOURCE_CATALOG_QUOTE_DB_APPLY_2026_05_29.md`에 기록한다. 다음 작업은 quote-only raw source 15개의 공식 문서 hash 확보와 매칭 키워드 정리다.
 
-2026-05-29 01:55 KST 기준 quote-only raw source 15개에 대해 product-code 기반 공식 상품 페이지 probe를 수행했다. 15개 중 12개는 공식 상품 URL이 있었고, 상품 페이지 직접 probe로 한화생명 비흡연체형과 KDB생명 다이렉트 암보험에서 5개 PDF hash를 확보했다. 기존 carrier disclosure crawler를 연결하면 신한라이프 표준형 후보에서 3개 hash가 추가로 나오지만 match score 0.5라 variant 확인이 필요하다. 결과는 `../../data/insurance/latest_quote_only_product_document_probe.json`, `../../data/insurance/latest_quote_only_carrier_disclosure_probe.json`, `../05_QA_Validation/20_QUOTE_ONLY_SOURCE_DOCUMENT_PROBE_2026_05_29.md`에 기록한다. 다음 작업은 미확보 12개 후보를 위한 carrier별 공시/API adapter 보강이다.
+2026-05-29 01:55 KST 기준 quote-only raw source 15개에 대해 product-code 기반 공식 상품 페이지 probe를 수행했다. 15개 중 12개는 공식 상품 URL이 있었고, 상품 페이지 직접 probe로 한화생명 비흡연체형과 KDB생명 다이렉트 암보험에서 5개 PDF hash를 확보했다. 기존 carrier disclosure crawler를 연결하면 신한라이프 표준형 후보에서 3개 hash가 추가로 나오지만 match score 0.5라 variant 확인이 필요하다. 결과는 `../../data/insurance/latest_quote_only_product_document_probe.json`, `../../data/insurance/latest_quote_only_carrier_disclosure_probe.json`, `../05_QA_Validation/20_QUOTE_ONLY_SOURCE_DOCUMENT_PROBE_2026_05_29.md`에 기록한다.
+
+2026-05-29 02:26 KST 기준 교보라이프플래닛 공시실 `HPDA01S0` adapter를 추가했다. 교보라플 비갱신암보험 quote-only 후보 2개(`L43C009000022`, `L43C009000019`)가 match score 1.0으로 상품요약서, 사업방법서, 보험약관 hash를 확보했고, carrier disclosure probe의 hashed document는 3개에서 9개로 늘었다. 전체 quote-only 공식 문서 근거는 상품 페이지 hash 5개와 carrier disclosure hash 9개다. 다만 한화생명, KDB생명, 신한라이프, 교보라이프플래닛 모두 seed 적용 전 상품 variant와 매칭 키워드 검수가 필요하다. 검증은 `../05_QA_Validation/21_LIFEPLANET_DISCLOSURE_ADAPTER_2026_05_29.md`에 기록한다. 다음 작업은 variant 검수와 농협손보, 메리츠화재, 흥국화재, 미래에셋생명, 한화손보, DB생명 adapter 보강이다.
 
 ## 2. 세부 실행 계획 (Detailed Execution)
 
