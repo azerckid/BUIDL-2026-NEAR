@@ -230,6 +230,62 @@ async function countPremiumQuotes(client) {
   return Number(result.rows[0]?.count ?? 0);
 }
 
+async function fetchExistingQuoteKeys(client) {
+  const result = await client.execute(`
+    SELECT
+      product_source_id,
+      age,
+      sex,
+      source_sex_code,
+      payment_cycle,
+      premium_text,
+      monthly_premium_krw,
+      quote_params_json
+    FROM insurance_premium_quotes
+  `);
+
+  return new Set(result.rows.map(toExistingQuoteKey));
+}
+
+function keyValue(value) {
+  return value === null || value === undefined ? "" : String(value);
+}
+
+function toQuoteKey({
+  productSourceId,
+  age,
+  sex,
+  sourceSexCode,
+  paymentCycle,
+  premiumText,
+  monthlyPremiumKrw,
+  quoteParamsJson,
+}) {
+  return [
+    productSourceId,
+    age,
+    sex,
+    sourceSexCode,
+    paymentCycle,
+    premiumText,
+    monthlyPremiumKrw,
+    quoteParamsJson,
+  ].map(keyValue).join("|");
+}
+
+function toExistingQuoteKey(row) {
+  return [
+    row.product_source_id,
+    row.age,
+    row.sex,
+    row.source_sex_code,
+    row.payment_cycle,
+    row.premium_text,
+    row.monthly_premium_krw,
+    row.quote_params_json,
+  ].map(keyValue).join("|");
+}
+
 function buildQuoteRows(probe, sourceRows) {
   const conditionsById = new Map(
     probe.conditions.map((condition) => [condition.condition_id, condition]),
@@ -386,6 +442,8 @@ function buildSummary({
   probe,
   sourceRows,
   mappedRows,
+  semanticDuplicateRows,
+  insertRows,
   skippedRows,
   tableCountBefore,
   tableCountAfter,
@@ -407,6 +465,8 @@ function buildSummary({
     quote_rows: {
       source_total: probe.quote_rows.length,
       matched_total: mappedRows.length,
+      semantic_duplicate_total: semanticDuplicateRows.length,
+      insert_candidate_total: insertRows.length,
       skipped_total: skippedRows.length,
       skipped_by_reason: groupByReason(skippedRows),
       inserted_rows: insertedRows,
@@ -460,14 +520,21 @@ async function main() {
   const probe = await readProbe(inputPath);
   const sourceRows = await fetchSourceRows(client);
   const { mappedRows, skippedRows } = buildQuoteRows(probe, sourceRows);
+  const existingQuoteKeys = await fetchExistingQuoteKeys(client);
+  const semanticDuplicateRows = mappedRows.filter((row) =>
+    existingQuoteKeys.has(toQuoteKey(row)),
+  );
+  const insertRows = mappedRows.filter((row) => !existingQuoteKeys.has(toQuoteKey(row)));
   const tableCountBefore = await countPremiumQuotes(client);
-  const insertedRows = args.apply ? await insertQuoteRows(client, mappedRows) : 0;
+  const insertedRows = args.apply ? await insertQuoteRows(client, insertRows) : 0;
   const tableCountAfter = await countPremiumQuotes(client);
   const summary = buildSummary({
     args,
     probe,
     sourceRows,
     mappedRows,
+    semanticDuplicateRows,
+    insertRows,
     skippedRows,
     tableCountBefore,
     tableCountAfter,
@@ -479,6 +546,8 @@ async function main() {
   console.log(`Mode: ${summary.metadata.mode}`);
   console.log(`Probe quote rows: ${summary.quote_rows.source_total}`);
   console.log(`Matched source rows: ${summary.quote_rows.matched_total}`);
+  console.log(`Semantic duplicates: ${summary.quote_rows.semantic_duplicate_total}`);
+  console.log(`Insert candidates: ${summary.quote_rows.insert_candidate_total}`);
   console.log(`Skipped rows: ${summary.quote_rows.skipped_total}`);
   console.log(`Inserted rows: ${summary.quote_rows.inserted_rows}`);
   console.log(`Table count: ${summary.quote_rows.table_count_before} -> ${summary.quote_rows.table_count_after}`);

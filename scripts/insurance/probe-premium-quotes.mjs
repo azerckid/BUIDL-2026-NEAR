@@ -25,7 +25,8 @@ const CONDITIONS = [
     age: 34,
     sex: "female",
     cancerSexCode: "2",
-    medicalSexCode: "F",
+    // 보험다모아 모바일 실손의료보험 성별 버튼은 여자 값을 "L"로 submit한다.
+    medicalSexCode: "L",
   },
   {
     conditionId: "age44_male",
@@ -39,7 +40,8 @@ const CONDITIONS = [
     age: 44,
     sex: "female",
     cancerSexCode: "2",
-    medicalSexCode: "F",
+    // 보험다모아 모바일 실손의료보험 성별 버튼은 여자 값을 "L"로 submit한다.
+    medicalSexCode: "L",
   },
 ];
 
@@ -514,8 +516,8 @@ async function main() {
         "보장금액, 납입기간, 특약 조합은 이번 PoC에서 아직 재조회하지 않았다.",
       ],
       next_actions: [
-        "insurance_premium_quotes schema에 age, sex, source_sex_code, premium_text, monthly_premium_krw, quote_params_json을 반영한다.",
-        "P0 source 후보 중 암보험과 실손의료보험부터 조건별 quote matrix를 수집한다.",
+        "수집된 quote row를 백업 후 insurance_premium_quotes에 needs_review 상태로 적재한다.",
+        "실손의료보험 가입담보 A/B 외 E~J 특약 조합은 별도 quote dimension으로 확장한다.",
         "사용자 UI에서는 대표 보험료와 조건별 예상 보험료를 분리해서 표시한다.",
       ],
     },
