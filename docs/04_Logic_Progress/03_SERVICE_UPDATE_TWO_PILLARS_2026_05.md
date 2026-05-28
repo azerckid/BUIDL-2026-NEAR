@@ -1,9 +1,9 @@
 # [실행 전략] 두 기둥 기반 서비스 업데이트 계획
 > Created: 2026-05-27 02:55
-> Last Updated: 2026-05-28 10:43
+> Last Updated: 2026-05-28 15:02
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v2.3
+- **상태**: Draft v2.4
 - **범위**: 실제 보험상품 카탈로그 적용 준비, NEAR 기술 업데이트 적용 준비
 - **결론**: 서비스 적용의 두 기둥은 `실제 보험상품 탐색`과 `NEAR 프라이버시 기술 적용`이며, 두 영역은 결정론적 매칭 엔진으로 연결한다.
 
@@ -58,6 +58,7 @@
 - 매칭 키워드 정리 전 상품은 `insurance_products`의 active 추천 row가 아니라 `insurance_product_sources`와 `insurance_source_documents`에 먼저 보관한다.
 - 여기서 말하는 정리는 보험상품의 외부 승인이나 품질 심사가 아니라, DNA risk target과 연결할 `coverage_category`, `risk_targets`, `matching_strategy`, caveat를 정리하는 작업이다.
 - 현재 hash-backed 7개 상품은 모두 `review_status=needs_review`로 보관하며, 기존 active demo 상품은 실제 상품의 매칭 키워드 정리 완료 전까지 서비스 흐름 보존용으로 유지한다.
+- 2026-05-28 quote matrix PoC에서 암보험은 나이/성별 재조회, 실손의료보험은 남성 나이별 재조회가 가능함을 확인했다. 실손의료보험 여성 조건은 현재 파라미터로 HTTP 500을 반환하므로 후속 확인이 필요하다.
 
 ### 3-3. 구현된 스키마 확장
 
@@ -200,9 +201,10 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - [x] source-aware seed 후보 발행 정책 확정 및 `seed.ts` 출처 후보 반영
 - [x] 매칭 키워드 정리 정책 문서화 (`03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md`)
 - [x] source-aware seed Turso DB 적용 및 row count 검증
+- [x] 보험다모아/보험사 페이지에서 나이·성별별 보험료 재조회 가능성 PoC 수행
+- [x] `monthly_premium_krw`와 `monthly_premium_usdc` 병행 저장 정책 결정: source row는 KRW, active 추천 발행 시 USDC 환산 기준 별도 승인
 - [ ] 매칭 키워드가 정리된 실제 상품 snapshot 생성 및 기존 active demo 상품 교체
-- [ ] `monthly_premium_krw`와 `monthly_premium_usdc` 병행 저장 여부 결정
-- [ ] 보험다모아/보험사 페이지에서 나이·성별별 보험료 재조회 가능성 PoC 수행
+- [ ] 실손의료보험 여성 조건 quote 파라미터 확인
 - [ ] `insurance_premium_quotes` Drizzle schema/migration 설계
 - [ ] HIRA 질병 통계를 `risk_targets` 근거 보강 자료로 연결
 
@@ -258,3 +260,4 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - **QA_Validation**: [Hash-backed Matching Keyword Review](../05_QA_Validation/08_HASH_BACKED_PRODUCT_MANUAL_REVIEW_2026_05_27.md) - hash-backed 7개 상품 매칭 키워드 정리 결과와 추천 미노출 사유
 - **QA_Validation**: [Source-aware Seed Policy QA](../05_QA_Validation/10_SOURCE_AWARE_SEED_POLICY_2026_05_28.md) - seed 후보 반영 방식과 노출 차단 검증
 - **QA_Validation**: [Source-aware Seed DB Apply](../05_QA_Validation/11_SOURCE_AWARE_SEED_DB_APPLY_2026_05_28.md) - Turso DB seed 적용 결과와 row count 검증
+- **QA_Validation**: [Premium Quote Matrix PoC](../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md) - 나이/성별 조건별 보험료 재조회 가능성 검증
