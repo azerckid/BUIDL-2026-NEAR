@@ -1,11 +1,11 @@
 # [기술 명세] 데이터 모델 및 DB 스키마 상세 명세
 > Created: 2026-04-01 00:00
-> Last Updated: 2026-05-28 00:55
+> Last Updated: 2026-05-28 19:28
 
 - **작성일**: 2026-04-01
 - **최종 수정일**: 2026-05-28
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.0
+- **상태**: Draft v1.1
 
 ---
 
@@ -30,6 +30,12 @@ user_profiles (1)
     ├──< recommendation_carts (N)
     │        │
     │        └──< transactions (1)
+    │
+insurance_carriers (1)
+    ├──< insurance_product_sources (N)
+    │        ├──< insurance_source_documents (N)
+    │        ├──< insurance_premium_quotes (N)
+    │        └──< insurance_products (0..N)
     │
 insurance_products (N) >──< recommendation_carts (N:M, via cart_items JSON)
 ```
@@ -92,6 +98,7 @@ export const userProfileInsertSchema = z.object({
 플랫폼이 취급하는 보험 상품 카탈로그. 보험사로부터 수집하거나 수동 등록한 상품 목록.
 
 > 2026-05-27 기준 이 섹션은 현재 구현된 v1 스키마다. 실제 한국 보험상품 공시자료, PDF hash, KRW 보험료, 실손의료보험을 반영하는 확장안은 `02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md`를 기준으로 한다.
+> 2026-05-28 기준 조건별 보험료 matrix 저장을 위한 `insurance_premium_quotes` 테이블과 `0006_real_war_machine.sql` migration을 추가했다.
 
 | 컬럼명 | 타입 | 제약 | 설명 |
 |---|---|---|---|
@@ -163,6 +170,46 @@ export const insuranceProductInsertSchema = z.object({
   createdAt: z.number().int().positive(),
 });
 ```
+
+---
+
+### 2-2a. `insurance_premium_quotes`
+
+보험다모아/보험사 quote 재조회 결과를 조건별 raw row로 저장하는 테이블이다. 대표 보험료 snapshot인 `insurance_products.monthly_premium_krw`와 분리해, 나이·성별·납입기간·보장금액·특약 조합별 보험료를 보존한다.
+
+| 컬럼명 | 타입 | 제약 | 설명 |
+|---|---|---|---|
+| `id` | TEXT | PK | quote row ID |
+| `product_source_id` | TEXT | FK → insurance_product_sources | 원천 상품 |
+| `carrier_id` | TEXT | FK → insurance_carriers | 보험사 |
+| `age` | INTEGER | NULLABLE | 조회 기준 나이 |
+| `sex` | TEXT | NULLABLE | `male` \| `female` \| `source_unknown` |
+| `source_sex_code` | TEXT | NULLABLE | 원문 성별 파라미터 |
+| `payment_cycle` | TEXT | NULLABLE | 월납, 연납 등 |
+| `payment_period_years` | INTEGER | NULLABLE | 납입기간 |
+| `insurance_period_years` | INTEGER | NULLABLE | 보험기간 |
+| `coverage_amount_krw` | INTEGER | NULLABLE | 기준 가입금액 또는 보장금액 |
+| `plan_name` | TEXT | NULLABLE | 플랜명 |
+| `renewal_type` | TEXT | NULLABLE | 갱신형, 비갱신형, 혼합 |
+| `riders_json` | TEXT | NULLABLE | 특약 조합 JSON |
+| `premium_currency` | TEXT | NOT NULL, DEFAULT `KRW` | 보험료 통화 |
+| `monthly_premium_krw` | INTEGER | NULLABLE | 조건별 월 보험료 |
+| `premium_text` | TEXT | NULLABLE | 원문 표시값 |
+| `quote_source_type` | TEXT | NOT NULL | `e_insmarket`, `carrier_quote`, `association`, `manual` |
+| `quote_source_url` | TEXT | NULLABLE | 조회 URL |
+| `quote_params_json` | TEXT | NULLABLE | 조회 파라미터 원문 JSON |
+| `quote_hash_sha256` | TEXT | NULLABLE | 응답 또는 가격 원문 SHA-256 |
+| `retrieved_at` | INTEGER | NOT NULL | 조회 시각 |
+| `review_status` | TEXT | NOT NULL, DEFAULT `raw` | `raw`, `needs_review`, `approved`, `rejected` |
+| `created_at` | INTEGER | NOT NULL | 생성 시각 |
+
+인덱스:
+
+| 인덱스 | 컬럼 | 목적 |
+|---|---|---|
+| `premium_quotes_product_condition_idx` | `product_source_id`, `age`, `sex` | 특정 상품의 조건별 가격 조회 |
+| `premium_quotes_product_review_idx` | `product_source_id`, `review_status` | 승인된 quote만 노출 |
+| `premium_quotes_hash_idx` | `quote_hash_sha256` | 응답 중복/변경 추적 |
 
 ---
 
@@ -517,3 +564,5 @@ export const SEED_PRODUCTS = [
 - [AI 매칭 파이프라인](../04_Logic_Progress/AI_MATCHING_PIPELINE.md)
 - [NEAR 프라이버시 아키텍처](./NEAR_PRIVACY_STACK_ARCH.md)
 - [보험상품 카탈로그 스키마 확장안](./02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md)
+- [조건별 보험료 Quote Matrix 관리 방침](../04_Logic_Progress/04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md)
+- [보험료 Quote Matrix 재조회 PoC](../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md)

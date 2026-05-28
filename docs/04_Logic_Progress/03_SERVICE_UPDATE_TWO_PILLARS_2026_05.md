@@ -1,9 +1,9 @@
 # [실행 전략] 두 기둥 기반 서비스 업데이트 계획
 > Created: 2026-05-27 02:55
-> Last Updated: 2026-05-28 15:02
+> Last Updated: 2026-05-28 19:28
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v2.4
+- **상태**: Draft v2.5
 - **범위**: 실제 보험상품 카탈로그 적용 준비, NEAR 기술 업데이트 적용 준비
 - **결론**: 서비스 적용의 두 기둥은 `실제 보험상품 탐색`과 `NEAR 프라이버시 기술 적용`이며, 두 영역은 결정론적 매칭 엔진으로 연결한다.
 
@@ -51,7 +51,7 @@
 - 상품명, 보험사, 보장 카테고리, 월 보험료 기준, 출처 URL, 확인일을 함께 기록한다.
 - 보험료는 원 출처의 KRW 기준을 보존하고, `monthly_premium_usdc`는 화면 및 결제 데모를 위한 환산값으로 취급한다.
 - 가입 조건은 상품별로 다르므로 데모 단계에서는 `premium_basis`를 문서화한다. 예: 40세 남성, 월납, 20년납, 갱신형 여부.
-- 나이, 성별, 납입기간, 보장금액별 보험료 변화는 대표 상품 row에 넣지 않고 향후 `insurance_premium_quotes` table로 분리한다.
+- 나이, 성별, 납입기간, 보장금액별 보험료 변화는 대표 상품 row에 넣지 않고 `insurance_premium_quotes` table로 분리한다.
 - seed PR에서는 대표 보험료를 "공식 비교 조건 기준 예시 보험료"로만 표시하고, 개인 맞춤 확정 견적으로 표현하지 않는다.
 - `coverage_category`는 기존 enum인 `oncology`, `cardiovascular`, `metabolic`, `neurological`에 우선 매핑한다.
 - `risk_targets`는 유전자 위험 플래그와 직접 매칭되는 키만 넣는다. 상품 설명 문구를 AI가 임의로 확장하지 않는다.
@@ -73,7 +73,7 @@
 | `premium_basis` | 보험료 산정 조건 |
 | `monthly_premium_krw` | 실제 공시 보험료 원화 값 |
 | `catalog_status` | `approved`, `needs_review`, `archived` |
-| 향후 `insurance_premium_quotes` | 나이, 성별, 납입기간, 보장금액별 보험료 matrix |
+| `insurance_premium_quotes` | 나이, 성별, 납입기간, 보장금액별 보험료 matrix |
 
 ### 3-4. 2026-05-28 source-aware seed 적용 기준
 
@@ -203,9 +203,10 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - [x] source-aware seed Turso DB 적용 및 row count 검증
 - [x] 보험다모아/보험사 페이지에서 나이·성별별 보험료 재조회 가능성 PoC 수행
 - [x] `monthly_premium_krw`와 `monthly_premium_usdc` 병행 저장 정책 결정: source row는 KRW, active 추천 발행 시 USDC 환산 기준 별도 승인
+- [x] `insurance_premium_quotes` Drizzle schema/migration 설계
 - [ ] 매칭 키워드가 정리된 실제 상품 snapshot 생성 및 기존 active demo 상품 교체
+- [ ] 백업 후 `0006_real_war_machine.sql` Turso DB migration 적용
 - [ ] 실손의료보험 여성 조건 quote 파라미터 확인
-- [ ] `insurance_premium_quotes` Drizzle schema/migration 설계
 - [ ] HIRA 질병 통계를 `risk_targets` 근거 보강 자료로 연결
 
 ### Track B. NEAR 기술 재검증
@@ -247,7 +248,7 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - **Logic_Progress**: [AI Matching Pipeline](./AI_MATCHING_PIPELINE.md) - AI 해석과 DB 기반 보험상품 매칭의 경계
 - **Technical_Specs**: [Phase 3 Blockers and Inquiry](../03_Technical_Specs/PHASE3_BLOCKERS_AND_INQUIRY.md) - IronClaw/WASM/TEE 블로커 재검증 기준
 - **Technical_Specs**: [Insurance Data Collection Pipeline](../03_Technical_Specs/01_INSURANCE_DATA_COLLECTION_PIPELINE.md) - 한국 보험상품 수집/PDF/API 정규화 명세
-- **Technical_Specs**: [DB Schema](../03_Technical_Specs/DB_SCHEMA.md) - `insurance_products` 현재 스키마와 향후 확장 후보
+- **Technical_Specs**: [DB Schema](../03_Technical_Specs/DB_SCHEMA.md) - `insurance_products`와 `insurance_premium_quotes` 현재 스키마
 - **Technical_Specs**: [Insurance Catalog Schema Extension](../03_Technical_Specs/02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md) - 실제 보험상품 카탈로그 확장 확정안
 - **Technical_Specs**: [Insurance Matching Keyword Policy](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md) - DNA risk target과 보험상품 보장 키워드 매칭 기준
 - **Logic_Progress**: [Premium Quote Policy](./04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md) - 조건별 보험료 matrix와 seed 발행 정책
@@ -261,3 +262,4 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - **QA_Validation**: [Source-aware Seed Policy QA](../05_QA_Validation/10_SOURCE_AWARE_SEED_POLICY_2026_05_28.md) - seed 후보 반영 방식과 노출 차단 검증
 - **QA_Validation**: [Source-aware Seed DB Apply](../05_QA_Validation/11_SOURCE_AWARE_SEED_DB_APPLY_2026_05_28.md) - Turso DB seed 적용 결과와 row count 검증
 - **QA_Validation**: [Premium Quote Matrix PoC](../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md) - 나이/성별 조건별 보험료 재조회 가능성 검증
+- **QA_Validation**: [Premium Quotes Schema Migration](../05_QA_Validation/13_PREMIUM_QUOTES_SCHEMA_MIGRATION_2026_05_28.md) - `0006` migration 생성 검증
