@@ -1,9 +1,9 @@
 # [실행 전략] 두 기둥 기반 서비스 업데이트 계획
 > Created: 2026-05-27 02:55
-> Last Updated: 2026-05-28 23:51
+> Last Updated: 2026-05-29 00:45
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v2.8
+- **상태**: Draft v2.9
 - **범위**: 실제 보험상품 카탈로그 적용 준비, NEAR 기술 업데이트 적용 준비
 - **결론**: 서비스 적용의 두 기둥은 `실제 보험상품 탐색`과 `NEAR 프라이버시 기술 적용`이며, 두 영역은 결정론적 매칭 엔진으로 연결한다.
 
@@ -57,9 +57,9 @@
 - `risk_targets`는 유전자 위험 플래그와 직접 매칭되는 키만 넣는다. 상품 설명 문구를 AI가 임의로 확장하지 않는다.
 - 매칭 키워드 정리 전 상품은 `insurance_products`의 active 추천 row가 아니라 `insurance_product_sources`와 `insurance_source_documents`에 먼저 보관한다.
 - 여기서 말하는 정리는 보험상품의 외부 승인이나 품질 심사가 아니라, DNA risk target과 연결할 `coverage_category`, `risk_targets`, `matching_strategy`, caveat를 정리하는 작업이다.
-- 현재 hash-backed 7개 상품은 모두 `review_status=needs_review`로 보관하며, 기존 active demo 상품은 실제 상품의 매칭 키워드 정리 완료 전까지 서비스 흐름 보존용으로 유지한다.
+- 현재 hash-backed 7개 상품은 모두 `review_status=needs_review`로 보관하고, quote-only 신규 후보 15개는 `review_status=raw`로 보관한다. 기존 active demo 상품은 실제 상품의 매칭 키워드 정리 완료 전까지 서비스 흐름 보존용으로 유지한다.
 - 2026-05-28 quote matrix PoC에서 암보험과 실손의료보험 모두 나이/성별별 재조회 가능성을 확인했다. 초기 실손 여성 요청은 `F` 파라미터 오류였고, 모바일 폼 기준 여자 값 `L`로 수정했다.
-- 2026-05-28 23:50 KST 기준 실손의료보험 여성 파라미터를 `L`로 수정해 HTTP 500을 해소했다. 최신 PoC raw quote 84건 중 source-aware 후보와 매칭되는 24건을 `insurance_premium_quotes.review_status=needs_review`로 적재했다. source catalog 미등록 60건은 원천 상품 후보 확장 후 재처리한다.
+- 2026-05-28 23:50 KST 기준 실손의료보험 여성 파라미터를 `L`로 수정해 HTTP 500을 해소했다. 최신 PoC raw quote 84건 중 source-aware 후보와 매칭되는 24건을 `insurance_premium_quotes.review_status=needs_review`로 적재했다. 2026-05-29 기준 미등록 60건은 quote-only raw source 후보 15개로 seed 확장했고, 실제 DB 적용과 quote row 추가 적재는 별도 백업 후 진행한다.
 
 ### 3-3. 구현된 스키마 확장
 
@@ -82,8 +82,9 @@
 
 | 대상 | 적용 방식 | 사용자 추천 노출 |
 |---|---|---|
-| 7개 보험사 | `insurance_carriers` seed row | 직접 노출 없음 |
+| 17개 보험사 | `insurance_carriers` seed row. 신규 10개는 quote-only 후보 연결용 | 직접 노출 없음 |
 | 7개 hash-backed 매칭 정리 후보 | `insurance_product_sources` seed row, `review_status=needs_review` | 노출 없음 |
+| 15개 quote-only 원천 후보 | `insurance_product_sources` seed row, `review_status=raw` | 노출 없음 |
 | 12개 PDF 원문 | `insurance_source_documents` seed row, hash와 URL 보관 | 노출 없음 |
 | 기존 demo 상품 5개 | `insurance_products` active row 유지 | 기존 데모 흐름 유지 |
 
@@ -208,6 +209,8 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - [x] 백업 후 `0006_real_war_machine.sql` Turso DB migration 적용
 - [x] P0 암보험/실손의료보험 quote row crawler 작성 및 raw row 24건 적재
 - [x] 실손의료보험 여성 조건 quote 파라미터 확인
+- [x] source catalog 미등록 quote 60건을 연결할 quote-only raw source 후보 15개 seed 반영
+- [ ] 백업 후 quote-only source 후보 DB 적용 및 quote row 60건 추가 적재
 - [ ] 매칭 키워드가 정리된 실제 상품 snapshot 생성 및 기존 active demo 상품 교체
 - [ ] HIRA 질병 통계를 `risk_targets` 근거 보강 자료로 연결
 
@@ -269,3 +272,4 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - **QA_Validation**: [Premium Quotes DB Apply](../05_QA_Validation/14_PREMIUM_QUOTES_DB_APPLY_2026_05_28.md) - `0006` Turso DB 적용 검증
 - **QA_Validation**: [Premium Quote Rows DB Apply](../05_QA_Validation/15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md) - P0 source 후보 quote row 적재 검증
 - **QA_Validation**: [Medical Female Quote Params](../05_QA_Validation/17_MEDICAL_FEMALE_QUOTE_PARAMS_2026_05_28.md) - 실손 여성 파라미터 해소와 8건 추가 적재 검증
+- **QA_Validation**: [Source Catalog Quote Expansion](../05_QA_Validation/18_SOURCE_CATALOG_QUOTE_EXPANSION_2026_05_29.md) - quote-only raw source 후보 15개 확장 검증

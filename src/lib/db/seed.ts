@@ -27,7 +27,91 @@ type InsuranceProductSeed = typeof insuranceProducts.$inferInsert;
 const COMMON_PREMIUM_BASIS =
   "보험다모아 비교 조건 기준 월 보험료입니다. 실제 보험료는 나이, 성별, 가입금액, 납입기간, 갱신 여부, 특약, 인수심사 결과에 따라 달라질 수 있습니다.";
 
+const QUOTE_ONLY_PREMIUM_BASIS =
+  "보험다모아 조건별 quote matrix에서 확인한 상품입니다. source row 대표 보험료는 고정하지 않고, 나이/성별별 보험료는 insurance_premium_quotes에서 별도 관리합니다.";
+
+const quoteExpansionCheckedAt = DateTime.fromISO("2026-05-29T00:45:00+09:00").toJSDate();
+
 const SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
+
+const ONCOLOGY_RISK_TARGETS = [
+  "pancreatic_cancer",
+  "liver_cancer",
+  "lung_cancer",
+  "breast_cancer",
+  "colon_cancer",
+];
+
+type QuoteOnlyProductSourceInput = {
+  id: string;
+  carrierId: string;
+  rawProductName: string;
+  normalizedProductName: string;
+  productGroup: "암보험" | "실손의료보험";
+  eInsmarketProductCode: string;
+  renewalType: string;
+};
+
+function buildQuoteOnlyProductSource(input: QuoteOnlyProductSourceInput): InsuranceProductSourceSeed {
+  const isMedical = input.productGroup === "실손의료보험";
+
+  return {
+    id: input.id,
+    carrierId: input.carrierId,
+    rawProductName: input.rawProductName,
+    normalizedProductName: input.normalizedProductName,
+    productGroup: input.productGroup,
+    eInsmarketProductCode: input.eInsmarketProductCode,
+    officialProductUrl: null,
+    saleStatus: "unknown",
+    saleStatusEvidence:
+      "보험다모아 quote matrix에서 상품명, 보험사, e-insmarket product code, 조건별 보험료를 확인했다. 보험사 공시 문서 hash와 판매상태는 후속 매칭 키워드 정리 전이다.",
+    premiumCurrency: "KRW",
+    monthlyPremiumKrw: null,
+    premiumText: null,
+    premiumBasis: QUOTE_ONLY_PREMIUM_BASIS,
+    renewalType: input.renewalType,
+    coverageSummary: isMedical
+      ? "보험다모아 quote matrix에서 확인한 실손의료보험 원천 후보. 공식 문서 hash와 baseline caveat 정리 전까지 추천 상품으로 노출하지 않는다."
+      : "보험다모아 quote matrix에서 확인한 암보험 원천 후보. 공식 문서 hash와 암 급부 caveat 정리 전까지 추천 상품으로 노출하지 않는다.",
+    exclusionsSummary: isMedical
+      ? "자기부담금, 비급여, 갱신 조건은 약관 hash 확보와 매칭 키워드 정리 후 확정한다."
+      : "암 보장 개시일, 면책, 감액, 특정암 급부 차이는 약관 hash 확보와 매칭 키워드 정리 후 확정한다.",
+    coverageDetailsJson: JSON.stringify(
+      isMedical
+        ? {
+            coverage_category: "medical_expense",
+            matching_strategy: "baseline",
+            risk_targets: [],
+            review_basis: "e_insmarket_quote_only",
+          }
+        : {
+            coverage_category: "oncology",
+            matching_strategy: "risk_target",
+            risk_targets: ONCOLOGY_RISK_TARGETS,
+            review_basis: "e_insmarket_quote_only",
+          }
+    ),
+    coverageCaveatsJson: JSON.stringify(
+      isMedical
+        ? [
+            "보험다모아 quote-only 원천 후보",
+            "유전자 위험 특화 추천이 아니라 기본 의료비 방어 baseline으로만 검토",
+            "공식 약관 hash와 자기부담금/비급여 caveat 정리 필요",
+          ]
+        : [
+            "보험다모아 quote-only 원천 후보",
+            "공식 약관 hash와 암 급부 caveat 정리 필요",
+            "매칭 키워드 정리 전 추천 snapshot 발행 금지",
+          ]
+    ),
+    reviewStatus: "raw",
+    reviewedAt: null,
+    lastVerifiedAt: quoteExpansionCheckedAt,
+    createdAt: now,
+    updatedAt: now,
+  };
+}
 
 const SOURCE_AWARE_CARRIERS: InsuranceCarrierSeed[] = [
   {
@@ -121,6 +205,274 @@ const SOURCE_AWARE_CARRIERS: InsuranceCarrierSeed[] = [
     createdAt: now,
     updatedAt: now,
   },
+  {
+    id: "carrier_nh_fire",
+    nameKo: "농협손보",
+    nameEn: "NH Property & Casualty Insurance",
+    carrierType: "general",
+    associationSource: "knia",
+    homepageUrl: null,
+    disclosureUrl: null,
+    isActive: 1,
+    lastCheckedAt: quoteExpansionCheckedAt,
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "carrier_lotte_insurance",
+    nameKo: "롯데손보",
+    nameEn: "Lotte Non-Life Insurance",
+    carrierType: "general",
+    associationSource: "knia",
+    homepageUrl: null,
+    disclosureUrl: null,
+    isActive: 1,
+    lastCheckedAt: quoteExpansionCheckedAt,
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "carrier_meritz_fire",
+    nameKo: "메리츠화재",
+    nameEn: "Meritz Fire & Marine Insurance",
+    carrierType: "general",
+    associationSource: "knia",
+    homepageUrl: null,
+    disclosureUrl: null,
+    isActive: 1,
+    lastCheckedAt: quoteExpansionCheckedAt,
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "carrier_hanwha_general",
+    nameKo: "한화손보",
+    nameEn: "Hanwha General Insurance",
+    carrierType: "general",
+    associationSource: "knia",
+    homepageUrl: null,
+    disclosureUrl: null,
+    isActive: 1,
+    lastCheckedAt: quoteExpansionCheckedAt,
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "carrier_heungkuk_fire",
+    nameKo: "흥국화재",
+    nameEn: "Heungkuk Fire & Marine Insurance",
+    carrierType: "general",
+    associationSource: "knia",
+    homepageUrl: null,
+    disclosureUrl: null,
+    isActive: 1,
+    lastCheckedAt: quoteExpansionCheckedAt,
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "carrier_kyobo_lifeplanet",
+    nameKo: "교보라이프플래닛",
+    nameEn: "Kyobo Lifeplanet Life Insurance",
+    carrierType: "life",
+    associationSource: "klia",
+    homepageUrl: null,
+    disclosureUrl: null,
+    isActive: 1,
+    lastCheckedAt: quoteExpansionCheckedAt,
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "carrier_tongyang_life",
+    nameKo: "동양생명",
+    nameEn: "Tongyang Life Insurance",
+    carrierType: "life",
+    associationSource: "klia",
+    homepageUrl: null,
+    disclosureUrl: null,
+    isActive: 1,
+    lastCheckedAt: quoteExpansionCheckedAt,
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "carrier_miraeasset_life",
+    nameKo: "미래에셋생명",
+    nameEn: "Mirae Asset Life Insurance",
+    carrierType: "life",
+    associationSource: "klia",
+    homepageUrl: null,
+    disclosureUrl: null,
+    isActive: 1,
+    lastCheckedAt: quoteExpansionCheckedAt,
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "carrier_db_life",
+    nameKo: "DB생명",
+    nameEn: "DB Life Insurance",
+    carrierType: "life",
+    associationSource: "klia",
+    homepageUrl: null,
+    disclosureUrl: null,
+    isActive: 1,
+    lastCheckedAt: quoteExpansionCheckedAt,
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "carrier_kdb_life",
+    nameKo: "KDB생명",
+    nameEn: "KDB Life Insurance",
+    carrierType: "life",
+    associationSource: "klia",
+    homepageUrl: null,
+    disclosureUrl: null,
+    isActive: 1,
+    lastCheckedAt: quoteExpansionCheckedAt,
+    createdAt: now,
+    updatedAt: now,
+  },
+];
+
+const QUOTE_EXPANSION_PRODUCT_SOURCES: InsuranceProductSourceSeed[] = [
+  buildQuoteOnlyProductSource({
+    id: "src_nh_fire_medical_202605",
+    carrierId: "carrier_nh_fire",
+    rawProductName: "(무) 헤아림실손의료비보험2605",
+    normalizedProductName: "농협손보 헤아림실손의료비보험",
+    productGroup: "실손의료보험",
+    eInsmarketProductCode: "N71G004000001G",
+    renewalType: "unknown",
+  }),
+  buildQuoteOnlyProductSource({
+    id: "src_lotte_direct_medical_202605",
+    carrierId: "carrier_lotte_insurance",
+    rawProductName: "무배당 let:care 실손의료보험Ⅴ(2605)",
+    normalizedProductName: "롯데손보 let:care 실손의료보험",
+    productGroup: "실손의료보험",
+    eInsmarketProductCode: "N03G004000001G",
+    renewalType: "unknown",
+  }),
+  buildQuoteOnlyProductSource({
+    id: "src_meritz_direct_medical_202605",
+    carrierId: "carrier_meritz_fire",
+    rawProductName: "(무) 메리츠 다이렉트 실손의료비보험2605",
+    normalizedProductName: "메리츠 다이렉트 실손의료비보험",
+    productGroup: "실손의료보험",
+    eInsmarketProductCode: "N01G004000002G",
+    renewalType: "unknown",
+  }),
+  buildQuoteOnlyProductSource({
+    id: "src_hanwha_general_direct_medical_202605",
+    carrierId: "carrier_hanwha_general",
+    rawProductName: "한화다이렉트실손의료보험(갱신형)Ⅴ 무배당",
+    normalizedProductName: "한화다이렉트실손의료보험",
+    productGroup: "실손의료보험",
+    eInsmarketProductCode: "N02G004000001G",
+    renewalType: "renewable",
+  }),
+  buildQuoteOnlyProductSource({
+    id: "src_heungkuk_fire_direct_medical_202605",
+    carrierId: "carrier_heungkuk_fire",
+    rawProductName: "(무)흥Good 다이렉트 실손의료보험(26.05)",
+    normalizedProductName: "흥국화재 흥Good 다이렉트 실손의료보험",
+    productGroup: "실손의료보험",
+    eInsmarketProductCode: "N05G004000001G",
+    renewalType: "unknown",
+  }),
+  buildQuoteOnlyProductSource({
+    id: "src_kyobo_lifeplanet_cancer_nonsmoker_202605",
+    carrierId: "carrier_kyobo_lifeplanet",
+    rawProductName: "(무)교보라플 비갱신암보험(해약환급금 미지급형, 비흡연체)",
+    normalizedProductName: "교보라플 비갱신암보험 비흡연체",
+    productGroup: "암보험",
+    eInsmarketProductCode: "L43C009000022",
+    renewalType: "non_renewable",
+  }),
+  buildQuoteOnlyProductSource({
+    id: "src_kyobo_lifeplanet_cancer_standard_202605",
+    carrierId: "carrier_kyobo_lifeplanet",
+    rawProductName: "(무)교보라플 비갱신암보험(해약환급금 미지급형, 표준체)",
+    normalizedProductName: "교보라플 비갱신암보험 표준체",
+    productGroup: "암보험",
+    eInsmarketProductCode: "L43C009000019",
+    renewalType: "non_renewable",
+  }),
+  buildQuoteOnlyProductSource({
+    id: "src_tongyang_wooriwon_cancer_202605",
+    carrierId: "carrier_tongyang_life",
+    rawProductName: "(무)우리WON하는실속하나로암보험",
+    normalizedProductName: "우리WON하는실속하나로암보험",
+    productGroup: "암보험",
+    eInsmarketProductCode: "L74C009000006",
+    renewalType: "unknown",
+  }),
+  buildQuoteOnlyProductSource({
+    id: "src_miraeasset_online_cancer_basic_202605",
+    carrierId: "carrier_miraeasset_life",
+    rawProductName: "온라인 암보험 무배당 [기본형]",
+    normalizedProductName: "미래에셋생명 온라인 암보험 기본형",
+    productGroup: "암보험",
+    eInsmarketProductCode: "L34C009000021",
+    renewalType: "unknown",
+  }),
+  buildQuoteOnlyProductSource({
+    id: "src_miraeasset_online_cancer_no_refund_202605",
+    carrierId: "carrier_miraeasset_life",
+    rawProductName: "온라인 암보험 무배당 [해약환급금이없는유형]",
+    normalizedProductName: "미래에셋생명 온라인 암보험 해약환급금이없는유형",
+    productGroup: "암보험",
+    eInsmarketProductCode: "L34C009000022",
+    renewalType: "unknown",
+  }),
+  buildQuoteOnlyProductSource({
+    id: "src_shinhan_life_sol_cancer_standard_202605",
+    carrierId: "carrier_shinhan_life",
+    rawProductName: "신한SOL암보험(무배당)(비갱신형)",
+    normalizedProductName: "신한SOL암보험 비갱신형",
+    productGroup: "암보험",
+    eInsmarketProductCode: "L11C009000007",
+    renewalType: "non_renewable",
+  }),
+  buildQuoteOnlyProductSource({
+    id: "src_hanwha_life_e_cancer_nonsmoker_202604",
+    carrierId: "carrier_hanwha_life",
+    rawProductName: "한화생명 e암보험(비갱신형)(무)(비흡연체형)",
+    normalizedProductName: "한화생명 e암보험 비흡연체형",
+    productGroup: "암보험",
+    eInsmarketProductCode: "L01C009000010",
+    renewalType: "non_renewable",
+  }),
+  buildQuoteOnlyProductSource({
+    id: "src_hanwha_general_direct_cancer_202604",
+    carrierId: "carrier_hanwha_general",
+    rawProductName: "한화 다이렉트 내가고른 암보험 무배당2604",
+    normalizedProductName: "한화 다이렉트 내가고른 암보험",
+    productGroup: "암보험",
+    eInsmarketProductCode: "N02C009000016",
+    renewalType: "unknown",
+  }),
+  buildQuoteOnlyProductSource({
+    id: "src_db_life_eroun_cancer_202601",
+    carrierId: "carrier_db_life",
+    rawProductName: "(무)e로운 암보험(해약환급금 미지급형)(2601)",
+    normalizedProductName: "DB생명 e로운 암보험",
+    productGroup: "암보험",
+    eInsmarketProductCode: "L71C009000006",
+    renewalType: "unknown",
+  }),
+  buildQuoteOnlyProductSource({
+    id: "src_kdb_life_direct_cancer_202605",
+    carrierId: "carrier_kdb_life",
+    rawProductName: "KDB다이렉트 암보험(해약환급금 미지급형III)(무)",
+    normalizedProductName: "KDB다이렉트 암보험",
+    productGroup: "암보험",
+    eInsmarketProductCode: "L33C009000025",
+    renewalType: "unknown",
+  }),
 ];
 
 const SOURCE_AWARE_PRODUCT_SOURCES: InsuranceProductSourceSeed[] = [
@@ -363,6 +715,7 @@ const SOURCE_AWARE_PRODUCT_SOURCES: InsuranceProductSourceSeed[] = [
     createdAt: now,
     updatedAt: now,
   },
+  ...QUOTE_EXPANSION_PRODUCT_SOURCES,
 ];
 
 const SOURCE_AWARE_DOCUMENTS: InsuranceSourceDocumentSeed[] = [
@@ -682,7 +1035,7 @@ async function seed() {
       .onConflictDoNothing();
   }
   console.log(
-    "Seed complete. 7 carriers, 7 source candidates, 12 documents, and 5 active demo products checked."
+    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, and ${DEMO_PRODUCTS.length} active demo products checked.`
   );
 }
 

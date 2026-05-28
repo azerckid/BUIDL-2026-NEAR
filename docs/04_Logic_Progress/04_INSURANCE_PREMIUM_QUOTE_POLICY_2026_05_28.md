@@ -1,9 +1,9 @@
 # [정책] 조건별 보험료 Quote Matrix 관리 방침
 > Created: 2026-05-28 03:00
-> Last Updated: 2026-05-28 23:51
+> Last Updated: 2026-05-29 00:45
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v1.6
+- **상태**: Draft v1.7
 - **범위**: 보험다모아/보험사 공시에서 수집한 보험료의 해석, 조건별 보험료 matrix 수집, seed 승격 정책
 - **결론**: 현재 수집된 `premium_text`는 특정 비교 조건의 대표 보험료일 뿐이다. 2026-05-28 PoC에서 암보험과 실손의료보험의 나이/성별 재조회 가능성이 확인됐고, 이를 저장할 `insurance_premium_quotes` schema/migration과 P0 source 후보 매칭 quote row 24건을 운영 Turso DB에 적용했다. 모든 quote row는 아직 `needs_review`이며 사용자 확정 견적으로 표시하지 않는다.
 
@@ -155,12 +155,13 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 | PoC raw quote row | 84 |
 | 현재 source catalog와 매칭된 quote row | 24 |
 | source catalog 미등록으로 제외된 quote row | 60 |
+| quote-only source 후보 확장 후 추가 매칭 가능 row | 60 |
 | Turso DB 적재 row | 24 |
 | 적재 상태 | `needs_review` |
 | 한화생명 `0원` quote row | 4건, `monthly_premium_krw=null`로 보존 |
 | invalid SHA-256 hash | 0 |
 
-적재 결과 산출물은 `../../data/insurance/latest_premium_quote_rows_apply.json`, DB 적용 검증은 `../05_QA_Validation/15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md`에 둔다.
+적재 결과 산출물은 `../../data/insurance/latest_premium_quote_rows_apply.json`, DB 적용 검증은 `../05_QA_Validation/15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md`에 둔다. 2026-05-29 기준 source catalog 미등록 60건은 quote-only raw source 후보 15개로 `seed.ts`에 반영했으며, 실제 DB 적용과 quote row 추가 적재는 별도 백업 후 진행한다.
 
 ---
 
@@ -173,9 +174,11 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 | 3 | `insurance_premium_quotes` Drizzle schema와 migration 설계 | 완료. `0006_real_war_machine.sql` 생성 |
 | 4 | 백업 후 `0006` Turso DB migration 적용 | 완료. DB table 생성 |
 | 5 | P0 상품의 조건별 quote row를 source 후보와 매칭해 DB 적재 | 완료. 24건 `needs_review` |
-| 6 | UI에서 "대표 보험료"와 "조건별 예상 보험료"를 분리 표시 | UI PR |
-| 7 | 실손의료보험 여성 POST 파라미터 500 원인 확인 | 완료. `L` 코드로 해소 |
-| 8 | 가입담보 E~J 특약 조합을 별도 quote dimension으로 확장 | 후속 crawler PR |
+| 6 | 실손의료보험 여성 POST 파라미터 500 원인 확인 | 완료. `L` 코드로 해소 |
+| 7 | source catalog 미등록 60건을 연결할 quote-only source 후보 확장 | 완료. 15개 raw source 후보 |
+| 8 | 백업 후 quote-only source 후보 DB 적용 및 quote row 60건 추가 적재 | DB apply PR |
+| 9 | UI에서 "대표 보험료"와 "조건별 예상 보험료"를 분리 표시 | UI PR |
+| 10 | 가입담보 E~J 특약 조합을 별도 quote dimension으로 확장 | 후속 crawler PR |
 
 ---
 
@@ -205,3 +208,4 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 - **QA_Validation**: [Premium Quotes DB Apply](../05_QA_Validation/14_PREMIUM_QUOTES_DB_APPLY_2026_05_28.md) - `0006` Turso DB 적용 검증
 - **QA_Validation**: [Premium Quote Rows DB Apply](../05_QA_Validation/15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md) - P0 source 후보 초기 quote row 16건 적재 검증
 - **QA_Validation**: [Medical Female Quote Params](../05_QA_Validation/17_MEDICAL_FEMALE_QUOTE_PARAMS_2026_05_28.md) - 실손 여성 파라미터와 8건 추가 적재 검증
+- **QA_Validation**: [Source Catalog Quote Expansion](../05_QA_Validation/18_SOURCE_CATALOG_QUOTE_EXPANSION_2026_05_29.md) - quote-only raw source 후보 15개 확장 검증
