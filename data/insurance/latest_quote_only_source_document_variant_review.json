@@ -1,0 +1,251 @@
+{
+  "metadata": {
+    "reviewed_at": "2026-05-29T02:58:00+09:00",
+    "timezone": "Asia/Seoul",
+    "reviewer": "codex_variant_review",
+    "input_product_probe": "data/insurance/latest_quote_only_product_document_probe.json",
+    "input_carrier_disclosure_probe": "data/insurance/latest_quote_only_carrier_disclosure_probe.json",
+    "output_version": "1.0",
+    "scope": "quote-only hash-backed source document variant review"
+  },
+  "summary": {
+    "source_candidates_reviewed": 5,
+    "hash_backed_document_rows_reviewed": 14,
+    "seed_candidate_sources": 3,
+    "seed_candidate_document_rows": 8,
+    "blocked_sources": 2,
+    "blocked_document_rows": 6,
+    "db_write_performed": false
+  },
+  "candidates": [
+    {
+      "provider": "한화생명",
+      "product_source_id": "src_hanwha_life_e_cancer_nonsmoker_202604",
+      "carrier_id": "carrier_hanwha_life",
+      "e_insmarket_product_code": "L01C009000010",
+      "raw_product_name": "한화생명 e암보험(비갱신형)(무)(비흡연체형)",
+      "variant_review_status": "seed_candidate_with_shared_document_note",
+      "recommended_source_review_status": "needs_review",
+      "recommended_matching_review_status": "catalog_candidate",
+      "recommended_coverage_category": "oncology",
+      "recommended_matching_strategy": "risk_target",
+      "variant_notes": [
+        "공식 PDF 제목은 한화생명 e암보험(비갱신형) 무배당으로 표기되고 비흡연체형 문구는 파일명에 직접 드러나지 않는다.",
+        "보험다모아 source row는 비흡연체형이며, 같은 공식 상품 페이지에서 상품요약서와 약관 hash가 확보됐다.",
+        "기존 표준체형 source 문서와 동일 hash이므로 shared document로 기록하고, seed 적용 전 비흡연체형 보험료 0원 표시 정책을 별도 확인한다."
+      ],
+      "documents": [
+        {
+          "document_type": "summary",
+          "source_url": "https://direct.hanwhalife.com/products/downloadProxy/%ED%95%9C%ED%99%94%EC%83%9D%EB%AA%85%20e%EC%95%94%EB%B3%B4%ED%97%98(%EB%B9%84%EA%B0%B1%EC%8B%A0%ED%98%95)%20%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%83%81%ED%92%88%EC%9A%94%EC%95%BD%EC%84%9C_20260417.pdf?docUrl=dynamic/direct/product/cms_edaqInsr09Jt0RKh_1776383454363.pdf",
+          "file_hash_sha256": "acea8fcef33624a66dd898a729e283004f2a520f8a77daa55db9a3a22bed4d3f",
+          "content_type": "application/pdf",
+          "content_length_bytes": 4501796,
+          "seed_candidate": true
+        },
+        {
+          "document_type": "terms",
+          "source_url": "https://direct.hanwhalife.com/products/downloadProxy/%ED%95%9C%ED%99%94%EC%83%9D%EB%AA%85%20e%EC%95%94%EB%B3%B4%ED%97%98(%EB%B9%84%EA%B0%B1%EC%8B%A0%ED%98%95)%20%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%95%BD%EA%B4%80_20260417.pdf?docUrl=dynamic/direct/product/cms_T3jquWCZurf6YKm6_1776383470397.pdf",
+          "file_hash_sha256": "918796d28b8274195258621c08c32c87159c18b1a50fb6e6f653a8c42ba8f7ed",
+          "content_type": "application/pdf",
+          "content_length_bytes": 3661413,
+          "seed_candidate": true
+        }
+      ],
+      "next_action": "Add source document rows for the nonsmoker source only after premium basis and caveat wording are kept in needs_review."
+    },
+    {
+      "provider": "교보라이프플래닛",
+      "product_source_id": "src_kyobo_lifeplanet_cancer_nonsmoker_202605",
+      "carrier_id": "carrier_kyobo_lifeplanet",
+      "e_insmarket_product_code": "L43C009000022",
+      "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 비흡연체)",
+      "variant_review_status": "seed_candidate_shared_disclosure_product",
+      "recommended_source_review_status": "needs_review",
+      "recommended_matching_review_status": "catalog_candidate",
+      "recommended_coverage_category": "oncology",
+      "recommended_matching_strategy": "risk_target",
+      "variant_notes": [
+        "공시실 상품명은 (무)교보라플비갱신암보험으로 표기되며, 비흡연체와 표준체 source가 공시 상품 코드 10054를 공유한다.",
+        "carrier disclosure match score가 1.0이고 판매중 기간은 20260401~99991231로 확인됐다.",
+        "비흡연체/표준체 보험료 차이는 insurance_premium_quotes에서 분리 관리하고, 문서는 shared disclosure document로 기록한다."
+      ],
+      "documents": [
+        {
+          "document_type": "summary",
+          "source_url": "https://www.lifeplanet.co.kr/common/file/FileDownload.dev?fileName=20260401_10054_01.pdf&downloadPathType=1",
+          "file_hash_sha256": "00e46751ef624c207f8a6aebee3b5768585216d8aeeecddf16b7d4c7bd947780",
+          "content_type": "application/octet-stream;charset=UTF-8",
+          "content_length_bytes": 923678,
+          "seed_candidate": true
+        },
+        {
+          "document_type": "business_method",
+          "source_url": "https://www.lifeplanet.co.kr/common/file/FileDownload.dev?fileName=20260401_10054_02.pdf&downloadPathType=2",
+          "file_hash_sha256": "7ab6f8dd927ef2b2ea95607f483cf8b6e34fe4a8c6d5844424515afc18c1cff2",
+          "content_type": "application/octet-stream;charset=UTF-8",
+          "content_length_bytes": 203145,
+          "seed_candidate": true
+        },
+        {
+          "document_type": "terms",
+          "source_url": "https://www.lifeplanet.co.kr/common/file/FileDownload.dev?fileName=20260401_10054_03.pdf&downloadPathType=0",
+          "file_hash_sha256": "a61c106f431fb98cf4d839694a1f02d282173b5732aefa62b08e17f47afaa30a",
+          "content_type": "application/octet-stream;charset=UTF-8",
+          "content_length_bytes": 3474212,
+          "seed_candidate": true
+        }
+      ],
+      "next_action": "Add source document rows while keeping the product source in needs_review until cancer benefit caveats are mapped."
+    },
+    {
+      "provider": "교보라이프플래닛",
+      "product_source_id": "src_kyobo_lifeplanet_cancer_standard_202605",
+      "carrier_id": "carrier_kyobo_lifeplanet",
+      "e_insmarket_product_code": "L43C009000019",
+      "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 표준체)",
+      "variant_review_status": "seed_candidate_shared_disclosure_product",
+      "recommended_source_review_status": "needs_review",
+      "recommended_matching_review_status": "catalog_candidate",
+      "recommended_coverage_category": "oncology",
+      "recommended_matching_strategy": "risk_target",
+      "variant_notes": [
+        "비흡연체 source와 동일하게 공시 상품 코드 10054 문서를 사용한다.",
+        "표준체 여부는 보험료 quote row와 product source name으로 구분한다.",
+        "동일 URL/hash를 두 source에 연결할 수 있으나 추천 승격은 매칭 키워드 검수 후 별도로 진행한다."
+      ],
+      "documents": [
+        {
+          "document_type": "summary",
+          "source_url": "https://www.lifeplanet.co.kr/common/file/FileDownload.dev?fileName=20260401_10054_01.pdf&downloadPathType=1",
+          "file_hash_sha256": "00e46751ef624c207f8a6aebee3b5768585216d8aeeecddf16b7d4c7bd947780",
+          "content_type": "application/octet-stream;charset=UTF-8",
+          "content_length_bytes": 923678,
+          "seed_candidate": true
+        },
+        {
+          "document_type": "business_method",
+          "source_url": "https://www.lifeplanet.co.kr/common/file/FileDownload.dev?fileName=20260401_10054_02.pdf&downloadPathType=2",
+          "file_hash_sha256": "7ab6f8dd927ef2b2ea95607f483cf8b6e34fe4a8c6d5844424515afc18c1cff2",
+          "content_type": "application/octet-stream;charset=UTF-8",
+          "content_length_bytes": 203145,
+          "seed_candidate": true
+        },
+        {
+          "document_type": "terms",
+          "source_url": "https://www.lifeplanet.co.kr/common/file/FileDownload.dev?fileName=20260401_10054_03.pdf&downloadPathType=0",
+          "file_hash_sha256": "a61c106f431fb98cf4d839694a1f02d282173b5732aefa62b08e17f47afaa30a",
+          "content_type": "application/octet-stream;charset=UTF-8",
+          "content_length_bytes": 3474212,
+          "seed_candidate": true
+        }
+      ],
+      "next_action": "Add source document rows while keeping the product source in needs_review until cancer benefit caveats are mapped."
+    },
+    {
+      "provider": "KDB생명",
+      "product_source_id": "src_kdb_life_direct_cancer_202605",
+      "carrier_id": "carrier_kdb_life",
+      "e_insmarket_product_code": "L33C009000025",
+      "raw_product_name": "KDB다이렉트 암보험(해약환급금 미지급형III)(무)",
+      "variant_review_status": "blocked_by_multiple_policy_variants",
+      "recommended_source_review_status": "raw",
+      "recommended_matching_review_status": "catalog_candidate_after_variant_resolution",
+      "recommended_coverage_category": "oncology",
+      "recommended_matching_strategy": "risk_target",
+      "variant_notes": [
+        "상품 페이지에서 40869_policy, 40870_policy, 40869_summary 세 파일이 동시에 hash됐다.",
+        "40869_summary와 40869_policy는 번호가 일치하지만 40870_policy의 상품 variant 의미가 아직 확인되지 않았다.",
+        "약관 후보가 2개인 상태로 seed하면 잘못된 문서가 source에 연결될 수 있으므로 variant 해소 전까지 차단한다."
+      ],
+      "documents": [
+        {
+          "document_type": "terms",
+          "source_url": "https://direct.kdblife.co.kr/resources/doc/policy/40870_policy.pdf",
+          "file_hash_sha256": "a9f07c34b0551ba616f8098027873dcaed3367d2c035dd72403daa431cdc52b6",
+          "content_type": "application/pdf",
+          "content_length_bytes": 6688831,
+          "seed_candidate": false
+        },
+        {
+          "document_type": "terms",
+          "source_url": "https://direct.kdblife.co.kr/resources/doc/policy/40869_policy.pdf",
+          "file_hash_sha256": "10d4904403a4756932e3463f121b5f5b314df5c29f324fb223d35cfed39ca8ba",
+          "content_type": "application/pdf",
+          "content_length_bytes": 6605806,
+          "seed_candidate": false
+        },
+        {
+          "document_type": "summary",
+          "source_url": "https://direct.kdblife.co.kr/resources/doc/policy/40869_summary.pdf",
+          "file_hash_sha256": "b6b3c5607f73accfd7cd28595cd466c6fecbc09c3b6e02e28867822fd51d407a",
+          "content_type": "application/pdf",
+          "content_length_bytes": 204656,
+          "seed_candidate": false
+        }
+      ],
+      "next_action": "Inspect PDF cover text or KDB product API metadata to decide whether 40869 or 40870 is the correct policy for product code L33C009000025."
+    },
+    {
+      "provider": "신한라이프생명",
+      "product_source_id": "src_shinhan_life_sol_cancer_standard_202605",
+      "carrier_id": "carrier_shinhan_life",
+      "e_insmarket_product_code": "L11C009000007",
+      "raw_product_name": "신한SOL암보험(무배당)(비갱신형)",
+      "variant_review_status": "blocked_by_variant_mismatch",
+      "recommended_source_review_status": "raw",
+      "recommended_matching_review_status": "catalog_candidate_after_variant_resolution",
+      "recommended_coverage_category": "oncology",
+      "recommended_matching_strategy": "risk_target",
+      "variant_notes": [
+        "quote-only source name은 해약환급금 미지급형을 명시하지 않지만, 현재 공시 crawler 문서는 해약환급금 미지급형으로 매칭됐다.",
+        "best_match_score가 0.5라 기존 PR #20 기준의 수동 확인 필요 조건에 해당한다.",
+        "동일 문서는 이미 기존 source src_shinhan_life_sol_cancer_202601에 연결돼 있으므로, 표준형 source에 재사용하면 variant 오연결 위험이 있다."
+      ],
+      "documents": [
+        {
+          "document_type": "summary",
+          "source_url": "https://shinhanlife.co.kr/bizxpress/cdh/cdhi/gd/pr/__media/%EC%83%81%ED%92%88%EC%9A%94%EC%95%BD%EC%84%9C_%EC%8B%A0%ED%95%9CSOL%EC%95%94%EB%B3%B4%ED%97%98(%EB%AC%B4%EB%B0%B0%EB%8B%B9_%ED%95%B4%EC%95%BD%ED%99%98%EA%B8%89%EA%B8%88%20%EB%AF%B8%EC%A7%80%EA%B8%89%ED%98%95)_260101.pdf",
+          "file_hash_sha256": "d557ed911adc877976863155e45fec5217ebfe485aed8f0c685797d0d7314c03",
+          "content_type": "application/pdf",
+          "content_length_bytes": 153356,
+          "seed_candidate": false
+        },
+        {
+          "document_type": "business_method",
+          "source_url": "https://shinhanlife.co.kr/bizxpress/cdh/cdhi/gd/pr/__etc/%EC%82%AC%EC%97%85%EB%B0%A9%EB%B2%95%EC%84%9C_%EC%8B%A0%ED%95%9CSOL%EC%95%94%EB%B3%B4%ED%97%98(%EB%AC%B4%EB%B0%B0%EB%8B%B9,%20%ED%95%B4%EC%95%BD%ED%99%98%EA%B8%89%EA%B8%88%20%EB%AF%B8%EC%A7%80%EA%B8%89%ED%98%95)_260101.pdf",
+          "file_hash_sha256": "9aa1ed61e51a9c67a339430266f8551cd6739bcb48d725bf298e3742fe3797ea",
+          "content_type": "application/pdf",
+          "content_length_bytes": 95659,
+          "seed_candidate": false
+        },
+        {
+          "document_type": "terms",
+          "source_url": "https://shinhanlife.co.kr/bizxpress/cdh/cdhi/gd/pr/__etc/%ED%8C%90%EB%A7%A4%EC%95%BD%EA%B4%80_%EC%8B%A0%ED%95%9CSOL%EC%95%94%EB%B3%B4%ED%97%98(%EB%AC%B4%EB%B0%B0%EB%8B%B9,%20%ED%95%B4%EC%95%BD%ED%99%98%EA%B8%89%EA%B8%88%20%EB%AF%B8%EC%A7%80%EA%B8%89%ED%98%95)_260101.pdf",
+          "file_hash_sha256": "fcd915ee2e5440cf9542711dabd1c3014a1f5f3efef9c0a1f8fc88ed7ca40ffa",
+          "content_type": "application/pdf",
+          "content_length_bytes": 2940426,
+          "seed_candidate": false
+        }
+      ],
+      "next_action": "Search Shinhan Life disclosure for a non-missing-refund variant or confirm that the quote-only source is the same no-refund product before seeding."
+    }
+  ],
+  "qa": {
+    "service_db_ready": false,
+    "safe_to_seed_document_rows": [
+      "src_hanwha_life_e_cancer_nonsmoker_202604",
+      "src_kyobo_lifeplanet_cancer_nonsmoker_202605",
+      "src_kyobo_lifeplanet_cancer_standard_202605"
+    ],
+    "blocked_until_manual_variant_resolution": [
+      "src_kdb_life_direct_cancer_202605",
+      "src_shinhan_life_sol_cancer_standard_202605"
+    ],
+    "next_actions": [
+      "Create a seed PR for the 8 safe source document rows without changing product recommendation status.",
+      "Resolve KDB 40869/40870 policy variant before adding KDB documents.",
+      "Resolve Shinhan standard vs no-refund variant before adding documents to the quote-only standard source."
+    ]
+  }
+}
