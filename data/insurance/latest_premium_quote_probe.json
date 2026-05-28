@@ -1,0 +1,1319 @@
+{
+  "metadata": {
+    "generated_at": "2026-05-28T15:00:20.530+09:00",
+    "timezone": "Asia/Seoul",
+    "generator": "scripts/insurance/probe-premium-quotes.mjs",
+    "output_version": "1.0"
+  },
+  "conditions": [
+    {
+      "condition_id": "age34_male",
+      "age": 34,
+      "sex": "male",
+      "source_sex_codes": {
+        "cancer": "1",
+        "medical": "M"
+      }
+    },
+    {
+      "condition_id": "age34_female",
+      "age": 34,
+      "sex": "female",
+      "source_sex_codes": {
+        "cancer": "2",
+        "medical": "F"
+      }
+    },
+    {
+      "condition_id": "age44_male",
+      "age": 44,
+      "sex": "male",
+      "source_sex_codes": {
+        "cancer": "1",
+        "medical": "M"
+      }
+    },
+    {
+      "condition_id": "age44_female",
+      "age": 44,
+      "sex": "female",
+      "source_sex_codes": {
+        "cancer": "2",
+        "medical": "F"
+      }
+    }
+  ],
+  "source_status": [
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "method": "GET HTML",
+      "url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "http_status": 200,
+      "status": "accessible",
+      "evidence": "Extracted 12 암보험 product rows for age34_male.",
+      "response_hash_sha256": "0d807392cd7d42d0fc15fe199e2391e2f6594e48a2351321621470effeed331a"
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "method": "POST HTML",
+      "url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "http_status": 200,
+      "status": "accessible",
+      "evidence": "Extracted 9 실손의료보험 product rows for age34_male.",
+      "response_hash_sha256": "f20570f4817b8f8a10328b6c17e652d686cac471af777e705d7a515b4bbe4163"
+    },
+    {
+      "condition_id": "age34_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "method": "GET HTML",
+      "url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "http_status": 200,
+      "status": "accessible",
+      "evidence": "Extracted 12 암보험 product rows for age34_female.",
+      "response_hash_sha256": "2589f537c6fc308b10ff03113aaf14037441abb28014d360d01ed0f2d4141bde"
+    },
+    {
+      "condition_id": "age34_female",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "method": "POST HTML",
+      "url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "http_status": 500,
+      "status": "http_error",
+      "evidence": "Extracted 0 실손의료보험 product rows for age34_female.",
+      "response_hash_sha256": "f9d309b0efe6e98095c2a284d9a0b6cf0fed66e728c650e41d424e4e44765c67"
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "method": "GET HTML",
+      "url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "http_status": 200,
+      "status": "accessible",
+      "evidence": "Extracted 12 암보험 product rows for age44_male.",
+      "response_hash_sha256": "dbd72b264aa28c5919161b89c2ff47e42adc2b844498fb6d8d58147d4aa8b6e5"
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "method": "POST HTML",
+      "url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "http_status": 200,
+      "status": "accessible",
+      "evidence": "Extracted 9 실손의료보험 product rows for age44_male.",
+      "response_hash_sha256": "2a491b5a1fabe84bca7e35a1571a1df9056b2c784ba8e10f76075d5ba572d238"
+    },
+    {
+      "condition_id": "age44_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "method": "GET HTML",
+      "url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "http_status": 200,
+      "status": "accessible",
+      "evidence": "Extracted 12 암보험 product rows for age44_female.",
+      "response_hash_sha256": "88d1cf1a2fadffe918bbfb4c82a2b3188e632dd75c96d6d7a501324f5e058dc8"
+    },
+    {
+      "condition_id": "age44_female",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "method": "POST HTML",
+      "url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "http_status": 500,
+      "status": "http_error",
+      "evidence": "Extracted 0 실손의료보험 product rows for age44_female.",
+      "response_hash_sha256": "f9d309b0efe6e98095c2a284d9a0b6cf0fed66e728c650e41d424e4e44765c67"
+    }
+  ],
+  "quote_rows": [
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "0d807392cd7d42d0fc15fe199e2391e2f6594e48a2351321621470effeed331a",
+      "provider": "한화생명",
+      "raw_product_name": "한화생명 e암보험(비갱신형)(무)(표준체형)",
+      "e_insmarket_product_code": "L01C009000009",
+      "premium_text": "0원",
+      "monthly_premium_krw": null
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "0d807392cd7d42d0fc15fe199e2391e2f6594e48a2351321621470effeed331a",
+      "provider": "한화생명",
+      "raw_product_name": "한화생명 e암보험(비갱신형)(무)(비흡연체형)",
+      "e_insmarket_product_code": "L01C009000010",
+      "premium_text": "0원",
+      "monthly_premium_krw": null
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "0d807392cd7d42d0fc15fe199e2391e2f6594e48a2351321621470effeed331a",
+      "provider": "미래에셋생명",
+      "raw_product_name": "온라인 암보험 무배당 [기본형]",
+      "e_insmarket_product_code": "L34C009000021",
+      "premium_text": "5,970원",
+      "monthly_premium_krw": 5970
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "0d807392cd7d42d0fc15fe199e2391e2f6594e48a2351321621470effeed331a",
+      "provider": "신한라이프생명",
+      "raw_product_name": "신한SOL암보험(무배당, 해약환급금 미지급형)(비갱신형)",
+      "e_insmarket_product_code": "L11C009000006",
+      "premium_text": "8,530원",
+      "monthly_premium_krw": 8530
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "0d807392cd7d42d0fc15fe199e2391e2f6594e48a2351321621470effeed331a",
+      "provider": "미래에셋생명",
+      "raw_product_name": "온라인 암보험 무배당 [해약환급금이없는유형]",
+      "e_insmarket_product_code": "L34C009000022",
+      "premium_text": "8,910원",
+      "monthly_premium_krw": 8910
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "0d807392cd7d42d0fc15fe199e2391e2f6594e48a2351321621470effeed331a",
+      "provider": "동양생명",
+      "raw_product_name": "(무)우리WON하는실속하나로암보험",
+      "e_insmarket_product_code": "L74C009000006",
+      "premium_text": "9,700원",
+      "monthly_premium_krw": 9700
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "0d807392cd7d42d0fc15fe199e2391e2f6594e48a2351321621470effeed331a",
+      "provider": "DB생명",
+      "raw_product_name": "(무)e로운 암보험(해약환급금 미지급형)(2601)",
+      "e_insmarket_product_code": "L71C009000006",
+      "premium_text": "10,300원",
+      "monthly_premium_krw": 10300
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "0d807392cd7d42d0fc15fe199e2391e2f6594e48a2351321621470effeed331a",
+      "provider": "신한라이프생명",
+      "raw_product_name": "신한SOL암보험(무배당)(비갱신형)",
+      "e_insmarket_product_code": "L11C009000007",
+      "premium_text": "10,360원",
+      "monthly_premium_krw": 10360
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "0d807392cd7d42d0fc15fe199e2391e2f6594e48a2351321621470effeed331a",
+      "provider": "교보라이프플래닛",
+      "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 비흡연체)",
+      "e_insmarket_product_code": "L43C009000022",
+      "premium_text": "10,710원",
+      "monthly_premium_krw": 10710
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "0d807392cd7d42d0fc15fe199e2391e2f6594e48a2351321621470effeed331a",
+      "provider": "KDB생명",
+      "raw_product_name": "KDB다이렉트 암보험(해약환급금 미지급형III)(무)",
+      "e_insmarket_product_code": "L33C009000025",
+      "premium_text": "11,230원",
+      "monthly_premium_krw": 11230
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "0d807392cd7d42d0fc15fe199e2391e2f6594e48a2351321621470effeed331a",
+      "provider": "교보라이프플래닛",
+      "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 표준체)",
+      "e_insmarket_product_code": "L43C009000019",
+      "premium_text": "11,320원",
+      "monthly_premium_krw": 11320
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "0d807392cd7d42d0fc15fe199e2391e2f6594e48a2351321621470effeed331a",
+      "provider": "한화손보",
+      "raw_product_name": "한화 다이렉트 내가고른 암보험 무배당2604",
+      "e_insmarket_product_code": "N02C009000016",
+      "premium_text": "13,721원",
+      "monthly_premium_krw": 13721
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"34\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "f20570f4817b8f8a10328b6c17e652d686cac471af777e705d7a515b4bbe4163",
+      "provider": "농협손보",
+      "raw_product_name": "(무) 헤아림실손의료비보험2605",
+      "e_insmarket_product_code": "N71G004000001G",
+      "premium_text": "5,745원",
+      "monthly_premium_krw": 5745
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"34\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "f20570f4817b8f8a10328b6c17e652d686cac471af777e705d7a515b4bbe4163",
+      "provider": "DB손보",
+      "raw_product_name": "(무)다이렉트 실손의료비보험2605(CM)",
+      "e_insmarket_product_code": "N11G004000001G",
+      "premium_text": "6,219원",
+      "monthly_premium_krw": 6219
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"34\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "f20570f4817b8f8a10328b6c17e652d686cac471af777e705d7a515b4bbe4163",
+      "provider": "한화손보",
+      "raw_product_name": "한화다이렉트실손의료보험(갱신형)Ⅴ 무배당",
+      "e_insmarket_product_code": "N02G004000001G",
+      "premium_text": "6,394원",
+      "monthly_premium_krw": 6394
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"34\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "f20570f4817b8f8a10328b6c17e652d686cac471af777e705d7a515b4bbe4163",
+      "provider": "KB손보",
+      "raw_product_name": "KB손보 다이렉트실손의료비보장보험(무배당)(26.05)",
+      "e_insmarket_product_code": "N10G004000002G",
+      "premium_text": "6,400원",
+      "monthly_premium_krw": 6400
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"34\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "f20570f4817b8f8a10328b6c17e652d686cac471af777e705d7a515b4bbe4163",
+      "provider": "삼성화재",
+      "raw_product_name": "무배당 삼성화재 다이렉트 실손의료비보험(2605.1)",
+      "e_insmarket_product_code": "N08G004000002G",
+      "premium_text": "6,575원",
+      "monthly_premium_krw": 6575
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"34\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "f20570f4817b8f8a10328b6c17e652d686cac471af777e705d7a515b4bbe4163",
+      "provider": "메리츠화재",
+      "raw_product_name": "(무) 메리츠 다이렉트 실손의료비보험2605",
+      "e_insmarket_product_code": "N01G004000002G",
+      "premium_text": "6,643원",
+      "monthly_premium_krw": 6643
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"34\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "f20570f4817b8f8a10328b6c17e652d686cac471af777e705d7a515b4bbe4163",
+      "provider": "현대해상",
+      "raw_product_name": "(무)현대해상다이렉트실손의료비보장보험(갱신형)(Hi2605)",
+      "e_insmarket_product_code": "N09G004000001G",
+      "premium_text": "6,740원",
+      "monthly_premium_krw": 6740
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"34\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "f20570f4817b8f8a10328b6c17e652d686cac471af777e705d7a515b4bbe4163",
+      "provider": "흥국화재",
+      "raw_product_name": "(무)흥Good 다이렉트 실손의료보험(26.05)",
+      "e_insmarket_product_code": "N05G004000001G",
+      "premium_text": "7,995원",
+      "monthly_premium_krw": 7995
+    },
+    {
+      "condition_id": "age34_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"34\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "f20570f4817b8f8a10328b6c17e652d686cac471af777e705d7a515b4bbe4163",
+      "provider": "롯데손보",
+      "raw_product_name": "무배당 let:care 실손의료보험Ⅴ(2605)",
+      "e_insmarket_product_code": "N03G004000001G",
+      "premium_text": "12,183원",
+      "monthly_premium_krw": 12183
+    },
+    {
+      "condition_id": "age34_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "2589f537c6fc308b10ff03113aaf14037441abb28014d360d01ed0f2d4141bde",
+      "provider": "한화생명",
+      "raw_product_name": "한화생명 e암보험(비갱신형)(무)(표준체형)",
+      "e_insmarket_product_code": "L01C009000009",
+      "premium_text": "0원",
+      "monthly_premium_krw": null
+    },
+    {
+      "condition_id": "age34_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "2589f537c6fc308b10ff03113aaf14037441abb28014d360d01ed0f2d4141bde",
+      "provider": "한화생명",
+      "raw_product_name": "한화생명 e암보험(비갱신형)(무)(비흡연체형)",
+      "e_insmarket_product_code": "L01C009000010",
+      "premium_text": "0원",
+      "monthly_premium_krw": null
+    },
+    {
+      "condition_id": "age34_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "2589f537c6fc308b10ff03113aaf14037441abb28014d360d01ed0f2d4141bde",
+      "provider": "미래에셋생명",
+      "raw_product_name": "온라인 암보험 무배당 [기본형]",
+      "e_insmarket_product_code": "L34C009000021",
+      "premium_text": "4,510원",
+      "monthly_premium_krw": 4510
+    },
+    {
+      "condition_id": "age34_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "2589f537c6fc308b10ff03113aaf14037441abb28014d360d01ed0f2d4141bde",
+      "provider": "미래에셋생명",
+      "raw_product_name": "온라인 암보험 무배당 [해약환급금이없는유형]",
+      "e_insmarket_product_code": "L34C009000022",
+      "premium_text": "6,490원",
+      "monthly_premium_krw": 6490
+    },
+    {
+      "condition_id": "age34_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "2589f537c6fc308b10ff03113aaf14037441abb28014d360d01ed0f2d4141bde",
+      "provider": "신한라이프생명",
+      "raw_product_name": "신한SOL암보험(무배당, 해약환급금 미지급형)(비갱신형)",
+      "e_insmarket_product_code": "L11C009000006",
+      "premium_text": "6,750원",
+      "monthly_premium_krw": 6750
+    },
+    {
+      "condition_id": "age34_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "2589f537c6fc308b10ff03113aaf14037441abb28014d360d01ed0f2d4141bde",
+      "provider": "신한라이프생명",
+      "raw_product_name": "신한SOL암보험(무배당)(비갱신형)",
+      "e_insmarket_product_code": "L11C009000007",
+      "premium_text": "7,870원",
+      "monthly_premium_krw": 7870
+    },
+    {
+      "condition_id": "age34_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "2589f537c6fc308b10ff03113aaf14037441abb28014d360d01ed0f2d4141bde",
+      "provider": "KDB생명",
+      "raw_product_name": "KDB다이렉트 암보험(해약환급금 미지급형III)(무)",
+      "e_insmarket_product_code": "L33C009000025",
+      "premium_text": "8,020원",
+      "monthly_premium_krw": 8020
+    },
+    {
+      "condition_id": "age34_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "2589f537c6fc308b10ff03113aaf14037441abb28014d360d01ed0f2d4141bde",
+      "provider": "교보라이프플래닛",
+      "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 비흡연체)",
+      "e_insmarket_product_code": "L43C009000022",
+      "premium_text": "8,410원",
+      "monthly_premium_krw": 8410
+    },
+    {
+      "condition_id": "age34_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "2589f537c6fc308b10ff03113aaf14037441abb28014d360d01ed0f2d4141bde",
+      "provider": "교보라이프플래닛",
+      "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 표준체)",
+      "e_insmarket_product_code": "L43C009000019",
+      "premium_text": "8,490원",
+      "monthly_premium_krw": 8490
+    },
+    {
+      "condition_id": "age34_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "2589f537c6fc308b10ff03113aaf14037441abb28014d360d01ed0f2d4141bde",
+      "provider": "DB생명",
+      "raw_product_name": "(무)e로운 암보험(해약환급금 미지급형)(2601)",
+      "e_insmarket_product_code": "L71C009000006",
+      "premium_text": "9,700원",
+      "monthly_premium_krw": 9700
+    },
+    {
+      "condition_id": "age34_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "2589f537c6fc308b10ff03113aaf14037441abb28014d360d01ed0f2d4141bde",
+      "provider": "동양생명",
+      "raw_product_name": "(무)우리WON하는실속하나로암보험",
+      "e_insmarket_product_code": "L74C009000006",
+      "premium_text": "11,000원",
+      "monthly_premium_krw": 11000
+    },
+    {
+      "condition_id": "age34_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=34&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"34\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "2589f537c6fc308b10ff03113aaf14037441abb28014d360d01ed0f2d4141bde",
+      "provider": "한화손보",
+      "raw_product_name": "한화 다이렉트 내가고른 암보험 무배당2604",
+      "e_insmarket_product_code": "N02C009000016",
+      "premium_text": "12,204원",
+      "monthly_premium_krw": 12204
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "dbd72b264aa28c5919161b89c2ff47e42adc2b844498fb6d8d58147d4aa8b6e5",
+      "provider": "한화생명",
+      "raw_product_name": "한화생명 e암보험(비갱신형)(무)(표준체형)",
+      "e_insmarket_product_code": "L01C009000009",
+      "premium_text": "0원",
+      "monthly_premium_krw": null
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "dbd72b264aa28c5919161b89c2ff47e42adc2b844498fb6d8d58147d4aa8b6e5",
+      "provider": "한화생명",
+      "raw_product_name": "한화생명 e암보험(비갱신형)(무)(비흡연체형)",
+      "e_insmarket_product_code": "L01C009000010",
+      "premium_text": "0원",
+      "monthly_premium_krw": null
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "dbd72b264aa28c5919161b89c2ff47e42adc2b844498fb6d8d58147d4aa8b6e5",
+      "provider": "신한라이프생명",
+      "raw_product_name": "신한SOL암보험(무배당, 해약환급금 미지급형)(비갱신형)",
+      "e_insmarket_product_code": "L11C009000006",
+      "premium_text": "10,030원",
+      "monthly_premium_krw": 10030
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "dbd72b264aa28c5919161b89c2ff47e42adc2b844498fb6d8d58147d4aa8b6e5",
+      "provider": "미래에셋생명",
+      "raw_product_name": "온라인 암보험 무배당 [해약환급금이없는유형]",
+      "e_insmarket_product_code": "L34C009000022",
+      "premium_text": "10,700원",
+      "monthly_premium_krw": 10700
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "dbd72b264aa28c5919161b89c2ff47e42adc2b844498fb6d8d58147d4aa8b6e5",
+      "provider": "신한라이프생명",
+      "raw_product_name": "신한SOL암보험(무배당)(비갱신형)",
+      "e_insmarket_product_code": "L11C009000007",
+      "premium_text": "11,860원",
+      "monthly_premium_krw": 11860
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "dbd72b264aa28c5919161b89c2ff47e42adc2b844498fb6d8d58147d4aa8b6e5",
+      "provider": "교보라이프플래닛",
+      "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 비흡연체)",
+      "e_insmarket_product_code": "L43C009000022",
+      "premium_text": "12,910원",
+      "monthly_premium_krw": 12910
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "dbd72b264aa28c5919161b89c2ff47e42adc2b844498fb6d8d58147d4aa8b6e5",
+      "provider": "미래에셋생명",
+      "raw_product_name": "온라인 암보험 무배당 [기본형]",
+      "e_insmarket_product_code": "L34C009000021",
+      "premium_text": "13,000원",
+      "monthly_premium_krw": 13000
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "dbd72b264aa28c5919161b89c2ff47e42adc2b844498fb6d8d58147d4aa8b6e5",
+      "provider": "DB생명",
+      "raw_product_name": "(무)e로운 암보험(해약환급금 미지급형)(2601)",
+      "e_insmarket_product_code": "L71C009000006",
+      "premium_text": "13,300원",
+      "monthly_premium_krw": 13300
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "dbd72b264aa28c5919161b89c2ff47e42adc2b844498fb6d8d58147d4aa8b6e5",
+      "provider": "KDB생명",
+      "raw_product_name": "KDB다이렉트 암보험(해약환급금 미지급형III)(무)",
+      "e_insmarket_product_code": "L33C009000025",
+      "premium_text": "13,340원",
+      "monthly_premium_krw": 13340
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "dbd72b264aa28c5919161b89c2ff47e42adc2b844498fb6d8d58147d4aa8b6e5",
+      "provider": "교보라이프플래닛",
+      "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 표준체)",
+      "e_insmarket_product_code": "L43C009000019",
+      "premium_text": "13,700원",
+      "monthly_premium_krw": 13700
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "dbd72b264aa28c5919161b89c2ff47e42adc2b844498fb6d8d58147d4aa8b6e5",
+      "provider": "동양생명",
+      "raw_product_name": "(무)우리WON하는실속하나로암보험",
+      "e_insmarket_product_code": "L74C009000006",
+      "premium_text": "17,100원",
+      "monthly_premium_krw": 17100
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=1",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"1\"}",
+      "response_hash_sha256": "dbd72b264aa28c5919161b89c2ff47e42adc2b844498fb6d8d58147d4aa8b6e5",
+      "provider": "한화손보",
+      "raw_product_name": "한화 다이렉트 내가고른 암보험 무배당2604",
+      "e_insmarket_product_code": "N02C009000016",
+      "premium_text": "17,151원",
+      "monthly_premium_krw": 17151
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"44\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "2a491b5a1fabe84bca7e35a1571a1df9056b2c784ba8e10f76075d5ba572d238",
+      "provider": "농협손보",
+      "raw_product_name": "(무) 헤아림실손의료비보험2605",
+      "e_insmarket_product_code": "N71G004000001G",
+      "premium_text": "7,364원",
+      "monthly_premium_krw": 7364
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"44\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "2a491b5a1fabe84bca7e35a1571a1df9056b2c784ba8e10f76075d5ba572d238",
+      "provider": "메리츠화재",
+      "raw_product_name": "(무) 메리츠 다이렉트 실손의료비보험2605",
+      "e_insmarket_product_code": "N01G004000002G",
+      "premium_text": "8,635원",
+      "monthly_premium_krw": 8635
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"44\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "2a491b5a1fabe84bca7e35a1571a1df9056b2c784ba8e10f76075d5ba572d238",
+      "provider": "한화손보",
+      "raw_product_name": "한화다이렉트실손의료보험(갱신형)Ⅴ 무배당",
+      "e_insmarket_product_code": "N02G004000001G",
+      "premium_text": "8,703원",
+      "monthly_premium_krw": 8703
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"44\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "2a491b5a1fabe84bca7e35a1571a1df9056b2c784ba8e10f76075d5ba572d238",
+      "provider": "KB손보",
+      "raw_product_name": "KB손보 다이렉트실손의료비보장보험(무배당)(26.05)",
+      "e_insmarket_product_code": "N10G004000002G",
+      "premium_text": "9,074원",
+      "monthly_premium_krw": 9074
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"44\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "2a491b5a1fabe84bca7e35a1571a1df9056b2c784ba8e10f76075d5ba572d238",
+      "provider": "현대해상",
+      "raw_product_name": "(무)현대해상다이렉트실손의료비보장보험(갱신형)(Hi2605)",
+      "e_insmarket_product_code": "N09G004000001G",
+      "premium_text": "9,190원",
+      "monthly_premium_krw": 9190
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"44\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "2a491b5a1fabe84bca7e35a1571a1df9056b2c784ba8e10f76075d5ba572d238",
+      "provider": "DB손보",
+      "raw_product_name": "(무)다이렉트 실손의료비보험2605(CM)",
+      "e_insmarket_product_code": "N11G004000001G",
+      "premium_text": "9,320원",
+      "monthly_premium_krw": 9320
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"44\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "2a491b5a1fabe84bca7e35a1571a1df9056b2c784ba8e10f76075d5ba572d238",
+      "provider": "삼성화재",
+      "raw_product_name": "무배당 삼성화재 다이렉트 실손의료비보험(2605.1)",
+      "e_insmarket_product_code": "N08G004000002G",
+      "premium_text": "9,546원",
+      "monthly_premium_krw": 9546
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"44\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "2a491b5a1fabe84bca7e35a1571a1df9056b2c784ba8e10f76075d5ba572d238",
+      "provider": "흥국화재",
+      "raw_product_name": "(무)흥Good 다이렉트 실손의료보험(26.05)",
+      "e_insmarket_product_code": "N05G004000001G",
+      "premium_text": "10,497원",
+      "monthly_premium_krw": 10497
+    },
+    {
+      "condition_id": "age44_male",
+      "source_id": "e_insmarket_medical_5th_mobile",
+      "product_group": "실손의료보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/mins/minsInsList.knia",
+      "quote_method": "POST",
+      "quote_params_json": "[[\"prdtSmlClsCd\",\"G004\"],[\"sexDiv\",\"M\"],[\"age\",\"44\"],[\"sex\",\"M\"],[\"realLossDivCd\",\"3\"],[\"action\",\"search\"],[\"enterType\",\"A\"],[\"renewalCd\",\"\"],[\"insrCmpyCd\",\"N01\"],[\"insrCmpyCd\",\"N02\"],[\"insrCmpyCd\",\"N03\"],[\"insrCmpyCd\",\"N05\"],[\"insrCmpyCd\",\"N08\"],[\"insrCmpyCd\",\"N09\"],[\"insrCmpyCd\",\"N10\"],[\"insrCmpyCd\",\"N11\"],[\"insrCmpyCd\",\"N71\"],[\"joinScrtDivCd\",\"A\"],[\"joinScrtDivCd\",\"B\"]]",
+      "response_hash_sha256": "2a491b5a1fabe84bca7e35a1571a1df9056b2c784ba8e10f76075d5ba572d238",
+      "provider": "롯데손보",
+      "raw_product_name": "무배당 let:care 실손의료보험Ⅴ(2605)",
+      "e_insmarket_product_code": "N03G004000001G",
+      "premium_text": "17,565원",
+      "monthly_premium_krw": 17565
+    },
+    {
+      "condition_id": "age44_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "88d1cf1a2fadffe918bbfb4c82a2b3188e632dd75c96d6d7a501324f5e058dc8",
+      "provider": "한화생명",
+      "raw_product_name": "한화생명 e암보험(비갱신형)(무)(표준체형)",
+      "e_insmarket_product_code": "L01C009000009",
+      "premium_text": "0원",
+      "monthly_premium_krw": null
+    },
+    {
+      "condition_id": "age44_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "88d1cf1a2fadffe918bbfb4c82a2b3188e632dd75c96d6d7a501324f5e058dc8",
+      "provider": "한화생명",
+      "raw_product_name": "한화생명 e암보험(비갱신형)(무)(비흡연체형)",
+      "e_insmarket_product_code": "L01C009000010",
+      "premium_text": "0원",
+      "monthly_premium_krw": null
+    },
+    {
+      "condition_id": "age44_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "88d1cf1a2fadffe918bbfb4c82a2b3188e632dd75c96d6d7a501324f5e058dc8",
+      "provider": "미래에셋생명",
+      "raw_product_name": "온라인 암보험 무배당 [해약환급금이없는유형]",
+      "e_insmarket_product_code": "L34C009000022",
+      "premium_text": "7,060원",
+      "monthly_premium_krw": 7060
+    },
+    {
+      "condition_id": "age44_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "88d1cf1a2fadffe918bbfb4c82a2b3188e632dd75c96d6d7a501324f5e058dc8",
+      "provider": "신한라이프생명",
+      "raw_product_name": "신한SOL암보험(무배당, 해약환급금 미지급형)(비갱신형)",
+      "e_insmarket_product_code": "L11C009000006",
+      "premium_text": "7,320원",
+      "monthly_premium_krw": 7320
+    },
+    {
+      "condition_id": "age44_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "88d1cf1a2fadffe918bbfb4c82a2b3188e632dd75c96d6d7a501324f5e058dc8",
+      "provider": "미래에셋생명",
+      "raw_product_name": "온라인 암보험 무배당 [기본형]",
+      "e_insmarket_product_code": "L34C009000021",
+      "premium_text": "7,780원",
+      "monthly_premium_krw": 7780
+    },
+    {
+      "condition_id": "age44_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "88d1cf1a2fadffe918bbfb4c82a2b3188e632dd75c96d6d7a501324f5e058dc8",
+      "provider": "신한라이프생명",
+      "raw_product_name": "신한SOL암보험(무배당)(비갱신형)",
+      "e_insmarket_product_code": "L11C009000007",
+      "premium_text": "8,200원",
+      "monthly_premium_krw": 8200
+    },
+    {
+      "condition_id": "age44_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "88d1cf1a2fadffe918bbfb4c82a2b3188e632dd75c96d6d7a501324f5e058dc8",
+      "provider": "KDB생명",
+      "raw_product_name": "KDB다이렉트 암보험(해약환급금 미지급형III)(무)",
+      "e_insmarket_product_code": "L33C009000025",
+      "premium_text": "8,650원",
+      "monthly_premium_krw": 8650
+    },
+    {
+      "condition_id": "age44_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "88d1cf1a2fadffe918bbfb4c82a2b3188e632dd75c96d6d7a501324f5e058dc8",
+      "provider": "교보라이프플래닛",
+      "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 비흡연체)",
+      "e_insmarket_product_code": "L43C009000022",
+      "premium_text": "9,120원",
+      "monthly_premium_krw": 9120
+    },
+    {
+      "condition_id": "age44_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "88d1cf1a2fadffe918bbfb4c82a2b3188e632dd75c96d6d7a501324f5e058dc8",
+      "provider": "교보라이프플래닛",
+      "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 표준체)",
+      "e_insmarket_product_code": "L43C009000019",
+      "premium_text": "9,210원",
+      "monthly_premium_krw": 9210
+    },
+    {
+      "condition_id": "age44_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "88d1cf1a2fadffe918bbfb4c82a2b3188e632dd75c96d6d7a501324f5e058dc8",
+      "provider": "DB생명",
+      "raw_product_name": "(무)e로운 암보험(해약환급금 미지급형)(2601)",
+      "e_insmarket_product_code": "L71C009000006",
+      "premium_text": "10,900원",
+      "monthly_premium_krw": 10900
+    },
+    {
+      "condition_id": "age44_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "88d1cf1a2fadffe918bbfb4c82a2b3188e632dd75c96d6d7a501324f5e058dc8",
+      "provider": "한화손보",
+      "raw_product_name": "한화 다이렉트 내가고른 암보험 무배당2604",
+      "e_insmarket_product_code": "N02C009000016",
+      "premium_text": "13,018원",
+      "monthly_premium_krw": 13018
+    },
+    {
+      "condition_id": "age44_female",
+      "source_id": "e_insmarket_cancer_mobile",
+      "product_group": "암보험",
+      "quote_source_url": "https://e-insmarket.or.kr/m/cancerIns/cancerInsList.knia?action=search&age=44&enterType=A&indemnityTypeA=1&prdtSmlClsCd=D001&renewTypeA=C1&renewTypeB=&sex=2",
+      "quote_method": "GET",
+      "quote_params_json": "{\"action\":\"search\",\"age\":\"44\",\"enterType\":\"A\",\"indemnityTypeA\":\"1\",\"prdtSmlClsCd\":\"D001\",\"renewTypeA\":\"C1\",\"renewTypeB\":\"\",\"sex\":\"2\"}",
+      "response_hash_sha256": "88d1cf1a2fadffe918bbfb4c82a2b3188e632dd75c96d6d7a501324f5e058dc8",
+      "provider": "동양생명",
+      "raw_product_name": "(무)우리WON하는실속하나로암보험",
+      "e_insmarket_product_code": "L74C009000006",
+      "premium_text": "14,100원",
+      "monthly_premium_krw": 14100
+    }
+  ],
+  "target_matrix": [
+    {
+      "product_code": "L01C009000009",
+      "provider": "한화생명",
+      "product_group": "암보험",
+      "quotes": [
+        {
+          "condition_id": "age34_male",
+          "premium_text": "0원",
+          "monthly_premium_krw": null,
+          "found": true
+        },
+        {
+          "condition_id": "age34_female",
+          "premium_text": "0원",
+          "monthly_premium_krw": null,
+          "found": true
+        },
+        {
+          "condition_id": "age44_male",
+          "premium_text": "0원",
+          "monthly_premium_krw": null,
+          "found": true
+        },
+        {
+          "condition_id": "age44_female",
+          "premium_text": "0원",
+          "monthly_premium_krw": null,
+          "found": true
+        }
+      ]
+    },
+    {
+      "product_code": "L11C009000006",
+      "provider": "신한라이프생명",
+      "product_group": "암보험",
+      "quotes": [
+        {
+          "condition_id": "age34_male",
+          "premium_text": "8,530원",
+          "monthly_premium_krw": 8530,
+          "found": true
+        },
+        {
+          "condition_id": "age34_female",
+          "premium_text": "6,750원",
+          "monthly_premium_krw": 6750,
+          "found": true
+        },
+        {
+          "condition_id": "age44_male",
+          "premium_text": "10,030원",
+          "monthly_premium_krw": 10030,
+          "found": true
+        },
+        {
+          "condition_id": "age44_female",
+          "premium_text": "7,320원",
+          "monthly_premium_krw": 7320,
+          "found": true
+        }
+      ]
+    },
+    {
+      "product_code": "N11G004000001G",
+      "provider": "DB손보",
+      "product_group": "실손의료보험",
+      "quotes": [
+        {
+          "condition_id": "age34_male",
+          "premium_text": "6,219원",
+          "monthly_premium_krw": 6219,
+          "found": true
+        },
+        {
+          "condition_id": "age34_female",
+          "premium_text": null,
+          "monthly_premium_krw": null,
+          "found": false
+        },
+        {
+          "condition_id": "age44_male",
+          "premium_text": "9,320원",
+          "monthly_premium_krw": 9320,
+          "found": true
+        },
+        {
+          "condition_id": "age44_female",
+          "premium_text": null,
+          "monthly_premium_krw": null,
+          "found": false
+        }
+      ]
+    },
+    {
+      "product_code": "N10G004000002G",
+      "provider": "KB손보",
+      "product_group": "실손의료보험",
+      "quotes": [
+        {
+          "condition_id": "age34_male",
+          "premium_text": "6,400원",
+          "monthly_premium_krw": 6400,
+          "found": true
+        },
+        {
+          "condition_id": "age34_female",
+          "premium_text": null,
+          "monthly_premium_krw": null,
+          "found": false
+        },
+        {
+          "condition_id": "age44_male",
+          "premium_text": "9,074원",
+          "monthly_premium_krw": 9074,
+          "found": true
+        },
+        {
+          "condition_id": "age44_female",
+          "premium_text": null,
+          "monthly_premium_krw": null,
+          "found": false
+        }
+      ]
+    },
+    {
+      "product_code": "N08G004000002G",
+      "provider": "삼성화재",
+      "product_group": "실손의료보험",
+      "quotes": [
+        {
+          "condition_id": "age34_male",
+          "premium_text": "6,575원",
+          "monthly_premium_krw": 6575,
+          "found": true
+        },
+        {
+          "condition_id": "age34_female",
+          "premium_text": null,
+          "monthly_premium_krw": null,
+          "found": false
+        },
+        {
+          "condition_id": "age44_male",
+          "premium_text": "9,546원",
+          "monthly_premium_krw": 9546,
+          "found": true
+        },
+        {
+          "condition_id": "age44_female",
+          "premium_text": null,
+          "monthly_premium_krw": null,
+          "found": false
+        }
+      ]
+    },
+    {
+      "product_code": "N09G004000001G",
+      "provider": "현대해상",
+      "product_group": "실손의료보험",
+      "quotes": [
+        {
+          "condition_id": "age34_male",
+          "premium_text": "6,740원",
+          "monthly_premium_krw": 6740,
+          "found": true
+        },
+        {
+          "condition_id": "age34_female",
+          "premium_text": null,
+          "monthly_premium_krw": null,
+          "found": false
+        },
+        {
+          "condition_id": "age44_male",
+          "premium_text": "9,190원",
+          "monthly_premium_krw": 9190,
+          "found": true
+        },
+        {
+          "condition_id": "age44_female",
+          "premium_text": null,
+          "monthly_premium_krw": null,
+          "found": false
+        }
+      ]
+    }
+  ],
+  "qa": {
+    "quote_requery_possible": true,
+    "targets_with_premium_variation": [
+      {
+        "product_code": "L11C009000006",
+        "provider": "신한라이프생명",
+        "product_group": "암보험",
+        "condition_count": 4,
+        "premiums_krw": [
+          6750,
+          7320,
+          8530,
+          10030
+        ]
+      },
+      {
+        "product_code": "N11G004000001G",
+        "provider": "DB손보",
+        "product_group": "실손의료보험",
+        "condition_count": 2,
+        "premiums_krw": [
+          6219,
+          9320
+        ]
+      },
+      {
+        "product_code": "N10G004000002G",
+        "provider": "KB손보",
+        "product_group": "실손의료보험",
+        "condition_count": 2,
+        "premiums_krw": [
+          6400,
+          9074
+        ]
+      },
+      {
+        "product_code": "N08G004000002G",
+        "provider": "삼성화재",
+        "product_group": "실손의료보험",
+        "condition_count": 2,
+        "premiums_krw": [
+          6575,
+          9546
+        ]
+      },
+      {
+        "product_code": "N09G004000001G",
+        "provider": "현대해상",
+        "product_group": "실손의료보험",
+        "condition_count": 2,
+        "premiums_krw": [
+          6740,
+          9190
+        ]
+      }
+    ],
+    "blockers": [
+      "e_insmarket_medical_5th_mobile age34_female returned 500; request parameters need follow-up before full matrix collection.",
+      "e_insmarket_medical_5th_mobile age44_female returned 500; request parameters need follow-up before full matrix collection.",
+      "보험다모아 조회 조건은 대표 비교 조건이며 확정 견적이나 청약 심사 결과가 아니다.",
+      "sex code mapping은 URL/POST parameter 기반으로 정리했으며 공식 API 문서 기반 검증은 추가 필요하다.",
+      "보장금액, 납입기간, 특약 조합은 이번 PoC에서 아직 재조회하지 않았다."
+    ],
+    "next_actions": [
+      "insurance_premium_quotes schema에 age, sex, source_sex_code, premium_text, monthly_premium_krw, quote_params_json을 반영한다.",
+      "P0 source 후보 중 암보험과 실손의료보험부터 조건별 quote matrix를 수집한다.",
+      "사용자 UI에서는 대표 보험료와 조건별 예상 보험료를 분리해서 표시한다."
+    ]
+  }
+}

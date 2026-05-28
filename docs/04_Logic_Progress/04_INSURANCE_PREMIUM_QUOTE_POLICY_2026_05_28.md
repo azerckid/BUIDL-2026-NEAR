@@ -1,11 +1,11 @@
 # [정책] 조건별 보험료 Quote Matrix 관리 방침
 > Created: 2026-05-28 03:00
-> Last Updated: 2026-05-28 03:27
+> Last Updated: 2026-05-28 15:02
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v1.1
+- **상태**: Draft v1.2
 - **범위**: 보험다모아/보험사 공시에서 수집한 보험료의 해석, 조건별 보험료 matrix 수집, seed 승격 정책
-- **결론**: 현재 수집된 `premium_text`는 특정 비교 조건의 대표 보험료일 뿐이다. 나이, 성별, 납입기간, 보장금액별 보험료 변화는 별도 `insurance_premium_quotes` 테이블과 재조회 파이프라인으로 관리해야 한다.
+- **결론**: 현재 수집된 `premium_text`는 특정 비교 조건의 대표 보험료일 뿐이다. 2026-05-28 PoC에서 암보험과 일부 실손의료보험은 나이/성별 재조회 가능성이 확인됐지만, 보험료 변화는 별도 `insurance_premium_quotes` 테이블과 재조회 파이프라인으로 관리해야 한다.
 
 ---
 
@@ -128,8 +128,21 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 | 대표 KRW 보험료 | `premium_text`와 `monthly_premium_krw`로 source row에 저장. 한화생명 `0원` 값은 숫자 대표 보험료로 저장하지 않음 |
 | 보험료 caveat | `premium_basis`와 `coverage_caveats_json`에 표시 |
 | USDC 환산 | 아직 적용하지 않음. `monthly_premium_usdc`가 필요한 active 추천 상품 승격 시 별도 환산 기준을 승인 |
-| 조건별 quote matrix | 아직 적용하지 않음. 다음 PoC에서 나이/성별 파라미터 재조회 가능성을 확인 |
+| 조건별 quote matrix | 아직 적용하지 않음. 2026-05-28 PoC에서 재조회 가능성을 부분 확인 |
 | 사용자 추천 노출 | 실제 상품 후보는 노출하지 않고 기존 demo 상품만 active 유지 |
+
+---
+
+### 5-2. 2026-05-28 Quote Matrix PoC 결과
+
+보험다모아 모바일 비교 화면을 대상으로 나이/성별 조건별 재조회 가능성을 확인했다. 산출물은 `../../data/insurance/latest_premium_quote_probe.json`과 `../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md`에 둔다.
+
+| 항목 | 결과 |
+|---|---|
+| 암보험 | 34세/44세, 남성/여성 4개 조건 모두 HTTP 200. 같은 신한라이프 상품 코드에서 6,750원~10,030원 변동 확인 |
+| 실손의료보험 | 남성 34세/44세는 HTTP 200. DB손보, KB손보, 삼성화재, 현대해상 상품 코드에서 나이별 보험료 변동 확인 |
+| 미해결 | 실손의료보험 여성 조건은 현재 `sexDiv=F`, `sex=F` 파라미터로 HTTP 500 반환. 여성 코드 또는 hidden field 확인 필요 |
+| 정책 영향 | `insurance_premium_quotes` 테이블은 필요하다. 단, quote row는 raw/needs_review 상태로 먼저 저장하고 확정 견적으로 표시하지 않는다 |
 
 ---
 
@@ -138,8 +151,8 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 | 순서 | 작업 | PR 성격 |
 |---:|---|---|
 | 1 | source-aware seed 정책에 대표 보험료와 `premium_basis` 문구 반영 | 완료 |
-| 2 | 보험다모아/보험사 페이지에서 age/sex 파라미터 재조회 가능성 확인 | 다음 조사/PoC PR |
-| 3 | `insurance_premium_quotes` Drizzle schema와 migration 설계 | DB schema PR |
+| 2 | 보험다모아/보험사 페이지에서 age/sex 파라미터 재조회 가능성 확인 | 부분 완료. 실손 여성 파라미터 후속 확인 필요 |
+| 3 | `insurance_premium_quotes` Drizzle schema와 migration 설계 | 다음 DB schema PR |
 | 4 | P0 상품 3~5개의 조건별 quote matrix 수집 | crawler PR |
 | 5 | UI에서 "대표 보험료"와 "조건별 예상 보험료"를 분리 표시 | UI PR |
 
@@ -166,3 +179,4 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 - **Logic_Progress**: [Roadmap](./ROADMAP.md) - Track A 다음 작업
 - **QA_Validation**: [Hash-backed Product Manual Review](../05_QA_Validation/08_HASH_BACKED_PRODUCT_MANUAL_REVIEW_2026_05_27.md) - seed 승격 전 보험료 기준 미승인 근거
 - **QA_Validation**: [Source-aware Seed Policy QA](../05_QA_Validation/10_SOURCE_AWARE_SEED_POLICY_2026_05_28.md) - 대표 보험료를 source row에만 보관한 검증 결과
+- **QA_Validation**: [Premium Quote Matrix PoC](../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md) - 조건별 보험료 재조회 가능성 검증 결과
