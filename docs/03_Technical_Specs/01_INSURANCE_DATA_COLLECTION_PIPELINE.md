@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-29 01:55
+> Last Updated: 2026-05-29 02:58
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.2
+- **상태**: Draft v2.3
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -379,6 +379,23 @@ npm run collect:insurance:docs -- --product-codes <comma-separated-product-codes
 교보 quote-only 후보 2개(`L43C009000022`, `L43C009000019`)는 같은 공시 상품 코드 `10054`를 공유하며, 상품요약서, 사업방법서, 보험약관 hash를 확보했다. 이번 결과는 `data/insurance/latest_quote_only_carrier_disclosure_probe.json`과 `../05_QA_Validation/21_LIFEPLANET_DISCLOSURE_ADAPTER_2026_05_29.md`에 둔다.
 
 이 단계에서도 DB write는 하지 않는다. hash-backed 후보는 상품 variant, `coverage_category`, `risk_targets`, `matching_strategy`, caveat 검토 후 별도 seed PR에서만 승격한다.
+
+### 9-10. Quote-only Source Document Variant Review
+
+2026-05-29 02:58 KST 기준 quote-only hash-backed 후보를 seed 적용 전 variant gate로 분류했다.
+
+| 항목 | 결과 |
+|---|---:|
+| 검수 source 후보 | 5 |
+| 검수 document row | 14 |
+| seed 후보 source | 3 |
+| seed 후보 document row | 8 |
+| 차단 source | 2 |
+| DB write | 0 |
+
+Seed 후보는 한화생명 비흡연체형 source 1개와 교보라이프플래닛 비흡연체/표준체 source 2개다. KDB생명은 `40869_policy`와 `40870_policy` 중 어느 약관이 product code `L33C009000025`에 해당하는지 확인 전까지 차단한다. 신한라이프 quote-only 표준형 source는 해약환급금 미지급형 문서가 match score 0.5로 잡혀 차단한다.
+
+검수 결과는 `data/insurance/latest_quote_only_source_document_variant_review.json`, `data/insurance/latest_quote_only_source_document_variant_review.csv`, `../05_QA_Validation/22_QUOTE_ONLY_SOURCE_DOCUMENT_VARIANT_REVIEW_2026_05_29.md`에 둔다. 다음 seed PR은 안전 후보 8개 document row만 추가하고, `insurance_product_sources.review_status`와 추천 노출 상태는 승격하지 않는다.
 
 ---
 
