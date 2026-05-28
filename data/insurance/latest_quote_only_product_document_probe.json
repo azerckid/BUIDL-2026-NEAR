@@ -1,0 +1,448 @@
+{
+  "metadata": {
+    "generated_at": "2026-05-29T01:48:53.667+09:00",
+    "timezone": "Asia/Seoul",
+    "generator": "scripts/insurance/collect-product-documents.mjs",
+    "input_snapshot": "data/insurance/latest_official_sources_snapshot.json",
+    "output_version": "1.1",
+    "target_limit": 15,
+    "target_product_codes": [
+      "N71G004000001G",
+      "N03G004000001G",
+      "N01G004000002G",
+      "N02G004000001G",
+      "N05G004000001G",
+      "L43C009000022",
+      "L43C009000019",
+      "L74C009000006",
+      "L34C009000021",
+      "L34C009000022",
+      "L11C009000007",
+      "L01C009000010",
+      "N02C009000016",
+      "L71C009000006",
+      "L33C009000025"
+    ]
+  },
+  "selected_products": [
+    {
+      "provider": "농협손보",
+      "product_group": "실손의료보험",
+      "raw_product_name": "(무) 헤아림실손의료비보험2605",
+      "premium_text": "5,745원",
+      "e_insmarket_product_code": "N71G004000001G",
+      "official_product_url": "https://www.nhfire.co.kr/product/retrieveProduct.nhfire?pdtCd=D711117"
+    },
+    {
+      "provider": "메리츠화재",
+      "product_group": "실손의료보험",
+      "raw_product_name": "(무) 메리츠 다이렉트 실손의료비보험2605",
+      "premium_text": "6,643원",
+      "e_insmarket_product_code": "N01G004000002G",
+      "official_product_url": "https://www.meritzdirect.com/DMI1610DM000001/southeaster.do#!/"
+    },
+    {
+      "provider": "흥국화재",
+      "product_group": "실손의료보험",
+      "raw_product_name": "(무)흥Good 다이렉트 실손의료보험(26.05)",
+      "premium_text": "7,995원",
+      "e_insmarket_product_code": "N05G004000001G",
+      "official_product_url": "https://direct.heungkukfire.co.kr/?ccid=0606001007#/CMMOBDPRM4001"
+    },
+    {
+      "provider": "교보라이프플래닛",
+      "product_group": "암보험",
+      "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 비흡연체)",
+      "premium_text": "8,410원",
+      "e_insmarket_product_code": "L43C009000022",
+      "official_product_url": "https://m.lifeplanet.co.kr:444/lpds2/insurance/protection-cancer-insurance.dev"
+    },
+    {
+      "provider": "교보라이프플래닛",
+      "product_group": "암보험",
+      "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 표준체)",
+      "premium_text": "8,490원",
+      "e_insmarket_product_code": "L43C009000019",
+      "official_product_url": "https://m.lifeplanet.co.kr:444/lpds2/insurance/protection-cancer-insurance.dev"
+    },
+    {
+      "provider": "미래에셋생명",
+      "product_group": "암보험",
+      "raw_product_name": "온라인 암보험 무배당 [기본형]",
+      "premium_text": "4,510원",
+      "e_insmarket_product_code": "L34C009000021",
+      "official_product_url": "https://life.miraeasset.com/online/index.do?_OC_=1363#MO-DR-020000-000000"
+    },
+    {
+      "provider": "미래에셋생명",
+      "product_group": "암보험",
+      "raw_product_name": "온라인 암보험 무배당 [해약환급금이없는유형]",
+      "premium_text": "6,490원",
+      "e_insmarket_product_code": "L34C009000022",
+      "official_product_url": "https://life.miraeasset.com/online/index.do?_OC_=1363#MO-DR-020000-000000"
+    },
+    {
+      "provider": "신한라이프생명",
+      "product_group": "암보험",
+      "raw_product_name": "신한SOL암보험(무배당)(비갱신형)",
+      "premium_text": "7,870원",
+      "e_insmarket_product_code": "L11C009000007",
+      "official_product_url": "https://s.shinhanlife.co.kr/sht/6Nf1STxRv62YxH2X1wZxjQYN2qx3K.cs"
+    },
+    {
+      "provider": "한화생명",
+      "product_group": "암보험",
+      "raw_product_name": "한화생명 e암보험(비갱신형)(무)(비흡연체형)",
+      "premium_text": "0원",
+      "e_insmarket_product_code": "L01C009000010",
+      "official_product_url": "https://direct.hanwhalife.com/products/CMS00012?utm_source=einsmarket_mo&utm_medium=association&utm_campaign=cancer"
+    },
+    {
+      "provider": "한화손보",
+      "product_group": "암보험",
+      "raw_product_name": "한화 다이렉트 내가고른 암보험 무배당2604",
+      "premium_text": "12,204원",
+      "e_insmarket_product_code": "N02C009000016",
+      "official_product_url": "https://www.hanwhadirect.com/landing.do?cmpgId=1000001444"
+    },
+    {
+      "provider": "DB생명",
+      "product_group": "암보험",
+      "raw_product_name": "(무)e로운 암보험(해약환급금 미지급형)(2601)",
+      "premium_text": "9,700원",
+      "e_insmarket_product_code": "L71C009000006",
+      "official_product_url": "https://direct.idblife.com/"
+    },
+    {
+      "provider": "KDB생명",
+      "product_group": "암보험",
+      "raw_product_name": "KDB다이렉트 암보험(해약환급금 미지급형III)(무)",
+      "premium_text": "8,020원",
+      "e_insmarket_product_code": "L33C009000025",
+      "official_product_url": "https://direct.kdblife.co.kr/p/p.do?ev=1533801"
+    }
+  ],
+  "probes": [
+    {
+      "provider": "농협손보",
+      "product_group": "실손의료보험",
+      "raw_product_name": "(무) 헤아림실손의료비보험2605",
+      "premium_text": "5,745원",
+      "e_insmarket_product_code": "N71G004000001G",
+      "official_product_url": "https://www.nhfire.co.kr/product/retrieveProduct.nhfire?pdtCd=D711117",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://www.nhfire.co.kr/product/retrieveProduct.nhfire?pdtCd=D711117",
+      "content_type": "text/html; charset=UTF-8",
+      "pdf_candidates": [
+        {
+          "url": "https://www.nhfire.co.kr/product/02.%20%EB%AC%B4%EB%B0%B0%EB%8B%B9%20%ED%97%A4%EC%95%84%EB%A6%BC%EB%8B%A4%EC%9D%B4%EB%A0%89%ED%8A%B8%EC%8B%A4%EC%86%90%EC%9D%98%EB%A3%8C%EB%B9%84%EB%B3%B4%ED%97%98(%EC%A0%84%ED%99%98%EA%B3%84%EC%95%BD%EC%9A%A9)2605%EC%95%BD%EA%B4%80.pdf",
+          "status": "non_pdf_response",
+          "http_status": 200,
+          "content_type": "text/html",
+          "content_length_bytes": 4069,
+          "sha256": null,
+          "retrieved_at": null
+        },
+        {
+          "url": "https://www.nhfire.co.kr/product/%EB%B6%99%EC%9E%842.%20%EC%A0%95%EB%B3%B4%EB%B3%B4%ED%98%B8%20%EA%B4%80%EB%A6%AC%EC%B2%B4%EA%B3%84%20%EC%9D%B8%EC%A6%9D%EC%84%9C2.pdf",
+          "status": "non_pdf_response",
+          "http_status": 200,
+          "content_type": "text/html",
+          "content_length_bytes": 4069,
+          "sha256": null,
+          "retrieved_at": null
+        }
+      ],
+      "notes": []
+    },
+    {
+      "provider": "메리츠화재",
+      "product_group": "실손의료보험",
+      "raw_product_name": "(무) 메리츠 다이렉트 실손의료비보험2605",
+      "premium_text": "6,643원",
+      "e_insmarket_product_code": "N01G004000002G",
+      "official_product_url": "https://www.meritzdirect.com/DMI1610DM000001/southeaster.do#!/",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://store.meritzfire.com/health-and-kids/direct-medicalInfo.do",
+      "content_type": "text/html;charset=UTF-8",
+      "pdf_candidates": [],
+      "notes": [
+        "No PDF links were found in the official product page HTML."
+      ]
+    },
+    {
+      "provider": "흥국화재",
+      "product_group": "실손의료보험",
+      "raw_product_name": "(무)흥Good 다이렉트 실손의료보험(26.05)",
+      "premium_text": "7,995원",
+      "e_insmarket_product_code": "N05G004000001G",
+      "official_product_url": "https://direct.heungkukfire.co.kr/?ccid=0606001007#/CMMOBDPRM4001",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://direct.heungkukfire.co.kr/?ccid=0606001007",
+      "content_type": "text/html",
+      "pdf_candidates": [],
+      "notes": [
+        "No PDF links were found in the official product page HTML."
+      ]
+    },
+    {
+      "provider": "교보라이프플래닛",
+      "product_group": "암보험",
+      "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 비흡연체)",
+      "premium_text": "8,410원",
+      "e_insmarket_product_code": "L43C009000022",
+      "official_product_url": "https://m.lifeplanet.co.kr:444/lpds2/insurance/protection-cancer-insurance.dev",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://www.lifeplanet.co.kr/lpds2/insurance/protection-cancer-insurance.dev",
+      "content_type": "text/html; charset=UTF-8",
+      "pdf_candidates": [],
+      "notes": [
+        "No PDF links were found in the official product page HTML."
+      ]
+    },
+    {
+      "provider": "교보라이프플래닛",
+      "product_group": "암보험",
+      "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 표준체)",
+      "premium_text": "8,490원",
+      "e_insmarket_product_code": "L43C009000019",
+      "official_product_url": "https://m.lifeplanet.co.kr:444/lpds2/insurance/protection-cancer-insurance.dev",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://www.lifeplanet.co.kr/lpds2/insurance/protection-cancer-insurance.dev",
+      "content_type": "text/html; charset=UTF-8",
+      "pdf_candidates": [],
+      "notes": [
+        "No PDF links were found in the official product page HTML."
+      ]
+    },
+    {
+      "provider": "미래에셋생명",
+      "product_group": "암보험",
+      "raw_product_name": "온라인 암보험 무배당 [기본형]",
+      "premium_text": "4,510원",
+      "e_insmarket_product_code": "L34C009000021",
+      "official_product_url": "https://life.miraeasset.com/online/index.do?_OC_=1363#MO-DR-020000-000000",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://life.miraeasset.com/online/index.do?_OC_=1363",
+      "content_type": "text/html; charset=UTF-8",
+      "pdf_candidates": [],
+      "notes": [
+        "No PDF links were found in the official product page HTML."
+      ]
+    },
+    {
+      "provider": "미래에셋생명",
+      "product_group": "암보험",
+      "raw_product_name": "온라인 암보험 무배당 [해약환급금이없는유형]",
+      "premium_text": "6,490원",
+      "e_insmarket_product_code": "L34C009000022",
+      "official_product_url": "https://life.miraeasset.com/online/index.do?_OC_=1363#MO-DR-020000-000000",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://life.miraeasset.com/online/index.do?_OC_=1363",
+      "content_type": "text/html; charset=UTF-8",
+      "pdf_candidates": [],
+      "notes": [
+        "No PDF links were found in the official product page HTML."
+      ]
+    },
+    {
+      "provider": "신한라이프생명",
+      "product_group": "암보험",
+      "raw_product_name": "신한SOL암보험(무배당)(비갱신형)",
+      "premium_text": "7,870원",
+      "e_insmarket_product_code": "L11C009000007",
+      "official_product_url": "https://s.shinhanlife.co.kr/sht/6Nf1STxRv62YxH2X1wZxjQYN2qx3K.cs",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://mo.shinhanlife.co.kr/resources/mobile/index.html?id=CDIMBA0010&key=6Nf1STxRv62YxH2X1wZxjQYN2qx3K",
+      "content_type": "text/html",
+      "pdf_candidates": [],
+      "notes": [
+        "No PDF links were found in the official product page HTML."
+      ]
+    },
+    {
+      "provider": "한화생명",
+      "product_group": "암보험",
+      "raw_product_name": "한화생명 e암보험(비갱신형)(무)(비흡연체형)",
+      "premium_text": "0원",
+      "e_insmarket_product_code": "L01C009000010",
+      "official_product_url": "https://direct.hanwhalife.com/products/CMS00012?utm_source=einsmarket_mo&utm_medium=association&utm_campaign=cancer",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://direct.hanwhalife.com/products/CMS00012?utm_source=einsmarket_mo&utm_medium=association&utm_campaign=cancer",
+      "content_type": "text/html; charset=utf-8",
+      "pdf_candidates": [
+        {
+          "url": "https://direct.hanwhalife.com/products/downloadProxy/%ED%95%9C%ED%99%94%EC%83%9D%EB%AA%85%20e%EC%95%94%EB%B3%B4%ED%97%98(%EB%B9%84%EA%B0%B1%EC%8B%A0%ED%98%95)%20%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%83%81%ED%92%88%EC%9A%94%EC%95%BD%EC%84%9C_20260417.pdf?docUrl=dynamic/direct/product/cms_edaqInsr09Jt0RKh_1776383454363.pdf",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/pdf",
+          "content_length_bytes": 4501796,
+          "sha256": "acea8fcef33624a66dd898a729e283004f2a520f8a77daa55db9a3a22bed4d3f",
+          "retrieved_at": "2026-05-29T01:48:43.671+09:00"
+        },
+        {
+          "url": "https://direct.hanwhalife.com/products/downloadProxy/%ED%95%9C%ED%99%94%EC%83%9D%EB%AA%85%20e%EC%95%94%EB%B3%B4%ED%97%98(%EB%B9%84%EA%B0%B1%EC%8B%A0%ED%98%95)%20%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%95%BD%EA%B4%80_20260417.pdf?docUrl=dynamic/direct/product/cms_T3jquWCZurf6YKm6_1776383470397.pdf",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/pdf",
+          "content_length_bytes": 3661413,
+          "sha256": "918796d28b8274195258621c08c32c87159c18b1a50fb6e6f653a8c42ba8f7ed",
+          "retrieved_at": "2026-05-29T01:48:44.097+09:00"
+        },
+        {
+          "url": "https://direct.hanwhalife.com/products/%ED%95%9C%ED%99%94%EC%83%9D%EB%AA%85%20e%EC%95%94%EB%B3%B4%ED%97%98(%EB%B9%84%EA%B0%B1%EC%8B%A0%ED%98%95)%20%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%83%81%ED%92%88%EC%9A%94%EC%95%BD%EC%84%9C_20260417.pdf",
+          "status": "non_pdf_response",
+          "http_status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "content_length_bytes": 51583,
+          "sha256": null,
+          "retrieved_at": null
+        },
+        {
+          "url": "https://direct.hanwhalife.com/products/dynamic/direct/product/cms_edaqInsr09Jt0RKh_1776383454363.pdf",
+          "status": "http_error",
+          "http_status": 404,
+          "content_type": "text/html; charset=utf-8",
+          "content_length_bytes": null,
+          "sha256": null,
+          "retrieved_at": null
+        },
+        {
+          "url": "https://direct.hanwhalife.com/products/%ED%95%9C%ED%99%94%EC%83%9D%EB%AA%85%20e%EC%95%94%EB%B3%B4%ED%97%98(%EB%B9%84%EA%B0%B1%EC%8B%A0%ED%98%95)%20%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%95%BD%EA%B4%80_20260417.pdf",
+          "status": "non_pdf_response",
+          "http_status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "content_length_bytes": 51573,
+          "sha256": null,
+          "retrieved_at": null
+        }
+      ],
+      "notes": []
+    },
+    {
+      "provider": "한화손보",
+      "product_group": "암보험",
+      "raw_product_name": "한화 다이렉트 내가고른 암보험 무배당2604",
+      "premium_text": "12,204원",
+      "e_insmarket_product_code": "N02C009000016",
+      "official_product_url": "https://www.hanwhadirect.com/landing.do?cmpgId=1000001444",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://www.hanwhadirect.com/etc/ieupdate.html",
+      "content_type": "text/html;charset=UTF-8",
+      "pdf_candidates": [],
+      "notes": [
+        "No PDF links were found in the official product page HTML."
+      ]
+    },
+    {
+      "provider": "DB생명",
+      "product_group": "암보험",
+      "raw_product_name": "(무)e로운 암보험(해약환급금 미지급형)(2601)",
+      "premium_text": "9,700원",
+      "e_insmarket_product_code": "L71C009000006",
+      "official_product_url": "https://direct.idblife.com/",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://direct.idblife.com/index.do",
+      "content_type": "text/html;charset=UTF-8",
+      "pdf_candidates": [],
+      "notes": [
+        "No PDF links were found in the official product page HTML."
+      ]
+    },
+    {
+      "provider": "KDB생명",
+      "product_group": "암보험",
+      "raw_product_name": "KDB다이렉트 암보험(해약환급금 미지급형III)(무)",
+      "premium_text": "8,020원",
+      "e_insmarket_product_code": "L33C009000025",
+      "official_product_url": "https://direct.kdblife.co.kr/p/p.do?ev=1533801",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://direct.kdblife.co.kr/edirect/product/cancerDetail.do?ev=1533801",
+      "content_type": "text/html; charset=utf-8",
+      "pdf_candidates": [
+        {
+          "url": "https://direct.kdblife.co.kr/resources/doc/policy/40870_policy.pdf",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/pdf",
+          "content_length_bytes": 6688831,
+          "sha256": "a9f07c34b0551ba616f8098027873dcaed3367d2c035dd72403daa431cdc52b6",
+          "retrieved_at": "2026-05-29T01:48:50.498+09:00"
+        },
+        {
+          "url": "https://direct.kdblife.co.kr/resources/doc/policy/40869_policy.pdf",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/pdf",
+          "content_length_bytes": 6605806,
+          "sha256": "10d4904403a4756932e3463f121b5f5b314df5c29f324fb223d35cfed39ca8ba",
+          "retrieved_at": "2026-05-29T01:48:52.269+09:00"
+        },
+        {
+          "url": "https://direct.kdblife.co.kr/resources/doc/policy/40869_summary.pdf",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/pdf",
+          "content_length_bytes": 204656,
+          "sha256": "b6b3c5607f73accfd7cd28595cd466c6fecbc09c3b6e02e28867822fd51d407a",
+          "retrieved_at": "2026-05-29T01:48:53.666+09:00"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "skipped_products": [
+    {
+      "provider": "롯데손보",
+      "product_group": "실손의료보험",
+      "raw_product_name": "무배당 let:care 실손의료보험Ⅴ(2605)",
+      "premium_text": "12,183원",
+      "e_insmarket_product_code": "N03G004000001G",
+      "official_product_url": null,
+      "reason": "missing_official_product_url"
+    },
+    {
+      "provider": "한화손보",
+      "product_group": "실손의료보험",
+      "raw_product_name": "한화다이렉트실손의료보험(갱신형)Ⅴ 무배당",
+      "premium_text": "6,394원",
+      "e_insmarket_product_code": "N02G004000001G",
+      "official_product_url": null,
+      "reason": "missing_official_product_url"
+    },
+    {
+      "provider": "동양생명",
+      "product_group": "암보험",
+      "raw_product_name": "(무)우리WON하는실속하나로암보험",
+      "premium_text": "11,000원",
+      "e_insmarket_product_code": "L74C009000006",
+      "official_product_url": null,
+      "reason": "missing_official_product_url"
+    }
+  ],
+  "qa": {
+    "service_db_ready": false,
+    "blockers": [
+      "A product is not seed-ready until official terms or summary PDF is hashed and human-reviewed.",
+      "Many direct product pages are JavaScript landing pages and may not expose PDF links in initial HTML.",
+      "coverage_category and risk_targets still require human approval."
+    ],
+    "next_actions": [
+      "Add carrier disclosure-page crawling for products whose direct landing pages do not expose PDFs.",
+      "Create a review CSV that combines e-insmarket rows with official PDF/hash evidence.",
+      "Promote only approved products into insurance_product_sources or seed candidates."
+    ]
+  }
+}

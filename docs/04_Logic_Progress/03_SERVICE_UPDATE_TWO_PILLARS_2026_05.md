@@ -1,9 +1,9 @@
 # [실행 전략] 두 기둥 기반 서비스 업데이트 계획
 > Created: 2026-05-27 02:55
-> Last Updated: 2026-05-29 01:25
+> Last Updated: 2026-05-29 01:55
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.0
+- **상태**: Draft v3.1
 - **범위**: 실제 보험상품 카탈로그 적용 준비, NEAR 기술 업데이트 적용 준비
 - **결론**: 서비스 적용의 두 기둥은 `실제 보험상품 탐색`과 `NEAR 프라이버시 기술 적용`이며, 두 영역은 결정론적 매칭 엔진으로 연결한다.
 
@@ -60,6 +60,7 @@
 - 현재 hash-backed 7개 상품은 모두 `review_status=needs_review`로 보관하고, quote-only 신규 후보 15개는 `review_status=raw`로 보관한다. 기존 active demo 상품은 실제 상품의 매칭 키워드 정리 완료 전까지 서비스 흐름 보존용으로 유지한다.
 - 2026-05-28 quote matrix PoC에서 암보험과 실손의료보험 모두 나이/성별별 재조회 가능성을 확인했다. 초기 실손 여성 요청은 `F` 파라미터 오류였고, 모바일 폼 기준 여자 값 `L`로 수정했다.
 - 2026-05-28 23:50 KST 기준 실손의료보험 여성 파라미터를 `L`로 수정해 HTTP 500을 해소했다. 최신 PoC raw quote 84건 중 24건을 먼저 `insurance_premium_quotes.review_status=needs_review`로 적재했고, 2026-05-29 기준 미등록 60건을 연결할 quote-only raw source 후보 15개도 백업 후 DB에 적용했다. 현재 운영 DB의 quote row는 84건이며 모두 `needs_review` 상태다.
+- 2026-05-29 01:55 KST 기준 quote-only raw source 15개의 공식 상품 페이지 1차 probe를 수행했다. 12개는 공식 상품 URL 접근이 가능했고, 한화생명 비흡연체형과 KDB생명 다이렉트 암보험에서 5개 PDF hash를 확보했다. 신한라이프 후보는 carrier disclosure crawler에서 3개 hash가 추가로 나왔지만 match score 0.5라 variant 확인 전에는 seed 문서로 승격하지 않는다.
 
 ### 3-3. 구현된 스키마 확장
 
@@ -212,7 +213,9 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - [x] 실손의료보험 여성 조건 quote 파라미터 확인
 - [x] source catalog 미등록 quote 60건을 연결할 quote-only raw source 후보 15개 seed 반영
 - [x] 백업 후 quote-only source 후보 DB 적용 및 quote row 60건 추가 적재
-- [ ] quote-only raw source 15개 공식 문서 hash 확보
+- [x] quote-only raw source 15개 공식 상품 페이지/PDF 1차 probe
+- [ ] quote-only raw source 미확보 후보 carrier별 공시/API adapter 보강
+- [ ] hash-backed quote-only 후보를 `insurance_source_documents` seed 후보로 정리
 - [ ] 매칭 키워드가 정리된 실제 상품 snapshot 생성 및 기존 active demo 상품 교체
 - [ ] HIRA 질병 통계를 `risk_targets` 근거 보강 자료로 연결
 
@@ -261,6 +264,7 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - **Technical_Specs**: [Insurance Matching Keyword Policy](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md) - DNA risk target과 보험상품 보장 키워드 매칭 기준
 - **Logic_Progress**: [Premium Quote Policy](./04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md) - 조건별 보험료 matrix와 seed 발행 정책
 - **QA_Validation**: [Quote-only Source Catalog DB Apply](../05_QA_Validation/19_SOURCE_CATALOG_QUOTE_DB_APPLY_2026_05_29.md) - source 후보와 quote row 60건 추가 적용 검증
+- **QA_Validation**: [Quote-only Source Document Probe](../05_QA_Validation/20_QUOTE_ONLY_SOURCE_DOCUMENT_PROBE_2026_05_29.md) - quote-only 후보 공식 문서 hash 1차 probe
 - **Technical_Specs**: [Deployment Strategy](../03_Technical_Specs/DEPLOYMENT_STRATEGY.md) - Confidential Intents와 배포 전략의 기존 정리
 - **QA_Validation**: [Insurance Data Refresh QA](../05_QA_Validation/03_INSURANCE_DATA_REFRESH_QA.md) - 보험상품 데이터 정기 갱신 체크리스트
 - **QA_Validation**: [Insurance Data Acquisition PoC](../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md) - 공식 출처 수집 가능성 검증 결과
