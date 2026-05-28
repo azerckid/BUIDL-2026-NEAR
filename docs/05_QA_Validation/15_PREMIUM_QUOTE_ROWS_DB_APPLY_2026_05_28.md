@@ -1,11 +1,11 @@
 # [QA] 보험료 Quote Row DB 적용 검증
 > Created: 2026-05-28 21:13
-> Last Updated: 2026-05-28 21:13
+> Last Updated: 2026-05-28 23:51
 
 - **레이어**: 05_QA_Validation
 - **상태**: Passed
 - **범위**: `data/insurance/latest_premium_quote_probe.json`의 보험다모아 quote row를 `insurance_premium_quotes`에 source-aware 후보 단위로 적재
-- **결론**: 백업 생성 후 PoC raw quote 66건 중 현재 `insurance_product_sources`와 매칭되는 16건을 Turso DB에 `needs_review` 상태로 적재했다. source catalog 미등록 50건은 DB에 넣지 않고 후속 source 후보 확장 대상으로 남긴다.
+- **결론**: 백업 생성 후 당시 PoC raw quote 66건 중 현재 `insurance_product_sources`와 매칭되는 16건을 Turso DB에 `needs_review` 상태로 적재했다. 이후 실손 여성 파라미터 해소 PR에서 8건을 추가 적재해 현재 quote row는 24건이다.
 
 ---
 
@@ -140,16 +140,15 @@ PoC raw quote 66건 중 50건은 `not_in_source_catalog`로 제외했다. 이는
 - 모든 신규 row는 `needs_review` 상태이므로 사용자 UI에 확정 견적으로 노출하지 않는다.
 - 기존 active demo `insurance_products` 5건은 변경하지 않았다.
 - quote row ID는 `product_source_id`, `condition_id`, 응답 hash prefix 기반으로 생성되어 같은 응답의 중복 삽입을 방지한다.
-- 실손의료보험 여성 조건 2건은 여전히 HTTP 500 블로커로 남아 있다.
+- 실손의료보험 여성 조건은 후속 QA17에서 모바일 폼 기준 `L` 파라미터로 해소했고, 여성 실손 quote row 8건을 추가 적재했다.
 
 ---
 
 ## 7. 남은 작업
 
-1. 실손의료보험 여성 조건 POST 파라미터를 모바일 화면 기준으로 재확인한다.
-2. source catalog 미등록 50건 중 P0 질병/암/실손 상품을 원천 후보로 확장한다.
-3. quote row를 사람이 검수한 뒤 `approved` 승격 기준을 정한다.
-4. UI에서 대표 보험료와 조건별 예상 보험료를 분리 표시한다.
+1. source catalog 미등록 quote 60건 중 P0 질병/암/실손 상품을 원천 후보로 확장한다.
+2. quote row를 사람이 검수한 뒤 `approved` 승격 기준을 정한다.
+3. UI에서 대표 보험료와 조건별 예상 보험료를 분리 표시한다.
 
 ---
 
@@ -176,3 +175,4 @@ PoC raw quote 66건 중 50건은 `not_in_source_catalog`로 제외했다. 이는
 - **QA_Validation**: [Premium Quote Matrix PoC](./12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md) - quote row 수집 근거
 - **QA_Validation**: [Premium Quotes Schema Migration](./13_PREMIUM_QUOTES_SCHEMA_MIGRATION_2026_05_28.md) - `insurance_premium_quotes` schema/migration 검증
 - **QA_Validation**: [Premium Quotes DB Apply](./14_PREMIUM_QUOTES_DB_APPLY_2026_05_28.md) - `0006` Turso DB 적용 검증
+- **QA_Validation**: [Medical Female Quote Params](./17_MEDICAL_FEMALE_QUOTE_PARAMS_2026_05_28.md) - 실손 여성 파라미터 해소와 8건 추가 적재 검증

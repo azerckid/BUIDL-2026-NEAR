@@ -1,11 +1,11 @@
 # [정책] 조건별 보험료 Quote Matrix 관리 방침
 > Created: 2026-05-28 03:00
-> Last Updated: 2026-05-28 21:13
+> Last Updated: 2026-05-28 23:51
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v1.5
+- **상태**: Draft v1.6
 - **범위**: 보험다모아/보험사 공시에서 수집한 보험료의 해석, 조건별 보험료 matrix 수집, seed 승격 정책
-- **결론**: 현재 수집된 `premium_text`는 특정 비교 조건의 대표 보험료일 뿐이다. 2026-05-28 PoC에서 암보험과 일부 실손의료보험은 나이/성별 재조회 가능성이 확인됐고, 이를 저장할 `insurance_premium_quotes` schema/migration과 P0 source 후보 매칭 quote row 16건을 운영 Turso DB에 적용했다. 모든 quote row는 아직 `needs_review`이며 사용자 확정 견적으로 표시하지 않는다.
+- **결론**: 현재 수집된 `premium_text`는 특정 비교 조건의 대표 보험료일 뿐이다. 2026-05-28 PoC에서 암보험과 실손의료보험의 나이/성별 재조회 가능성이 확인됐고, 이를 저장할 `insurance_premium_quotes` schema/migration과 P0 source 후보 매칭 quote row 24건을 운영 Turso DB에 적용했다. 모든 quote row는 아직 `needs_review`이며 사용자 확정 견적으로 표시하지 않는다.
 
 ---
 
@@ -128,7 +128,7 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 | 대표 KRW 보험료 | `premium_text`와 `monthly_premium_krw`로 source row에 저장. 한화생명 `0원` 값은 숫자 대표 보험료로 저장하지 않음 |
 | 보험료 caveat | `premium_basis`와 `coverage_caveats_json`에 표시 |
 | USDC 환산 | 아직 적용하지 않음. `monthly_premium_usdc`가 필요한 active 추천 상품 승격 시 별도 환산 기준을 승인 |
-| 조건별 quote matrix | `insurance_premium_quotes`에 source 후보 매칭 row 16건 적용. 모두 `needs_review` 유지 |
+| 조건별 quote matrix | `insurance_premium_quotes`에 source 후보 매칭 row 24건 적용. 모두 `needs_review` 유지 |
 | 사용자 추천 노출 | 실제 상품 후보는 노출하지 않고 기존 demo 상품만 active 유지 |
 
 ---
@@ -140,8 +140,8 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 | 항목 | 결과 |
 |---|---|
 | 암보험 | 34세/44세, 남성/여성 4개 조건 모두 HTTP 200. 같은 신한라이프 상품 코드에서 6,750원~10,030원 변동 확인 |
-| 실손의료보험 | 남성 34세/44세는 HTTP 200. DB손보, KB손보, 삼성화재, 현대해상 상품 코드에서 나이별 보험료 변동 확인 |
-| 미해결 | 실손의료보험 여성 조건은 현재 `sexDiv=F`, `sex=F` 파라미터로 HTTP 500 반환. 여성 코드 또는 hidden field 확인 필요 |
+| 실손의료보험 | 남성/여성 34세/44세 모두 HTTP 200. DB손보, KB손보, 삼성화재, 현대해상 상품 코드에서 나이/성별 보험료 변동 확인 |
+| 해소 | 여성 조건은 모바일 폼의 여자 버튼 값이 `L`로 확인됐다. 기존 `F` 파라미터는 HTTP 500을 반환한다 |
 | 정책 영향 | `insurance_premium_quotes` 테이블은 필요하다. 단, quote row는 raw/needs_review 상태로 먼저 저장하고 확정 견적으로 표시하지 않는다 |
 
 ---
@@ -152,10 +152,10 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 
 | 항목 | 결과 |
 |---|---:|
-| PoC raw quote row | 66 |
-| 현재 source catalog와 매칭된 quote row | 16 |
-| source catalog 미등록으로 제외된 quote row | 50 |
-| Turso DB 적재 row | 16 |
+| PoC raw quote row | 84 |
+| 현재 source catalog와 매칭된 quote row | 24 |
+| source catalog 미등록으로 제외된 quote row | 60 |
+| Turso DB 적재 row | 24 |
 | 적재 상태 | `needs_review` |
 | 한화생명 `0원` quote row | 4건, `monthly_premium_krw=null`로 보존 |
 | invalid SHA-256 hash | 0 |
@@ -172,9 +172,10 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 | 2 | 보험다모아/보험사 페이지에서 age/sex 파라미터 재조회 가능성 확인 | 부분 완료. 실손 여성 파라미터 후속 확인 필요 |
 | 3 | `insurance_premium_quotes` Drizzle schema와 migration 설계 | 완료. `0006_real_war_machine.sql` 생성 |
 | 4 | 백업 후 `0006` Turso DB migration 적용 | 완료. DB table 생성 |
-| 5 | P0 상품의 조건별 quote row를 source 후보와 매칭해 DB 적재 | 완료. 16건 `needs_review` |
+| 5 | P0 상품의 조건별 quote row를 source 후보와 매칭해 DB 적재 | 완료. 24건 `needs_review` |
 | 6 | UI에서 "대표 보험료"와 "조건별 예상 보험료"를 분리 표시 | UI PR |
-| 7 | 실손의료보험 여성 POST 파라미터 500 원인 확인 | crawler 후속 PR |
+| 7 | 실손의료보험 여성 POST 파라미터 500 원인 확인 | 완료. `L` 코드로 해소 |
+| 8 | 가입담보 E~J 특약 조합을 별도 quote dimension으로 확장 | 후속 crawler PR |
 
 ---
 
@@ -202,4 +203,5 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 - **QA_Validation**: [Premium Quote Matrix PoC](../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md) - 조건별 보험료 재조회 가능성 검증 결과
 - **QA_Validation**: [Premium Quotes Schema Migration](../05_QA_Validation/13_PREMIUM_QUOTES_SCHEMA_MIGRATION_2026_05_28.md) - `insurance_premium_quotes` schema와 `0006` migration 검증
 - **QA_Validation**: [Premium Quotes DB Apply](../05_QA_Validation/14_PREMIUM_QUOTES_DB_APPLY_2026_05_28.md) - `0006` Turso DB 적용 검증
-- **QA_Validation**: [Premium Quote Rows DB Apply](../05_QA_Validation/15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md) - P0 source 후보 quote row 16건 적재 검증
+- **QA_Validation**: [Premium Quote Rows DB Apply](../05_QA_Validation/15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md) - P0 source 후보 초기 quote row 16건 적재 검증
+- **QA_Validation**: [Medical Female Quote Params](../05_QA_Validation/17_MEDICAL_FEMALE_QUOTE_PARAMS_2026_05_28.md) - 실손 여성 파라미터와 8건 추가 적재 검증

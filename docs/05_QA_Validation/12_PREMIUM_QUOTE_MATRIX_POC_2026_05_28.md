@@ -1,11 +1,11 @@
 # [QA] 보험료 Quote Matrix 재조회 PoC
 > Created: 2026-05-28 15:02
-> Last Updated: 2026-05-28 15:02
+> Last Updated: 2026-05-28 23:51
 
 - **레이어**: 05_QA_Validation
-- **상태**: Completed - Partial Pass
+- **상태**: Passed
 - **범위**: 보험다모아 모바일 비교 화면의 나이/성별 조건별 보험료 재조회 가능성 확인
-- **결론**: 조건별 보험료 재조회는 일부 가능하다. 암보험은 나이/성별 matrix 재조회가 가능했고, 실손의료보험은 남성 나이별 재조회가 가능했다. 다만 실손의료보험 여성 조건은 현재 파라미터로 HTTP 500을 반환해 추가 파라미터 확인이 필요하다.
+- **결론**: 조건별 보험료 재조회가 가능하다. 암보험과 실손의료보험 모두 나이/성별 matrix 재조회가 가능했고, 실손의료보험 여성 조건은 모바일 폼 기준 성별 코드 `L`로 해소했다.
 
 ---
 
@@ -31,9 +31,9 @@ npm run collect:insurance:quotes
 |---|---|
 | 스크립트 | `scripts/insurance/probe-premium-quotes.mjs` |
 | 결과 JSON | `data/insurance/latest_premium_quote_probe.json` |
-| 실행 시각 | `2026-05-28T15:00:20.530+09:00` |
+| 실행 시각 | `2026-05-28T23:47:08.337+09:00` |
 | source probe | 8건 |
-| quote row | 66건 |
+| quote row | 84건 |
 | QA 판정 | `quote_requery_possible: true` |
 
 ---
@@ -43,15 +43,14 @@ npm run collect:insurance:quotes
 | condition_id | 나이 | 성별 | 암보험 sex code | 실손 sex code |
 |---|---:|---|---|---|
 | `age34_male` | 34 | male | `1` | `M` |
-| `age34_female` | 34 | female | `2` | `F` |
+| `age34_female` | 34 | female | `2` | `L` |
 | `age44_male` | 44 | male | `1` | `M` |
-| `age44_female` | 44 | female | `2` | `F` |
+| `age44_female` | 44 | female | `2` | `L` |
 
 | 출처 | 방식 | 결과 |
 |---|---|---|
 | 보험다모아 암보험 모바일 | GET HTML | 4개 조건 모두 HTTP 200, 조건별 12개 상품 row 추출 |
-| 보험다모아 실손의료보험 모바일 | POST HTML | 남성 34세/44세는 HTTP 200, 조건별 9개 상품 row 추출 |
-| 보험다모아 실손의료보험 모바일 | POST HTML | 여성 34세/44세는 HTTP 500, 0개 상품 row |
+| 보험다모아 실손의료보험 모바일 | POST HTML | 남성/여성 34세/44세 모두 HTTP 200, 조건별 9개 상품 row 추출 |
 
 ---
 
@@ -62,10 +61,10 @@ npm run collect:insurance:quotes
 | 상품 코드 | 보험사 | 그룹 | 확인 조건 수 | 확인된 월 보험료 KRW |
 |---|---|---|---:|---|
 | `L11C009000006` | 신한라이프생명 | 암보험 | 4 | 6,750 / 7,320 / 8,530 / 10,030 |
-| `N11G004000001G` | DB손보 | 실손의료보험 | 2 | 6,219 / 9,320 |
-| `N10G004000002G` | KB손보 | 실손의료보험 | 2 | 6,400 / 9,074 |
-| `N08G004000002G` | 삼성화재 | 실손의료보험 | 2 | 6,575 / 9,546 |
-| `N09G004000001G` | 현대해상 | 실손의료보험 | 2 | 6,740 / 9,190 |
+| `N11G004000001G` | DB손보 | 실손의료보험 | 4 | 6,219 / 6,854 / 9,320 / 11,030 |
+| `N10G004000002G` | KB손보 | 실손의료보험 | 4 | 6,400 / 6,439 / 9,074 / 10,323 |
+| `N08G004000002G` | 삼성화재 | 실손의료보험 | 4 | 6,575 / 7,503 / 9,546 / 11,938 |
+| `N09G004000001G` | 현대해상 | 실손의료보험 | 4 | 6,545 / 6,740 / 9,190 / 9,949 |
 
 세부 예시는 다음과 같다.
 
@@ -76,7 +75,9 @@ npm run collect:insurance:quotes
 | 암보험 | 44세 남성 | `L11C009000006` | 신한라이프생명 | 10,030 |
 | 암보험 | 44세 여성 | `L11C009000006` | 신한라이프생명 | 7,320 |
 | 실손의료보험 | 34세 남성 | `N10G004000002G` | KB손보 | 6,400 |
+| 실손의료보험 | 34세 여성 | `N10G004000002G` | KB손보 | 6,439 |
 | 실손의료보험 | 44세 남성 | `N10G004000002G` | KB손보 | 9,074 |
+| 실손의료보험 | 44세 여성 | `N10G004000002G` | KB손보 | 10,323 |
 
 한화생명 암보험 `L01C009000009`는 이번 조건에서 `0원`으로 표시되어 숫자형 월 보험료 변동 근거로 쓰지 않는다.
 
@@ -96,11 +97,10 @@ npm run collect:insurance:quotes
 
 ---
 
-## 6. 미해결 블로커
+## 6. 남은 확인 사항
 
-| 블로커 | 영향 | 다음 확인 |
+| 확인 사항 | 영향 | 다음 확인 |
 |---|---|---|
-| 실손의료보험 여성 POST 파라미터가 HTTP 500 반환 | 실손 quote matrix를 성별 전체로 채울 수 없음 | 모바일 입력 폼 또는 공식 문서에서 여성 코드와 필수 hidden field 확인 |
 | 보험다모아 파라미터 의미가 공식 API 문서로 검증되지 않음 | 수집 파라미터 해석이 화면 관찰 기반에 머무름 | `sex`, `sexDiv`, `realLossDivCd`, `joinScrtDivCd` 의미 문서화 |
 | 보장금액, 납입기간, 특약 조합 미조회 | 실제 가격 matrix가 아직 최소 조건에 한정됨 | schema에 nullable column을 두고 후속 crawler에서 확장 |
 | `quote_params_json`에 POST 중복 키 보존 필요 | `insrCmpyCd` 같은 반복 파라미터가 object 변환 시 유실될 수 있음 | 배열 기반 원문 파라미터 저장 유지 |
@@ -126,7 +126,7 @@ npm run collect:insurance:quotes
 | `retrieved_at` | 가격 시점 관리 |
 | `review_status` | raw quote와 노출 가능 quote 분리 |
 
-이 PoC 자체에서는 DB에 바로 적재하지 않았다. 후속 작업에서 schema/migration을 먼저 적용한 뒤, source-aware 후보와 매칭되는 P0 quote row 16건을 `insurance_premium_quotes`에 `needs_review` 상태로 저장했다. 적용 검증은 `15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md`를 기준으로 확인한다.
+이 PoC 자체에서는 DB에 바로 적재하지 않았다. 후속 작업에서 schema/migration을 먼저 적용한 뒤, source-aware 후보와 매칭되는 P0 quote row 24건을 `insurance_premium_quotes`에 `needs_review` 상태로 저장했다. 실손 여성 조건은 `F`가 아니라 `L` 파라미터로 해소했으며, 적용 검증은 `15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md`와 `17_MEDICAL_FEMALE_QUOTE_PARAMS_2026_05_28.md`를 기준으로 확인한다.
 
 ---
 
@@ -162,3 +162,4 @@ npm run collect:insurance:quotes
 - **Technical_Specs**: [Insurance Data Collection Pipeline](../03_Technical_Specs/01_INSURANCE_DATA_COLLECTION_PIPELINE.md) - 공식 출처 수집 파이프라인
 - **QA_Validation**: [Source-aware Seed DB Apply](./11_SOURCE_AWARE_SEED_DB_APPLY_2026_05_28.md) - seed 적용 이후 quote matrix 이전 상태
 - **QA_Validation**: [Premium Quote Rows DB Apply](./15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md) - PoC quote row 후속 DB 적재 검증
+- **QA_Validation**: [Medical Female Quote Params](./17_MEDICAL_FEMALE_QUOTE_PARAMS_2026_05_28.md) - 실손 여성 조건 quote 파라미터 후속 검증

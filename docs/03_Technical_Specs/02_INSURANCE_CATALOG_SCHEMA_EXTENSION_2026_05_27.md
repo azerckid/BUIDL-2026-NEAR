@@ -137,7 +137,7 @@ insurance_products (N) >──< recommendation_carts (N:M, via cart_items JSON)
 
 현재 `insurance_product_sources.monthly_premium_krw`와 `insurance_products.monthly_premium_krw`는 대표 보험료 1개만 보존한다. 나이, 성별, 납입기간, 보장금액에 따라 달라지는 보험료는 같은 상품에 여러 row가 생기므로 별도 quote table로 분리한다.
 
-2026-05-28 quote matrix PoC 이후 `src/lib/db/schema.ts`와 `drizzle/0006_real_war_machine.sql`에 schema/migration을 추가했다. 운영 Turso DB에는 2026-05-28 20:55 KST 기준 migration을 적용했고, 21:12 KST 기준 source-aware 후보와 매칭되는 quote row 16건을 `needs_review` 상태로 적재했다.
+2026-05-28 quote matrix PoC 이후 `src/lib/db/schema.ts`와 `drizzle/0006_real_war_machine.sql`에 schema/migration을 추가했다. 운영 Turso DB에는 2026-05-28 20:55 KST 기준 migration을 적용했고, 21:12 KST 기준 16건, 23:50 KST 기준 실손 여성 quote 8건을 추가해 source-aware 후보와 매칭되는 quote row 총 24건을 `needs_review` 상태로 적재했다.
 
 | 컬럼 | 타입 | 설명 |
 |---|---|---|

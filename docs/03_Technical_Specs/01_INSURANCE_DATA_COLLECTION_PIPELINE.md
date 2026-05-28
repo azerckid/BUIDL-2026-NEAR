@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-28 21:13
+> Last Updated: 2026-05-28 23:51
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.8
+- **상태**: Draft v1.9
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -364,7 +364,8 @@ CSV의 `needs_human_review`는 추천 DB 반영 승인이 아니라 매칭 키�
 - [x] 보험상품 카탈로그 스키마 확장안 확정
 - [x] 조건별 보험료 quote matrix 정책 문서화
 - [x] `insurance_premium_quotes` migration 운영 DB 적용
-- [x] P0 source 후보 quote row 16건 DB 적재
+- [x] P0 source 후보 quote row 24건 DB 적재
+- [x] 실손의료보험 여성 조건 POST 파라미터 `L` 확인
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
@@ -404,3 +405,4 @@ CSV의 `needs_human_review`는 추천 DB 반영 승인이 아니라 매칭 키�
 - **QA_Validation**: [Hash-backed Matching Keyword Review](../05_QA_Validation/08_HASH_BACKED_PRODUCT_MANUAL_REVIEW_2026_05_27.md) - hash-backed 7개 상품 매칭 키워드 정리 결과
 - **Technical_Specs**: [Insurance Matching Keyword Policy](./03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md) - DNA risk target과 보험상품 보장 키워드 매칭 기준
 - **QA_Validation**: [Premium Quote Rows DB Apply](../05_QA_Validation/15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md) - source-aware quote row 적재 검증
+- **QA_Validation**: [Medical Female Quote Params](../05_QA_Validation/17_MEDICAL_FEMALE_QUOTE_PARAMS_2026_05_28.md) - 실손 여성 조건 quote 파라미터 검증
