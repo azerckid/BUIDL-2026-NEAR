@@ -363,6 +363,23 @@ npm run collect:insurance:docs -- --product-codes <comma-separated-product-codes
 
 상품 페이지에서 바로 hash를 확보한 것은 한화생명 비흡연체형과 KDB생명 다이렉트 암보험이다. 신한라이프 후보는 공시 crawler에서 3개 hash가 추가로 나왔지만 match score 0.5라 상품 variant 확인이 필요하다. 상세 산출물은 `data/insurance/latest_quote_only_product_document_probe.json`, `data/insurance/latest_quote_only_carrier_disclosure_probe.json`, QA 문서는 `../05_QA_Validation/20_QUOTE_ONLY_SOURCE_DOCUMENT_PROBE_2026_05_29.md`에 둔다.
 
+### 9-9. Lifeplanet Disclosure Adapter v1
+
+2026-05-29 02:26 KST 기준 교보라이프플래닛 공시실 `HPDA01S0` 화면의 embedded `ProdMainList` JSON과 `/common/file/FileDownload.dev` 다운로드 규칙을 adapter로 연결했다.
+
+| 항목 | 결과 |
+|---|---:|
+| 신규 carrier profile | 1 |
+| 신규 API search kind | 1 |
+| 교보 match product | 2 |
+| 교보 match score | 1.0 |
+| 교보 hashed document | 6 |
+| carrier disclosure hashed document | 9 |
+
+교보 quote-only 후보 2개(`L43C009000022`, `L43C009000019`)는 같은 공시 상품 코드 `10054`를 공유하며, 상품요약서, 사업방법서, 보험약관 hash를 확보했다. 이번 결과는 `data/insurance/latest_quote_only_carrier_disclosure_probe.json`과 `../05_QA_Validation/21_LIFEPLANET_DISCLOSURE_ADAPTER_2026_05_29.md`에 둔다.
+
+이 단계에서도 DB write는 하지 않는다. hash-backed 후보는 상품 variant, `coverage_category`, `risk_targets`, `matching_strategy`, caveat 검토 후 별도 seed PR에서만 승격한다.
+
 ---
 
 ## 10. 법무·신뢰 고지

@@ -41,6 +41,29 @@ const CARRIER_PROFILES = {
     source_url: "https://idblife.com/notice/product/sale",
     notes: ["판매상품공시 표가 서버 렌더링 HTML로 노출된다."],
   },
+  교보라이프플래닛: {
+    provider: "교보라이프플래닛",
+    source_url: "https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev",
+    api_searches: [
+      {
+        kind: "lifeplanet_disclosure_good",
+        endpoint: "https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev",
+        product_code: "10054",
+        product_name: "(무)교보라플 비갱신암보험",
+        keywords: [
+          "교보라플 비갱신암보험",
+          "비갱신암보험",
+          "해약환급금 미지급형",
+          "비흡연체",
+          "표준체",
+        ],
+      },
+    ],
+    notes: [
+      "공시실 HPDA01S0 화면의 ProdMainList JSON에서 판매중 상품과 문서 파일명을 조회한다.",
+      "공식 문서는 /common/file/FileDownload.dev의 fileName/downloadPathType query로 다운로드한다.",
+    ],
+  },
   "삼성화재": {
     provider: "삼성화재",
     source_url: "https://www.samsungfire.com/publication/P_U02_05_16_262.html",
@@ -430,6 +453,9 @@ async function fetchApiSearchRecords(search, options) {
   if (search.kind === "shinhanlife_disclosure_search") {
     return await fetchShinhanLifeDisclosureRecords(search, options);
   }
+  if (search.kind === "lifeplanet_disclosure_good") {
+    return await fetchLifeplanetDisclosureGoodRecords(search, options);
+  }
 
   throw new Error(`Unsupported API search kind: ${search.kind}`);
 }
@@ -756,6 +782,117 @@ function toShinhanLifePublicFilePath(path, workspaceId) {
     return value.replace(`/repo/${workspaceId}`, "/bizxpress");
   }
   return value;
+}
+
+async function fetchLifeplanetDisclosureGoodRecords(search, options) {
+  const response = await fetchWithTimeout(search.endpoint, {
+    timeoutMs: options.timeoutMs,
+    accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  const html = decodeHtml(buffer, parseCharset(response.headers.get("content-type")));
+  const payload = extractJavascriptObjectAssignment(html, "result");
+  const records = payload?.outData?.ProdMainList ?? [];
+  const targetRecords = records.filter(
+    (record) => String(record.rrsnPrdCd ?? "") === String(search.product_code),
+  );
+
+  return targetRecords.map((record) => ({
+    text: cleanText(
+      [
+        search.product_name,
+        record.prdNm,
+        record.rrsnPrdCd,
+        record.prdCd,
+        record.saleYn === "Y" ? "판매중" : "판매중지",
+        record.saleStYmd,
+        record.saleEdYmd,
+        ...(search.keywords ?? []),
+      ]
+        .filter(Boolean)
+        .join(" "),
+    ),
+    links: makeLifeplanetDocumentLinks(record, search.endpoint),
+  }));
+}
+
+function makeLifeplanetDocumentLinks(record, discoveredFrom) {
+  return [
+    ["summary", record.prdSryPat, "상품요약서", "1"],
+    ["business_method", record.prdMdPat, "사업방법서", "2"],
+    ["terms", record.insTxtPat, "보험약관", "0"],
+  ]
+    .filter(([, fileName]) => Boolean(fileName))
+    .map(([documentType, fileName, label, downloadPathType]) => ({
+      url: makeLifeplanetDownloadUrl(fileName, downloadPathType),
+      href: fileName,
+      text: label,
+      title: `${record.prdNm} ${label}`,
+      document_type: documentType,
+      discovered_from: discoveredFrom,
+    }));
+}
+
+function makeLifeplanetDownloadUrl(fileName, downloadPathType) {
+  const url = new URL("https://www.lifeplanet.co.kr/common/file/FileDownload.dev");
+  url.searchParams.set("fileName", fileName);
+  url.searchParams.set("downloadPathType", downloadPathType);
+  return url.toString();
+}
+
+function extractJavascriptObjectAssignment(html, variableName) {
+  const marker = `var ${variableName}`;
+  const markerIndex = html.indexOf(marker);
+  if (markerIndex < 0) {
+    throw new Error(`Missing JavaScript variable: ${variableName}`);
+  }
+
+  const assignmentIndex = html.indexOf("=", markerIndex);
+  const objectStart = html.indexOf("{", assignmentIndex);
+  if (assignmentIndex < 0 || objectStart < 0) {
+    throw new Error(`Missing JavaScript object assignment: ${variableName}`);
+  }
+
+  let depth = 0;
+  let quote = null;
+  let escaped = false;
+
+  for (let i = objectStart; i < html.length; i += 1) {
+    const char = html[i];
+
+    if (quote) {
+      if (escaped) {
+        escaped = false;
+      } else if (char === "\\") {
+        escaped = true;
+      } else if (char === quote) {
+        quote = null;
+      }
+      continue;
+    }
+
+    if (char === '"' || char === "'") {
+      quote = char;
+      continue;
+    }
+    if (char === "{") {
+      depth += 1;
+      continue;
+    }
+    if (char === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        return JSON.parse(html.slice(objectStart, i + 1));
+      }
+    }
+  }
+
+  throw new Error(`Unterminated JavaScript object assignment: ${variableName}`);
 }
 
 function parseCharset(contentType) {
@@ -1306,9 +1443,9 @@ async function main() {
         "A product is seed-ready only after official document hash, sale status, premium basis, coverage_category, and risk_targets are approved.",
       ],
       next_actions: [
-        "Add a KB Insurance document-download adapter for disclosure rows that expose product matches without direct PDF links.",
-        "Create a review CSV from latest_official_sources_snapshot, latest_product_document_probe, and latest_carrier_disclosure_probe.",
-        "Promote only hash-backed and human-approved products into service seed candidates.",
+        "Add carrier-specific disclosure adapters for quote-only products that still have no profile.",
+        "Manually verify the document variants for KDB Life, Hanwha Life, Shinhan Life, and Lifeplanet before source-document seeding.",
+        "Promote only hash-backed and matching-keyword-reviewed products into service seed candidates.",
       ],
     },
   });
