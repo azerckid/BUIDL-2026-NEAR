@@ -1,9 +1,9 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-29 02:58
+> Last Updated: 2026-05-29 03:24
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-29 (quote-only 문서 variant 검수)
+- **최종 수정일**: 2026-05-29 (source document seed 후보 추가)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v3.5
 - **phase**: Phase 2
@@ -60,7 +60,7 @@
 
 | 트랙 | 핵심 질문 | 다음 작업 |
 |---|---|---|
-| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | 한화/교보 3개 source의 8개 문서를 seed 후보로 분리, 다음은 source document seed PR과 KDB/신한 variant 해소 |
+| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | 한화/교보 3개 source의 8개 문서를 seed.ts에 추가, 다음은 백업 후 DB 적용과 KDB/신한 variant 해소 |
 | NEAR 프라이버시 기술 | IronClaw v0.28.2까지의 업데이트가 블로커 2~3을 해소하는가 | WIT-compatible WASM runtime, `tool_install`, WASM 실행 결과 반환 경로 실측 |
 | 매칭 브리지 | AI 해석과 DB 상품 추천의 경계를 어떻게 유지할 것인가 | `riskProfile.flags` -> `insurance_products.risk_targets` 결정론적 매칭 유지 |
 
@@ -77,7 +77,9 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 
 2026-05-29 02:26 KST 기준 교보라이프플래닛 공시실 `HPDA01S0` adapter를 추가했다. 교보라플 비갱신암보험 quote-only 후보 2개(`L43C009000022`, `L43C009000019`)가 match score 1.0으로 상품요약서, 사업방법서, 보험약관 hash를 확보했고, carrier disclosure probe의 hashed document는 3개에서 9개로 늘었다. 전체 quote-only 공식 문서 근거는 상품 페이지 hash 5개와 carrier disclosure hash 9개다. 검증은 `../05_QA_Validation/21_LIFEPLANET_DISCLOSURE_ADAPTER_2026_05_29.md`에 기록한다.
 
-2026-05-29 02:58 KST 기준 quote-only hash-backed 후보의 상품 variant를 검수했다. 한화생명 비흡연체형 1개 source와 교보라이프플래닛 비흡연체/표준체 2개 source는 총 8개 `insurance_source_documents` seed 후보로 분리 가능하다. KDB생명은 40869/40870 약관 variant가 미확정이라 차단하고, 신한라이프 표준형 source는 해약환급금 미지급형 문서가 match score 0.5로 연결되어 차단한다. 검수 산출물은 `../../data/insurance/latest_quote_only_source_document_variant_review.json`, `../../data/insurance/latest_quote_only_source_document_variant_review.csv`, `../05_QA_Validation/22_QUOTE_ONLY_SOURCE_DOCUMENT_VARIANT_REVIEW_2026_05_29.md`에 둔다. 다음 작업은 안전 후보 8개 문서 row를 seed에 추가하되 product source/recommendation 상태는 승격하지 않는 PR이다.
+2026-05-29 02:58 KST 기준 quote-only hash-backed 후보의 상품 variant를 검수했다. 한화생명 비흡연체형 1개 source와 교보라이프플래닛 비흡연체/표준체 2개 source는 총 8개 `insurance_source_documents` seed 후보로 분리 가능하다. KDB생명은 40869/40870 약관 variant가 미확정이라 차단하고, 신한라이프 표준형 source는 해약환급금 미지급형 문서가 match score 0.5로 연결되어 차단한다. 검수 산출물은 `../../data/insurance/latest_quote_only_source_document_variant_review.json`, `../../data/insurance/latest_quote_only_source_document_variant_review.csv`, `../05_QA_Validation/22_QUOTE_ONLY_SOURCE_DOCUMENT_VARIANT_REVIEW_2026_05_29.md`에 둔다.
+
+2026-05-29 03:24 KST 기준 안전 후보 8개 `insurance_source_documents` row를 `seed.ts`에 추가했다. 한화생명 표준체형/비흡연체형과 교보라이프플래닛 비흡연체/표준체는 같은 PDF hash를 공유할 수 있으므로, `file_hash_sha256` 중복은 허용하고 source별 고유 `id`와 `product_source_id`로 연결한다. seed 기준 문서 row는 12개에서 20개로 증가하지만, `insurance_product_sources.review_status`, `insurance_products`, 추천 노출 상태는 변경하지 않는다. 검증은 `../05_QA_Validation/23_SOURCE_DOCUMENT_SEED_CANDIDATES_2026_05_29.md`에 둔다. 다음 작업은 운영 DB 백업 후 seed 적용 기록 PR을 진행하는 것이다.
 
 ## 2. 세부 실행 계획 (Detailed Execution)
 
