@@ -126,7 +126,7 @@ npm run collect:insurance:quotes
 | `retrieved_at` | 가격 시점 관리 |
 | `review_status` | raw quote와 노출 가능 quote 분리 |
 
-이번 PoC 결과는 DB에 바로 적재하지 않는다. 다음 PR에서 schema와 migration을 먼저 만들고, 그 다음 crawler PR에서 P0 후보 quote row를 저장한다.
+이 PoC 자체에서는 DB에 바로 적재하지 않았다. 후속 작업에서 schema/migration을 먼저 적용한 뒤, source-aware 후보와 매칭되는 P0 quote row 16건을 `insurance_premium_quotes`에 `needs_review` 상태로 저장했다. 적용 검증은 `15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md`를 기준으로 확인한다.
 
 ---
 
@@ -161,3 +161,4 @@ npm run collect:insurance:quotes
 - **Technical_Specs**: [Insurance Catalog Schema Extension](../03_Technical_Specs/02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md) - 현재 보험 카탈로그 확장 스키마
 - **Technical_Specs**: [Insurance Data Collection Pipeline](../03_Technical_Specs/01_INSURANCE_DATA_COLLECTION_PIPELINE.md) - 공식 출처 수집 파이프라인
 - **QA_Validation**: [Source-aware Seed DB Apply](./11_SOURCE_AWARE_SEED_DB_APPLY_2026_05_28.md) - seed 적용 이후 quote matrix 이전 상태
+- **QA_Validation**: [Premium Quote Rows DB Apply](./15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md) - PoC quote row 후속 DB 적재 검증

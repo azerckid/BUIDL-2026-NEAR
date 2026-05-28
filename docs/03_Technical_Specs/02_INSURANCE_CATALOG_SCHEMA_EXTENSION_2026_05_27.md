@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 카탈로그 스키마 확장안
 > Created: 2026-05-27 22:43
-> Last Updated: 2026-05-28 19:28
+> Last Updated: 2026-05-28 21:13
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Approved Design v1.3
+- **상태**: Approved Design v1.4
 - **범위**: 실제 한국 보험상품 수집 데이터, 공식 문서 hash, KRW 보험료, 실손의료보험, 서비스 추천 snapshot 스키마
 - **결론**: 원천 수집 테이블과 서비스 추천 테이블을 분리한다. `insurance_product_sources`, `insurance_source_documents`, `insurance_premium_quotes`에 공식 출처와 조건별 보험료를 보존하고, 질병-보장 매핑과 매칭 키워드 정리가 끝난 상품만 확장된 `insurance_products`로 발행한다.
 
@@ -137,7 +137,7 @@ insurance_products (N) >──< recommendation_carts (N:M, via cart_items JSON)
 
 현재 `insurance_product_sources.monthly_premium_krw`와 `insurance_products.monthly_premium_krw`는 대표 보험료 1개만 보존한다. 나이, 성별, 납입기간, 보장금액에 따라 달라지는 보험료는 같은 상품에 여러 row가 생기므로 별도 quote table로 분리한다.
 
-2026-05-28 quote matrix PoC 이후 `src/lib/db/schema.ts`와 `drizzle/0006_real_war_machine.sql`에 schema/migration을 추가했다. 이 PR에서는 테이블 구조와 migration 파일만 생성하고, 운영 Turso DB 적용과 quote row 적재는 별도 단계로 진행한다.
+2026-05-28 quote matrix PoC 이후 `src/lib/db/schema.ts`와 `drizzle/0006_real_war_machine.sql`에 schema/migration을 추가했다. 운영 Turso DB에는 2026-05-28 20:55 KST 기준 migration을 적용했고, 21:12 KST 기준 source-aware 후보와 매칭되는 quote row 16건을 `needs_review` 상태로 적재했다.
 
 | 컬럼 | 타입 | 설명 |
 |---|---|---|
@@ -270,24 +270,24 @@ baseline 상품:
 3. [x] Zod schema에서 `coverage_category`에 `medical_expense`를 추가한다.
 4. [x] `matching_strategy=baseline`일 때 `risk_targets=[]`를 허용한다.
 5. [x] Drizzle migration SQL을 생성한다: `drizzle/0004_panoramic_firebird.sql`.
-6. [ ] seed 교체 전, raw source seed와 recommendation snapshot seed를 분리한다.
+6. [x] seed 교체 전, raw source seed와 recommendation snapshot seed를 분리한다.
 7. [x] `matchProducts`에서 risk-target 추천과 baseline 추천을 분리한다.
 8. [x] UI는 추천 카드에 출처, 확인일, 보험료 기준, caveat를 표시한다.
 9. [x] Turso DB에 `0004_panoramic_firebird.sql`과 `0005_common_boom_boom.sql`을 백업 후 적용한다.
 10. [x] 조건별 보험료 matrix를 `insurance_premium_quotes`로 별도 설계한다.
-11. [ ] 백업 후 Turso DB에 `0006_real_war_machine.sql`을 적용한다.
-12. [ ] P0 후보 quote row를 raw/needs_review 상태로 적재한다.
+11. [x] 백업 후 Turso DB에 `0006_real_war_machine.sql`을 적용한다.
+12. [x] P0 후보 quote row를 raw/needs_review 상태로 적재한다.
 
 ---
 
 ## 10. 비적용 범위
 
-2026-05-28 19:28 KST 기준 `insurance_premium_quotes` schema와 `0006_real_war_machine.sql` migration 파일 생성까지 완료했다. 아직 다음 작업은 하지 않는다.
+2026-05-28 21:13 KST 기준 `insurance_premium_quotes` schema와 `0006_real_war_machine.sql` migration은 운영 Turso DB에 적용됐다. 이후 PoC raw quote 66건 중 source-aware 후보와 매칭되는 16건도 `needs_review` 상태로 적재했다. 아직 다음 작업은 하지 않는다.
 
 - `src/lib/db/seed.ts` 실제 상품 교체
 - 보험료 KRW/USDC 환산 로직 구현
-- `0006_real_war_machine.sql` Turso DB 실제 적용
-- 나이/성별/납입기간별 보험료 matrix 수집
+- `insurance_premium_quotes.review_status=approved` 승격
+- 나이/성별/납입기간별 전체 보험료 matrix 완성
 
 ---
 
@@ -316,3 +316,4 @@ baseline 상품:
 - **QA_Validation**: [DB Migration 0004/0005 Validation](../05_QA_Validation/09_DB_MIGRATION_0004_0005_2026_05_28.md) - Turso 적용 및 검증 결과
 - **QA_Validation**: [Premium Quote Matrix PoC](../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md) - `insurance_premium_quotes`를 구현하게 된 재조회 근거
 - **QA_Validation**: [Premium Quotes Schema Migration](../05_QA_Validation/13_PREMIUM_QUOTES_SCHEMA_MIGRATION_2026_05_28.md) - `0006` migration 생성 검증
+- **QA_Validation**: [Premium Quote Rows DB Apply](../05_QA_Validation/15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md) - P0 source 후보 quote row 적재 검증

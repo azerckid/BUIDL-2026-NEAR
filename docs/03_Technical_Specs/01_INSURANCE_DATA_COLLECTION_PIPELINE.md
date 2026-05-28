@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-28 03:56
+> Last Updated: 2026-05-28 21:13
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.7
+- **상태**: Draft v1.8
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -80,7 +80,7 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 9. 질병-보장 매핑과 매칭 키워드 정리
 10. 대표 보험료와 premium_basis 기준 정리
 11. 서비스용 insurance_products snapshot 발행
-12. 조건별 보험료 quote matrix는 별도 PoC 후 수집
+12. 조건별 보험료 quote matrix는 `insurance_premium_quotes`에 source-aware 후보 단위로 적재
 13. 변경 감지와 주기적 재검증
 ```
 
@@ -135,9 +135,9 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 | `review_status` | `raw`, `parsed`, `needs_review`, `approved`, `rejected` |
 | `last_verified_at` | 사람이 마지막 검수한 시각 |
 
-### 6-4. `insurance_premium_quotes` (향후 확장)
+### 6-4. `insurance_premium_quotes`
 
-조건별 보험료 matrix를 저장하는 별도 테이블이다. 현재 Collector v1은 대표 `premium_text`만 수집하므로 이 테이블은 바로 운영하지 않는다. 보험다모아/보험사 페이지에서 나이, 성별, 납입기간, 보장금액 파라미터를 바꿔 재조회할 수 있는지 PoC를 먼저 수행한다.
+조건별 보험료 matrix를 저장하는 별도 테이블이다. 2026-05-28 기준 `drizzle/0006_real_war_machine.sql`이 운영 Turso DB에 적용됐고, 보험다모아 quote PoC 66개 raw row 중 source-aware 후보와 매칭되는 16건을 `needs_review` 상태로 적재했다.
 
 | 필드 | 설명 |
 |---|---|
@@ -171,7 +171,7 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 | 상품군 | `insurance_products.coverage_category` |
 | 보장 질병/담보 키워드 | `insurance_products.risk_targets` |
 | 원 보험료 KRW | 향후 `monthly_premium_krw` |
-| 조건별 보험료 matrix | 향후 `insurance_premium_quotes` |
+| 조건별 보험료 matrix | `insurance_premium_quotes` |
 | USDC 환산값 | `insurance_products.monthly_premium_usdc` |
 | 출처 URL/확인일 | 향후 source table 또는 UI citation |
 | 판매상태 | `is_active` |
@@ -309,7 +309,7 @@ CSV의 `needs_human_review`는 추천 DB 반영 승인이 아니라 매칭 키�
 | 현재 `insurance_products` seed 바로 반영 | 0개 |
 | 산출물 | `data/insurance/latest_seed_candidate_review.json`, `data/insurance/latest_seed_candidate_review.csv` |
 
-매칭 키워드 정리 과정에서 확인한 핵심 gap은 대표 보험료와 조건별 보험료 matrix를 분리해야 한다는 점이다. 현재 `premium_text`는 공식 비교 조건 기준 예시 보험료이며, 나이/성별/납입기간별 변동 가격은 향후 `insurance_premium_quotes`로 별도 관리한다.
+매칭 키워드 정리 과정에서 확인한 핵심 gap은 대표 보험료와 조건별 보험료 matrix를 분리해야 한다는 점이다. 현재 `premium_text`는 공식 비교 조건 기준 예시 보험료이며, 나이/성별/납입기간별 변동 가격은 `insurance_premium_quotes`로 별도 관리한다.
 
 또한 실손의료보험은 특정 유전자 위험 플래그가 아니라 질병/상해 의료비를 폭넓게 보상하는 상품이다. 이를 추천하려면 `coverage_category`에 `medical_expense`를 추가하거나, 유전자 특화 보장과 일반 의료비 보장을 분리한 매칭 트랙이 필요하다.
 
@@ -363,6 +363,8 @@ CSV의 `needs_human_review`는 추천 DB 반영 승인이 아니라 매칭 키�
 - [x] hash-backed 7개 상품 매칭 키워드 정리 결과 작성
 - [x] 보험상품 카탈로그 스키마 확장안 확정
 - [x] 조건별 보험료 quote matrix 정책 문서화
+- [x] `insurance_premium_quotes` migration 운영 DB 적용
+- [x] P0 source 후보 quote row 16건 DB 적재
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
@@ -401,3 +403,4 @@ CSV의 `needs_human_review`는 추천 DB 반영 승인이 아니라 매칭 키�
 - **QA_Validation**: [Insurance Matching Queue](../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md) - 매칭 키워드 정리 CSV 생성 결과
 - **QA_Validation**: [Hash-backed Matching Keyword Review](../05_QA_Validation/08_HASH_BACKED_PRODUCT_MANUAL_REVIEW_2026_05_27.md) - hash-backed 7개 상품 매칭 키워드 정리 결과
 - **Technical_Specs**: [Insurance Matching Keyword Policy](./03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md) - DNA risk target과 보험상품 보장 키워드 매칭 기준
+- **QA_Validation**: [Premium Quote Rows DB Apply](../05_QA_Validation/15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md) - source-aware quote row 적재 검증

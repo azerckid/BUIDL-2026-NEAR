@@ -1,11 +1,11 @@
 # [정책] 조건별 보험료 Quote Matrix 관리 방침
 > Created: 2026-05-28 03:00
-> Last Updated: 2026-05-28 20:55
+> Last Updated: 2026-05-28 21:13
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v1.4
+- **상태**: Draft v1.5
 - **범위**: 보험다모아/보험사 공시에서 수집한 보험료의 해석, 조건별 보험료 matrix 수집, seed 승격 정책
-- **결론**: 현재 수집된 `premium_text`는 특정 비교 조건의 대표 보험료일 뿐이다. 2026-05-28 PoC에서 암보험과 일부 실손의료보험은 나이/성별 재조회 가능성이 확인됐고, 이를 저장할 `insurance_premium_quotes` schema/migration을 운영 Turso DB에 적용했다. 실제 quote row 적재는 별도 단계로 진행한다.
+- **결론**: 현재 수집된 `premium_text`는 특정 비교 조건의 대표 보험료일 뿐이다. 2026-05-28 PoC에서 암보험과 일부 실손의료보험은 나이/성별 재조회 가능성이 확인됐고, 이를 저장할 `insurance_premium_quotes` schema/migration과 P0 source 후보 매칭 quote row 16건을 운영 Turso DB에 적용했다. 모든 quote row는 아직 `needs_review`이며 사용자 확정 견적으로 표시하지 않는다.
 
 ---
 
@@ -128,7 +128,7 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 | 대표 KRW 보험료 | `premium_text`와 `monthly_premium_krw`로 source row에 저장. 한화생명 `0원` 값은 숫자 대표 보험료로 저장하지 않음 |
 | 보험료 caveat | `premium_basis`와 `coverage_caveats_json`에 표시 |
 | USDC 환산 | 아직 적용하지 않음. `monthly_premium_usdc`가 필요한 active 추천 상품 승격 시 별도 환산 기준을 승인 |
-| 조건별 quote matrix | 아직 적용하지 않음. 2026-05-28 PoC에서 재조회 가능성을 부분 확인 |
+| 조건별 quote matrix | `insurance_premium_quotes`에 source 후보 매칭 row 16건 적용. 모두 `needs_review` 유지 |
 | 사용자 추천 노출 | 실제 상품 후보는 노출하지 않고 기존 demo 상품만 active 유지 |
 
 ---
@@ -146,6 +146,24 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 
 ---
 
+### 5-3. 2026-05-28 Quote Row DB 적용 결과
+
+`scripts/insurance/apply-premium-quotes.mjs`는 PoC 산출물 `data/insurance/latest_premium_quote_probe.json`을 읽고, 현재 DB의 `insurance_product_sources.e_insmarket_product_code`와 매칭되는 row만 `insurance_premium_quotes`에 적재한다. 기본 실행은 dry-run이며, `--apply`를 붙여야 DB에 write한다.
+
+| 항목 | 결과 |
+|---|---:|
+| PoC raw quote row | 66 |
+| 현재 source catalog와 매칭된 quote row | 16 |
+| source catalog 미등록으로 제외된 quote row | 50 |
+| Turso DB 적재 row | 16 |
+| 적재 상태 | `needs_review` |
+| 한화생명 `0원` quote row | 4건, `monthly_premium_krw=null`로 보존 |
+| invalid SHA-256 hash | 0 |
+
+적재 결과 산출물은 `../../data/insurance/latest_premium_quote_rows_apply.json`, DB 적용 검증은 `../05_QA_Validation/15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md`에 둔다.
+
+---
+
 ## 6. 다음 구현 순서
 
 | 순서 | 작업 | PR 성격 |
@@ -154,8 +172,9 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 | 2 | 보험다모아/보험사 페이지에서 age/sex 파라미터 재조회 가능성 확인 | 부분 완료. 실손 여성 파라미터 후속 확인 필요 |
 | 3 | `insurance_premium_quotes` Drizzle schema와 migration 설계 | 완료. `0006_real_war_machine.sql` 생성 |
 | 4 | 백업 후 `0006` Turso DB migration 적용 | 완료. DB table 생성 |
-| 5 | P0 상품 3~5개의 조건별 quote matrix 수집 | 다음 crawler PR |
+| 5 | P0 상품의 조건별 quote row를 source 후보와 매칭해 DB 적재 | 완료. 16건 `needs_review` |
 | 6 | UI에서 "대표 보험료"와 "조건별 예상 보험료"를 분리 표시 | UI PR |
+| 7 | 실손의료보험 여성 POST 파라미터 500 원인 확인 | crawler 후속 PR |
 
 ---
 
@@ -183,3 +202,4 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 - **QA_Validation**: [Premium Quote Matrix PoC](../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md) - 조건별 보험료 재조회 가능성 검증 결과
 - **QA_Validation**: [Premium Quotes Schema Migration](../05_QA_Validation/13_PREMIUM_QUOTES_SCHEMA_MIGRATION_2026_05_28.md) - `insurance_premium_quotes` schema와 `0006` migration 검증
 - **QA_Validation**: [Premium Quotes DB Apply](../05_QA_Validation/14_PREMIUM_QUOTES_DB_APPLY_2026_05_28.md) - `0006` Turso DB 적용 검증
+- **QA_Validation**: [Premium Quote Rows DB Apply](../05_QA_Validation/15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md) - P0 source 후보 quote row 16건 적재 검증

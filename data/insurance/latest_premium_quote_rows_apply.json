@@ -1,0 +1,172 @@
+{
+  "metadata": {
+    "generated_at": "2026-05-28T21:12:10.786+09:00",
+    "timezone": "Asia/Seoul",
+    "generator": "scripts/insurance/apply-premium-quotes.mjs",
+    "mode": "apply",
+    "input": "data/insurance/latest_premium_quote_probe.json",
+    "source_probe_generated_at": "2026-05-28T15:00:20.530+09:00"
+  },
+  "source_catalog": {
+    "rows_with_e_insmarket_code": 7,
+    "matched_product_sources": [
+      {
+        "product_source_id": "src_db_direct_medical_202605",
+        "carrier_id": "carrier_db_insurance",
+        "e_insmarket_product_code": "N11G004000001G",
+        "raw_product_name": "(무)다이렉트 실손의료비보험2605(CM)",
+        "product_group": "실손의료보험",
+        "row_count": 2,
+        "numeric_premium_count": 2,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age44_male"
+        ],
+        "premiums_krw": [
+          6219,
+          9320
+        ]
+      },
+      {
+        "product_source_id": "src_hanwha_life_e_cancer_202604",
+        "carrier_id": "carrier_hanwha_life",
+        "e_insmarket_product_code": "L01C009000009",
+        "raw_product_name": "한화생명 e암보험(비갱신형)(무)(표준체형)",
+        "product_group": "암보험",
+        "row_count": 4,
+        "numeric_premium_count": 0,
+        "null_premium_count": 4,
+        "conditions": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": []
+      },
+      {
+        "product_source_id": "src_hyundai_direct_medical_202605",
+        "carrier_id": "carrier_hyundai_marine",
+        "e_insmarket_product_code": "N09G004000001G",
+        "raw_product_name": "(무)현대해상다이렉트실손의료비보장보험(갱신형)(Hi2605)",
+        "product_group": "실손의료보험",
+        "row_count": 2,
+        "numeric_premium_count": 2,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age44_male"
+        ],
+        "premiums_krw": [
+          6740,
+          9190
+        ]
+      },
+      {
+        "product_source_id": "src_kb_direct_medical_202605",
+        "carrier_id": "carrier_kb_insurance",
+        "e_insmarket_product_code": "N10G004000002G",
+        "raw_product_name": "KB손보 다이렉트실손의료비보장보험(무배당)(26.05)",
+        "product_group": "실손의료보험",
+        "row_count": 2,
+        "numeric_premium_count": 2,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age44_male"
+        ],
+        "premiums_krw": [
+          6400,
+          9074
+        ]
+      },
+      {
+        "product_source_id": "src_samsung_fire_direct_medical_202605",
+        "carrier_id": "carrier_samsung_fire",
+        "e_insmarket_product_code": "N08G004000002G",
+        "raw_product_name": "무배당 삼성화재 다이렉트 실손의료비보험(2605.1)",
+        "product_group": "실손의료보험",
+        "row_count": 2,
+        "numeric_premium_count": 2,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age44_male"
+        ],
+        "premiums_krw": [
+          6575,
+          9546
+        ]
+      },
+      {
+        "product_source_id": "src_shinhan_life_sol_cancer_202601",
+        "carrier_id": "carrier_shinhan_life",
+        "e_insmarket_product_code": "L11C009000006",
+        "raw_product_name": "신한SOL암보험(무배당, 해약환급금 미지급형)(비갱신형)",
+        "product_group": "암보험",
+        "row_count": 4,
+        "numeric_premium_count": 4,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          8530,
+          6750,
+          10030,
+          7320
+        ]
+      }
+    ]
+  },
+  "quote_rows": {
+    "source_total": 66,
+    "matched_total": 16,
+    "skipped_total": 50,
+    "skipped_by_reason": {
+      "not_in_source_catalog": 50
+    },
+    "inserted_rows": 16,
+    "table_count_before": 0,
+    "table_count_after": 16,
+    "review_status_for_inserted_rows": "needs_review"
+  },
+  "source_status": {
+    "inaccessible_or_error_count": 2,
+    "errors": [
+      {
+        "condition_id": "age34_female",
+        "source_id": "e_insmarket_medical_5th_mobile",
+        "product_group": "실손의료보험",
+        "http_status": 500,
+        "evidence": "Extracted 0 실손의료보험 product rows for age34_female."
+      },
+      {
+        "condition_id": "age44_female",
+        "source_id": "e_insmarket_medical_5th_mobile",
+        "product_group": "실손의료보험",
+        "http_status": 500,
+        "evidence": "Extracted 0 실손의료보험 product rows for age44_female."
+      }
+    ]
+  },
+  "qa": {
+    "quote_requery_possible": true,
+    "blockers": [
+      "e_insmarket_medical_5th_mobile age34_female returned 500; request parameters need follow-up before full matrix collection.",
+      "e_insmarket_medical_5th_mobile age44_female returned 500; request parameters need follow-up before full matrix collection.",
+      "보험다모아 조회 조건은 대표 비교 조건이며 확정 견적이나 청약 심사 결과가 아니다.",
+      "sex code mapping은 URL/POST parameter 기반으로 정리했으며 공식 API 문서 기반 검증은 추가 필요하다.",
+      "보장금액, 납입기간, 특약 조합은 이번 PoC에서 아직 재조회하지 않았다."
+    ],
+    "next_actions": [
+      "insurance_premium_quotes schema에 age, sex, source_sex_code, premium_text, monthly_premium_krw, quote_params_json을 반영한다.",
+      "P0 source 후보 중 암보험과 실손의료보험부터 조건별 quote matrix를 수집한다.",
+      "사용자 UI에서는 대표 보험료와 조건별 예상 보험료를 분리해서 표시한다."
+    ]
+  }
+}
