@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-05-28 03:56
+> Last Updated: 2026-05-29 00:45
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1
+- **상태**: Draft v1.1
 - **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준
 - **결론**: 이 프로젝트에서 말하는 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DB에 보험상품을 넣기 전에 DNA risk target과 매칭할 수 있도록 `coverage_category`, `risk_targets`, `matching_strategy`, `coverage_caveats_json`을 정리하는 내부 데이터 정규화 작업이다.
 
@@ -104,7 +104,7 @@ DNA 분석 결과
 
 ## 7. 현재 적용 상태
 
-2026-05-28 기준 보험다모아 P0 샘플은 56개이며, 공식 문서 hash와 매칭 키워드 정리 샘플은 7개다.
+2026-05-29 기준 보험다모아 P0 샘플은 56개이며, 공식 문서 hash와 매칭 키워드 정리 샘플은 7개다. quote matrix에서 확인된 추가 15개 상품은 source catalog raw 후보로만 반영한다.
 
 | 단계 | 개수 | 의미 |
 |---|---:|---|
@@ -112,9 +112,11 @@ DNA 분석 결과
 | 공식 상품 URL 보유 | 47개 | 상품 페이지 후보 있음 |
 | 공식 문서 hash 확보 | 7개 | 약관/요약서/사업방법서 hash 확인 |
 | 매칭 키워드 정리 샘플 | 7개 | PR #7 source-aware seed 기준 |
+| quote-only raw source 후보 | 15개 | 보험다모아 quote matrix product code 연결용. 공식 문서 hash 전 |
+| seed source 후보 총계 | 22개 | 7개 hash-backed + 15개 quote-only raw |
 | 추천 매칭 가능 상품 | 0개 | 아직 active demo 상품만 사용자 추천 흐름에 사용 |
 
-다음 단계는 나머지 49개 후보의 공식 문서 hash와 매칭 키워드를 정리하고, 협회/보험사 공시실까지 넓혀 질병 관련 보험상품 universe를 확장하는 것이다.
+다음 단계는 quote-only raw 후보의 공식 문서 hash와 매칭 키워드를 정리하고, 협회/보험사 공시실까지 넓혀 질병 관련 보험상품 universe를 확장하는 것이다.
 
 ---
 
@@ -152,3 +154,4 @@ DNA 분석 결과
 - **Logic_Progress**: [Two Pillars Service Update](../04_Logic_Progress/03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md) - 실제 보험상품 카탈로그 적용 트랙
 - **Logic_Progress**: [AI Matching Pipeline](../04_Logic_Progress/AI_MATCHING_PIPELINE.md) - DNA 분석 결과와 DB 상품 추천의 경계
 - **QA_Validation**: [Source-aware Seed Policy QA](../05_QA_Validation/10_SOURCE_AWARE_SEED_POLICY_2026_05_28.md) - PR #7 seed 후보 반영 검증
+- **QA_Validation**: [Source Catalog Quote Expansion](../05_QA_Validation/18_SOURCE_CATALOG_QUOTE_EXPANSION_2026_05_29.md) - quote-only raw source 후보 15개 확장 검증

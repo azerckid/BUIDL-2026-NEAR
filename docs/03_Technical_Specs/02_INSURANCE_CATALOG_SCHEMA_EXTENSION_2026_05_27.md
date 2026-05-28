@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 카탈로그 스키마 확장안
 > Created: 2026-05-27 22:43
-> Last Updated: 2026-05-28 21:13
+> Last Updated: 2026-05-29 00:45
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Approved Design v1.4
+- **상태**: Approved Design v1.5
 - **범위**: 실제 한국 보험상품 수집 데이터, 공식 문서 hash, KRW 보험료, 실손의료보험, 서비스 추천 snapshot 스키마
 - **결론**: 원천 수집 테이블과 서비스 추천 테이블을 분리한다. `insurance_product_sources`, `insurance_source_documents`, `insurance_premium_quotes`에 공식 출처와 조건별 보험료를 보존하고, 질병-보장 매핑과 매칭 키워드 정리가 끝난 상품만 확장된 `insurance_products`로 발행한다.
 
@@ -282,7 +282,7 @@ baseline 상품:
 
 ## 10. 비적용 범위
 
-2026-05-28 21:13 KST 기준 `insurance_premium_quotes` schema와 `0006_real_war_machine.sql` migration은 운영 Turso DB에 적용됐다. 이후 PoC raw quote 66건 중 source-aware 후보와 매칭되는 16건도 `needs_review` 상태로 적재했다. 아직 다음 작업은 하지 않는다.
+2026-05-28 21:13 KST 기준 `insurance_premium_quotes` schema와 `0006_real_war_machine.sql` migration은 운영 Turso DB에 적용됐다. 이후 실손 여성 파라미터 해소까지 포함해 source-aware 후보와 매칭되는 24건을 `needs_review` 상태로 적재했다. 2026-05-29 기준 나머지 quote 60건을 연결할 quote-only raw source 후보 15개를 seed에 반영했으며, 운영 DB 적용은 별도 백업 후 진행한다.
 
 - `src/lib/db/seed.ts` 실제 상품 교체
 - 보험료 KRW/USDC 환산 로직 구현
@@ -317,3 +317,4 @@ baseline 상품:
 - **QA_Validation**: [Premium Quote Matrix PoC](../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md) - `insurance_premium_quotes`를 구현하게 된 재조회 근거
 - **QA_Validation**: [Premium Quotes Schema Migration](../05_QA_Validation/13_PREMIUM_QUOTES_SCHEMA_MIGRATION_2026_05_28.md) - `0006` migration 생성 검증
 - **QA_Validation**: [Premium Quote Rows DB Apply](../05_QA_Validation/15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md) - P0 source 후보 quote row 적재 검증
+- **QA_Validation**: [Source Catalog Quote Expansion](../05_QA_Validation/18_SOURCE_CATALOG_QUOTE_EXPANSION_2026_05_29.md) - quote-only raw source 후보 15개 확장 검증
