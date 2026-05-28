@@ -62,6 +62,21 @@ const documentTypeValues = [
 const usageStatusValues = ["internal_only", "link_only", "public_metadata_allowed"] as const;
 const parseStatusValues = ["not_parsed", "parsed", "parse_failed"] as const;
 const catalogStatusValues = ["approved", "needs_review", "archived"] as const;
+const quoteSexValues = ["male", "female", "source_unknown"] as const;
+const quoteSourceTypeValues = ["e_insmarket", "carrier_quote", "association", "manual"] as const;
+const quoteReviewStatusValues = ["raw", "needs_review", "approved", "rejected"] as const;
+
+function isJsonString(value: string) {
+  try {
+    JSON.parse(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const jsonStringSchema = z.string().refine(isJsonString, "JSON 문자열이어야 합니다.");
+const sha256HexSchema = z.string().length(64).regex(/^[a-f0-9]{64}$/);
 
 export const insuranceCarriers = sqliteTable("insurance_carriers", {
   id: text("id").primaryKey(),
@@ -140,6 +155,48 @@ export const insuranceSourceDocuments = sqliteTable("insurance_source_documents"
 }, (table) => [
   index("source_documents_product_idx").on(table.productSourceId),
   index("source_documents_hash_idx").on(table.fileHashSha256),
+]);
+
+export const insurancePremiumQuotes = sqliteTable("insurance_premium_quotes", {
+  id: text("id").primaryKey(),
+  productSourceId: text("product_source_id")
+    .notNull()
+    .references(() => insuranceProductSources.id),
+  carrierId: text("carrier_id")
+    .notNull()
+    .references(() => insuranceCarriers.id),
+  age: integer("age"),
+  sex: text("sex", { enum: quoteSexValues }),
+  sourceSexCode: text("source_sex_code"),
+  paymentCycle: text("payment_cycle"),
+  paymentPeriodYears: integer("payment_period_years"),
+  insurancePeriodYears: integer("insurance_period_years"),
+  coverageAmountKrw: integer("coverage_amount_krw"),
+  planName: text("plan_name"),
+  renewalType: text("renewal_type"),
+  ridersJson: text("riders_json"),
+  premiumCurrency: text("premium_currency", { enum: premiumCurrencyValues })
+    .notNull()
+    .default("KRW"),
+  monthlyPremiumKrw: integer("monthly_premium_krw"),
+  premiumText: text("premium_text"),
+  quoteSourceType: text("quote_source_type", { enum: quoteSourceTypeValues }).notNull(),
+  quoteSourceUrl: text("quote_source_url"),
+  quoteParamsJson: text("quote_params_json"),
+  quoteHashSha256: text("quote_hash_sha256"),
+  retrievedAt: integer("retrieved_at", { mode: "timestamp" }).notNull(),
+  reviewStatus: text("review_status", { enum: quoteReviewStatusValues })
+    .notNull()
+    .default("raw"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+}, (table) => [
+  index("premium_quotes_product_condition_idx").on(
+    table.productSourceId,
+    table.age,
+    table.sex
+  ),
+  index("premium_quotes_product_review_idx").on(table.productSourceId, table.reviewStatus),
+  index("premium_quotes_hash_idx").on(table.quoteHashSha256),
 ]);
 
 // ─── insurance_products ───────────────────────────────────────────────────────
@@ -287,6 +344,32 @@ export const insuranceSourceDocumentInsertSchema = z.object({
   usageStatus: z.enum(usageStatusValues).default("link_only"),
   parseStatus: z.enum(parseStatusValues).default("not_parsed"),
   extractedTextHash: z.string().length(64).nullable().default(null),
+  createdAt: z.number().int().positive(),
+});
+
+export const insurancePremiumQuoteInsertSchema = z.object({
+  id: z.string().min(1),
+  productSourceId: z.string().min(1),
+  carrierId: z.string().min(1),
+  age: z.number().int().min(0).max(120).nullable().default(null),
+  sex: z.enum(quoteSexValues).nullable().default(null),
+  sourceSexCode: z.string().nullable().default(null),
+  paymentCycle: z.string().nullable().default(null),
+  paymentPeriodYears: z.number().int().positive().nullable().default(null),
+  insurancePeriodYears: z.number().int().positive().nullable().default(null),
+  coverageAmountKrw: z.number().int().positive().nullable().default(null),
+  planName: z.string().nullable().default(null),
+  renewalType: z.string().nullable().default(null),
+  ridersJson: jsonStringSchema.nullable().default(null),
+  premiumCurrency: z.enum(premiumCurrencyValues).default("KRW"),
+  monthlyPremiumKrw: z.number().int().positive().nullable().default(null),
+  premiumText: z.string().nullable().default(null),
+  quoteSourceType: z.enum(quoteSourceTypeValues),
+  quoteSourceUrl: z.string().url().nullable().default(null),
+  quoteParamsJson: jsonStringSchema.nullable().default(null),
+  quoteHashSha256: sha256HexSchema.nullable().default(null),
+  retrievedAt: z.number().int().positive(),
+  reviewStatus: z.enum(quoteReviewStatusValues).default("raw"),
   createdAt: z.number().int().positive(),
 });
 
@@ -470,6 +553,7 @@ export type UserProfile = typeof userProfiles.$inferSelect;
 export type InsuranceCarrier = typeof insuranceCarriers.$inferSelect;
 export type InsuranceProductSource = typeof insuranceProductSources.$inferSelect;
 export type InsuranceSourceDocument = typeof insuranceSourceDocuments.$inferSelect;
+export type InsurancePremiumQuote = typeof insurancePremiumQuotes.$inferSelect;
 export type InsuranceProduct = typeof insuranceProducts.$inferSelect;
 export type AnalysisSession = typeof analysisSessions.$inferSelect;
 export type AnalysisResult = typeof analysisResults.$inferSelect;
