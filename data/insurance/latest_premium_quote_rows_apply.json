@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-05-28T23:50:01.296+09:00",
+    "generated_at": "2026-05-29T01:20:57.199+09:00",
     "timezone": "Asia/Seoul",
     "generator": "scripts/insurance/apply-premium-quotes.mjs",
     "mode": "apply",
@@ -8,7 +8,7 @@
     "source_probe_generated_at": "2026-05-28T23:47:08.337+09:00"
   },
   "source_catalog": {
-    "rows_with_e_insmarket_code": 7,
+    "rows_with_e_insmarket_code": 22,
     "matched_product_sources": [
       {
         "product_source_id": "src_db_direct_medical_202605",
@@ -33,6 +33,72 @@
         ]
       },
       {
+        "product_source_id": "src_db_life_eroun_cancer_202601",
+        "carrier_id": "carrier_db_life",
+        "e_insmarket_product_code": "L71C009000006",
+        "raw_product_name": "(무)e로운 암보험(해약환급금 미지급형)(2601)",
+        "product_group": "암보험",
+        "row_count": 4,
+        "numeric_premium_count": 4,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          10300,
+          9700,
+          13300,
+          10900
+        ]
+      },
+      {
+        "product_source_id": "src_hanwha_general_direct_cancer_202604",
+        "carrier_id": "carrier_hanwha_general",
+        "e_insmarket_product_code": "N02C009000016",
+        "raw_product_name": "한화 다이렉트 내가고른 암보험 무배당2604",
+        "product_group": "암보험",
+        "row_count": 4,
+        "numeric_premium_count": 4,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          13721,
+          12204,
+          17151,
+          13018
+        ]
+      },
+      {
+        "product_source_id": "src_hanwha_general_direct_medical_202605",
+        "carrier_id": "carrier_hanwha_general",
+        "e_insmarket_product_code": "N02G004000001G",
+        "raw_product_name": "한화다이렉트실손의료보험(갱신형)Ⅴ 무배당",
+        "product_group": "실손의료보험",
+        "row_count": 4,
+        "numeric_premium_count": 4,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          6394,
+          6539,
+          8703,
+          10329
+        ]
+      },
+      {
         "product_source_id": "src_hanwha_life_e_cancer_202604",
         "carrier_id": "carrier_hanwha_life",
         "e_insmarket_product_code": "L01C009000009",
@@ -48,6 +114,45 @@
           "age44_female"
         ],
         "premiums_krw": []
+      },
+      {
+        "product_source_id": "src_hanwha_life_e_cancer_nonsmoker_202604",
+        "carrier_id": "carrier_hanwha_life",
+        "e_insmarket_product_code": "L01C009000010",
+        "raw_product_name": "한화생명 e암보험(비갱신형)(무)(비흡연체형)",
+        "product_group": "암보험",
+        "row_count": 4,
+        "numeric_premium_count": 0,
+        "null_premium_count": 4,
+        "conditions": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": []
+      },
+      {
+        "product_source_id": "src_heungkuk_fire_direct_medical_202605",
+        "carrier_id": "carrier_heungkuk_fire",
+        "e_insmarket_product_code": "N05G004000001G",
+        "raw_product_name": "(무)흥Good 다이렉트 실손의료보험(26.05)",
+        "product_group": "실손의료보험",
+        "row_count": 4,
+        "numeric_premium_count": 4,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          7995,
+          8939,
+          10497,
+          13029
+        ]
       },
       {
         "product_source_id": "src_hyundai_direct_medical_202605",
@@ -94,6 +199,182 @@
         ]
       },
       {
+        "product_source_id": "src_kdb_life_direct_cancer_202605",
+        "carrier_id": "carrier_kdb_life",
+        "e_insmarket_product_code": "L33C009000025",
+        "raw_product_name": "KDB다이렉트 암보험(해약환급금 미지급형III)(무)",
+        "product_group": "암보험",
+        "row_count": 4,
+        "numeric_premium_count": 4,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          11230,
+          8020,
+          13340,
+          8650
+        ]
+      },
+      {
+        "product_source_id": "src_kyobo_lifeplanet_cancer_nonsmoker_202605",
+        "carrier_id": "carrier_kyobo_lifeplanet",
+        "e_insmarket_product_code": "L43C009000022",
+        "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 비흡연체)",
+        "product_group": "암보험",
+        "row_count": 4,
+        "numeric_premium_count": 4,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          10710,
+          8410,
+          12910,
+          9120
+        ]
+      },
+      {
+        "product_source_id": "src_kyobo_lifeplanet_cancer_standard_202605",
+        "carrier_id": "carrier_kyobo_lifeplanet",
+        "e_insmarket_product_code": "L43C009000019",
+        "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 표준체)",
+        "product_group": "암보험",
+        "row_count": 4,
+        "numeric_premium_count": 4,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          11320,
+          8490,
+          13700,
+          9210
+        ]
+      },
+      {
+        "product_source_id": "src_lotte_direct_medical_202605",
+        "carrier_id": "carrier_lotte_insurance",
+        "e_insmarket_product_code": "N03G004000001G",
+        "raw_product_name": "무배당 let:care 실손의료보험Ⅴ(2605)",
+        "product_group": "실손의료보험",
+        "row_count": 4,
+        "numeric_premium_count": 4,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          12183,
+          15675,
+          17565,
+          21254
+        ]
+      },
+      {
+        "product_source_id": "src_meritz_direct_medical_202605",
+        "carrier_id": "carrier_meritz_fire",
+        "e_insmarket_product_code": "N01G004000002G",
+        "raw_product_name": "(무) 메리츠 다이렉트 실손의료비보험2605",
+        "product_group": "실손의료보험",
+        "row_count": 4,
+        "numeric_premium_count": 4,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          6643,
+          7103,
+          8635,
+          10519
+        ]
+      },
+      {
+        "product_source_id": "src_miraeasset_online_cancer_basic_202605",
+        "carrier_id": "carrier_miraeasset_life",
+        "e_insmarket_product_code": "L34C009000021",
+        "raw_product_name": "온라인 암보험 무배당 [기본형]",
+        "product_group": "암보험",
+        "row_count": 4,
+        "numeric_premium_count": 4,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          5970,
+          4510,
+          13000,
+          7780
+        ]
+      },
+      {
+        "product_source_id": "src_miraeasset_online_cancer_no_refund_202605",
+        "carrier_id": "carrier_miraeasset_life",
+        "e_insmarket_product_code": "L34C009000022",
+        "raw_product_name": "온라인 암보험 무배당 [해약환급금이없는유형]",
+        "product_group": "암보험",
+        "row_count": 4,
+        "numeric_premium_count": 4,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          8910,
+          6490,
+          10700,
+          7060
+        ]
+      },
+      {
+        "product_source_id": "src_nh_fire_medical_202605",
+        "carrier_id": "carrier_nh_fire",
+        "e_insmarket_product_code": "N71G004000001G",
+        "raw_product_name": "(무) 헤아림실손의료비보험2605",
+        "product_group": "실손의료보험",
+        "row_count": 4,
+        "numeric_premium_count": 4,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          5745,
+          5745,
+          7364,
+          7364
+        ]
+      },
+      {
         "product_source_id": "src_samsung_fire_direct_medical_202605",
         "carrier_id": "carrier_samsung_fire",
         "e_insmarket_product_code": "N08G004000002G",
@@ -136,21 +417,63 @@
           10030,
           7320
         ]
+      },
+      {
+        "product_source_id": "src_shinhan_life_sol_cancer_standard_202605",
+        "carrier_id": "carrier_shinhan_life",
+        "e_insmarket_product_code": "L11C009000007",
+        "raw_product_name": "신한SOL암보험(무배당)(비갱신형)",
+        "product_group": "암보험",
+        "row_count": 4,
+        "numeric_premium_count": 4,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          10360,
+          7870,
+          11860,
+          8200
+        ]
+      },
+      {
+        "product_source_id": "src_tongyang_wooriwon_cancer_202605",
+        "carrier_id": "carrier_tongyang_life",
+        "e_insmarket_product_code": "L74C009000006",
+        "raw_product_name": "(무)우리WON하는실속하나로암보험",
+        "product_group": "암보험",
+        "row_count": 4,
+        "numeric_premium_count": 4,
+        "null_premium_count": 0,
+        "conditions": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          9700,
+          11000,
+          17100,
+          14100
+        ]
       }
     ]
   },
   "quote_rows": {
     "source_total": 84,
-    "matched_total": 24,
-    "semantic_duplicate_total": 16,
-    "insert_candidate_total": 8,
-    "skipped_total": 60,
-    "skipped_by_reason": {
-      "not_in_source_catalog": 60
-    },
-    "inserted_rows": 8,
-    "table_count_before": 16,
-    "table_count_after": 24,
+    "matched_total": 84,
+    "semantic_duplicate_total": 24,
+    "insert_candidate_total": 60,
+    "skipped_total": 0,
+    "skipped_by_reason": {},
+    "inserted_rows": 60,
+    "table_count_before": 24,
+    "table_count_after": 84,
     "review_status_for_inserted_rows": "needs_review"
   },
   "source_status": {
@@ -165,7 +488,7 @@
       "보장금액, 납입기간, 특약 조합은 이번 PoC에서 아직 재조회하지 않았다."
     ],
     "next_actions": [
-      "수집된 quote row를 백업 후 insurance_premium_quotes에 needs_review 상태로 적재한다.",
+      "적재된 quote row를 needs_review 상태로 유지하고 매칭 키워드와 보험료 기준을 검수한다.",
       "실손의료보험 가입담보 A/B 외 E~J 특약 조합은 별도 quote dimension으로 확장한다.",
       "사용자 UI에서는 대표 보험료와 조건별 예상 보험료를 분리해서 표시한다."
     ]

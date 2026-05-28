@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-29 00:45
+> Last Updated: 2026-05-29 01:25
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.0
+- **상태**: Draft v2.1
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -137,7 +137,7 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 
 ### 6-4. `insurance_premium_quotes`
 
-조건별 보험료 matrix를 저장하는 별도 테이블이다. 2026-05-28 기준 `drizzle/0006_real_war_machine.sql`이 운영 Turso DB에 적용됐고, 보험다모아 quote PoC 84개 raw row 중 source-aware 후보와 매칭되는 24건을 `needs_review` 상태로 적재했다. 2026-05-29 기준 미등록 60건을 연결할 quote-only raw source 후보 15개를 seed에 반영했으며, DB 적용은 별도 백업 후 진행한다.
+조건별 보험료 matrix를 저장하는 별도 테이블이다. 2026-05-28 기준 `drizzle/0006_real_war_machine.sql`이 운영 Turso DB에 적용됐고, 2026-05-29 기준 보험다모아 quote PoC 84개 raw row 전부를 source 후보와 매칭해 `needs_review` 상태로 적재했다. 60건은 quote-only raw source 후보 15개를 백업 후 DB에 적용한 뒤 추가 적재했다.
 
 | 필드 | 설명 |
 |---|---|
@@ -330,7 +330,7 @@ CSV의 `needs_human_review`는 추천 DB 반영 승인이 아니라 매칭 키�
 
 ### 9-7. Quote-only Source Catalog Expansion
 
-2026-05-29 기준 최신 quote matrix의 `not_in_source_catalog` 60건은 15개 고유 상품에서 발생했다. 이 PR에서는 해당 15개 상품을 `insurance_product_sources.review_status=raw` 후보로 추가한다.
+2026-05-29 기준 최신 quote matrix의 `not_in_source_catalog` 60건은 15개 고유 상품에서 발생했다. 해당 15개 상품은 `insurance_product_sources.review_status=raw` 후보로 seed에 추가했고, 백업 후 DB 적용과 quote row 60건 추가 적재까지 완료했다.
 
 | 항목 | 결과 |
 |---|---:|
@@ -338,7 +338,8 @@ CSV의 `needs_human_review`는 추천 DB 반영 승인이 아니라 매칭 키�
 | 신규 product source seed | 15 |
 | 신규 source document | 0 |
 | 추천 snapshot 발행 | 0 |
-| 추가 매칭 가능 quote row | 60 |
+| 추가 적재 quote row | 60 |
+| 최종 quote row | 84 |
 
 이 후보들은 보험다모아 quote matrix에서 상품명, 보험사, product code, 조건별 보험료만 확인한 상태다. 공식 약관/상품요약서 hash와 매칭 키워드 정리가 끝나기 전까지 사용자 추천에 사용하지 않는다.
 
@@ -381,7 +382,8 @@ CSV의 `needs_human_review`는 추천 DB 반영 승인이 아니라 매칭 키�
 - [x] P0 source 후보 quote row 24건 DB 적재
 - [x] 실손의료보험 여성 조건 POST 파라미터 `L` 확인
 - [x] source catalog 미등록 quote 60건을 연결할 quote-only raw source 후보 15개 seed 반영
-- [ ] 백업 후 quote-only source 후보 DB 적용 및 quote row 60건 추가 적재
+- [x] 백업 후 quote-only source 후보 DB 적용 및 quote row 60건 추가 적재
+- [ ] quote-only raw source 15개 공식 문서 hash 확보
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
@@ -423,3 +425,4 @@ CSV의 `needs_human_review`는 추천 DB 반영 승인이 아니라 매칭 키�
 - **QA_Validation**: [Premium Quote Rows DB Apply](../05_QA_Validation/15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md) - source-aware quote row 적재 검증
 - **QA_Validation**: [Medical Female Quote Params](../05_QA_Validation/17_MEDICAL_FEMALE_QUOTE_PARAMS_2026_05_28.md) - 실손 여성 조건 quote 파라미터 검증
 - **QA_Validation**: [Source Catalog Quote Expansion](../05_QA_Validation/18_SOURCE_CATALOG_QUOTE_EXPANSION_2026_05_29.md) - quote-only raw source 후보 15개 확장 검증
+- **QA_Validation**: [Source Catalog Quote DB Apply](../05_QA_Validation/19_SOURCE_CATALOG_QUOTE_DB_APPLY_2026_05_29.md) - quote-only raw source 후보와 quote row 60건 추가 적용 검증
