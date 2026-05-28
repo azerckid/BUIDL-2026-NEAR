@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-29 01:25
+> Last Updated: 2026-05-29 01:55
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.1
+- **상태**: Draft v2.2
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -343,6 +343,26 @@ CSV의 `needs_human_review`는 추천 DB 반영 승인이 아니라 매칭 키�
 
 이 후보들은 보험다모아 quote matrix에서 상품명, 보험사, product code, 조건별 보험료만 확인한 상태다. 공식 약관/상품요약서 hash와 매칭 키워드 정리가 끝나기 전까지 사용자 추천에 사용하지 않는다.
 
+### 9-8. Quote-only Source Document Probe v1
+
+quote-only 후보는 대표 상품 1개씩 고르는 방식이 아니라 product code 단위로 재조회해야 한다. 이를 위해 `collect-product-documents.mjs`에 `--product-codes` 옵션을 추가했다.
+
+```bash
+npm run collect:insurance:docs -- --product-codes <comma-separated-product-codes> --out data/insurance/latest_quote_only_product_document_probe.json
+```
+
+2026-05-29 01:55 KST 기준 결과는 다음과 같다.
+
+| 항목 | 결과 |
+|---|---:|
+| 대상 product code | 15 |
+| 공식 상품 URL 보유 | 12 |
+| 공식 상품 URL 없음 | 3 |
+| 상품 페이지 hashed PDF | 5 |
+| carrier disclosure 추가 hashed PDF | 3 |
+
+상품 페이지에서 바로 hash를 확보한 것은 한화생명 비흡연체형과 KDB생명 다이렉트 암보험이다. 신한라이프 후보는 공시 crawler에서 3개 hash가 추가로 나왔지만 match score 0.5라 상품 variant 확인이 필요하다. 상세 산출물은 `data/insurance/latest_quote_only_product_document_probe.json`, `data/insurance/latest_quote_only_carrier_disclosure_probe.json`, QA 문서는 `../05_QA_Validation/20_QUOTE_ONLY_SOURCE_DOCUMENT_PROBE_2026_05_29.md`에 둔다.
+
 ---
 
 ## 10. 법무·신뢰 고지
@@ -383,7 +403,9 @@ CSV의 `needs_human_review`는 추천 DB 반영 승인이 아니라 매칭 키�
 - [x] 실손의료보험 여성 조건 POST 파라미터 `L` 확인
 - [x] source catalog 미등록 quote 60건을 연결할 quote-only raw source 후보 15개 seed 반영
 - [x] 백업 후 quote-only source 후보 DB 적용 및 quote row 60건 추가 적재
-- [ ] quote-only raw source 15개 공식 문서 hash 확보
+- [x] quote-only raw source 15개 공식 상품 페이지/PDF 1차 probe
+- [ ] quote-only raw source 미확보 후보 carrier별 공시/API adapter 보강
+- [ ] hash-backed quote-only 후보를 `insurance_source_documents` seed 후보로 정리
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
@@ -426,3 +448,4 @@ CSV의 `needs_human_review`는 추천 DB 반영 승인이 아니라 매칭 키�
 - **QA_Validation**: [Medical Female Quote Params](../05_QA_Validation/17_MEDICAL_FEMALE_QUOTE_PARAMS_2026_05_28.md) - 실손 여성 조건 quote 파라미터 검증
 - **QA_Validation**: [Source Catalog Quote Expansion](../05_QA_Validation/18_SOURCE_CATALOG_QUOTE_EXPANSION_2026_05_29.md) - quote-only raw source 후보 15개 확장 검증
 - **QA_Validation**: [Source Catalog Quote DB Apply](../05_QA_Validation/19_SOURCE_CATALOG_QUOTE_DB_APPLY_2026_05_29.md) - quote-only raw source 후보와 quote row 60건 추가 적용 검증
+- **QA_Validation**: [Quote-only Source Document Probe](../05_QA_Validation/20_QUOTE_ONLY_SOURCE_DOCUMENT_PROBE_2026_05_29.md) - quote-only 후보 공식 문서 hash 1차 probe

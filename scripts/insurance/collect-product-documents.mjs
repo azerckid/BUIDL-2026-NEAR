@@ -33,6 +33,7 @@ const ProbeResultSchema = z.object({
     input_snapshot: z.string(),
     output_version: z.string(),
     target_limit: z.number().int(),
+    target_product_codes: z.array(z.string()),
   }),
   selected_products: z.array(
     z.object({
@@ -72,6 +73,17 @@ const ProbeResultSchema = z.object({
       error: z.string().optional(),
     }),
   ),
+  skipped_products: z.array(
+    z.object({
+      provider: z.string().nullable(),
+      product_group: z.string().nullable(),
+      raw_product_name: z.string().nullable(),
+      premium_text: z.string().nullable(),
+      e_insmarket_product_code: z.string(),
+      official_product_url: z.string().nullable(),
+      reason: z.string(),
+    }),
+  ),
   qa: z.object({
     service_db_ready: z.boolean(),
     blockers: z.array(z.string()),
@@ -86,6 +98,8 @@ function parseArgs(argv) {
     limit: DEFAULT_LIMIT,
     timeoutMs: DEFAULT_TIMEOUT_MS,
     maxPdfBytes: DEFAULT_MAX_PDF_BYTES,
+    productCodes: [],
+    limitWasSet: false,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -98,12 +112,19 @@ function parseArgs(argv) {
       i += 1;
     } else if (arg === "--limit") {
       args.limit = Number(argv[i + 1]);
+      args.limitWasSet = true;
       i += 1;
     } else if (arg === "--timeout-ms") {
       args.timeoutMs = Number(argv[i + 1]);
       i += 1;
     } else if (arg === "--max-pdf-bytes") {
       args.maxPdfBytes = Number(argv[i + 1]);
+      i += 1;
+    } else if (arg === "--product-codes") {
+      args.productCodes = String(argv[i + 1] ?? "")
+        .split(",")
+        .map((code) => code.trim())
+        .filter(Boolean);
       i += 1;
     } else if (arg === "--help" || arg === "-h") {
       printHelp();
@@ -122,6 +143,9 @@ function parseArgs(argv) {
   if (!Number.isInteger(args.maxPdfBytes) || args.maxPdfBytes <= 0) {
     throw new Error("--max-pdf-bytes must be a positive integer");
   }
+  if (args.productCodes.length > 0 && !args.limitWasSet) {
+    args.limit = args.productCodes.length;
+  }
 
   return args;
 }
@@ -129,6 +153,7 @@ function parseArgs(argv) {
 function printHelp() {
   console.log(`Usage:
   node scripts/insurance/collect-product-documents.mjs [--snapshot path] [--out path] [--limit 8]
+  node scripts/insurance/collect-product-documents.mjs --product-codes L43C009000022,N71G004000001G
 
 Default input:
   ${DEFAULT_SNAPSHOT}
@@ -148,6 +173,7 @@ async function fetchWithTimeout(url, options) {
       headers: {
         "User-Agent": USER_AGENT,
         Accept: options.accept ?? "*/*",
+        ...(options.referer ? { Referer: options.referer } : {}),
       },
       redirect: "follow",
       signal: controller.signal,
@@ -204,6 +230,47 @@ function selectRepresentativeProducts(snapshot, limit) {
   return selected;
 }
 
+function selectProductsByCodes(snapshot, productCodes, limit) {
+  const products = flattenProducts(snapshot);
+  const productsByCode = new Map(
+    products
+      .filter((product) => product.e_insmarket_product_code)
+      .map((product) => [product.e_insmarket_product_code, product]),
+  );
+  const selected = [];
+  const skipped = [];
+
+  for (const productCode of productCodes) {
+    const product = productsByCode.get(productCode);
+    if (!product) {
+      skipped.push(makeSkippedProduct(productCode, null, "not_in_snapshot"));
+      continue;
+    }
+    if (!product.official_product_url) {
+      skipped.push(makeSkippedProduct(productCode, product, "missing_official_product_url"));
+      continue;
+    }
+    selected.push(product);
+  }
+
+  return {
+    selected: selected.slice(0, limit),
+    skipped,
+  };
+}
+
+function makeSkippedProduct(productCode, product, reason) {
+  return {
+    provider: product?.provider ?? null,
+    product_group: product?.product_group ?? null,
+    raw_product_name: product?.raw_product_name ?? null,
+    premium_text: product?.premium_text ?? null,
+    e_insmarket_product_code: productCode,
+    official_product_url: product?.official_product_url ?? null,
+    reason,
+  };
+}
+
 async function probeProduct(product, options) {
   const baseProbe = {
     ...product,
@@ -251,7 +318,7 @@ async function probeProduct(product, options) {
 
     const pdfCandidates = [];
     for (const pdfUrl of pdfUrls) {
-      pdfCandidates.push(await probePdfUrl(pdfUrl, options));
+      pdfCandidates.push(await probePdfUrl(pdfUrl, { ...options, referer: response.url }));
     }
 
     return {
@@ -412,7 +479,11 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const snapshotPath = resolve(process.cwd(), args.snapshot);
   const snapshot = JSON.parse(await readFile(snapshotPath, "utf8"));
-  const selectedProducts = selectRepresentativeProducts(snapshot, args.limit);
+  const selection =
+    args.productCodes.length > 0
+      ? selectProductsByCodes(snapshot, args.productCodes, args.limit)
+      : { selected: selectRepresentativeProducts(snapshot, args.limit), skipped: [] };
+  const selectedProducts = selection.selected;
   const probes = [];
 
   for (const product of selectedProducts) {
@@ -425,11 +496,13 @@ async function main() {
       timezone: "Asia/Seoul",
       generator: "scripts/insurance/collect-product-documents.mjs",
       input_snapshot: args.snapshot,
-      output_version: "1.0",
+      output_version: "1.1",
       target_limit: args.limit,
+      target_product_codes: args.productCodes,
     },
     selected_products: selectedProducts,
     probes,
+    skipped_products: selection.skipped,
     qa: {
       service_db_ready: false,
       blockers: [
