@@ -1,9 +1,9 @@
 # [실행 전략] 두 기둥 기반 서비스 업데이트 계획
 > Created: 2026-05-27 02:55
-> Last Updated: 2026-05-28 03:56
+> Last Updated: 2026-05-28 10:43
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v2.2
+- **상태**: Draft v2.3
 - **범위**: 실제 보험상품 카탈로그 적용 준비, NEAR 기술 업데이트 적용 준비
 - **결론**: 서비스 적용의 두 기둥은 `실제 보험상품 탐색`과 `NEAR 프라이버시 기술 적용`이며, 두 영역은 결정론적 매칭 엔진으로 연결한다.
 
@@ -199,6 +199,7 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - [x] 월간/분기 정기 갱신 체크리스트 작성 (`03_INSURANCE_DATA_REFRESH_QA.md`)
 - [x] source-aware seed 후보 발행 정책 확정 및 `seed.ts` 출처 후보 반영
 - [x] 매칭 키워드 정리 정책 문서화 (`03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md`)
+- [x] source-aware seed Turso DB 적용 및 row count 검증
 - [ ] 매칭 키워드가 정리된 실제 상품 snapshot 생성 및 기존 active demo 상품 교체
 - [ ] `monthly_premium_krw`와 `monthly_premium_usdc` 병행 저장 여부 결정
 - [ ] 보험다모아/보험사 페이지에서 나이·성별별 보험료 재조회 가능성 PoC 수행
@@ -256,3 +257,4 @@ Post-Quantum Chain Signatures는 장기 보안 로드맵에는 중요하지만, 
 - **QA_Validation**: [Insurance Matching Queue](../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md) - 매칭 키워드 정리 CSV 생성 결과
 - **QA_Validation**: [Hash-backed Matching Keyword Review](../05_QA_Validation/08_HASH_BACKED_PRODUCT_MANUAL_REVIEW_2026_05_27.md) - hash-backed 7개 상품 매칭 키워드 정리 결과와 추천 미노출 사유
 - **QA_Validation**: [Source-aware Seed Policy QA](../05_QA_Validation/10_SOURCE_AWARE_SEED_POLICY_2026_05_28.md) - seed 후보 반영 방식과 노출 차단 검증
+- **QA_Validation**: [Source-aware Seed DB Apply](../05_QA_Validation/11_SOURCE_AWARE_SEED_DB_APPLY_2026_05_28.md) - Turso DB seed 적용 결과와 row count 검증
