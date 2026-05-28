@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-28 21:13
+> Last Updated: 2026-05-28 22:49
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-28 (`insurance_premium_quotes` row 적재)
+- **최종 수정일**: 2026-05-28 (PR 리뷰 운영 체크리스트 추가)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.0
+- **상태**: Draft v3.1
 - **phase**: Phase 2
 
 ---
@@ -1129,6 +1129,7 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 - [보험료 Quote Matrix 재조회 PoC](../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md)
 - [보험료 Quote Schema Migration 검증](../05_QA_Validation/13_PREMIUM_QUOTES_SCHEMA_MIGRATION_2026_05_28.md)
 - [보험료 Quote DB Migration 0006 적용 검증](../05_QA_Validation/14_PREMIUM_QUOTES_DB_APPLY_2026_05_28.md)
+- [PR Review Operating Checklist](../05_QA_Validation/16_PR_REVIEW_OPERATING_CHECKLIST_2026_05_28.md)
 - [보험상품 매칭 키워드 정리 정책](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md)
 - [AI 매칭 파이프라인](./AI_MATCHING_PIPELINE.md)
 - [두 기둥 기반 서비스 업데이트 계획](./03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md)
