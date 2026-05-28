@@ -491,9 +491,21 @@ function buildSummary({
     qa: {
       quote_requery_possible: probe.qa.quote_requery_possible,
       blockers: probe.qa.blockers,
-      next_actions: probe.qa.next_actions,
+      next_actions: buildNextActions({ isApply: args.apply, probe }),
     },
   };
+}
+
+function buildNextActions({ isApply, probe }) {
+  if (!isApply) {
+    return probe.qa.next_actions;
+  }
+
+  return [
+    "적재된 quote row를 needs_review 상태로 유지하고 매칭 키워드와 보험료 기준을 검수한다.",
+    "실손의료보험 가입담보 A/B 외 E~J 특약 조합은 별도 quote dimension으로 확장한다.",
+    "사용자 UI에서는 대표 보험료와 조건별 예상 보험료를 분리해서 표시한다.",
+  ];
 }
 
 async function writeJson(path, value) {

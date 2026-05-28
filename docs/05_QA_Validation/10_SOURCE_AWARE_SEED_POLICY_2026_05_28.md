@@ -1,11 +1,11 @@
 # [QA] Source-aware Seed 정책 검증
 > Created: 2026-05-28 03:27
-> Last Updated: 2026-05-29 00:45
+> Last Updated: 2026-05-29 01:25
 
 - **레이어**: 05_QA_Validation
-- **상태**: Seed Policy QA v1.4 완료
+- **상태**: Seed Policy QA v1.5 완료
 - **범위**: `src/lib/db/seed.ts`가 hash-backed 매칭 정리 후보를 어떤 테이블에 넣고, 사용자 추천 노출을 어떻게 차단하는지 검증한다.
-- **결론**: hash-backed 7개 상품은 실제 추천 상품으로 활성화하지 않고, source-aware 매칭 키워드 정리 후보로만 seed에 반영한다. 2026-05-29 기준 quote-only raw source 후보 15개를 추가해 조건별 quote row 60건을 연결할 준비를 했다. 기존 active demo 상품 5개는 서비스 흐름 보존용으로 유지한다.
+- **결론**: hash-backed 7개 상품은 실제 추천 상품으로 활성화하지 않고, source-aware 매칭 키워드 정리 후보로만 seed에 반영한다. 2026-05-29 기준 quote-only raw source 후보 15개를 추가하고 운영 DB에도 적용해 조건별 quote row 60건을 추가 연결했다. 기존 active demo 상품 5개는 서비스 흐름 보존용으로 유지한다.
 
 ---
 
@@ -60,9 +60,9 @@
 | `monthly_premium_krw` | 숫자로 정규화 가능한 값만 저장. `0원`은 대표 보험료로 저장하지 않음 |
 | `premium_basis` | 모든 상품 후보에 대표 보험료 caveat 또는 차단 사유를 기록 |
 | `monthly_premium_usdc` | 실제 후보에는 적용하지 않음. active 추천 상품 발행 시 별도 환산 기준 필요 |
-| 조건별 가격 | `insurance_premium_quotes`에 분리 저장. 현재 운영 DB에는 24건, quote-only 후보 DB 적용 후 60건 추가 가능 |
+| 조건별 가격 | `insurance_premium_quotes`에 분리 저장. 현재 운영 DB에는 84건이며 모두 `needs_review` |
 
-2026-05-29 quote-only 후보 15개는 source row 대표 보험료를 비워 둔다. 조건별 보험료는 `insurance_premium_quotes`에만 저장하고, DB 적용 전까지 기존 24건만 운영 DB에 존재한다.
+2026-05-29 quote-only 후보 15개는 source row 대표 보험료를 비워 둔다. 조건별 보험료는 `insurance_premium_quotes`에만 저장하고, DB 적용 후 운영 DB에는 84건이 존재한다.
 
 사용자 화면에 실제 상품 후보가 노출되지 않으므로, 현재 단계에서는 개인 맞춤 확정 견적처럼 보일 위험을 차단한다.
 
@@ -77,7 +77,7 @@
 | `npx eslint src --quiet` | 통과 |
 | `node -e "...fileHashSha256..."` | `seed.ts`의 모든 source document hash 64자 hex 통과 |
 
-정책 검증 시점에는 DB 쓰기 명령인 `npx tsx src/lib/db/seed.ts`를 실행하지 않았다. 이후 백업 후 Turso DB 적용을 완료했으며, 적용 결과는 `11_SOURCE_AWARE_SEED_DB_APPLY_2026_05_28.md`를 기준으로 확인한다.
+정책 검증 시점에는 DB 쓰기 명령인 `npx tsx src/lib/db/seed.ts`를 실행하지 않았다. 이후 백업 후 Turso DB 적용을 완료했으며, hash-backed 7개 후보 적용 결과는 `11_SOURCE_AWARE_SEED_DB_APPLY_2026_05_28.md`, quote-only raw source와 quote row 60건 추가 적용 결과는 `19_SOURCE_CATALOG_QUOTE_DB_APPLY_2026_05_29.md`를 기준으로 확인한다.
 
 참고로 `npm run lint -- --quiet`는 로컬 전용 `.agent/`와 `.claude/worktrees/` 디렉터리까지 스캔해 PR 범위 밖 오류로 실패했다. PR 검증 기준은 repository source인 `src` 범위로 확인했다.
 
@@ -96,11 +96,11 @@
 
 ## 6. 다음 검증
 
-1. 보험다모아/보험사 페이지에서 나이와 성별 파라미터 재조회 가능성을 PoC로 확인한다.
-2. `insurance_premium_quotes` schema/migration 초안을 작성한다.
-3. 나머지 49개 P0 후보의 공식 문서 hash와 매칭 키워드를 정리한다.
-4. 매칭 키워드가 정리된 실제 상품만 `insurance_products` active snapshot으로 발행하고 기존 demo 상품 제거 시점을 정한다.
-5. quote-only raw source 후보 15개를 백업 후 DB에 적용하고, 추가 quote row 60건을 `needs_review` 상태로 적재한다.
+1. quote-only raw source 후보 15개의 공식 문서 hash를 확보한다.
+2. 암보험/실손의료보험별 `coverage_category`, `risk_targets`, `matching_strategy`, caveat를 정리한다.
+3. quote row `approved` 승격 기준을 정한다.
+4. UI에서 대표 보험료와 조건별 예상 보험료를 분리 표시한다.
+5. 매칭 키워드가 정리된 실제 상품만 `insurance_products` active snapshot으로 발행하고 기존 demo 상품 제거 시점을 정한다.
 
 ---
 
@@ -128,4 +128,5 @@
 - **QA_Validation**: [DB Migration 0004/0005](./09_DB_MIGRATION_0004_0005_2026_05_28.md) - source-aware catalog schema 적용 검증
 - **QA_Validation**: [Source-aware Seed DB Apply](./11_SOURCE_AWARE_SEED_DB_APPLY_2026_05_28.md) - Turso DB seed 적용 결과와 row count 검증
 - **QA_Validation**: [Source Catalog Quote Expansion](./18_SOURCE_CATALOG_QUOTE_EXPANSION_2026_05_29.md) - quote-only raw source 후보 15개 확장 검증
+- **QA_Validation**: [Source Catalog Quote DB Apply](./19_SOURCE_CATALOG_QUOTE_DB_APPLY_2026_05_29.md) - quote-only raw source 후보와 60건 추가 quote 적용 검증
 - **Data**: [Latest Seed Candidate Review JSON](../../data/insurance/latest_seed_candidate_review.json) - seed 후보 원천 데이터

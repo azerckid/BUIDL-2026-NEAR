@@ -1,11 +1,11 @@
 # [QA] Source Catalog Quote-only 후보 확장 검증
 > Created: 2026-05-29 00:45
-> Last Updated: 2026-05-29 00:45
+> Last Updated: 2026-05-29 01:25
 
 - **레이어**: 05_QA_Validation
-- **상태**: Pending DB Apply
+- **상태**: Completed - DB Applied by QA19
 - **범위**: 보험다모아 quote matrix의 `not_in_source_catalog` 60건을 연결하기 위한 raw source 후보 확장
-- **결론**: 최신 quote matrix의 미등록 60건은 15개 고유 상품에서 발생했다. 이번 PR은 이 15개 상품과 신규 carrier 10개를 `seed.ts`에 quote-only raw 후보로 추가한다. 운영 DB 쓰기와 quote row 60건 추가 적재는 백업 후 별도 PR에서 수행한다.
+- **결론**: 최신 quote matrix의 미등록 60건은 15개 고유 상품에서 발생했다. 이번 PR은 이 15개 상품과 신규 carrier 10개를 `seed.ts`에 quote-only raw 후보로 추가했다. 운영 DB 적용과 quote row 60건 추가 적재는 QA19에서 백업 후 완료했다.
 
 ---
 
@@ -73,26 +73,26 @@ source row 대표 보험료를 비워 둔 이유는 15개 후보의 가격이 �
 - 신규 source 후보는 `insurance_products`에 들어가지 않으므로 추천 엔진이 읽지 않는다.
 - 신규 row는 모두 `review_status=raw`라 매칭 키워드 정리 완료 상태로 오해하지 않는다.
 - source document hash는 새로 만들지 않았다. 공식 문서 hash가 확보되기 전에는 `insurance_source_documents`를 늘리지 않는다.
-- DB write는 이번 PR에서 실행하지 않는다. 운영 DB 적용 전에는 백업과 row count 검증이 필요하다.
+- DB write는 이번 PR에서 실행하지 않았다. 운영 DB 적용은 QA19에서 백업과 row count 검증 후 수행했다.
 - 기존 active demo 상품 5개와 기존 quote row 24건은 변경하지 않는다.
 
 ---
 
-## 6. 예상 DB 적용 결과
+## 6. DB 적용 결과
 
-이번 PR이 머지된 뒤 별도 DB apply를 수행하면 예상 흐름은 다음과 같다.
+이번 PR이 머지된 뒤 별도 DB apply를 수행했고, 결과는 다음과 같다.
 
-| 단계 | 예상 결과 |
+| 단계 | 결과 |
 |---|---:|
 | `insurance_carriers` | 17 |
 | `insurance_product_sources` | 22 |
 | `insurance_source_documents` | 12 |
 | `insurance_products` | 5 |
 | `insurance_premium_quotes` 기존 row | 24 |
-| 신규 quote insert 후보 | 60 |
+| 신규 quote insert row | 60 |
 | 적용 후 quote row | 84 |
 
-적용 전에는 `.env.local` 대상 DB 확인, 읽기 전용 dump 백업, 백업 SHA-256 기록, seed 실행, quote apply dry-run, quote apply `--apply`, 중복/invalid hash 검증 순서로 진행한다.
+적용 전에는 `.env.local` 대상 DB 확인, 읽기 전용 dump 백업, 백업 SHA-256 기록, seed 실행, quote apply dry-run, quote apply `--apply`, 중복/invalid hash 검증 순서로 진행했다. 세부 결과는 `19_SOURCE_CATALOG_QUOTE_DB_APPLY_2026_05_29.md`에 둔다.
 
 ---
 
@@ -132,3 +132,4 @@ source row 대표 보험료를 비워 둔 이유는 15개 후보의 가격이 �
 - **Logic_Progress**: [Premium Quote Policy](../04_Logic_Progress/04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md) - 대표 보험료와 조건별 quote matrix 분리 정책
 - **QA_Validation**: [Premium Quote Rows DB Apply](./15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md) - 기존 24건 quote row 적재 맥락
 - **QA_Validation**: [Medical Female Quote Params](./17_MEDICAL_FEMALE_QUOTE_PARAMS_2026_05_28.md) - 84개 raw quote row 생성 근거
+- **QA_Validation**: [Source Catalog Quote DB Apply](./19_SOURCE_CATALOG_QUOTE_DB_APPLY_2026_05_29.md) - quote-only raw source 후보와 60건 추가 quote 적용 검증
