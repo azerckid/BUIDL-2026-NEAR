@@ -19,6 +19,7 @@ const db = drizzle(client);
 const now = DateTime.now().setZone("Asia/Seoul").toJSDate();
 const reviewedAt = DateTime.fromISO("2026-05-28T02:34:41.374+09:00").toJSDate();
 const quoteOnlyVariantReviewedAt = DateTime.fromISO("2026-05-29T02:58:00+09:00").toJSDate();
+const kdbShinhanVariantReviewedAt = DateTime.fromISO("2026-05-29T23:11:00+09:00").toJSDate();
 
 type InsuranceCarrierSeed = typeof insuranceCarriers.$inferInsert;
 type InsuranceProductSourceSeed = typeof insuranceProductSources.$inferInsert;
@@ -924,6 +925,36 @@ const SOURCE_AWARE_DOCUMENTS: InsuranceSourceDocumentSeed[] = [
     contentType: "application/octet-stream;charset=UTF-8",
     contentLengthBytes: 3474212,
     retrievedAt: quoteOnlyVariantReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
+  {
+    id: "doc_kdb_life_direct_cancer_summary_202605",
+    productSourceId: "src_kdb_life_direct_cancer_202605",
+    carrierId: "carrier_kdb_life",
+    sourceType: "carrier_disclosure",
+    documentType: "summary",
+    sourceUrl: "https://direct.kdblife.co.kr/resources/doc/policy/40869_summary.pdf",
+    fileHashSha256: "b6b3c5607f73accfd7cd28595cd466c6fecbc09c3b6e02e28867822fd51d407a",
+    contentType: "application/pdf",
+    contentLengthBytes: 204656,
+    retrievedAt: kdbShinhanVariantReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
+  {
+    id: "doc_kdb_life_direct_cancer_terms_202605",
+    productSourceId: "src_kdb_life_direct_cancer_202605",
+    carrierId: "carrier_kdb_life",
+    sourceType: "carrier_disclosure",
+    documentType: "terms",
+    sourceUrl: "https://direct.kdblife.co.kr/resources/doc/policy/40870_policy.pdf",
+    fileHashSha256: "a9f07c34b0551ba616f8098027873dcaed3367d2c035dd72403daa431cdc52b6",
+    contentType: "application/pdf",
+    contentLengthBytes: 6688831,
+    retrievedAt: kdbShinhanVariantReviewedAt,
     usageStatus: "link_only",
     parseStatus: "not_parsed",
     createdAt: now,
