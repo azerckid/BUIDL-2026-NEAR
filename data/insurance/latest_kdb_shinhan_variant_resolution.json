@@ -1,0 +1,136 @@
+{
+  "metadata": {
+    "reviewed_at": "2026-05-29T23:11:00+09:00",
+    "timezone": "Asia/Seoul",
+    "reviewer": "codex_variant_review",
+    "input_variant_review": "data/insurance/latest_quote_only_source_document_variant_review.json",
+    "input_product_probe": "data/insurance/latest_quote_only_product_document_probe.json",
+    "input_carrier_disclosure_probe": "data/insurance/latest_quote_only_carrier_disclosure_probe.json",
+    "output_version": "1.0",
+    "scope": "KDB Life and Shinhan Life quote-only source document variant resolution",
+    "db_write_performed": false,
+    "seed_file_changed": false
+  },
+  "summary": {
+    "source_candidates_reviewed": 2,
+    "document_rows_reviewed": 6,
+    "resolved_sources": 1,
+    "seed_candidate_sources": 1,
+    "seed_candidate_document_rows": 2,
+    "excluded_document_rows": 1,
+    "blocked_sources": 1,
+    "blocked_document_rows": 3,
+    "next_seed_candidate_document_rows": 2
+  },
+  "decisions": [
+    {
+      "provider": "KDB생명",
+      "product_source_id": "src_kdb_life_direct_cancer_202605",
+      "carrier_id": "carrier_kdb_life",
+      "e_insmarket_product_code": "L33C009000025",
+      "raw_product_name": "KDB다이렉트 암보험(해약환급금 미지급형III)(무)",
+      "decision_status": "resolved_seed_candidate",
+      "recommended_source_review_status": "raw",
+      "recommended_matching_review_status": "catalog_candidate_after_document_seed",
+      "recommended_coverage_category": "oncology",
+      "recommended_matching_strategy": "risk_target",
+      "evidence": [
+        "40869_summary cover text: KDB다이렉트 암보험(무) 상품요약서. The summary describes the standard and no-refund III variants.",
+        "40869_policy cover text: KDB다이렉트 암보험(갱신형)(무). This is the renewal variant and must not be linked to the no-refund III source.",
+        "40870_policy cover text: KDB다이렉트 암보험(무), with main contract text KDB다이렉트 암보험(표준형, 해약환급금 미지급형III)(무). This matches the quote-only source."
+      ],
+      "documents": [
+        {
+          "document_type": "summary",
+          "proposed_document_id": "doc_kdb_life_direct_cancer_summary_202605",
+          "source_url": "https://direct.kdblife.co.kr/resources/doc/policy/40869_summary.pdf",
+          "file_hash_sha256": "b6b3c5607f73accfd7cd28595cd466c6fecbc09c3b6e02e28867822fd51d407a",
+          "content_type": "application/pdf",
+          "content_length_bytes": 204656,
+          "variant_decision": "seed_candidate",
+          "seed_candidate": true,
+          "decision_reason": "Generic KDB direct cancer product summary covers the no-refund III variant used by the source."
+        },
+        {
+          "document_type": "terms",
+          "proposed_document_id": "doc_kdb_life_direct_cancer_terms_202605",
+          "source_url": "https://direct.kdblife.co.kr/resources/doc/policy/40870_policy.pdf",
+          "file_hash_sha256": "a9f07c34b0551ba616f8098027873dcaed3367d2c035dd72403daa431cdc52b6",
+          "content_type": "application/pdf",
+          "content_length_bytes": 6688831,
+          "variant_decision": "seed_candidate",
+          "seed_candidate": true,
+          "decision_reason": "PDF cover and main contract text identify the no-refund III variant."
+        },
+        {
+          "document_type": "terms",
+          "source_url": "https://direct.kdblife.co.kr/resources/doc/policy/40869_policy.pdf",
+          "file_hash_sha256": "10d4904403a4756932e3463f121b5f5b314df5c29f324fb223d35cfed39ca8ba",
+          "content_type": "application/pdf",
+          "content_length_bytes": 6605806,
+          "variant_decision": "excluded_renewal_variant",
+          "seed_candidate": false,
+          "decision_reason": "PDF cover identifies the renewal variant, not the no-refund III source."
+        }
+      ],
+      "next_action": "Add the 2 KDB source document rows in a separate seed PR while keeping the product source raw until matching keywords and caveats are reviewed."
+    },
+    {
+      "provider": "신한라이프생명",
+      "product_source_id": "src_shinhan_life_sol_cancer_standard_202605",
+      "carrier_id": "carrier_shinhan_life",
+      "e_insmarket_product_code": "L11C009000007",
+      "raw_product_name": "신한SOL암보험(무배당)(비갱신형)",
+      "decision_status": "confirmed_blocked_by_variant_mismatch",
+      "recommended_source_review_status": "raw",
+      "recommended_matching_review_status": "blocked_until_standard_documents_found",
+      "recommended_coverage_category": "oncology",
+      "recommended_matching_strategy": "risk_target",
+      "evidence": [
+        "Carrier disclosure record text contains 신한SOL암보험(무배당, 해약환급금 미지급형) and best_match_score is 0.5.",
+        "Summary, business method, and terms PDF cover text all identify the no-refund variant.",
+        "The business method document lists 신한SOL암보험(무배당) as the general type and 신한SOL암보험(무배당, 해약환급금 미지급형) as a separate no-refund type.",
+        "The no-refund documents are already connected to src_shinhan_life_sol_cancer_202601."
+      ],
+      "documents": [
+        {
+          "document_type": "summary",
+          "source_url": "https://shinhanlife.co.kr/bizxpress/cdh/cdhi/gd/pr/__media/%EC%83%81%ED%92%88%EC%9A%94%EC%95%BD%EC%84%9C_%EC%8B%A0%ED%95%9CSOL%EC%95%94%EB%B3%B4%ED%97%98(%EB%AC%B4%EB%B0%B0%EB%8B%B9_%ED%95%B4%EC%95%BD%ED%99%98%EA%B8%89%EA%B8%88%20%EB%AF%B8%EC%A7%80%EA%B8%89%ED%98%95)_260101.pdf",
+          "file_hash_sha256": "d557ed911adc877976863155e45fec5217ebfe485aed8f0c685797d0d7314c03",
+          "content_type": "application/pdf",
+          "content_length_bytes": 153356,
+          "variant_decision": "blocked_no_refund_document",
+          "seed_candidate": false,
+          "decision_reason": "This is a no-refund document and must not be linked to the standard source."
+        },
+        {
+          "document_type": "business_method",
+          "source_url": "https://shinhanlife.co.kr/bizxpress/cdh/cdhi/gd/pr/__etc/%EC%82%AC%EC%97%85%EB%B0%A9%EB%B2%95%EC%84%9C_%EC%8B%A0%ED%95%9CSOL%EC%95%94%EB%B3%B4%ED%97%98(%EB%AC%B4%EB%B0%B0%EB%8B%B9,%20%ED%95%B4%EC%95%BD%ED%99%98%EA%B8%89%EA%B8%88%20%EB%AF%B8%EC%A7%80%EA%B8%89%ED%98%95)_260101.pdf",
+          "file_hash_sha256": "9aa1ed61e51a9c67a339430266f8551cd6739bcb48d725bf298e3742fe3797ea",
+          "content_type": "application/pdf",
+          "content_length_bytes": 95659,
+          "variant_decision": "blocked_no_refund_document",
+          "seed_candidate": false,
+          "decision_reason": "This document distinguishes the general type from the no-refund type and belongs to the no-refund source."
+        },
+        {
+          "document_type": "terms",
+          "source_url": "https://shinhanlife.co.kr/bizxpress/cdh/cdhi/gd/pr/__down/%ED%8C%90%EB%A7%A4%EC%95%BD%EA%B4%80_%EC%8B%A0%ED%95%9CSOL%EC%95%94%EB%B3%B4%ED%97%98(%EB%AC%B4%EB%B0%B0%EB%8B%B9,%20%ED%95%B4%EC%95%BD%ED%99%98%EA%B8%89%EA%B8%88%20%EB%AF%B8%EC%A7%80%EA%B8%89%ED%98%95)_260101.pdf",
+          "file_hash_sha256": "fcd915ee2e5440cf9542711dabd1c3014a1f5f3efef9c0a1f8fc88ed7ca40ffa",
+          "content_type": "application/pdf",
+          "content_length_bytes": 2940426,
+          "variant_decision": "blocked_no_refund_document",
+          "seed_candidate": false,
+          "decision_reason": "This is a no-refund terms document and must not be linked to the standard source."
+        }
+      ],
+      "next_action": "Search Shinhan Life disclosure endpoints for the general standard documents for L11C009000007; keep this source raw until those documents are found."
+    }
+  ],
+  "next_actions": [
+    "Add 2 KDB source document rows to seed.ts in a separate seed candidate PR.",
+    "Do not reuse the 3 Shinhan no-refund documents for src_shinhan_life_sol_cancer_standard_202605.",
+    "Continue searching Shinhan Life official disclosure endpoints for the general standard variant documents.",
+    "After source documents are complete, review coverage_category, risk_targets, matching_strategy, caveats, and quote approval status."
+  ]
+}

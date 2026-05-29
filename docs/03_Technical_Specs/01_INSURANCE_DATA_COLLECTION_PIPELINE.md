@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-29 14:23
+> Last Updated: 2026-05-29 23:11
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.5
+- **상태**: Draft v2.6
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -433,7 +433,27 @@ Shared hash 정책은 다음과 같다. 같은 공식 PDF가 여러 product sour
 
 Shared hash group은 5개가 존재한다. 한화생명 표준체형/비흡연체형과 교보라이프플래닛 비흡연체/표준체가 같은 공식 PDF를 공유하기 때문이다. 이 중복은 의도된 연결 관계이며, `file_hash_sha256` unique 제약이 없고 row id 기준으로 idempotency를 보장한다.
 
-적용 검증 문서는 `../05_QA_Validation/24_SOURCE_DOCUMENTS_DB_APPLY_2026_05_29.md`에 둔다. 다음 단계는 KDB생명 `40869_policy`/`40870_policy` variant와 신한라이프 표준형/해약환급금 미지급형 variant를 해소한 뒤, `raw`/`needs_review` source의 매칭 키워드와 caveat를 정리하는 것이다.
+적용 검증 문서는 `../05_QA_Validation/24_SOURCE_DOCUMENTS_DB_APPLY_2026_05_29.md`에 둔다. 이 적용 직후에는 KDB생명 `40869_policy`/`40870_policy` variant와 신한라이프 표준형/해약환급금 미지급형 variant가 남은 차단 항목이었다.
+
+### 9-13. KDB/Shinhan Variant Resolution
+
+2026-05-29 23:11 KST 기준 KDB생명과 신한라이프 차단 후보를 PDF 표지 텍스트 기준으로 재검수했다.
+
+| 항목 | 결과 |
+|---|---:|
+| 재검수 source | 2 |
+| 재검수 document row | 6 |
+| 해소 source | 1 |
+| 다음 seed 후보 document row | 2 |
+| 제외 document row | 1 |
+| 계속 차단 source | 1 |
+| DB write | 0 |
+
+KDB생명 `src_kdb_life_direct_cancer_202605`는 `40869_summary`가 상품요약서, `40870_policy`가 해약환급금 미지급형III 약관으로 확인되어 다음 seed 후보로 분리 가능하다. `40869_policy`는 `KDB다이렉트 암보험(갱신형)(무)` 표지라 제외한다.
+
+신한라이프 `src_shinhan_life_sol_cancer_standard_202605`는 현재 확보된 상품요약서, 사업방법서, 판매약관이 모두 해약환급금 미지급형이다. 이 문서는 기존 `src_shinhan_life_sol_cancer_202601`에 연결된 no-refund 문서와 동일하므로, 표준형 source에는 재사용하지 않는다.
+
+검수 결과는 `data/insurance/latest_kdb_shinhan_variant_resolution.json`, `data/insurance/latest_kdb_shinhan_variant_resolution.csv`, `../05_QA_Validation/26_KDB_SHINHAN_VARIANT_REVIEW_2026_05_29.md`에 둔다. 다음 seed PR은 KDB 문서 2건만 추가하고, 신한라이프 표준형 source는 일반형 공식 문서를 찾을 때까지 `raw` 상태로 유지한다.
 
 ---
 
@@ -479,6 +499,10 @@ Shared hash group은 5개가 존재한다. 한화생명 표준체형/비흡연�
 - [ ] quote-only raw source 미확보 후보 carrier별 공시/API adapter 보강
 - [x] hash-backed quote-only 후보를 `insurance_source_documents` seed 후보로 정리
 - [x] 백업 후 quote-only source document 8건 DB 적용
+- [x] KDB생명 40869/40870 약관 variant 판정
+- [x] 신한라이프 표준형/해약환급금 미지급형 문서 관계 판정
+- [ ] KDB생명 source document 2건 seed 후보 추가
+- [ ] 신한라이프 일반형 공식 문서 endpoint 추가 탐색
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
@@ -522,3 +546,4 @@ Shared hash group은 5개가 존재한다. 한화생명 표준체형/비흡연�
 - **QA_Validation**: [Source Catalog Quote Expansion](../05_QA_Validation/18_SOURCE_CATALOG_QUOTE_EXPANSION_2026_05_29.md) - quote-only raw source 후보 15개 확장 검증
 - **QA_Validation**: [Source Catalog Quote DB Apply](../05_QA_Validation/19_SOURCE_CATALOG_QUOTE_DB_APPLY_2026_05_29.md) - quote-only raw source 후보와 quote row 60건 추가 적용 검증
 - **QA_Validation**: [Quote-only Source Document Probe](../05_QA_Validation/20_QUOTE_ONLY_SOURCE_DOCUMENT_PROBE_2026_05_29.md) - quote-only 후보 공식 문서 hash 1차 probe
+- **QA_Validation**: [KDB/Shinhan Variant Review](../05_QA_Validation/26_KDB_SHINHAN_VARIANT_REVIEW_2026_05_29.md) - KDB와 신한라이프 차단 후보 variant 재검수
