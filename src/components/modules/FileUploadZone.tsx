@@ -261,13 +261,13 @@ export function FileUploadZone() {
           <div className="flex flex-col items-center gap-1 text-center">
             <div className="flex items-center gap-2 text-emerald-400 font-medium text-sm">
               <FileText size={15} />
-              <span className="max-w-[280px] truncate">{selectedFile.name}</span>
+              <span className="max-w-70 truncate">{selectedFile.name}</span>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleClearFile();
                 }}
-                className="text-muted-foreground hover:text-foreground ml-1 flex-shrink-0"
+                className="text-muted-foreground hover:text-foreground ml-1 shrink-0"
                 aria-label={t("removeBtn")}
               >
                 <X size={14} />
