@@ -178,7 +178,7 @@
       "zkp": "Generating ZKP Proof",
       "zkpDesc": "Creating eligibility credential without exposing scores",
       "profile": "Building Risk Profile",
-      "profileDesc": "Encrypting and storing analysis results",
+      "profileDesc": "Storing analysis results",
       "purge": "Data Purged",
       "purgeDesc": "Original genetic data has been securely destroyed"
     },
@@ -268,7 +268,7 @@
       "title": "Product Journey",
       "subtitle": "The 5-Step Seamless UX",
       "step1": "Wallet Connection (NEAR Wallet Integration)",
-      "step2": "DNA Data Upload (Encrypted Pipeline Entry)",
+      "step2": "DNA Data Upload (TEE Pipeline Entry)",
       "step3": "IronClaw TEE Isolated Analysis & Instant Memory Purge",
       "step4": "AI Recommended Coverage Dashboard (ZKP Certified Seal)",
       "step5": "Confidential Intents Payment (On-chain shielded execution)"

@@ -30,7 +30,7 @@ const STAGE_LOGS: Record<AnalysisStage, Array<{ text: string; type: LogEntry["ty
     { text: "> [Noir]     proof_bytes generated  ✓", type: "success" },
   ],
   profiling: [
-    { text: "> [TEE]      Encoding risk profile (encrypted)", type: "default" },
+    { text: "> [TEE]      Encoding risk profile in TEE memory", type: "default" },
     { text: "> [TEE]      → Browser   proof_bytes transferred  ✓", type: "success" },
   ],
   purged: [
