@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-29 23:11
+> Last Updated: 2026-05-30 00:11
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.6
+- **상태**: Draft v2.7
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -455,6 +455,23 @@ KDB생명 `src_kdb_life_direct_cancer_202605`는 `40869_summary`가 상품요약
 
 검수 결과는 `data/insurance/latest_kdb_shinhan_variant_resolution.json`, `data/insurance/latest_kdb_shinhan_variant_resolution.csv`, `../05_QA_Validation/26_KDB_SHINHAN_VARIANT_REVIEW_2026_05_29.md`에 둔다. 다음 seed PR은 KDB 문서 2건만 추가하고, 신한라이프 표준형 source는 일반형 공식 문서를 찾을 때까지 `raw` 상태로 유지한다.
 
+### 9-14. KDB Source Document Seed Candidates
+
+2026-05-30 00:11 KST 기준 KDB생명 `src_kdb_life_direct_cancer_202605`에 source document seed 후보 2건을 추가했다.
+
+| 항목 | 결과 |
+|---|---:|
+| 기존 source document seed | 20 |
+| 신규 KDB source document seed | 2 |
+| 최종 source document seed | 22 |
+| 신규 product source 승격 | 0 |
+| 추천 snapshot 발행 | 0 |
+| DB write | 0 |
+
+추가한 row는 `40869_summary` 상품요약서와 `40870_policy` 약관이다. `40869_policy`는 갱신형 약관으로 확인되어 seed 후보에 포함하지 않는다. 이번 변경은 `seed.ts` 후보 추가만 수행하며, 운영 Turso DB 적용은 백업 후 별도 apply PR에서 진행한다.
+
+검증 문서는 `../05_QA_Validation/27_KDB_SOURCE_DOCUMENT_SEED_CANDIDATES_2026_05_30.md`에 둔다. 다음 단계는 운영 DB 백업 후 KDB 문서 2건을 적용하고, 신한라이프 일반형 공식 문서 endpoint 탐색을 이어가는 것이다.
+
 ---
 
 ## 10. 법무·신뢰 고지
@@ -501,7 +518,8 @@ KDB생명 `src_kdb_life_direct_cancer_202605`는 `40869_summary`가 상품요약
 - [x] 백업 후 quote-only source document 8건 DB 적용
 - [x] KDB생명 40869/40870 약관 variant 판정
 - [x] 신한라이프 표준형/해약환급금 미지급형 문서 관계 판정
-- [ ] KDB생명 source document 2건 seed 후보 추가
+- [x] KDB생명 source document 2건 seed 후보 추가
+- [ ] 백업 후 KDB생명 source document 2건 DB 적용
 - [ ] 신한라이프 일반형 공식 문서 endpoint 추가 탐색
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
@@ -547,3 +565,4 @@ KDB생명 `src_kdb_life_direct_cancer_202605`는 `40869_summary`가 상품요약
 - **QA_Validation**: [Source Catalog Quote DB Apply](../05_QA_Validation/19_SOURCE_CATALOG_QUOTE_DB_APPLY_2026_05_29.md) - quote-only raw source 후보와 quote row 60건 추가 적용 검증
 - **QA_Validation**: [Quote-only Source Document Probe](../05_QA_Validation/20_QUOTE_ONLY_SOURCE_DOCUMENT_PROBE_2026_05_29.md) - quote-only 후보 공식 문서 hash 1차 probe
 - **QA_Validation**: [KDB/Shinhan Variant Review](../05_QA_Validation/26_KDB_SHINHAN_VARIANT_REVIEW_2026_05_29.md) - KDB와 신한라이프 차단 후보 variant 재검수
+- **QA_Validation**: [KDB Source Document Seed Candidates](../05_QA_Validation/27_KDB_SOURCE_DOCUMENT_SEED_CANDIDATES_2026_05_30.md) - KDB source document 2건 seed 후보 추가 검증
