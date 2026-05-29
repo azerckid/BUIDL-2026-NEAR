@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-30 00:11
+> Last Updated: 2026-05-30 03:06
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.7
+- **상태**: Draft v2.8
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -472,6 +472,26 @@ KDB생명 `src_kdb_life_direct_cancer_202605`는 `40869_summary`가 상품요약
 
 검증 문서는 `../05_QA_Validation/27_KDB_SOURCE_DOCUMENT_SEED_CANDIDATES_2026_05_30.md`에 둔다. 다음 단계는 운영 DB 백업 후 KDB 문서 2건을 적용하고, 신한라이프 일반형 공식 문서 endpoint 탐색을 이어가는 것이다.
 
+### 9-15. KDB Source Document DB Apply
+
+2026-05-30 03:06 KST 기준 9-14의 KDB source document 후보 2건을 운영 Turso DB에 백업 후 적용했다.
+
+| 항목 | 결과 |
+|---|---:|
+| 백업 테이블 수 | 12 |
+| 적용 전 source document | 20 |
+| 신규 KDB source document | 2 |
+| 적용 후 source document | 22 |
+| 누락 신규 KDB document id | 0 |
+| invalid source document hash | 0 |
+| 제외한 `40869_policy` hash row | 0 |
+| product source review status 변경 | 0 |
+| 추천 snapshot 발행 | 0 |
+
+적용 후 `insurance_product_sources.review_status` 분포는 `needs_review=7`, `raw=15` 그대로다. 이번 단계는 KDB 공식 문서 근거 연결만 수행하며, 추천 가능 상품 승격이나 quote row 승인에는 관여하지 않는다.
+
+적용 검증 문서는 `../05_QA_Validation/28_KDB_SOURCE_DOCUMENTS_DB_APPLY_2026_05_30.md`에 둔다. 다음 단계는 신한라이프 일반형 공식 문서 endpoint 탐색과 `raw`/`needs_review` source의 매칭 키워드, caveat 정리다.
+
 ---
 
 ## 10. 법무·신뢰 고지
@@ -519,7 +539,7 @@ KDB생명 `src_kdb_life_direct_cancer_202605`는 `40869_summary`가 상품요약
 - [x] KDB생명 40869/40870 약관 variant 판정
 - [x] 신한라이프 표준형/해약환급금 미지급형 문서 관계 판정
 - [x] KDB생명 source document 2건 seed 후보 추가
-- [ ] 백업 후 KDB생명 source document 2건 DB 적용
+- [x] 백업 후 KDB생명 source document 2건 DB 적용
 - [ ] 신한라이프 일반형 공식 문서 endpoint 추가 탐색
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
@@ -566,3 +586,4 @@ KDB생명 `src_kdb_life_direct_cancer_202605`는 `40869_summary`가 상품요약
 - **QA_Validation**: [Quote-only Source Document Probe](../05_QA_Validation/20_QUOTE_ONLY_SOURCE_DOCUMENT_PROBE_2026_05_29.md) - quote-only 후보 공식 문서 hash 1차 probe
 - **QA_Validation**: [KDB/Shinhan Variant Review](../05_QA_Validation/26_KDB_SHINHAN_VARIANT_REVIEW_2026_05_29.md) - KDB와 신한라이프 차단 후보 variant 재검수
 - **QA_Validation**: [KDB Source Document Seed Candidates](../05_QA_Validation/27_KDB_SOURCE_DOCUMENT_SEED_CANDIDATES_2026_05_30.md) - KDB source document 2건 seed 후보 추가 검증
+- **QA_Validation**: [KDB Source Document DB Apply](../05_QA_Validation/28_KDB_SOURCE_DOCUMENTS_DB_APPLY_2026_05_30.md) - KDB source document 2건 DB 적용 검증
