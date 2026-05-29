@@ -104,7 +104,7 @@ export function ZkpFlowDiagram({ stage, logsRef, onLogsChange }: ZkpFlowDiagramP
       </div>
 
       {/* 로그 영역 */}
-      <div className="px-4 py-3 font-mono text-xs space-y-1.5 min-h-[200px] max-h-[300px] overflow-y-auto">
+      <div className="px-4 py-3 font-mono text-xs space-y-1.5 min-h-50 max-h-75 overflow-y-auto">
         {logsRef.current.map((log) => (
           <motion.p
             key={log.id}
