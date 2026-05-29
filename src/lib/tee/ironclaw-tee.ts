@@ -110,7 +110,8 @@ export async function runIronClawAnalysis(
   try {
     parsed = JSON.parse(raw);
   } catch {
-    throw new Error(`IronClaw TEE 응답 JSON 파싱 실패: ${raw.slice(0, 200)}`);
+    // 응답 본문은 메시지에 포함하지 않는다 (유전자 데이터 echo 노출 방지)
+    throw new Error("IronClaw TEE 응답을 JSON으로 파싱하지 못했습니다");
   }
 
   const p = parsed as Record<string, unknown>;

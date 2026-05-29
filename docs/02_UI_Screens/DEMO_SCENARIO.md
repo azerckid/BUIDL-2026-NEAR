@@ -1,7 +1,7 @@
 # [데모 시나리오] MyDNA Insurance Agent — 해커톤 발표용 영상 스크립트
 
 - **작성일**: 2026-04-01
-- **최종 수정일**: 2026-04-13
+- **최종 수정일**: 2026-05-29
 - **레이어**: 02_UI_Screens
 - **상태**: Draft v1.0
 
@@ -25,7 +25,7 @@
 |---|---|---|---|
 | Intro | 타이틀 카드 | 5초 | 서비스 이름 + 슬로건 |
 | Scene 1 | Step 1 — 온보딩 | 15초 | 지갑 연결, 프라이버시 서약 |
-| Scene 2 | Step 2 — 데이터 업로드 | 15초 | 파일 → 개인 금고 암호화 |
+| Scene 2 | Step 2 — 데이터 업로드 | 15초 | 파일 → TEE 격리 분석 |
 | Scene 3 | Step 3 — TEE 분석 + Purge | 25초 | 핵심 장면: 격리 분석 + 데이터 소각 |
 | Scene 4 | Step 4 — 추천 대시보드 | 20초 | 유전자 기반 맞춤 보험 추천 |
 | Scene 5 | Step 5 — 기밀 결제 | 15초 | 수치 미전송, 승인만 전달 |
@@ -89,19 +89,21 @@ The only way to get better insurance because of your DNA — without exposing it
 - 파일 드롭 → 파일명 표시 + 업로드 진행 바 (0 → 100%)
 - 완료 시: 파일 아이콘 → 자물쇠 아이콘 morph + scale-down (`duration: 0.6, spring`)
 
+> **구현 현황 주의 (F2, 2026-05-29)**: 클라이언트 ECIES 암호화는 Phase 3 목표이며 현재 미연결(블로커 1)이다. 아래 나레이션에서 "즉시 암호화" 표현은 미구현 단정이므로 제거했다. TEE 격리 분석과 "플랫폼 서버 원본 미저장"은 사실이므로 유지한다. 상세는 `docs/05_QA_Validation/25_GENETIC_DATA_LEAK_AUDIT_2026_05_29.md` 참조.
+
 **내레이션 자막**
 ```
 [KO] DTC 유전자 서비스에서 내보낸 파일을 드롭합니다.
-     파일은 즉시 암호화되어 당신의 개인 금고(NEAR Private Cloud)에만 저장됩니다.
-     플랫폼 서버에는 원본이 존재하지 않습니다.
+     파일은 IronClaw TEE에서 격리 분석되며, 분석 직후 메모리에서 소각됩니다.
+     플랫폼 서버에는 원본이 저장되지 않습니다.
 
-[EN] Drop your DTC genetic file. It's encrypted immediately and stored only in your
-     personal vault on NEAR Private Cloud. Our servers never see the raw data.
+[EN] Drop your DTC genetic file. It's analyzed inside the IronClaw TEE and purged
+     from memory right after. Our servers never store the raw data.
 ```
 
 **강조 UI 요소**
 - 업로드 완료 후 드롭존 하단에 작은 텍스트로 표시:
-  `"암호화 완료: ECIES + AES-256-GCM / 플랫폼 서버 저장: 없음"`
+  `"TEE 격리 분석 / 플랫폼 서버 원본 저장: 없음 / ECIES 암호화: Phase 3 목표"`
 
 **전환**: 자물쇠 아이콘 잠김 → Scene 3
 
@@ -135,7 +137,7 @@ The only way to get better insurance because of your DNA — without exposing it
 - 중앙에 대형 녹색 체크마크 팝인
 - `Sonner` 토스트 팝업 (화면 우상단):
   ```
-  원본 복호화 데이터가 TEE 영역에서 영구 소각되었습니다.
+  원본 데이터가 TEE 영역에서 영구 소각되었습니다.
   Raw data permanently purged from TEE memory.
   ```
 - 하단 소형 텍스트: `분석 소요: 18.3s / 잔류 데이터: 0 bytes`

@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { createSession } from "@/actions/createSession";
-import { uploadToIronClaw } from "@/actions/uploadToIronClaw";
 import { useWallet } from "@/context/WalletContext";
 
 // ─── 파일 검증 상수 ───────────────────────────────────────────────────────────
@@ -170,14 +169,11 @@ export function FileUploadZone() {
       ]);
       const fileType = getExtension(selectedFile.name) as AllowedExtension;
 
-      // 2. IronClaw TEE에 파일 업로드 + 세션 생성 (병렬)
-      setStage("uploading");
-      const [uploadResult, sessionResult] = await Promise.all([
-        uploadToIronClaw(fileBase64, selectedFile.name),
-        createSession(accountId, fileHash, fileType),
-      ]);
-
+      // 2. 세션 생성 (DB에는 파일 해시만 저장 — raw 데이터 미저장)
+      //    raw 파일은 사전 업로드하지 않는다. 분석 시점에 attested TEE chat
+      //    completions 프롬프트로만 전달되어 휘발성 메모리에서 처리/purge된다.
       setStage("creating");
+      const sessionResult = await createSession(accountId, fileHash, fileType);
 
       if (!sessionResult.success || !sessionResult.sessionId) {
         toast.error(sessionResult.error ?? t("sessionError"));
@@ -186,14 +182,8 @@ export function FileUploadZone() {
         return;
       }
 
-      const fileId = uploadResult.success ? uploadResult.fileId : "";
-      if (!uploadResult.success) {
-        // 업로드 실패 시 경고만 표시하고 계속 진행 (서버에서 mock 콘텐츠 사용)
-        toast.error(`IronClaw 업로드 실패: ${uploadResult.error}`);
-      }
-
-      // 3. fileId + fileContent를 sessionStorage에 보관 → TeeAnalysisProgress에서 사용
-      sessionStorage.setItem(`FILE_ID_${sessionResult.sessionId}`, fileId);
+      // 3. fileContent를 sessionStorage에 임시 보관 → TeeAnalysisProgress에서
+      //    지갑 서명 리다이렉트 복귀 후 1회 소비하고 즉시 제거한다.
       sessionStorage.setItem(`FILE_CONTENT_${sessionResult.sessionId}`, fileBase64);
 
       setStage("done");

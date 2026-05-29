@@ -61,6 +61,14 @@ type AuthPhase = "idle" | "requesting_nonce" | "signing" | "authorized";
 
 const NONCE_STORAGE_KEY = (sessionId: string) => `mydna_auth_${sessionId}`;
 
+// 지갑 서명 리다이렉트를 넘기기 위해 sessionStorage에 임시 보관한 raw 유전자
+// 데이터(및 관련 키)를 모든 종료 경로에서 확실히 제거한다.
+function clearGeneticSessionData(sessionId: string) {
+  sessionStorage.removeItem(NONCE_STORAGE_KEY(sessionId));
+  sessionStorage.removeItem(`FILE_ID_${sessionId}`);
+  sessionStorage.removeItem(`FILE_CONTENT_${sessionId}`);
+}
+
 export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisProgressProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -106,16 +114,16 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
 
     const stored = sessionStorage.getItem(NONCE_STORAGE_KEY(sessionId));
     if (!stored) {
+      // 인증 세션 만료 — 잔존한 raw 유전자 데이터도 함께 제거
+      clearGeneticSessionData(sessionId);
       toast.error("인증 세션이 만료되었습니다. 다시 시도해 주세요.");
       return;
     }
 
     const { nonce, callbackUrl } = JSON.parse(stored) as { nonce: string; callbackUrl: string };
-    sessionStorage.removeItem(NONCE_STORAGE_KEY(sessionId));
     const fileId = sessionStorage.getItem(`FILE_ID_${sessionId}`) ?? "";
     const fileContent = sessionStorage.getItem(`FILE_CONTENT_${sessionId}`) ?? "";
-    sessionStorage.removeItem(`FILE_ID_${sessionId}`);
-    sessionStorage.removeItem(`FILE_CONTENT_${sessionId}`);
+    clearGeneticSessionData(sessionId);
     // URL 정리 (서명 파라미터 제거)
     window.history.replaceState({}, "", pathname);
 
@@ -126,6 +134,8 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
 
   async function handleAuthorize() {
     if (!selector) {
+      // 인증을 시작하지 못하는 종료 경로 — 잔존 raw 유전자 데이터 제거
+      clearGeneticSessionData(sessionId);
       toast.error("지갑이 연결되지 않았습니다.");
       return;
     }
@@ -134,6 +144,8 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
 
     const nonceResult = await generateAuthNonce(walletAddress);
     if (!nonceResult.success || !nonceResult.nonce) {
+      // nonce 발급 실패 종료 경로 — 잔존 raw 유전자 데이터 제거
+      clearGeneticSessionData(sessionId);
       toast.error(`Nonce 생성 실패: ${nonceResult.error}`);
       setAuthPhase("idle");
       return;
@@ -159,11 +171,9 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
       // 직접 반환 케이스 (injected wallet / 일부 my-near-wallet 버전)
       // 리다이렉트 케이스는 이 코드에 도달하지 않고 페이지가 이동됨
       if (result) {
-        sessionStorage.removeItem(NONCE_STORAGE_KEY(sessionId));
         const fileId = sessionStorage.getItem(`FILE_ID_${sessionId}`) ?? "";
         const fileContent = sessionStorage.getItem(`FILE_CONTENT_${sessionId}`) ?? "";
-        sessionStorage.removeItem(`FILE_ID_${sessionId}`);
-        sessionStorage.removeItem(`FILE_CONTENT_${sessionId}`);
+        clearGeneticSessionData(sessionId);
         setAuthData({
           signature: result.signature,
           publicKey: result.publicKey,
@@ -177,7 +187,8 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
     } catch (err) {
       const msg = err instanceof Error ? err.message : "서명 요청 실패";
       toast.error(msg);
-      sessionStorage.removeItem(NONCE_STORAGE_KEY(sessionId));
+      // 서명 거부/실패 — 잔존한 raw 유전자 데이터까지 제거
+      clearGeneticSessionData(sessionId);
       setAuthPhase("idle");
     }
   }
