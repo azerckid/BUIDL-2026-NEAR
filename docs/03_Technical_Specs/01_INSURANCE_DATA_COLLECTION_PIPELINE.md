@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-29 03:24
+> Last Updated: 2026-05-29 14:23
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.4
+- **상태**: Draft v2.5
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -414,6 +414,27 @@ Shared hash 정책은 다음과 같다. 같은 공식 PDF가 여러 product sour
 
 이번 추가분은 한화생명 비흡연체형 2개 문서와 교보라이프플래닛 비흡연체/표준체 6개 문서다. KDB생명과 신한라이프 차단 후보는 포함하지 않는다. 검증 문서는 `../05_QA_Validation/23_SOURCE_DOCUMENT_SEED_CANDIDATES_2026_05_29.md`에 둔다. 운영 DB 적용은 백업 후 별도 apply PR에서 진행한다.
 
+### 9-12. Source Document DB Apply
+
+2026-05-29 14:23 KST 기준 9-11의 안전 후보 8개 문서 row를 운영 Turso DB에 백업 후 적용했다.
+
+| 항목 | 결과 |
+|---|---:|
+| 백업 테이블 수 | 12 |
+| 적용 전 source document | 12 |
+| 신규 source document | 8 |
+| 적용 후 source document | 20 |
+| 누락 신규 document id | 0 |
+| invalid source document hash | 0 |
+| product source review status 변경 | 0 |
+| 추천 snapshot 발행 | 0 |
+
+적용 후 `insurance_product_sources.review_status` 분포는 `needs_review=7`, `raw=15` 그대로다. 이번 단계는 공식 문서 근거 연결만 수행하며, 추천 가능 상품 승격이나 quote row 승인에는 관여하지 않는다.
+
+Shared hash group은 5개가 존재한다. 한화생명 표준체형/비흡연체형과 교보라이프플래닛 비흡연체/표준체가 같은 공식 PDF를 공유하기 때문이다. 이 중복은 의도된 연결 관계이며, `file_hash_sha256` unique 제약이 없고 row id 기준으로 idempotency를 보장한다.
+
+적용 검증 문서는 `../05_QA_Validation/24_SOURCE_DOCUMENTS_DB_APPLY_2026_05_29.md`에 둔다. 다음 단계는 KDB생명 `40869_policy`/`40870_policy` variant와 신한라이프 표준형/해약환급금 미지급형 variant를 해소한 뒤, `raw`/`needs_review` source의 매칭 키워드와 caveat를 정리하는 것이다.
+
 ---
 
 ## 10. 법무·신뢰 고지
@@ -456,7 +477,8 @@ Shared hash 정책은 다음과 같다. 같은 공식 PDF가 여러 product sour
 - [x] 백업 후 quote-only source 후보 DB 적용 및 quote row 60건 추가 적재
 - [x] quote-only raw source 15개 공식 상품 페이지/PDF 1차 probe
 - [ ] quote-only raw source 미확보 후보 carrier별 공시/API adapter 보강
-- [ ] hash-backed quote-only 후보를 `insurance_source_documents` seed 후보로 정리
+- [x] hash-backed quote-only 후보를 `insurance_source_documents` seed 후보로 정리
+- [x] 백업 후 quote-only source document 8건 DB 적용
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정

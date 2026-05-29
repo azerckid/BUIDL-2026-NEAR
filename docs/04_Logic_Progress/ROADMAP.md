@@ -1,9 +1,9 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-29 03:24
+> Last Updated: 2026-05-29 14:23
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-29 (source document seed 후보 추가)
+- **최종 수정일**: 2026-05-29 (source document DB 적용)
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v3.5
 - **phase**: Phase 2
@@ -60,7 +60,7 @@
 
 | 트랙 | 핵심 질문 | 다음 작업 |
 |---|---|---|
-| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | 한화/교보 3개 source의 8개 문서를 seed.ts에 추가, 다음은 백업 후 DB 적용과 KDB/신한 variant 해소 |
+| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | 한화/교보 3개 source의 8개 문서를 백업 후 DB 적용 완료, 다음은 KDB/신한 variant 해소와 매칭 키워드 정리 |
 | NEAR 프라이버시 기술 | IronClaw v0.28.2까지의 업데이트가 블로커 2~3을 해소하는가 | WIT-compatible WASM runtime, `tool_install`, WASM 실행 결과 반환 경로 실측 |
 | 매칭 브리지 | AI 해석과 DB 상품 추천의 경계를 어떻게 유지할 것인가 | `riskProfile.flags` -> `insurance_products.risk_targets` 결정론적 매칭 유지 |
 
@@ -69,7 +69,7 @@
 hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/latest_seed_candidate_review.json`, `../../data/insurance/latest_seed_candidate_review.csv`, `../05_QA_Validation/08_HASH_BACKED_PRODUCT_MANUAL_REVIEW_2026_05_27.md`에 둔다. 결론상 현재 `insurance_products` seed에 바로 넣을 만큼 매칭 키워드가 정리된 실제 상품은 없고, 암보험 2개는 `catalog_candidate`, 실손의료보험 4개는 `baseline_candidate`, 삼성생명 입원 건강보험 1개는 `schema_extension_required`로 관리한다.
 스키마 확장안은 `../03_Technical_Specs/02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md`에 확정했고, Drizzle/Zod schema, `drizzle/0004_panoramic_firebird.sql`, `drizzle/0005_common_boom_boom.sql`, `matchProducts`의 `risk_target`/`baseline` 분리, 추천 카드의 baseline/출처/보험료 기준/caveat 표시, Turso DB migration 적용까지 완료했다. 적용 검증은 `../05_QA_Validation/09_DB_MIGRATION_0004_0005_2026_05_28.md`에 기록한다. 이후 삼성생명, 현대해상, 신한라이프, KB손보 공시/상품 API adapter를 추가해 공시실 PDF hash 확보 문서를 10개로 늘렸다. 조건별 보험료는 대표 `premium_text`와 분리해 `insurance_premium_quotes` table로 관리하며, 정책 문서는 `04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md`에 둔다.
 
-2026-05-28 source-aware seed 정책 PR에서는 7개 보험사, 7개 hash-backed 매칭 정리 후보, 12개 PDF 원문 hash를 `seed.ts`의 `insurance_carriers`, `insurance_product_sources`, `insurance_source_documents` 입력으로 반영했다. 2026-05-28 10:43 KST 기준 Turso DB에도 백업 후 seed 적용을 완료했고, 적용 검증은 `../05_QA_Validation/11_SOURCE_AWARE_SEED_DB_APPLY_2026_05_28.md`에 기록한다. 2026-05-29 기준으로는 보험다모아 quote matrix에서 빠진 60개 quote row를 연결하기 위해 quote-only raw source 후보 15개와 신규 carrier 10개를 seed 입력에 추가했고, 백업 후 Turso DB 적용까지 완료했다. DB 기준 `insurance_carriers=17`, `insurance_product_sources=22`, `insurance_source_documents=12`이며, 신규 15개 source는 공식 문서 hash와 매칭 키워드 정리 전이므로 `review_status=raw`이고 추천 상품으로 발행하지 않는다. 매칭 키워드 정리 정책은 `../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md`, seed 정책 검증은 `../05_QA_Validation/10_SOURCE_AWARE_SEED_POLICY_2026_05_28.md`, quote-only 확장 검증은 `../05_QA_Validation/18_SOURCE_CATALOG_QUOTE_EXPANSION_2026_05_29.md`, DB 적용 검증은 `../05_QA_Validation/19_SOURCE_CATALOG_QUOTE_DB_APPLY_2026_05_29.md`에 기록한다.
+2026-05-28 source-aware seed 정책 PR에서는 7개 보험사, 7개 hash-backed 매칭 정리 후보, 12개 PDF 원문 hash를 `seed.ts`의 `insurance_carriers`, `insurance_product_sources`, `insurance_source_documents` 입력으로 반영했다. 2026-05-28 10:43 KST 기준 Turso DB에도 백업 후 seed 적용을 완료했고, 적용 검증은 `../05_QA_Validation/11_SOURCE_AWARE_SEED_DB_APPLY_2026_05_28.md`에 기록한다. 2026-05-29 기준으로는 보험다모아 quote matrix에서 빠진 60개 quote row를 연결하기 위해 quote-only raw source 후보 15개와 신규 carrier 10개를 seed 입력에 추가했고, 백업 후 Turso DB 적용까지 완료했다. 이후 한화생명 비흡연체형과 교보라이프플래닛 비흡연체/표준체의 안전 후보 문서 8건도 백업 후 DB에 적용했다. DB 기준 `insurance_carriers=17`, `insurance_product_sources=22`, `insurance_source_documents=20`이며, 신규 15개 source는 공식 문서 hash와 매칭 키워드 정리 전이므로 `review_status=raw`이고 추천 상품으로 발행하지 않는다. 매칭 키워드 정리 정책은 `../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md`, seed 정책 검증은 `../05_QA_Validation/10_SOURCE_AWARE_SEED_POLICY_2026_05_28.md`, quote-only 확장 검증은 `../05_QA_Validation/18_SOURCE_CATALOG_QUOTE_EXPANSION_2026_05_29.md`, DB 적용 검증은 `../05_QA_Validation/19_SOURCE_CATALOG_QUOTE_DB_APPLY_2026_05_29.md`와 `../05_QA_Validation/24_SOURCE_DOCUMENTS_DB_APPLY_2026_05_29.md`에 기록한다.
 
 2026-05-28 보험료 quote matrix PoC에서는 보험다모아 모바일 출처로 8개 source probe와 66개 quote row를 재조회했다. 암보험은 34세/44세 남성/여성 조건이 모두 조회됐고, 실손의료보험은 남성 34세/44세 조건에서 DB손보, KB손보, 삼성화재, 현대해상 상품의 보험료 변동이 확인됐다. 이후 실손의료보험 여성 조건은 모바일 폼 기준 성별 코드가 `F`가 아니라 `L`임을 확인해 HTTP 500을 해소했다. 최신 probe는 8개 source 모두 HTTP 200, 84개 raw quote row를 생성하며, 2026-05-29 기준 84건 전부 `insurance_premium_quotes.review_status=needs_review` 상태로 Turso DB에 적재했다. 검증 결과는 `../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md`, `../05_QA_Validation/13_PREMIUM_QUOTES_SCHEMA_MIGRATION_2026_05_28.md`, `../05_QA_Validation/14_PREMIUM_QUOTES_DB_APPLY_2026_05_28.md`, `../05_QA_Validation/15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md`, `../05_QA_Validation/17_MEDICAL_FEMALE_QUOTE_PARAMS_2026_05_28.md`, `../05_QA_Validation/18_SOURCE_CATALOG_QUOTE_EXPANSION_2026_05_29.md`, `../05_QA_Validation/19_SOURCE_CATALOG_QUOTE_DB_APPLY_2026_05_29.md`에 기록한다. 다음 작업은 quote-only raw source 15개의 공식 문서 hash 확보와 매칭 키워드 정리다.
 
@@ -79,7 +79,9 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 
 2026-05-29 02:58 KST 기준 quote-only hash-backed 후보의 상품 variant를 검수했다. 한화생명 비흡연체형 1개 source와 교보라이프플래닛 비흡연체/표준체 2개 source는 총 8개 `insurance_source_documents` seed 후보로 분리 가능하다. KDB생명은 40869/40870 약관 variant가 미확정이라 차단하고, 신한라이프 표준형 source는 해약환급금 미지급형 문서가 match score 0.5로 연결되어 차단한다. 검수 산출물은 `../../data/insurance/latest_quote_only_source_document_variant_review.json`, `../../data/insurance/latest_quote_only_source_document_variant_review.csv`, `../05_QA_Validation/22_QUOTE_ONLY_SOURCE_DOCUMENT_VARIANT_REVIEW_2026_05_29.md`에 둔다.
 
-2026-05-29 03:24 KST 기준 안전 후보 8개 `insurance_source_documents` row를 `seed.ts`에 추가했다. 한화생명 표준체형/비흡연체형과 교보라이프플래닛 비흡연체/표준체는 같은 PDF hash를 공유할 수 있으므로, `file_hash_sha256` 중복은 허용하고 source별 고유 `id`와 `product_source_id`로 연결한다. seed 기준 문서 row는 12개에서 20개로 증가하지만, `insurance_product_sources.review_status`, `insurance_products`, 추천 노출 상태는 변경하지 않는다. 검증은 `../05_QA_Validation/23_SOURCE_DOCUMENT_SEED_CANDIDATES_2026_05_29.md`에 둔다. 다음 작업은 운영 DB 백업 후 seed 적용 기록 PR을 진행하는 것이다.
+2026-05-29 03:24 KST 기준 안전 후보 8개 `insurance_source_documents` row를 `seed.ts`에 추가했다. 한화생명 표준체형/비흡연체형과 교보라이프플래닛 비흡연체/표준체는 같은 PDF hash를 공유할 수 있으므로, `file_hash_sha256` 중복은 허용하고 source별 고유 `id`와 `product_source_id`로 연결한다. seed 기준 문서 row는 12개에서 20개로 증가하지만, `insurance_product_sources.review_status`, `insurance_products`, 추천 노출 상태는 변경하지 않는다. 검증은 `../05_QA_Validation/23_SOURCE_DOCUMENT_SEED_CANDIDATES_2026_05_29.md`에 둔다.
+
+2026-05-29 14:23 KST 기준 위 8개 source document row를 운영 Turso DB에 백업 후 적용했다. 적용 후 DB는 `insurance_source_documents=20`, 신규 문서 row 8건 존재, invalid hash 0건, `insurance_product_sources.review_status` 분포 `needs_review=7`/`raw=15`를 확인했다. 적용 기록은 `../05_QA_Validation/24_SOURCE_DOCUMENTS_DB_APPLY_2026_05_29.md`에 둔다. 다음 작업은 KDB생명 `40869/40870` 약관 variant와 신한라이프 표준형/해약환급금 미지급형 variant를 해소한 뒤, raw/needs_review source의 매칭 키워드 정리를 진행하는 것이다.
 
 ## 2. 세부 실행 계획 (Detailed Execution)
 
