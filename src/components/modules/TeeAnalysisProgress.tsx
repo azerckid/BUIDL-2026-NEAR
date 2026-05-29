@@ -134,6 +134,8 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
 
   async function handleAuthorize() {
     if (!selector) {
+      // 인증을 시작하지 못하는 종료 경로 — 잔존 raw 유전자 데이터 제거
+      clearGeneticSessionData(sessionId);
       toast.error("지갑이 연결되지 않았습니다.");
       return;
     }
@@ -142,6 +144,8 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
 
     const nonceResult = await generateAuthNonce(walletAddress);
     if (!nonceResult.success || !nonceResult.nonce) {
+      // nonce 발급 실패 종료 경로 — 잔존 raw 유전자 데이터 제거
+      clearGeneticSessionData(sessionId);
       toast.error(`Nonce 생성 실패: ${nonceResult.error}`);
       setAuthPhase("idle");
       return;
