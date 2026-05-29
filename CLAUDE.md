@@ -76,7 +76,7 @@ Array-type columns (`riskTargets`, `selectedProductIds`, `recommendedProductIds`
 ## Architecture: Three-Layer Privacy Model
 
 **Layer 1 — Privacy Compute (TEE)**
-Genetic data is encrypted (ECIES + AES-256-GCM) before transmission. Analysis runs inside IronClaw Runtime (NEAR TEE). Data is purged immediately after computation. In Phase 0 (hackathon demo), use a Mock TEE (plain Node.js functions with the same interface).
+Genetic data is sent to the IronClaw Runtime (NEAR TEE) for analysis and purged immediately after computation. End-to-end ECIES + AES-256-GCM encryption of the payload (sealed to the TEE public key) is the **Phase 3 target** and is blocked on TEE-side decryption key access (see `docs/03_Technical_Specs/PHASE3_BLOCKERS_AND_INQUIRY.md`, blocker 1). The current implementation transmits over TLS to the attested TEE endpoint; client-side ECIES (`src/lib/tee/encryption.ts`) is implemented but **not yet wired into the request path**. In Phase 0 (hackathon demo), use a Mock TEE (plain Node.js functions with the same interface). Do not describe genetic data as "encrypted before transmission" in user-facing copy until ECIES is wired.
 
 **Layer 2 — Edge Database (Metadata only)**
 Turso stores insurance product catalog, user profiles, and session data. Raw genetic data is **never** stored here — this is an absolute architectural constraint. Drizzle ORM with Zod integration for type-safe queries.
