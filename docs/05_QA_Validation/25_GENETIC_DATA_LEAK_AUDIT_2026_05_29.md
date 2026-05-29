@@ -1,9 +1,10 @@
 # [유전자 데이터 누수 감사] 분석 파이프라인 프라이버시 점검 및 조치 리포트
+> Created: 2026-05-29
+> Last Updated: 2026-05-29
 
-- **작성일**: 2026-05-29
-- **최종 수정일**: 2026-05-29
 - **레이어**: 05_QA_Validation
 - **상태**: Audit v1.0 (조치 일부 적용)
+- **범위**: 유전자 데이터 분석 파이프라인의 raw 데이터 누수 지점 점검 및 조치 (F1~F5)
 
 ---
 
@@ -28,11 +29,11 @@
 
 | ID | 심각도 | 항목 | 상태 |
 |---|---|---|---|
-| F1 | 매우 높음 | raw 유전자 파일이 near.ai 영속 Files API에 업로드(미사용·영속 사본) | ✅ 조치 완료 |
-| F2 | 매우 높음 | ECIES 암호화 모듈이 데드코드 — raw 데이터 평문 전송 | ⏳ 외부 의존(블로커 1) |
-| F3 | 높음 | raw 유전자 데이터 전체가 브라우저 sessionStorage에 평문 보관 | ✅ 부분 조치(실패 경로 정리 보강) |
-| F4 | 중간 | LLM 자유 텍스트 출력이 DB에 영속화 | ⏳ 정책 필요 |
-| F5 | 낮음 | TEE 응답 일부가 에러 메시지로 클라이언트 반환 | ✅ 조치 완료 |
+| F1 | 매우 높음 | raw 유전자 파일이 near.ai 영속 Files API에 업로드(미사용·영속 사본) | 조치 완료 |
+| F2 | 매우 높음 | ECIES 암호화 모듈이 데드코드 — raw 데이터 평문 전송 | 외부 의존 (블로커 1) |
+| F3 | 높음 | raw 유전자 데이터 전체가 브라우저 sessionStorage에 평문 보관 | 부분 조치 (실패 경로 정리 보강) |
+| F4 | 중간 | LLM 자유 텍스트 출력이 DB에 영속화 | 정책 필요 |
+| F5 | 낮음 | TEE 응답 일부가 에러 메시지로 클라이언트 반환 | 조치 완료 |
 
 긍정 확인:
 - `createSession`은 `fileHash`(SHA-256)와 `fileType`만 저장 — **DB에 raw 데이터 미저장 확인**.
@@ -61,7 +62,7 @@
 
 - **현상**: `FILE_CONTENT_${sessionId}` 키로 전체 파일 base64가 브라우저 sessionStorage에 평문 저장. XSS에 그대로 노출. 정상 흐름에선 분석 시작 시 제거되나, ① 서명 거부 catch는 NONCE만 제거하고 raw 데이터는 잔존, ② nonce 만료 early-return 시 잔존, ③ 인증 전 페이지 이탈 시 탭 세션 내내 잔존.
 - **설계 제약**: my-near-wallet은 서명 시 **전체 페이지 리다이렉트**를 수행하여 메모리 상태가 소실되므로, 리다이렉트를 넘기기 위한 sessionStorage 브리징 자체는 현재 구조상 불가피.
-- **조치**: `TeeAnalysisProgress.tsx`에 `clearGeneticSessionData(sessionId)` 헬퍼 추가(NONCE + FILE_ID + FILE_CONTENT 일괄 제거), 탐지 가능한 모든 종료 경로(서명 거부 catch, nonce 만료 early-return, injected wallet 직접 반환, 리다이렉트 복귀)에 적용.
+- **조치**: `TeeAnalysisProgress.tsx`에 `clearGeneticSessionData(sessionId)` 헬퍼 추가(NONCE + FILE_ID + FILE_CONTENT 일괄 제거), 탐지 가능한 모든 종료 경로에 적용 — 서명 거부 catch, nonce 만료 early-return, injected wallet 직접 반환, 리다이렉트 복귀, 그리고 `handleAuthorize` 진입 실패(지갑 selector 부재, nonce 발급 실패).
 - **잔여 위험**: ③ 인증 전 이탈 케이스는 리다이렉트 생존 요건과 충돌하여 미해결. 근본 해결은 메모리-온리 재설계 또는 클라이언트 암호화 저장(Phase 3 연계) 필요.
 
 ### F4 [중간] LLM 자유 텍스트 영속화 — 정책 필요, 미조치
@@ -91,7 +92,8 @@
 
 ## Related Documents
 
-- `docs/05_QA_Validation/SECURITY_CHECKLIST.md` — 보안 점검 체크리스트
-- `docs/03_Technical_Specs/PHASE3_BLOCKERS_AND_INQUIRY.md` — Phase 3 블로커 및 NEAR AI 문의
-- `docs/03_Technical_Specs/` — 3계층 프라이버시 모델 아키텍처
-- CLAUDE.md — Key Security Rules (절대 제약)
+- **QA_Validation**: [Security Checklist](./SECURITY_CHECKLIST.md) - 보안 점검 체크리스트
+- **Technical_Specs**: [Phase 3 Blockers and Inquiry](../03_Technical_Specs/PHASE3_BLOCKERS_AND_INQUIRY.md) - Phase 3 블로커 및 NEAR AI 문의
+- **Technical_Specs**: [NEAR Privacy Stack Architecture](../03_Technical_Specs/NEAR_PRIVACY_STACK_ARCH.md) - 3계층 프라이버시 모델 아키텍처
+- **Technical_Specs**: [System Architecture](../03_Technical_Specs/00_SYSTEM_ARCHITECTURE.md) - 전체 시스템 구조
+- **Root**: [CLAUDE.md](../../CLAUDE.md) - Key Security Rules (절대 제약)
