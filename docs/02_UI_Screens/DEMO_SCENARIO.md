@@ -25,7 +25,7 @@
 |---|---|---|---|
 | Intro | 타이틀 카드 | 5초 | 서비스 이름 + 슬로건 |
 | Scene 1 | Step 1 — 온보딩 | 15초 | 지갑 연결, 프라이버시 서약 |
-| Scene 2 | Step 2 — 데이터 업로드 | 15초 | 파일 → 개인 금고 암호화 |
+| Scene 2 | Step 2 — 데이터 업로드 | 15초 | 파일 → TEE 격리 분석 |
 | Scene 3 | Step 3 — TEE 분석 + Purge | 25초 | 핵심 장면: 격리 분석 + 데이터 소각 |
 | Scene 4 | Step 4 — 추천 대시보드 | 20초 | 유전자 기반 맞춤 보험 추천 |
 | Scene 5 | Step 5 — 기밀 결제 | 15초 | 수치 미전송, 승인만 전달 |
@@ -137,7 +137,7 @@ The only way to get better insurance because of your DNA — without exposing it
 - 중앙에 대형 녹색 체크마크 팝인
 - `Sonner` 토스트 팝업 (화면 우상단):
   ```
-  원본 복호화 데이터가 TEE 영역에서 영구 소각되었습니다.
+  원본 데이터가 TEE 영역에서 영구 소각되었습니다.
   Raw data permanently purged from TEE memory.
   ```
 - 하단 소형 텍스트: `분석 소요: 18.3s / 잔류 데이터: 0 bytes`
