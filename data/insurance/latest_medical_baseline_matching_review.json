@@ -1,0 +1,300 @@
+{
+  "metadata": {
+    "reviewed_at": "2026-05-31T02:20:00+09:00",
+    "timezone": "Asia/Seoul",
+    "reviewer": "codex_medical_baseline_matching_review",
+    "output_version": "1.0",
+    "scope": "Medical expense baseline matching keyword and caveat review for source-backed recommendation expansion",
+    "input_seed": "src/lib/db/seed.ts",
+    "input_carrier_disclosure_probe": "data/insurance/latest_carrier_disclosure_probe.json",
+    "input_quote_rows_apply": "data/insurance/latest_premium_quote_rows_apply.json",
+    "db_write_performed": false,
+    "seed_file_changed": false,
+    "recommendation_snapshot_changed": false
+  },
+  "summary": {
+    "source_candidates_reviewed": 4,
+    "baseline_ready_sources": 3,
+    "blocked_sources": 1,
+    "quote_rows_reviewed": 16,
+    "numeric_quote_rows": 16,
+    "active_recommendation_snapshot_rows_added": 0,
+    "recommended_next_snapshot_sources": [
+      "src_db_direct_medical_202605",
+      "src_kb_direct_medical_202605",
+      "src_hyundai_direct_medical_202605"
+    ],
+    "blocked_snapshot_sources": [
+      "src_samsung_fire_direct_medical_202605"
+    ]
+  },
+  "baseline_policy": {
+    "coverage_category": "medical_expense",
+    "matching_strategy": "baseline",
+    "recommended_risk_targets": [],
+    "reason": "실손의료보험은 질병과 상해 치료비를 폭넓게 보상하지만 특정 DNA risk key와 직접 연결되는 상품이 아니다. 추천 엔진에서는 위험 점수 랭킹에 섞지 않고 기본 의료비 방어 baseline lane으로만 표시한다.",
+    "common_caveats": [
+      "유전자 위험 특화 추천이 아니라 기본 의료비 방어 baseline으로 표시한다.",
+      "실제 가입과 보험료는 인수 심사, 담보 선택, 자기부담금, 급여/비급여 조건에 따라 달라질 수 있다.",
+      "보험다모아 quote는 34세/44세 남녀 비교 조건의 공개 예시 보험료이며 개인 맞춤 확정 견적이 아니다.",
+      "갱신형 실손의료보험은 갱신 시 보험료가 달라질 수 있음을 추천 카드에 표시해야 한다."
+    ]
+  },
+  "decisions": [
+    {
+      "provider": "DB손보",
+      "product_source_id": "src_db_direct_medical_202605",
+      "carrier_id": "carrier_db_insurance",
+      "e_insmarket_product_code": "N11G004000001G",
+      "raw_product_name": "(무)다이렉트 실손의료비보험2605(CM)",
+      "current_source_review_status": "needs_review",
+      "recommended_source_review_status": "needs_review",
+      "recommended_matching_review_status": "baseline_ready_snapshot_candidate",
+      "recommended_coverage_category": "medical_expense",
+      "recommended_matching_strategy": "baseline",
+      "recommended_risk_targets": [],
+      "document_evidence": {
+        "carrier_match_score": 1,
+        "document_count": 3,
+        "document_types": [
+          "terms",
+          "business_method",
+          "summary"
+        ],
+        "primary_source_document_candidate": "doc_db_direct_medical_terms_202605",
+        "sha256": [
+          "db24ea2e2dbf2f4200d0aabe86d92a26e0b3d4962e521f99a6ee35f901997074",
+          "3a7a855b44c2d58eb0845cb4031ce8e71e62241fbe3987a9c3895e5ecfb27019",
+          "334fd0bd1c7d49e1729b8584eefbb7bd02cdb5112de6e8371357be09befc77ac"
+        ]
+      },
+      "coverage_details_candidate": {
+        "coverage_category": "medical_expense",
+        "matching_strategy": "baseline",
+        "risk_targets": [],
+        "baseline_terms": [
+          "실손의료비",
+          "질병 치료비",
+          "상해 치료비",
+          "급여/비급여 의료비"
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "유전자 위험 특화 추천이 아니라 기본 의료비 방어 baseline으로 표시한다.",
+        "실손의료보험은 자기부담금, 급여/비급여, 보장 한도, 갱신 조건이 적용된다.",
+        "보험다모아 quote는 공개 비교 조건 기준 예시 보험료이며 개인별 인수 심사 견적이 아니다.",
+        "약관, 사업방법서, 상품요약서 hash가 모두 확보되어 대표 문서 선택이 가능하다."
+      ],
+      "quote_review": {
+        "quote_source": "data/insurance/latest_premium_quote_rows_apply.json",
+        "quote_rows": 4,
+        "numeric_quote_rows": 4,
+        "condition_ids": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          6219,
+          6854,
+          9320,
+          11030
+        ],
+        "quote_review_status": "needs_review_numeric_values_available"
+      },
+      "snapshot_readiness": "ready_for_seed_pr",
+      "next_action": "승격 PR에서 source approved, quote approved, baseline insurance_products snapshot row를 함께 생성한다."
+    },
+    {
+      "provider": "KB손보",
+      "product_source_id": "src_kb_direct_medical_202605",
+      "carrier_id": "carrier_kb_insurance",
+      "e_insmarket_product_code": "N10G004000002G",
+      "raw_product_name": "KB손보 다이렉트실손의료비보장보험(무배당)(26.05)",
+      "current_source_review_status": "needs_review",
+      "recommended_source_review_status": "needs_review",
+      "recommended_matching_review_status": "baseline_ready_snapshot_candidate",
+      "recommended_coverage_category": "medical_expense",
+      "recommended_matching_strategy": "baseline",
+      "recommended_risk_targets": [],
+      "document_evidence": {
+        "carrier_match_score": 1,
+        "document_count": 1,
+        "document_types": [
+          "terms"
+        ],
+        "primary_source_document_candidate": "doc_kb_direct_medical_terms_202605",
+        "sha256": [
+          "4c5927fb929cae39c4f5a4957945a75e208769a6d7c46d7e892c2942ffe8e98a"
+        ]
+      },
+      "coverage_details_candidate": {
+        "coverage_category": "medical_expense",
+        "matching_strategy": "baseline",
+        "risk_targets": [],
+        "baseline_terms": [
+          "실손의료비",
+          "질병 치료비",
+          "상해 치료비",
+          "급여/비급여 의료비"
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "유전자 위험 특화 추천이 아니라 기본 의료비 방어 baseline으로 표시한다.",
+        "실손의료보험은 자기부담금, 급여/비급여, 보장 한도, 갱신 조건이 적용된다.",
+        "보험다모아 quote는 공개 비교 조건 기준 예시 보험료이며 개인별 인수 심사 견적이 아니다.",
+        "대표 문서는 약관 1건이며, 상품요약서/사업방법서 hash가 없다는 점을 source caveat에 남긴다.",
+        "고정 PDF URL은 향후 refresh 시 hash 변경 여부를 재확인한다."
+      ],
+      "quote_review": {
+        "quote_source": "data/insurance/latest_premium_quote_rows_apply.json",
+        "quote_rows": 4,
+        "numeric_quote_rows": 4,
+        "condition_ids": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          6400,
+          6439,
+          9074,
+          10323
+        ],
+        "quote_review_status": "needs_review_numeric_values_available"
+      },
+      "snapshot_readiness": "ready_for_seed_pr",
+      "next_action": "승격 PR에서 source approved, quote approved, baseline insurance_products snapshot row를 함께 생성한다."
+    },
+    {
+      "provider": "현대해상",
+      "product_source_id": "src_hyundai_direct_medical_202605",
+      "carrier_id": "carrier_hyundai_marine",
+      "e_insmarket_product_code": "N09G004000001G",
+      "raw_product_name": "(무)현대해상다이렉트실손의료비보장보험(갱신형)(Hi2605)",
+      "current_source_review_status": "needs_review",
+      "recommended_source_review_status": "needs_review",
+      "recommended_matching_review_status": "baseline_ready_snapshot_candidate",
+      "recommended_coverage_category": "medical_expense",
+      "recommended_matching_strategy": "baseline",
+      "recommended_risk_targets": [],
+      "document_evidence": {
+        "carrier_match_score": 1,
+        "document_count": 1,
+        "document_types": [
+          "terms"
+        ],
+        "primary_source_document_candidate": "doc_hyundai_direct_medical_terms_202605",
+        "sha256": [
+          "af92c7ee0f31d3aaf8eb4f05f9918b81795405bb51dbeb5346dbff910aea5f4a"
+        ]
+      },
+      "coverage_details_candidate": {
+        "coverage_category": "medical_expense",
+        "matching_strategy": "baseline",
+        "risk_targets": [],
+        "baseline_terms": [
+          "실손의료비",
+          "질병 치료비",
+          "상해 치료비",
+          "급여/비급여 의료비"
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "유전자 위험 특화 추천이 아니라 기본 의료비 방어 baseline으로 표시한다.",
+        "실손의료보험은 자기부담금, 급여/비급여, 보장 한도, 갱신 조건이 적용된다.",
+        "보험다모아 quote는 공개 비교 조건 기준 예시 보험료이며 개인별 인수 심사 견적이 아니다.",
+        "갱신형 상품이므로 갱신 시 보험료 변동과 재가입 조건을 추천 카드 caveat에 표시한다.",
+        "대표 문서는 약관 1건이며, 상품요약서/사업방법서 hash가 없다는 점을 source caveat에 남긴다."
+      ],
+      "quote_review": {
+        "quote_source": "data/insurance/latest_premium_quote_rows_apply.json",
+        "quote_rows": 4,
+        "numeric_quote_rows": 4,
+        "condition_ids": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          6740,
+          6545,
+          9190,
+          9949
+        ],
+        "quote_review_status": "needs_review_numeric_values_available"
+      },
+      "snapshot_readiness": "ready_for_seed_pr",
+      "next_action": "승격 PR에서 source approved, quote approved, baseline insurance_products snapshot row를 함께 생성한다."
+    },
+    {
+      "provider": "삼성화재",
+      "product_source_id": "src_samsung_fire_direct_medical_202605",
+      "carrier_id": "carrier_samsung_fire",
+      "e_insmarket_product_code": "N08G004000002G",
+      "raw_product_name": "무배당 삼성화재 다이렉트 실손의료비보험(2605.1)",
+      "current_source_review_status": "needs_review",
+      "recommended_source_review_status": "needs_review",
+      "recommended_matching_review_status": "baseline_blocked_document_specificity",
+      "recommended_coverage_category": "medical_expense",
+      "recommended_matching_strategy": "baseline",
+      "recommended_risk_targets": [],
+      "document_evidence": {
+        "carrier_match_score": 0.65,
+        "document_count": 1,
+        "document_types": [
+          "terms"
+        ],
+        "primary_source_document_candidate": "doc_samsung_fire_direct_medical_terms_202605",
+        "sha256": [
+          "db0ed9738c9f59fbb28b678b910e0bdd3ef4bf08bdac52643c2e2dd167003415"
+        ]
+      },
+      "coverage_details_candidate": {
+        "coverage_category": "medical_expense",
+        "matching_strategy": "baseline",
+        "risk_targets": [],
+        "baseline_terms": [
+          "실손의료비",
+          "질병 치료비",
+          "상해 치료비",
+          "급여/비급여 의료비"
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "유전자 위험 특화 추천이 아니라 기본 의료비 방어 baseline으로 표시한다.",
+        "실손의료보험은 자기부담금, 급여/비급여, 보장 한도, 갱신 조건이 적용된다.",
+        "보험다모아 quote는 공개 비교 조건 기준 예시 보험료이며 개인별 인수 심사 견적이 아니다.",
+        "현재 확보 URL은 generic realloss.pdf이며 carrier match score가 0.65라 2605.1 상품 전용 문서인지 재확인이 필요하다."
+      ],
+      "quote_review": {
+        "quote_source": "data/insurance/latest_premium_quote_rows_apply.json",
+        "quote_rows": 4,
+        "numeric_quote_rows": 4,
+        "condition_ids": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          6575,
+          7503,
+          9546,
+          11938
+        ],
+        "quote_review_status": "needs_review_numeric_values_available"
+      },
+      "snapshot_readiness": "blocked_until_product_specific_document_confirmed",
+      "next_action": "삼성화재 공식 상품별 약관 endpoint를 재탐색해 2605.1 전용 문서 여부를 확인한 뒤 승격 여부를 판단한다."
+    }
+  ],
+  "next_actions": [
+    "DB손보, KB손보, 현대해상 3개 baseline 후보를 대상으로 source approved, quote approved, insurance_products snapshot row 생성 seed PR을 준비한다.",
+    "삼성화재는 product-specific document endpoint를 재탐색하기 전까지 snapshot 발행 대상에서 제외한다.",
+    "실손 baseline 상품은 위험 점수 랭킹이 아니라 별도 기본 의료비 방어 섹션으로 표시되는지 seed PR과 UI 검증에서 확인한다."
+  ]
+}
