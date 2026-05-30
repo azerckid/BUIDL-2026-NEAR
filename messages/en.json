@@ -234,6 +234,16 @@
     "caveat": "Caveat",
     "sourceChecked": "Source checked",
     "officialSource": "Official source",
+    "representativePremium": "Representative premium",
+    "settlementEstimate": "USDC estimate",
+    "conditionalQuotes": "Conditional quote estimates",
+    "quoteCaveat": "Based on the official e-insmarket comparison conditions. Actual enrollment premiums may vary by insurer review and disclosures.",
+    "ageValue": "Age {age}",
+    "sexMale": "Male",
+    "sexFemale": "Female",
+    "sexUnknown": "Sex unknown",
+    "conditionUnavailable": "Condition unavailable",
+    "moreQuotes": "+{count} more",
     "perMonth": "/mo"
   },
   "pitch": {

@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-30 16:26
+> Last Updated: 2026-05-30 16:40
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.14
+- **상태**: Draft v2.15
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -593,6 +593,20 @@ archive 대상은 `prod_001`, `prod_002`, `prod_003`, `prod_004`, `prod_005`다.
 
 `insurance_products` row는 삭제하지 않고 archive update만 수행했다. 적용 후 운영 추천 가능 상품은 KDB생명 1건과 교보라이프플래닛 2건뿐이다. 적용 검증은 `../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md`에 둔다.
 
+### 9-22. Premium Quote Matrix UI
+
+2026-05-30 16:40 KST 기준 추천 카드에서 대표 보험료와 조건별 approved quote matrix를 분리 표시한다.
+
+| 항목 | 결과 |
+|---|---|
+| 대표 보험료 | `insurance_products.monthly_premium_krw` 우선 표시 |
+| USDC 환산 | `insurance_products.monthly_premium_usdc`를 보조 표시 |
+| 조건별 보험료 | `insurance_premium_quotes.review_status='approved'` row만 별도 matrix 영역에 표시 |
+| 미승인 quote | `needs_review`, `raw`, `rejected` 미노출 |
+| 이번 PR DB write | 0 |
+
+`getDashboardData`는 active source-backed 상품의 `product_source_id`에 연결된 approved quote row만 조회한다. `InsuranceProductCard`는 대표 가격과 조건별 예상 보험료를 서로 다른 영역에 렌더링하고, 보험다모아 공식 비교 조건 기준이라는 caveat를 함께 표시한다. 검증은 `../05_QA_Validation/35_PREMIUM_QUOTE_MATRIX_UI_2026_05_30.md`에 둔다.
+
 ---
 
 ## 10. 법무·신뢰 고지
@@ -648,6 +662,7 @@ archive 대상은 `prod_001`, `prod_002`, `prod_003`, `prod_004`, `prod_005`다.
 - [x] 백업 후 첫 추천 snapshot seed 운영 DB 적용
 - [x] legacy demo 보험상품 운영 추천 제거 코드/seed 정책 작성
 - [x] 백업 후 legacy demo 보험상품 archive 운영 DB 적용
+- [x] 추천 카드에서 대표 보험료와 조건별 approved quote matrix 분리 표시
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
