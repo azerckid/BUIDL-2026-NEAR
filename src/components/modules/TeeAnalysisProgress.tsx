@@ -9,11 +9,12 @@ import { CheckCircle, Loader2, AlertCircle, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Buffer } from "buffer";
 import { Button } from "@/components/ui/button";
-import { runAnalysis } from "@/actions/runAnalysis";
-import type { AuthPayload } from "@/actions/runAnalysis";
+import { runAnalysis, runTestPilotAnalysis } from "@/actions/runAnalysis";
+import type { AuthPayload, TestPilotAnalysisPayload } from "@/actions/runAnalysis";
 import { generateAuthNonce } from "@/actions/generateAuthNonce";
 import { useWallet } from "@/context/WalletContext";
 import { AUTH_MESSAGE, AUTH_RECIPIENT } from "@/lib/near/wallet";
+import { isTestPilotGuestIdentity } from "@/lib/test-pilot";
 import { ZkpFlowDiagram } from "@/components/modules/ZkpFlowDiagram";
 import type { AnalysisStage } from "@/components/modules/ZkpFlowDiagram";
 
@@ -58,6 +59,9 @@ interface TeeAnalysisProgressProps {
 
 type LogEntry = { id: string; text: string; type: "default" | "success" | "private" | "system" | "error" };
 type AuthPhase = "idle" | "requesting_nonce" | "signing" | "authorized";
+type AnalysisRequest =
+  | { mode: "wallet"; auth: AuthPayload }
+  | { mode: "test-pilot"; payload: TestPilotAnalysisPayload };
 
 const NONCE_STORAGE_KEY = (sessionId: string) => `mydna_auth_${sessionId}`;
 
@@ -75,9 +79,10 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
   const searchParams = useSearchParams();
   const { selector } = useWallet();
   const t = useTranslations("teeProgress");
+  const isTestPilotSession = isTestPilotGuestIdentity(walletAddress);
 
   const [authPhase, setAuthPhase] = useState<AuthPhase>("idle");
-  const [authData, setAuthData] = useState<AuthPayload | null>(null);
+  const [analysisRequest, setAnalysisRequest] = useState<AnalysisRequest | null>(null);
 
   const STAGE_CONFIG: Record<AnalysisStage, StageConfig> = {
     parsing:   { label: t("steps.parsing"),   sublabel: t("steps.parsingDesc"),  progress: STAGE_PROGRESS.parsing },
@@ -105,9 +110,25 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
   const logsRef = useRef<LogEntry[]>([]);
   const doneBtnRef = useRef<HTMLDivElement>(null);
   const errorBtnRef = useRef<HTMLDivElement>(null);
+  const testPilotStartedRef = useRef(false);
+
+  // ── 테스트 모드: guest session은 지갑 서명 없이 TEE 분석을 시작한다 ───────────
+  useEffect(() => {
+    if (!isTestPilotSession || testPilotStartedRef.current) return;
+    testPilotStartedRef.current = true;
+
+    const fileId = sessionStorage.getItem(`FILE_ID_${sessionId}`) ?? "";
+    const fileContent = sessionStorage.getItem(`FILE_CONTENT_${sessionId}`) ?? "";
+    clearGeneticSessionData(sessionId);
+
+    setAnalysisRequest({ mode: "test-pilot", payload: { fileId, fileContent } });
+    setAuthPhase("authorized");
+  }, [isTestPilotSession, sessionId]);
 
   // ── 지갑 서명 콜백 감지 (my-near-wallet 리다이렉트 복귀) ────────────────────
   useEffect(() => {
+    if (isTestPilotSession) return;
+
     const signature = searchParams.get("signature");
     const publicKey = searchParams.get("publicKey");
     if (!signature || !publicKey) return;
@@ -127,10 +148,13 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
     // URL 정리 (서명 파라미터 제거)
     window.history.replaceState({}, "", pathname);
 
-    setAuthData({ signature, publicKey, nonce, callbackUrl, fileId, fileContent });
+    setAnalysisRequest({
+      mode: "wallet",
+      auth: { signature, publicKey, nonce, callbackUrl, fileId, fileContent },
+    });
     setAuthPhase("authorized");
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isTestPilotSession]);
 
   async function handleAuthorize() {
     if (!selector) {
@@ -174,13 +198,16 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
         const fileId = sessionStorage.getItem(`FILE_ID_${sessionId}`) ?? "";
         const fileContent = sessionStorage.getItem(`FILE_CONTENT_${sessionId}`) ?? "";
         clearGeneticSessionData(sessionId);
-        setAuthData({
-          signature: result.signature,
-          publicKey: result.publicKey,
-          nonce: nonceResult.nonce,
-          callbackUrl,
-          fileId,
-          fileContent,
+        setAnalysisRequest({
+          mode: "wallet",
+          auth: {
+            signature: result.signature,
+            publicKey: result.publicKey,
+            nonce: nonceResult.nonce,
+            callbackUrl,
+            fileId,
+            fileContent,
+          },
         });
         setAuthPhase("authorized");
       }
@@ -206,7 +233,7 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
   }, [stage]);
 
   useEffect(() => {
-    if (authPhase !== "authorized" || !authData) return;
+    if (authPhase !== "authorized" || !analysisRequest) return;
 
     const timers: ReturnType<typeof setTimeout>[] = [];
     let isMounted = true;
@@ -219,7 +246,11 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
       setTimeout(() => resolve({ success: false, error: "__TIMEOUT__" }), ANALYSIS_TIMEOUT_MS);
     });
 
-    Promise.race([runAnalysis(sessionId, authData), timeoutPromise]).then((result) => {
+    const actionPromise = analysisRequest.mode === "test-pilot"
+      ? runTestPilotAnalysis(sessionId, analysisRequest.payload)
+      : runAnalysis(sessionId, analysisRequest.auth);
+
+    Promise.race([actionPromise, timeoutPromise]).then((result) => {
       if (!isMounted) return;
       resultRef.value = result;
 
@@ -262,13 +293,29 @@ export function TeeAnalysisProgress({ sessionId, walletAddress }: TeeAnalysisPro
       timers.forEach(clearTimeout);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authPhase, authData]);
+  }, [authPhase, analysisRequest]);
 
   const currentStageIndex = STAGE_ORDER.indexOf(stage);
   const config = STAGE_CONFIG[stage];
 
   // ── 서명 인증 대기 화면 ────────────────────────────────────────────────────
   if (authPhase === "idle" || authPhase === "requesting_nonce" || authPhase === "signing") {
+    if (isTestPilotSession) {
+      return (
+        <div className="flex flex-col items-center gap-6 w-full max-w-lg text-center">
+          <div className="flex items-center justify-center w-16 h-16 rounded-full border border-primary/30 bg-primary/10">
+            <Loader2 size={32} className="text-primary animate-spin" strokeWidth={1.5} />
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-base font-semibold text-foreground">{t("testPilot.title")}</p>
+            <p className="text-sm text-muted-foreground max-w-sm">
+              {t("testPilot.description")}
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     const isLoading = authPhase === "requesting_nonce" || authPhase === "signing";
     return (
       <div className="flex flex-col items-center gap-6 w-full max-w-lg text-center">

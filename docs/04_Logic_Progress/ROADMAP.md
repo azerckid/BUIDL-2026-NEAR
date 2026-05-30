@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-30 17:18
+> Last Updated: 2026-05-30 17:53
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-30 (Test Pilot Mode 무로그인·무결제 정책 문서화)
+- **최종 수정일**: 2026-05-30 (Test Pilot Mode 지갑 서명 없는 분석 액션 구현)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.16
+- **상태**: Draft v3.17
 - **phase**: Phase 2
 
 ---
@@ -106,6 +106,8 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 2026-05-30 16:40 KST 기준 추천 카드 UI에서 대표 보험료와 조건별 approved quote matrix를 분리 표시했다. `getDashboardData`는 active source-backed 상품의 `product_source_id` 기준으로 `insurance_premium_quotes.review_status='approved'` row만 조회해 카드에 연결하고, `InsuranceProductCard`는 대표 KRW 보험료, USDC 환산값, 조건별 예상 보험료, 공식 비교 조건 caveat를 구분해서 표시한다. `needs_review` quote 72건은 UI에 노출하지 않는다. 검증은 `../05_QA_Validation/35_PREMIUM_QUOTE_MATRIX_UI_2026_05_30.md`에 둔다. 다음 작업은 사용자 나이/성별 입력값과 approved quote matrix를 연결하는 개인화 선택 로직을 설계하고, 한화생명 0원 quote와 신한라이프 일반형 문서 endpoint를 계속 해소하는 것이다.
 
 2026-05-30 17:18 KST 기준 서비스 테스트 기간을 위한 Test Pilot Mode 정책을 문서화했다. 테스트 사용자는 사인업, 로그인, NEAR 지갑 연결 없이 `guest-*.testnet` identity로 업로드와 분석을 진행하고, 실제 결제 없이 `테스트 신청 완료`까지 갈 수 있어야 한다. 운영 결제·지갑 플로우는 유지하되 feature flag로 분기하고, test checkout은 실제 `transactions` row와 혼동되지 않도록 별도 `test_pilot_checkouts` 모델을 권장한다. 기술 명세는 `../03_Technical_Specs/04_TEST_PILOT_MODE_SPEC_2026_05_30.md`, UI 흐름은 `../02_UI_Screens/USER_FLOW.md`, QA 체크리스트는 `../05_QA_Validation/36_TEST_PILOT_MODE_QA_2026_05_30.md`에 둔다. 다음 작업은 guest identity 생성, 지갑 없는 session 생성, test analysis action, no-payment checkout을 순차 구현하는 것이다.
+
+2026-05-30 17:53 KST 기준 Test Pilot Mode 2단계로 `runTestPilotAnalysis` 서버 액션과 분석 화면의 guest session 분기를 구현했다. `guest-*.testnet` 분석 세션은 `TEST_PILOT_ENABLED=true` 및 `TEST_PILOT_SKIP_WALLET=true`일 때만 NEAR 서명 검증 없이 실행되고, TEE 분석·attestation·ZKP commitment·source-backed 상품 매칭·결과 저장은 운영 `runAnalysis`와 동일한 공통 경로를 사용한다. 브라우저 `sessionStorage`의 원본 파일은 분석 요청 직전에 제거한다. 다음 작업은 `test_pilot_checkouts` schema/migration과 no-payment checkout 완료 화면 구현이다.
 
 ## 2. 세부 실행 계획 (Detailed Execution)
 

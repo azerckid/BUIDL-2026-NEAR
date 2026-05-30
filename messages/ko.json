@@ -181,6 +181,10 @@
     "invalidFormat": ".vcf, .txt, .csv, .pdf 파일만 허용됩니다"
   },
   "teeProgress": {
+    "testPilot": {
+      "title": "테스트 분석 준비 중",
+      "description": "지갑 서명 없이 테스트 세션으로 TEE 분석을 시작합니다. 원본 파일은 분석 요청 후 브라우저 저장소에서 제거됩니다."
+    },
     "steps": {
       "parsing": "파일 파싱 중",
       "parsingDesc": "유전자 파일 데이터 구조 분석 중",

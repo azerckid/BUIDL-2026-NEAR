@@ -1,6 +1,6 @@
 # [기술 명세] Test Pilot Mode: 무로그인·무결제 서비스 테스트 플로우
 > Created: 2026-05-30 17:18
-> Last Updated: 2026-05-30 17:18
+> Last Updated: 2026-05-30 17:53
 
 - **레이어**: 03_Technical_Specs
 - **상태**: Draft v1.0
@@ -230,9 +230,9 @@ test_pilot_checkouts
 | 순서 | 작업 | PR 성격 |
 |---:|---|---|
 | 1 | Test Pilot Mode 정책 문서화 | 현재 PR |
-| 2 | `guest-*.testnet` identity 생성 및 user profile upsert | 코드 PR |
-| 3 | 지갑 없이 upload/session 생성 가능하도록 UI 분기 | 코드 PR |
-| 4 | `runTestPilotAnalysis` 또는 인증 우회 서버 액션 구현 | 코드 PR |
+| 2 | `guest-*.testnet` identity 생성 및 user profile upsert | 구현 완료 |
+| 3 | 지갑 없이 upload/session 생성 가능하도록 UI 분기 | 구현 완료 |
+| 4 | `runTestPilotAnalysis` 또는 인증 우회 서버 액션 구현 | 구현 완료 |
 | 5 | `test_pilot_checkouts` schema/migration 설계 | DB PR |
 | 6 | no-payment checkout 완료 화면 구현 | 코드 PR |
 | 7 | 테스트 모드 E2E 작성: 업로드 -> 분석 -> 추천 -> 신청 완료 | QA PR |

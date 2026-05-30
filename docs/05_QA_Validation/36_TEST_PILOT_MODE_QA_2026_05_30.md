@@ -1,6 +1,6 @@
 # [QA] Test Pilot Mode 무로그인·무결제 플로우 검증 체크리스트
 > Created: 2026-05-30 17:18
-> Last Updated: 2026-05-30 17:18
+> Last Updated: 2026-05-30 17:53
 
 - **레이어**: 05_QA_Validation
 - **상태**: Draft
@@ -21,6 +21,17 @@
   -> 결제 없이 테스트 신청 완료
   -> 테스트 신청 완료 화면
 ```
+
+---
+
+## 1-A. 구현 체크포인트
+
+| 단계 | 구현 상태 | 검증 기준 |
+|---|---|---|
+| Guest identity + 지갑 없는 upload/session | 구현됨 | `guest-*.testnet` 생성, guest profile upsert, `analysis_sessions.wallet_address` 연결 |
+| `runTestPilotAnalysis` | 구현됨 | guest session만 허용, 서버 feature flag guard, NEAR 서명 팝업 없이 운영 TEE 분석 공통 경로 실행 |
+| No-payment checkout | 대기 | 실제 `transactions` row와 분리된 test checkout 기록, 지갑 서명 없는 완료 화면 |
+| E2E | 대기 | 업로드 -> 분석 -> 추천 -> 테스트 신청 완료 전체 플로우 |
 
 ---
 
