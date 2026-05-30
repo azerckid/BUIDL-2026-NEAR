@@ -94,17 +94,17 @@ const HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS = [
 ];
 
 const MEDICAL_BASELINE_APPROVED_QUOTE_IDS = [
-  "quote_src_db_direct_medical_202605_age34_male_60456bed3452",
+  "quote_src_db_direct_medical_202605_age34_male_f20570f4817b",
   "quote_src_db_direct_medical_202605_age34_female_b141dc7c5700",
-  "quote_src_db_direct_medical_202605_age44_male_26615bdcb076",
+  "quote_src_db_direct_medical_202605_age44_male_2a491b5a1fab",
   "quote_src_db_direct_medical_202605_age44_female_58dcc145a6b7",
-  "quote_src_kb_direct_medical_202605_age34_male_60456bed3452",
+  "quote_src_kb_direct_medical_202605_age34_male_f20570f4817b",
   "quote_src_kb_direct_medical_202605_age34_female_b141dc7c5700",
-  "quote_src_kb_direct_medical_202605_age44_male_26615bdcb076",
+  "quote_src_kb_direct_medical_202605_age44_male_2a491b5a1fab",
   "quote_src_kb_direct_medical_202605_age44_female_58dcc145a6b7",
-  "quote_src_hyundai_direct_medical_202605_age34_male_60456bed3452",
+  "quote_src_hyundai_direct_medical_202605_age34_male_f20570f4817b",
   "quote_src_hyundai_direct_medical_202605_age34_female_b141dc7c5700",
-  "quote_src_hyundai_direct_medical_202605_age44_male_26615bdcb076",
+  "quote_src_hyundai_direct_medical_202605_age44_male_2a491b5a1fab",
   "quote_src_hyundai_direct_medical_202605_age44_female_58dcc145a6b7",
 ];
 

@@ -1,9 +1,10 @@
 {
   "metadata": {
     "prepared_at": "2026-05-31T02:49:00+09:00",
+    "corrected_at": "2026-05-31T03:58:00+09:00",
     "timezone": "Asia/Seoul",
     "generator": "manual_seed_preparation",
-    "output_version": "1.0",
+    "output_version": "1.1",
     "input_matching_review": "data/insurance/latest_medical_baseline_matching_review.json",
     "input_seed": "src/lib/db/seed.ts",
     "db_write_performed": false,
@@ -13,6 +14,7 @@
   "summary": {
     "source_approvals_added": 3,
     "quote_approvals_added": 12,
+    "quote_approval_ids_corrected": true,
     "insurance_product_snapshots_added": 3,
     "representative_condition_id": "age34_female",
     "krw_per_usdc": 1350,
@@ -76,19 +78,68 @@
     }
   ],
   "quote_approval_ids": [
-    "quote_src_db_direct_medical_202605_age34_male_60456bed3452",
+    "quote_src_db_direct_medical_202605_age34_male_f20570f4817b",
     "quote_src_db_direct_medical_202605_age34_female_b141dc7c5700",
-    "quote_src_db_direct_medical_202605_age44_male_26615bdcb076",
+    "quote_src_db_direct_medical_202605_age44_male_2a491b5a1fab",
     "quote_src_db_direct_medical_202605_age44_female_58dcc145a6b7",
-    "quote_src_kb_direct_medical_202605_age34_male_60456bed3452",
+    "quote_src_kb_direct_medical_202605_age34_male_f20570f4817b",
     "quote_src_kb_direct_medical_202605_age34_female_b141dc7c5700",
-    "quote_src_kb_direct_medical_202605_age44_male_26615bdcb076",
+    "quote_src_kb_direct_medical_202605_age44_male_2a491b5a1fab",
     "quote_src_kb_direct_medical_202605_age44_female_58dcc145a6b7",
-    "quote_src_hyundai_direct_medical_202605_age34_male_60456bed3452",
+    "quote_src_hyundai_direct_medical_202605_age34_male_f20570f4817b",
     "quote_src_hyundai_direct_medical_202605_age34_female_b141dc7c5700",
-    "quote_src_hyundai_direct_medical_202605_age44_male_26615bdcb076",
+    "quote_src_hyundai_direct_medical_202605_age44_male_2a491b5a1fab",
     "quote_src_hyundai_direct_medical_202605_age44_female_58dcc145a6b7"
   ],
+  "operational_quote_id_correction": {
+    "checked_at": "2026-05-31T03:58:00+09:00",
+    "db_write_performed": false,
+    "reason": "PR #51 apply에서 no-op으로 보였던 남성 조건 6건은 운영 DB에 없던 것이 아니라 같은 product_source_id, age, sex, premium 기준의 row가 다른 quote_hash suffix ID로 존재했다. seed 승인 대상 ID를 운영 DB 실제 row ID로 교정한다.",
+    "corrected_ids": [
+      {
+        "condition_id": "age34_male",
+        "product_source_id": "src_db_direct_medical_202605",
+        "old_seed_id": "quote_src_db_direct_medical_202605_age34_male_60456bed3452",
+        "actual_db_id": "quote_src_db_direct_medical_202605_age34_male_f20570f4817b",
+        "monthly_premium_krw": 6219
+      },
+      {
+        "condition_id": "age44_male",
+        "product_source_id": "src_db_direct_medical_202605",
+        "old_seed_id": "quote_src_db_direct_medical_202605_age44_male_26615bdcb076",
+        "actual_db_id": "quote_src_db_direct_medical_202605_age44_male_2a491b5a1fab",
+        "monthly_premium_krw": 9320
+      },
+      {
+        "condition_id": "age34_male",
+        "product_source_id": "src_kb_direct_medical_202605",
+        "old_seed_id": "quote_src_kb_direct_medical_202605_age34_male_60456bed3452",
+        "actual_db_id": "quote_src_kb_direct_medical_202605_age34_male_f20570f4817b",
+        "monthly_premium_krw": 6400
+      },
+      {
+        "condition_id": "age44_male",
+        "product_source_id": "src_kb_direct_medical_202605",
+        "old_seed_id": "quote_src_kb_direct_medical_202605_age44_male_26615bdcb076",
+        "actual_db_id": "quote_src_kb_direct_medical_202605_age44_male_2a491b5a1fab",
+        "monthly_premium_krw": 9074
+      },
+      {
+        "condition_id": "age34_male",
+        "product_source_id": "src_hyundai_direct_medical_202605",
+        "old_seed_id": "quote_src_hyundai_direct_medical_202605_age34_male_60456bed3452",
+        "actual_db_id": "quote_src_hyundai_direct_medical_202605_age34_male_f20570f4817b",
+        "monthly_premium_krw": 6740
+      },
+      {
+        "condition_id": "age44_male",
+        "product_source_id": "src_hyundai_direct_medical_202605",
+        "old_seed_id": "quote_src_hyundai_direct_medical_202605_age44_male_26615bdcb076",
+        "actual_db_id": "quote_src_hyundai_direct_medical_202605_age44_male_2a491b5a1fab",
+        "monthly_premium_krw": 9190
+      }
+    ]
+  },
   "insurance_product_snapshots": [
     {
       "id": "prod_db_direct_medical_202605",
