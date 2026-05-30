@@ -1,9 +1,9 @@
 # [QA] 실손의료보험 남성 Quote ID 교정 검증
 > Created: 2026-05-31 03:58
-> Last Updated: 2026-05-31 03:58
+> Last Updated: 2026-05-31 04:49
 
 - **레이어**: 05_QA_Validation
-- **상태**: Ready for DB apply
+- **상태**: Applied via follow-up
 - **범위**: DB손보, KB손보, 현대해상 실손의료보험 남성 조건 quote 6건의 approval target ID 교정
 - **결론**: PR #51 적용 당시 no-op으로 보였던 실손 남성 quote 6건은 운영 DB에 없는 row가 아니라, 같은 source/조건/보험료 row가 다른 `quote_hash_sha256` suffix ID로 존재하는 상태였다. 따라서 재적재가 아니라 `MEDICAL_BASELINE_APPROVED_QUOTE_IDS`를 운영 DB 실제 row ID로 교정한다. 이번 PR은 DB write를 하지 않으며, 후속 apply PR에서 seed를 재실행하면 quote approved가 26건에서 32건으로 증가한다.
 
@@ -61,6 +61,8 @@
 
 후속 apply PR에서는 운영 DB 백업 후 `src/lib/db/seed.ts`를 재실행하고, 위 6개 actual DB quote ID가 `approved`로 바뀌었는지 확인한다.
 
+2026-05-31 04:49 KST 기준 후속 apply를 완료했다. 실손 baseline target quote 12건은 모두 `approved` 상태이며, 세부 적용 기록은 `./50_MEDICAL_BASELINE_MALE_QUOTE_DB_APPLY_2026_05_31.md`에 둔다.
+
 ---
 
 ## 5. 안전성
@@ -93,3 +95,4 @@
 - **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - Track A 진행 상태
 - **QA_Validation**: [Medical Baseline Snapshot Seed](./47_MEDICAL_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 실손 baseline seed 준비 검증
 - **QA_Validation**: [Medical Baseline Snapshot DB Apply](./48_MEDICAL_BASELINE_SNAPSHOT_DB_APPLY_2026_05_31.md) - no-op으로 보였던 남성 quote ID 발견 기록
+- **QA_Validation**: [Medical Baseline Male Quote DB Apply](./50_MEDICAL_BASELINE_MALE_QUOTE_DB_APPLY_2026_05_31.md) - 교정된 남성 quote approval 운영 DB 적용 검증
