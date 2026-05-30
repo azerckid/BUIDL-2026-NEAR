@@ -1,11 +1,11 @@
 # [정책] 조건별 보험료 Quote Matrix 관리 방침
 > Created: 2026-05-28 03:00
-> Last Updated: 2026-05-29 01:25
+> Last Updated: 2026-05-30 15:31
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v1.8
+- **상태**: Draft v1.9
 - **범위**: 보험다모아/보험사 공시에서 수집한 보험료의 해석, 조건별 보험료 matrix 수집, seed 승격 정책
-- **결론**: 현재 수집된 `premium_text`는 특정 비교 조건의 대표 보험료일 뿐이다. 2026-05-28 PoC에서 암보험과 실손의료보험의 나이/성별 재조회 가능성이 확인됐고, 이를 저장할 `insurance_premium_quotes` schema/migration과 quote row 84건을 운영 Turso DB에 적용했다. 모든 quote row는 아직 `needs_review`이며 사용자 확정 견적으로 표시하지 않는다.
+- **결론**: 현재 수집된 `premium_text`는 특정 비교 조건의 대표 보험료일 뿐이다. 2026-05-28 PoC에서 암보험과 실손의료보험의 나이/성별 재조회 가능성이 확인됐고, 이를 저장할 `insurance_premium_quotes` schema/migration과 quote row 84건을 운영 Turso DB에 적용했다. 2026-05-30 첫 추천 snapshot 적용 후 KDB/교보라이프플래닛 암보험 quote 12건은 `approved`, 나머지 72건은 `needs_review`이며 사용자 확정 견적으로 표시하지 않는다.
 
 ---
 
@@ -128,8 +128,20 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 | 대표 KRW 보험료 | `premium_text`와 `monthly_premium_krw`로 source row에 저장. 한화생명 `0원` 값은 숫자 대표 보험료로 저장하지 않음 |
 | 보험료 caveat | `premium_basis`와 `coverage_caveats_json`에 표시 |
 | USDC 환산 | 아직 적용하지 않음. `monthly_premium_usdc`가 필요한 active 추천 상품 승격 시 별도 환산 기준을 승인 |
-| 조건별 quote matrix | `insurance_premium_quotes`에 source 후보 매칭 row 84건 적용. 모두 `needs_review` 유지 |
-| 사용자 추천 노출 | 실제 상품 후보는 노출하지 않고 기존 demo 상품만 active 유지 |
+| 조건별 quote matrix | `insurance_premium_quotes`에 source 후보 매칭 row 84건 적용. 2026-05-30 기준 첫 snapshot 대상 12건은 `approved`, 나머지 72건은 `needs_review` 유지 |
+| 사용자 추천 노출 | 2026-05-30 기준 KDB생명 1건과 교보라이프플래닛 2건이 source-backed active 상품으로 추가됨. 기존 demo 상품 5건은 유지 |
+
+### 5-1-1. 2026-05-30 첫 Snapshot Quote 승인
+
+첫 source-backed recommendation snapshot DB 적용에서 아래 12개 quote row만 `approved`로 승격했다.
+
+| Source | 승인 quote row | 조건 |
+|---|---:|---|
+| `src_kdb_life_direct_cancer_202605` | 4 | 34세 남/여, 44세 남/여 |
+| `src_kyobo_lifeplanet_cancer_nonsmoker_202605` | 4 | 34세 남/여, 44세 남/여 |
+| `src_kyobo_lifeplanet_cancer_standard_202605` | 4 | 34세 남/여, 44세 남/여 |
+
+대표 추천 카드 가격은 각 source의 `age34_female` 조건을 사용한다. 조건별 quote matrix를 UI에 표시할 때는 대표 보험료와 별도 영역으로 분리하고, 아직 `needs_review`인 72건은 확정 견적처럼 노출하지 않는다. 적용 검증은 `../05_QA_Validation/32_FIRST_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_30.md`에 둔다.
 
 ---
 
@@ -177,8 +189,9 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 | 6 | 실손의료보험 여성 POST 파라미터 500 원인 확인 | 완료. `L` 코드로 해소 |
 | 7 | source catalog 미등록 60건을 연결할 quote-only source 후보 확장 | 완료. 15개 raw source 후보 |
 | 8 | 백업 후 quote-only source 후보 DB 적용 및 quote row 60건 추가 적재 | 완료. 총 84건 |
-| 9 | UI에서 "대표 보험료"와 "조건별 예상 보험료"를 분리 표시 | UI PR |
-| 10 | 가입담보 E~J 특약 조합을 별도 quote dimension으로 확장 | 후속 crawler PR |
+| 9 | 첫 추천 snapshot 대상 quote 12건 승인 및 source-backed 상품 3건 적용 | 완료. QA32 |
+| 10 | UI에서 "대표 보험료"와 "조건별 예상 보험료"를 분리 표시 | UI PR |
+| 11 | 가입담보 E~J 특약 조합을 별도 quote dimension으로 확장 | 후속 crawler PR |
 
 ---
 
@@ -210,3 +223,4 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 - **QA_Validation**: [Medical Female Quote Params](../05_QA_Validation/17_MEDICAL_FEMALE_QUOTE_PARAMS_2026_05_28.md) - 실손 여성 파라미터와 8건 추가 적재 검증
 - **QA_Validation**: [Source Catalog Quote Expansion](../05_QA_Validation/18_SOURCE_CATALOG_QUOTE_EXPANSION_2026_05_29.md) - quote-only raw source 후보 15개 확장 검증
 - **QA_Validation**: [Source Catalog Quote DB Apply](../05_QA_Validation/19_SOURCE_CATALOG_QUOTE_DB_APPLY_2026_05_29.md) - quote-only raw source 후보와 60건 추가 quote 적용 검증
+- **QA_Validation**: [First Recommendation Snapshot DB Apply](../05_QA_Validation/32_FIRST_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_30.md) - 첫 추천 snapshot quote 12건 승인과 source-backed 상품 3건 적용 검증

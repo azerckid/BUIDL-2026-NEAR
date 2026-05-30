@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-30 14:41
+> Last Updated: 2026-05-30 15:31
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-30 (KDB/한화/교보 매칭 키워드와 caveat 검수)
+- **최종 수정일**: 2026-05-30 (첫 source-backed 추천 snapshot DB 적용)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.11
+- **상태**: Draft v3.12
 - **phase**: Phase 2
 
 ---
@@ -60,7 +60,7 @@
 
 | 트랙 | 핵심 질문 | 다음 작업 |
 |---|---|---|
-| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | KDB/교보라이프플래닛 첫 추천 snapshot seed 적용 전 백업 및 DB 검증. 한화생명은 0원 quote 해소 전까지 보류 |
+| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | 추천 카드에서 대표 보험료와 조건별 approved quote matrix를 분리 표시. 기존 demo 상품 노출 정책 결정 |
 | NEAR 프라이버시 기술 | IronClaw v0.28.2까지의 업데이트가 블로커 2~3을 해소하는가 | WIT-compatible WASM runtime, `tool_install`, WASM 실행 결과 반환 경로 실측 |
 | 매칭 브리지 | AI 해석과 DB 상품 추천의 경계를 어떻게 유지할 것인가 | `riskProfile.flags` -> `insurance_products.risk_targets` 결정론적 매칭 유지 |
 
@@ -96,6 +96,8 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 2026-05-30 14:41 KST 기준 KDB생명, 한화생명, 교보라이프플래닛 암보험 후보 5개 source의 매칭 키워드와 caveat를 정리했다. 5개 모두 `coverage_category=oncology`, `matching_strategy=risk_target`, `risk_targets=[pancreatic_cancer,liver_cancer,lung_cancer,breast_cancer,colon_cancer]`로 매칭 가능하다. 다만 한화생명 표준체형/비흡연체형 2개 source는 quote row가 모두 `0원`이라 첫 active 추천 snapshot에서는 제외한다. KDB생명 1개와 교보라이프플래닛 2개 source는 숫자 KRW quote가 있어 다음 추천 snapshot seed PR의 우선 후보로 둔다. 검증은 `../05_QA_Validation/30_MATCHING_KEYWORD_CAVEAT_REVIEW_2026_05_30.md`, 산출물은 `../../data/insurance/latest_matching_keyword_caveat_review.json`과 `../../data/insurance/latest_matching_keyword_caveat_review.csv`에 둔다. 다음 작업은 KDB/교보 3개 source의 source status 승격, quote 승인, `insurance_products` snapshot row 생성을 묶은 seed PR이다.
 
 2026-05-30 16:30 KST 기준 KDB생명 1개와 교보라이프플래닛 2개 source를 첫 source-backed active 추천 snapshot으로 발행할 seed 변경을 준비했다. `seed.ts`는 적용 시 source 3건을 `approved`로 승격하고, quote row 12건을 `approved`로 바꾸며, `insurance_products` snapshot row 3건을 추가한다. 대표 보험료는 보험다모아 `age34_female` 조건이고, `monthly_premium_usdc`는 고정 데모 환산율 `1 USDC = 1,350 KRW`로 계산한다. 이번 단계는 DB write 없이 seed/data/docs만 변경하며, 운영 반영은 백업 후 apply PR로 분리한다. 검증은 `../05_QA_Validation/31_FIRST_RECOMMENDATION_SNAPSHOT_SEED_2026_05_30.md`, 산출물은 `../../data/insurance/latest_first_recommendation_snapshot_seed.json`에 둔다. 다음 작업은 운영 DB 백업 후 `npx tsx src/lib/db/seed.ts` 실행과 적용 결과 검증이다.
+
+2026-05-30 15:31 KST 기준 첫 source-backed active 추천 snapshot seed를 운영 Turso DB에 백업 후 적용했다. 적용 후 `insurance_products=8`, source-backed active product 3건, `insurance_product_sources.review_status` 분포 `approved=3`/`needs_review=7`/`raw=12`, `insurance_premium_quotes.review_status` 분포 `approved=12`/`needs_review=72`를 확인했다. 검증은 `../05_QA_Validation/32_FIRST_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_30.md`에 둔다. 다음 작업은 추천 카드에서 대표 보험료와 조건별 approved quote matrix를 분리 표시하고, 기존 demo 상품 5건을 계속 노출할지 source-backed 상품만 노출할지 정책을 정하는 것이다.
 
 ## 2. 세부 실행 계획 (Detailed Execution)
 
