@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-30 14:41
+> Last Updated: 2026-05-30 15:31
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.11
+- **상태**: Draft v2.12
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -546,6 +546,24 @@ KDB생명 `src_kdb_life_direct_cancer_202605`는 `40869_summary`가 상품요약
 
 seed 변경 근거는 `../../data/insurance/latest_first_recommendation_snapshot_seed.json`과 `../05_QA_Validation/31_FIRST_RECOMMENDATION_SNAPSHOT_SEED_2026_05_30.md`에 둔다. 운영 DB 적용은 백업 후 `npx tsx src/lib/db/seed.ts` 실행 및 적용 검증 PR로 분리한다. 한화생명 2개 source는 `0원` quote 해소 전까지, 신한라이프 표준형 source는 일반형 공식 문서 endpoint 확보 전까지 계속 추천 snapshot에서 제외한다.
 
+### 9-19. First Recommendation Snapshot DB Apply
+
+2026-05-30 15:31 KST 기준 9-18의 첫 source-backed 추천 snapshot seed를 운영 Turso DB에 백업 후 적용했다.
+
+| 항목 | 결과 |
+|---|---:|
+| 백업 테이블 수 | 12 |
+| 적용 전 `insurance_products` | 5 |
+| 적용 후 `insurance_products` | 8 |
+| 적용 후 source-backed active product | 3 |
+| 적용 후 source `approved` | 3 |
+| 적용 후 quote `approved` | 12 |
+| invalid source document hash | 0 |
+
+적용된 상품은 `prod_kdb_life_direct_cancer_202605`, `prod_kyobo_lifeplanet_cancer_nonsmoker_202605`, `prod_kyobo_lifeplanet_cancer_standard_202605`다. Product source review 상태는 `approved=3`, `needs_review=7`, `raw=12`이며, quote review 상태는 `approved=12`, `needs_review=72`다.
+
+적용 검증은 `../05_QA_Validation/32_FIRST_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_30.md`에 둔다. 다음 단계는 추천 카드에서 대표 보험료와 조건별 approved quote matrix를 분리 표시하고, 기존 demo 상품 5건을 유지할지 source-backed 상품만 노출할지 정책을 정하는 것이다.
+
 ---
 
 ## 10. 법무·신뢰 고지
@@ -598,7 +616,7 @@ seed 변경 근거는 `../../data/insurance/latest_first_recommendation_snapshot
 - [x] 신한라이프 일반형 공식 문서 endpoint 추가 탐색
 - [x] 공식 문서 variant가 명확한 후보의 매칭 키워드/caveat 정리
 - [x] KDB/교보라이프플래닛 첫 추천 snapshot seed PR 작성
-- [ ] 백업 후 첫 추천 snapshot seed 운영 DB 적용
+- [x] 백업 후 첫 추천 snapshot seed 운영 DB 적용
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
@@ -647,3 +665,4 @@ seed 변경 근거는 `../../data/insurance/latest_first_recommendation_snapshot
 - **QA_Validation**: [KDB Source Document DB Apply](../05_QA_Validation/28_KDB_SOURCE_DOCUMENTS_DB_APPLY_2026_05_30.md) - KDB source document 2건 DB 적용 검증
 - **QA_Validation**: [Shinhan Standard Document Endpoint Probe](../05_QA_Validation/29_SHINHAN_STANDARD_DOCUMENT_ENDPOINT_PROBE_2026_05_30.md) - 신한라이프 표준형 공식 문서 endpoint 탐색 결과
 - **QA_Validation**: [Matching Keyword Caveat Review](../05_QA_Validation/30_MATCHING_KEYWORD_CAVEAT_REVIEW_2026_05_30.md) - KDB/한화/교보 암보험 후보 매칭 키워드와 caveat 검수 결과
+- **QA_Validation**: [First Recommendation Snapshot DB Apply](../05_QA_Validation/32_FIRST_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_30.md) - 첫 source-backed 추천 snapshot 운영 DB 적용 검증

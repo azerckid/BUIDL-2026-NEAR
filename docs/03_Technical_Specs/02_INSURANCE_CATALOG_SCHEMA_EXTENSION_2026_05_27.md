@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 카탈로그 스키마 확장안
 > Created: 2026-05-27 22:43
-> Last Updated: 2026-05-30 13:52
+> Last Updated: 2026-05-30 15:31
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Approved Design v1.7
+- **상태**: Approved Design v1.8
 - **범위**: 실제 한국 보험상품 수집 데이터, 공식 문서 hash, KRW 보험료, 실손의료보험, 서비스 추천 snapshot 스키마
 - **결론**: 원천 수집 테이블과 서비스 추천 테이블을 분리한다. `insurance_product_sources`, `insurance_source_documents`, `insurance_premium_quotes`에 공식 출처와 조건별 보험료를 보존하고, 질병-보장 매핑과 매칭 키워드 정리가 끝난 상품만 확장된 `insurance_products`로 발행한다.
 
@@ -279,17 +279,18 @@ baseline 상품:
 10. [x] 조건별 보험료 matrix를 `insurance_premium_quotes`로 별도 설계한다.
 11. [x] 백업 후 Turso DB에 `0006_real_war_machine.sql`을 적용한다.
 12. [x] P0 후보와 quote-only raw source 후보의 quote row 84건을 `needs_review` 상태로 적재한다.
-13. [ ] quote-only raw source 후보 15개의 공식 문서 hash와 매칭 키워드를 정리한다.
+13. [x] KDB/교보라이프플래닛 첫 source-backed 추천 snapshot 3건을 seed와 운영 DB에 적용한다.
+14. [ ] 나머지 quote-only raw source 후보의 공식 문서 hash와 매칭 키워드를 정리한다.
 
 ---
 
 ## 10. 비적용 범위
 
-2026-05-28 21:13 KST 기준 `insurance_premium_quotes` schema와 `0006_real_war_machine.sql` migration은 운영 Turso DB에 적용됐다. 이후 실손 여성 파라미터 해소와 quote-only raw source 후보 DB 적용까지 포함해 quote row 84건을 `needs_review` 상태로 적재했다. 2026-05-29 기준 quote-only raw source 15개는 아직 공식 문서 hash와 매칭 키워드 정리가 끝나지 않았으므로 추천 snapshot으로 발행하지 않는다.
+2026-05-28 21:13 KST 기준 `insurance_premium_quotes` schema와 `0006_real_war_machine.sql` migration은 운영 Turso DB에 적용됐다. 이후 실손 여성 파라미터 해소와 quote-only raw source 후보 DB 적용까지 포함해 quote row 84건을 `needs_review` 상태로 적재했다. 2026-05-30 기준 KDB/교보라이프플래닛 첫 snapshot 대상 quote 12건은 `approved`로 승격했고, source-backed active `insurance_products` 3건을 운영 DB에 적용했다. 나머지 quote row 72건과 source 후보는 공식 문서 hash, 매칭 키워드, 가격 blocker 해소 전까지 추천 snapshot으로 발행하지 않는다.
 
-- `src/lib/db/seed.ts` 실제 상품 교체
-- 보험료 KRW/USDC 환산 로직 구현
-- `insurance_premium_quotes.review_status=approved` 승격
+- 나머지 `src/lib/db/seed.ts` 실제 상품 교체
+- 실시간 보험료 KRW/USDC 환산 로직 구현
+- 추가 `insurance_premium_quotes.review_status=approved` 승격
 - 나이/성별/납입기간별 전체 보험료 matrix 완성
 
 ---
