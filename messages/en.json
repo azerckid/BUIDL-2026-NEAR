@@ -181,6 +181,10 @@
     "invalidFormat": "Only .vcf, .txt, .csv, .pdf files are allowed"
   },
   "teeProgress": {
+    "testPilot": {
+      "title": "Preparing Test Analysis",
+      "description": "Starting TEE analysis with a test session and no wallet signature. The raw file is removed from browser storage after the analysis request starts."
+    },
     "steps": {
       "parsing": "Parsing File",
       "parsingDesc": "Analyzing genetic file data structure",
