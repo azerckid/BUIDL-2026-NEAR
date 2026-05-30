@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Copy } from "lucide-react";
 import { prepareCheckout } from "@/actions/prepareCheckout";
 import { confirmCheckout } from "@/actions/confirmCheckout";
+import { completeTestPilotCheckout } from "@/actions/completeTestPilotCheckout";
 import {
   initiateNearTransaction,
   deriveEthAddress,
@@ -31,6 +32,7 @@ import {
 import { ethers } from "ethers";
 import { truncateAddress } from "@/lib/near/wallet";
 import { ZKP_VERIFIER_CONTRACT } from "@/lib/zkp/verifier";
+import { isTestPilotClientEnabled, isTestPilotGuestIdentity } from "@/lib/test-pilot";
 import { useWallet } from "@/context/WalletContext";
 import type { CartData } from "@/actions/getCartData";
 import type { InsuranceProduct } from "@/lib/db/schema";
@@ -59,13 +61,19 @@ interface CheckoutClientProps {
   data: CartData;
 }
 
-interface CheckoutResult {
-  txId: string;
-  txHash: string;
-  chain: ChainNetwork;
-  paidAmount: string;
-  paidCurrency: string;
-}
+type CheckoutResult =
+  | {
+      mode: "payment";
+      txId: string;
+      txHash: string;
+      chain: ChainNetwork;
+      paidAmount: string;
+      paidCurrency: string;
+    }
+  | {
+      mode: "test-pilot";
+      testCheckoutId: string;
+    };
 
 function ProductRow({ product }: { product: InsuranceProduct }) {
   const tp = useTranslations("insuranceProduct");
@@ -191,6 +199,22 @@ function ConfidentialIntentPanel({ data }: { data: CartData }) {
   );
 }
 
+function TestPilotCheckoutNotice() {
+  const t = useTranslations("checkout");
+
+  return (
+    <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 flex flex-col gap-2">
+      <div>
+        <p className="text-sm font-semibold text-foreground">{t("testPilot.noticeTitle")}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{t("testPilot.noticeDesc")}</p>
+      </div>
+      <div className="rounded-lg border border-border/60 bg-background/70 px-3 py-2 text-xs text-muted-foreground">
+        {t("testPilot.noticeNoInsurer")}
+      </div>
+    </div>
+  );
+}
+
 type PaymentStep = "idle" | "preparing" | "signing" | "confirming" | "done";
 
 export function CheckoutClient({ data }: CheckoutClientProps) {
@@ -208,6 +232,8 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
   const [ethAddressErrorMsg, setEthAddressErrorMsg] = useState<string | null>(null);
   const [ethBalance, setEthBalance] = useState<string | null>(null);
   const [ethBalanceError, setEthBalanceError] = useState(false);
+  const isTestPilotCheckout =
+    isTestPilotClientEnabled() && isTestPilotGuestIdentity(data.walletAddress);
 
   // 지갑 리다이렉트 복귀 시 즉시 confirming 상태로 시작
   const txHashParam = searchParams.get("transactionHashes");
@@ -260,6 +286,7 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
 
   // 지갑 서명 후 리다이렉트 복귀 처리 (NEAR / ETH MPC 공통)
   useEffect(() => {
+    if (isTestPilotCheckout) return;
     if (!txHashParam) return;
 
     const key = `pending-checkout-${data.cartId}`;
@@ -317,7 +344,14 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
           }
 
           sessionStorage.removeItem(key);
-          setResult({ txId: confirmed.txId!, txHash: ethTxHash, chain: "eth", paidAmount: "0.0001", paidCurrency: "ETH" });
+          setResult({
+            mode: "payment",
+            txId: confirmed.txId!,
+            txHash: ethTxHash,
+            chain: "eth",
+            paidAmount: "0.0001",
+            paidCurrency: "ETH",
+          });
           setStep("done");
           toast.success(t("toastSuccess"));
         } catch (err) {
@@ -342,7 +376,14 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
       }
 
       sessionStorage.removeItem(key);
-      setResult({ txId: confirmed.txId!, txHash: confirmed.txHash!, chain: "near", paidAmount: "0.001", paidCurrency: "NEAR" });
+      setResult({
+        mode: "payment",
+        txId: confirmed.txId!,
+        txHash: confirmed.txHash!,
+        chain: "near",
+        paidAmount: "0.001",
+        paidCurrency: "NEAR",
+      });
       setStep("done");
       toast.success(t("toastSuccess"));
     });
@@ -350,11 +391,39 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
   }, []);
 
   function handlePayment() {
+    if (isTestPilotCheckout) {
+      handleTestPilotCheckout();
+      return;
+    }
+
     if (selectedChain === "eth") {
       handleEthPayment();
       return;
     }
     handleNearPayment();
+  }
+
+  function handleTestPilotCheckout() {
+    startTransition(async () => {
+      setStep("preparing");
+
+      const completed = await completeTestPilotCheckout({
+        cartId: data.cartId,
+        walletAddress: data.walletAddress,
+        disclaimerAccepted: true,
+      });
+
+      if (!completed.success || !completed.testCheckoutId) {
+        toast.error(completed.error ?? t("testPilot.toastCompleteError"));
+        setStep("idle");
+        return;
+      }
+
+      setStep("confirming");
+      setResult({ mode: "test-pilot", testCheckoutId: completed.testCheckoutId });
+      setStep("done");
+      toast.success(t("testPilot.toastComplete"));
+    });
   }
 
   function handleEthPayment() {
@@ -450,7 +519,14 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
           return;
         }
 
-        setResult({ txId: confirmed.txId!, txHash: ethTxHash, chain: "eth", paidAmount: "0.0001", paidCurrency: "ETH" });
+        setResult({
+          mode: "payment",
+          txId: confirmed.txId!,
+          txHash: ethTxHash,
+          chain: "eth",
+          paidAmount: "0.0001",
+          paidCurrency: "ETH",
+        });
         setStep("done");
         toast.success(t("toastSuccess"));
       } catch (err) {
@@ -545,7 +621,14 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
         }
 
         sessionStorage.removeItem(`pending-checkout-${data.cartId}`);
-        setResult({ txId: confirmed.txId!, txHash: confirmed.txHash!, chain: "near", paidAmount: "0.001", paidCurrency: "NEAR" });
+        setResult({
+          mode: "payment",
+          txId: confirmed.txId!,
+          txHash: confirmed.txHash!,
+          chain: "near",
+          paidAmount: "0.001",
+          paidCurrency: "NEAR",
+        });
         setStep("done");
         toast.success(t("toastSuccess"));
       }
@@ -553,6 +636,12 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
   }
 
   function getButtonLabel(): string {
+    if (isTestPilotCheckout) {
+      if (step === "preparing") return t("testPilot.btnPreparing");
+      if (step === "confirming") return t("testPilot.btnCompleting");
+      return t("testPilot.btnComplete");
+    }
+
     if (step === "preparing") return t("btnPreparing");
     if (step === "signing")   return t("btnSigning");
     if (step === "confirming") return t("btnConfirming");
@@ -571,12 +660,16 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
 
   // ── 보험 가입 확인서 ────────────────────────────────────────────────────────
   if (result) {
-    const policyNumber = "MYD-" + result.txId.replace(/-/g, "").slice(0, 8).toUpperCase();
+    const isTestPilotResult = result.mode === "test-pilot";
+    const checkoutRecordId = isTestPilotResult ? result.testCheckoutId : result.txId;
+    const policyNumber = "MYD-" + checkoutRecordId.replace(/-/g, "").slice(0, 8).toUpperCase();
     const enrolledAt = DateTime.now().toFormat("yyyy-MM-dd");
-    const isEth = result.chain === "eth";
-    const explorerUrl = isEth
-      ? `https://sepolia.etherscan.io/tx/${result.txHash}`
-      : `${NEAR_EXPLORER_BASE}/${result.txHash}`;
+    const isEth = result.mode === "payment" && result.chain === "eth";
+    const explorerUrl = result.mode === "payment"
+      ? isEth
+        ? `https://sepolia.etherscan.io/tx/${result.txHash}`
+        : `${NEAR_EXPLORER_BASE}/${result.txHash}`
+      : null;
 
     return (
       <div ref={successRef} className="mx-auto w-full max-w-lg px-4 py-10 flex flex-col gap-6">
@@ -594,9 +687,11 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
             </svg>
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground">{t("success.title")}</h1>
+            <h1 className="text-xl font-bold text-foreground">
+              {isTestPilotResult ? t("testPilot.successTitle") : t("success.title")}
+            </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              {t("success.subtitle")}
+              {isTestPilotResult ? t("testPilot.successSubtitle") : t("success.subtitle")}
             </p>
           </div>
         </div>
@@ -606,17 +701,25 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
 
           {/* 증서 정보 */}
           <div className="p-4 flex flex-col gap-2.5">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("success.policyInfo")}</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              {isTestPilotResult ? t("testPilot.recordInfo") : t("success.policyInfo")}
+            </p>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{t("success.policyNumber")}</span>
+              <span className="text-muted-foreground">
+                {isTestPilotResult ? t("testPilot.recordNumber") : t("success.policyNumber")}
+              </span>
               <span className="font-mono font-semibold text-foreground">{policyNumber}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{t("success.enrolledAt")}</span>
+              <span className="text-muted-foreground">
+                {isTestPilotResult ? t("testPilot.completedAt") : t("success.enrolledAt")}
+              </span>
               <span className="text-foreground">{enrolledAt}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{t("success.payWallet")}</span>
+              <span className="text-muted-foreground">
+                {isTestPilotResult ? t("testPilot.testSession") : t("success.payWallet")}
+              </span>
               <span className="font-mono text-xs text-foreground">{truncateAddress(data.walletAddress)}</span>
             </div>
             {data.zkpProofHash && (
@@ -627,22 +730,28 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
                 </Badge>
               </div>
             )}
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{t("success.confidentialIntent")}</span>
-              <Badge className="text-xs px-2 py-0 bg-primary/10 text-primary border-primary/30 hover:bg-primary/10">
-                {t("success.intentDone")}
-              </Badge>
-            </div>
+            {!isTestPilotResult && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">{t("success.confidentialIntent")}</span>
+                <Badge className="text-xs px-2 py-0 bg-primary/10 text-primary border-primary/30 hover:bg-primary/10">
+                  {t("success.intentDone")}
+                </Badge>
+              </div>
+            )}
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">{t("success.network")}</span>
-              <span className="text-foreground">{isEth ? "ETH Sepolia (MPC)" : "NEAR Testnet"}</span>
+              <span className="text-foreground">
+                {isTestPilotResult ? t("testPilot.network") : isEth ? "ETH Sepolia (MPC)" : "NEAR Testnet"}
+              </span>
             </div>
           </div>
 
           {/* 가입 상품 목록 */}
           <div className="p-4 flex flex-col gap-3">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              {t("success.products", { count: data.products.length })}
+              {isTestPilotResult
+                ? t("testPilot.selectedProducts", { count: data.products.length })
+                : t("success.products", { count: data.products.length })}
             </p>
             {data.products.map((product) => (
               <div key={product.id} className="flex items-center justify-between gap-3">
@@ -673,42 +782,67 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
 
           {/* 결제 요약 */}
           <div className="p-4 flex flex-col gap-2.5">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("success.paymentSummary")}</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              {isTestPilotResult ? t("testPilot.requestSummary") : t("success.paymentSummary")}
+            </p>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{t("success.totalPremium")}</span>
+              <span className="text-muted-foreground">
+                {isTestPilotResult ? t("testPilot.estimatedPremium") : t("success.totalPremium")}
+              </span>
               <span className="text-lg font-bold text-primary">${data.totalMonthlyUsdc.toFixed(1)} USDC/mo</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">{t("success.paymentMethod")}</span>
-              <span className="text-foreground">{isEth ? "ETH Sepolia (MPC Chain Signatures)" : "NEAR Testnet"}</span>
+              <span className="text-foreground">
+                {isTestPilotResult
+                  ? t("testPilot.paymentMethod")
+                  : isEth
+                    ? "ETH Sepolia (MPC Chain Signatures)"
+                    : "NEAR Testnet"}
+              </span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">{t("success.onChainAmount")}</span>
               <span className="font-mono font-semibold text-foreground">
-                {result.paidAmount} {result.paidCurrency}
-                <span className="text-[10px] text-muted-foreground ml-1">(+ gas)</span>
+                {isTestPilotResult ? t("testPilot.noPayment") : `${result.paidAmount} ${result.paidCurrency}`}
+                {!isTestPilotResult && (
+                  <span className="text-[10px] text-muted-foreground ml-1">(+ gas)</span>
+                )}
               </span>
             </div>
-            <div className="flex flex-col gap-1 pt-1">
-              <span className="text-xs text-muted-foreground">{t("success.txHash")}</span>
-              <span className="font-mono text-xs text-foreground break-all bg-muted/40 rounded px-2 py-1.5">
-                {result.txHash}
-              </span>
-            </div>
-            <a
-              href={explorerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-primary underline underline-offset-2 mt-1"
-            >
-              {t("success.explorerLink")}
-            </a>
+            {isTestPilotResult ? (
+              <div className="flex flex-col gap-1 pt-1">
+                <span className="text-xs text-muted-foreground">{t("testPilot.testCheckoutId")}</span>
+                <span className="font-mono text-xs text-foreground break-all bg-muted/40 rounded px-2 py-1.5">
+                  {result.testCheckoutId}
+                </span>
+              </div>
+            ) : (
+              <>
+                <div className="flex flex-col gap-1 pt-1">
+                  <span className="text-xs text-muted-foreground">{t("success.txHash")}</span>
+                  <span className="font-mono text-xs text-foreground break-all bg-muted/40 rounded px-2 py-1.5">
+                    {result.txHash}
+                  </span>
+                </div>
+                {explorerUrl && (
+                  <a
+                    href={explorerUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-primary underline underline-offset-2 mt-1"
+                  >
+                    {t("success.explorerLink")}
+                  </a>
+                )}
+              </>
+            )}
           </div>
 
           {/* 데모 고지 */}
           <div className="px-4 py-3 bg-muted/30 rounded-b-xl">
             <p className="text-xs text-muted-foreground text-center">
-              {t("success.demoNotice")}
+              {isTestPilotResult ? t("testPilot.successNotice") : t("success.demoNotice")}
             </p>
           </div>
         </div>
@@ -739,10 +873,14 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
     <div className="mx-auto w-full max-w-lg px-4 py-8 flex flex-col gap-6">
       <div className="flex flex-col gap-1.5">
         <Badge variant="outline" className="border-primary/40 text-primary text-xs w-fit">
-          {t("badge")}
+          {isTestPilotCheckout ? t("testPilot.badge") : t("badge")}
         </Badge>
-        <h1 className="text-xl font-bold text-foreground">{t("title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("description")}</p>
+        <h1 className="text-xl font-bold text-foreground">
+          {isTestPilotCheckout ? t("testPilot.title") : t("title")}
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          {isTestPilotCheckout ? t("testPilot.description") : t("description")}
+        </p>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -781,7 +919,9 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
 
       <div className="rounded-xl border border-border/60 bg-muted/20 px-4 py-3 flex flex-col gap-2">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">{t("payWallet")}</span>
+          <span className="text-muted-foreground">
+            {isTestPilotCheckout ? t("testPilot.testSession") : t("payWallet")}
+          </span>
           <span className="font-mono text-foreground">{truncateAddress(data.walletAddress)}</span>
         </div>
         {data.zkpProofHash && (
@@ -794,50 +934,55 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
         )}
         <div className="flex items-center justify-between text-xs">
           <span className="text-muted-foreground">{t("network")}</span>
-          <span className="text-foreground">NEAR Testnet</span>
+          <span className="text-foreground">
+            {isTestPilotCheckout ? t("testPilot.network") : "NEAR Testnet"}
+          </span>
         </div>
         <div className="flex items-center justify-between text-xs">
           <span className="text-muted-foreground">{t("signAmount")}</span>
-          <span className="text-foreground">{t("signAmountValue")}</span>
+          <span className="text-foreground">
+            {isTestPilotCheckout ? t("testPilot.noPayment") : t("signAmountValue")}
+          </span>
         </div>
       </div>
 
       {/* 체인 선택 */}
-      <div className="flex flex-col gap-2">
-        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          {t("chainSelect")}
-        </p>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setSelectedChain("near")}
-            className={[
-              "flex-1 rounded-lg border py-2.5 text-sm font-medium transition-colors",
-              selectedChain === "near"
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border text-muted-foreground hover:border-primary/40",
-            ].join(" ")}
-          >
-            NEAR Testnet
-          </button>
-          <button
-            onClick={() => setSelectedChain("eth")}
-            className={[
-              "flex-1 rounded-lg border py-2.5 text-sm font-medium transition-colors",
-              selectedChain === "eth"
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border text-muted-foreground hover:border-primary/40",
-            ].join(" ")}
-          >
-            ETH Sepolia
-            <Badge className="ml-1.5 text-[10px] px-1 py-0 bg-yellow-100 text-yellow-700 border-yellow-200 hover:bg-yellow-100">
-              Phase 2
-            </Badge>
-          </button>
-        </div>
+      {!isTestPilotCheckout && (
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            {t("chainSelect")}
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSelectedChain("near")}
+              className={[
+                "flex-1 rounded-lg border py-2.5 text-sm font-medium transition-colors",
+                selectedChain === "near"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground hover:border-primary/40",
+              ].join(" ")}
+            >
+              NEAR Testnet
+            </button>
+            <button
+              onClick={() => setSelectedChain("eth")}
+              className={[
+                "flex-1 rounded-lg border py-2.5 text-sm font-medium transition-colors",
+                selectedChain === "eth"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground hover:border-primary/40",
+              ].join(" ")}
+            >
+              ETH Sepolia
+              <Badge className="ml-1.5 text-[10px] px-1 py-0 bg-yellow-100 text-yellow-700 border-yellow-200 hover:bg-yellow-100">
+                Phase 2
+              </Badge>
+            </button>
+          </div>
 
-        {/* ETH 선택 시 파생 주소 표시 */}
-        {selectedChain === "eth" && (
-          <div className="rounded-lg border border-border/60 bg-muted/20 px-3 py-2.5 flex flex-col gap-1.5 text-xs">
+          {/* ETH 선택 시 파생 주소 표시 */}
+          {selectedChain === "eth" && (
+            <div className="rounded-lg border border-border/60 bg-muted/20 px-3 py-2.5 flex flex-col gap-1.5 text-xs">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">{t("ethDerivedAddress")}</span>
               {ethAddressError ? (
@@ -930,12 +1075,16 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
                 {t("ethViewOnEtherscan")}
               </a>
             )}
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* Confidential Intent 미리보기 */}
-      <ConfidentialIntentPanel data={data} />
+      {isTestPilotCheckout ? (
+        <TestPilotCheckoutNotice />
+      ) : (
+        <ConfidentialIntentPanel data={data} />
+      )}
 
       {/* 결제 버튼 */}
       <Button
@@ -943,7 +1092,9 @@ export function CheckoutClient({ data }: CheckoutClientProps) {
         disabled={
           isPending ||
           data.products.length === 0 ||
-          (selectedChain === "eth" && (!derivedEthAddress || ethBalance === null || ethBalanceError || parseFloat(ethBalance) < 0.001))
+          (!isTestPilotCheckout &&
+            selectedChain === "eth" &&
+            (!derivedEthAddress || ethBalance === null || ethBalanceError || parseFloat(ethBalance) < 0.001))
         }
         onClick={handlePayment}
       >

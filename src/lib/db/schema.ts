@@ -493,6 +493,28 @@ export const recommendationCarts = sqliteTable("recommendation_carts", {
   index("carts_wallet_status_idx").on(table.walletAddress, table.status),
 ]);
 
+// ─── test_pilot_checkouts ────────────────────────────────────────────────────
+
+export const testPilotCheckouts = sqliteTable("test_pilot_checkouts", {
+  id: text("id").primaryKey(),
+  cartId: text("cart_id")
+    .notNull()
+    .unique()
+    .references(() => recommendationCarts.id),
+  walletAddress: text("wallet_address")
+    .notNull()
+    .references(() => userProfiles.walletAddress),
+  selectedProductIds: text("selected_product_ids").notNull(),
+  totalMonthlyUsdc: real("total_monthly_usdc").notNull(),
+  status: text("status", { enum: ["completed"] })
+    .notNull()
+    .default("completed"),
+  disclaimerAccepted: integer("disclaimer_accepted", { mode: "boolean" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+}, (table) => [
+  index("test_pilot_checkouts_wallet_idx").on(table.walletAddress),
+]);
+
 // ─── transactions ─────────────────────────────────────────────────────────────
 
 export const transactions = sqliteTable("transactions", {
@@ -532,6 +554,21 @@ export const transactionInsertSchema = z.object({
   confirmedAt: z.number().int().positive().nullable().default(null),
 });
 
+export const testPilotCheckoutInsertSchema = z.object({
+  id: z.string().uuid(),
+  cartId: z.string().uuid(),
+  walletAddress: z
+    .string()
+    .min(2)
+    .max(64)
+    .regex(/^[a-z0-9_\-\.]+\.(near|testnet)$/),
+  selectedProductIds: jsonStringSchema,
+  totalMonthlyUsdc: z.number().positive(),
+  status: z.literal("completed").default("completed"),
+  disclaimerAccepted: z.boolean(),
+  createdAt: z.number().int().positive(),
+});
+
 // ─── auth_nonces ──────────────────────────────────────────────────────────────
 // Challenge-Response 서명 검증용 일회용 Nonce (5분 TTL)
 // walletAddress는 user_profiles FK 없이 독립 저장 (프로필 미생성 상태에서도 발급 가능)
@@ -558,6 +595,7 @@ export type InsuranceProduct = typeof insuranceProducts.$inferSelect;
 export type AnalysisSession = typeof analysisSessions.$inferSelect;
 export type AnalysisResult = typeof analysisResults.$inferSelect;
 export type RecommendationCart = typeof recommendationCarts.$inferSelect;
+export type TestPilotCheckout = typeof testPilotCheckouts.$inferSelect;
 export type Transaction = typeof transactions.$inferSelect;
 export type RiskProfile = z.infer<typeof riskProfileSchema>;
 export type RiskLevel = z.infer<typeof riskLevelSchema>;
