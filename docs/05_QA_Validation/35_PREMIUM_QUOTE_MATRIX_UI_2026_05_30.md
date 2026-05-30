@@ -1,11 +1,11 @@
 # [QA] 조건별 보험료 Matrix UI 분리 표시 검증
 > Created: 2026-05-30 16:40
-> Last Updated: 2026-05-30 16:40
+> Last Updated: 2026-05-31 00:17
 
 - **레이어**: 05_QA_Validation
 - **상태**: Passed
 - **범위**: source-backed 추천 카드에서 대표 보험료와 `insurance_premium_quotes.review_status=approved` 조건별 보험료 matrix를 분리 표시
-- **결론**: 추천 카드의 상단 가격은 `insurance_products`의 대표 보험료 snapshot으로 유지하고, 승인된 조건별 quote row는 별도 "조건별 예상 보험료" 영역으로 표시한다. `needs_review` quote 72건은 UI에 노출하지 않는다.
+- **결론**: 추천 카드의 상단 가격은 `insurance_products`의 대표 보험료 snapshot으로 유지하고, 승인된 조건별 quote row는 별도 "조건별 예상 보험료" 영역으로 표시한다. 2026-05-31 1차 개인화 구현으로 dashboard 나이/성별 선택값과 approved quote matrix를 연결했다. `needs_review` quote 72건은 UI에 노출하지 않는다.
 
 ---
 
@@ -94,7 +94,7 @@ npm run build
 ## 6. 남은 작업
 
 1. 기존 analysis result가 legacy product ID를 들고 있을 때 사용자 안내 또는 재분석 유도 정책을 정한다.
-2. 사용자 나이/성별 입력값과 quote matrix를 연결하는 개인화 선택 로직은 별도 PR에서 설계한다.
+2. 사용자 나이/성별 입력값과 quote matrix를 연결하는 1차 개인화 선택 로직은 `41_PREMIUM_QUOTE_PERSONALIZATION_2026_05_31.md`에서 검증했다.
 3. 한화생명 0원 quote 재조회와 신한라이프 일반형 공식 문서 endpoint 탐색은 데이터 품질 트랙으로 이어간다.
 
 ---
@@ -118,5 +118,6 @@ npm run build
 - **Technical_Specs**: [Insurance Matching Keyword Policy](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md) - 추천 snapshot 발행 기준과 quote 승인 조건
 - **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - Track A 진행 상태
 - **Logic_Progress**: [Premium Quote Policy](../04_Logic_Progress/04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md) - 대표 보험료와 조건별 quote matrix 분리 정책
+- **QA_Validation**: [Premium Quote Personalization](./41_PREMIUM_QUOTE_PERSONALIZATION_2026_05_31.md) - 사용자 나이/성별 선택값과 approved quote 연결 검증
 - **QA_Validation**: [Demo Products Archive DB Apply](./34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md) - source-backed active 상품만 남긴 운영 DB 상태
 - **QA_Validation**: [First Recommendation Snapshot DB Apply](./32_FIRST_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_30.md) - 첫 source-backed 추천 snapshot과 approved quote 12건 적용 검증
