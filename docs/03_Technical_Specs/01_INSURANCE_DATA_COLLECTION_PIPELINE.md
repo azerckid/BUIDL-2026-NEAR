@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 01:09
+> Last Updated: 2026-05-31 01:37
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.17
+- **상태**: Draft v2.18
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -629,7 +629,9 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 
 한화생명 API 응답에는 호출마다 달라질 수 있는 `sskey`가 포함되므로, 산출물은 raw API response hash와 stable quote hash를 분리한다. 후속 seed PR에서는 기존 `0원` quote row를 `quote_source_type=carrier_quote` 기준의 숫자 KRW row로 대체하고, 운영 DB 백업 후 적용한다.
 
-2026-05-31 01:09 KST 기준 한화생명 carrier quote seed 준비를 완료했다. `seed.ts`는 한화생명 공식 carrier quote 8건을 삽입/승인하고, 기존 보험다모아 `0원` quote 8건을 `rejected`로 내리며, 한화생명 표준체형/비흡연체형 `insurance_products` snapshot 2건을 추가한다. 산출물은 `data/insurance/latest_hanwha_life_recommendation_snapshot_seed.json`, 검증 문서는 `../05_QA_Validation/43_HANWHA_RECOMMENDATION_SNAPSHOT_SEED_2026_05_31.md`에 둔다. 이번 단계도 DB write는 하지 않으며, 운영 반영은 백업 후 apply PR로 분리한다.
+2026-05-31 01:09 KST 기준 한화생명 carrier quote seed 준비를 완료했다. `seed.ts`는 한화생명 공식 carrier quote 8건을 삽입/승인하고, 기존 보험다모아 `0원` quote target ID 8건을 `rejected`로 내리며, 한화생명 표준체형/비흡연체형 `insurance_products` snapshot 2건을 추가한다. 산출물은 `data/insurance/latest_hanwha_life_recommendation_snapshot_seed.json`, 검증 문서는 `../05_QA_Validation/43_HANWHA_RECOMMENDATION_SNAPSHOT_SEED_2026_05_31.md`에 둔다. 이번 단계도 DB write는 하지 않으며, 운영 반영은 백업 후 apply PR로 분리한다.
+
+2026-05-31 01:37 KST 기준 운영 DB 백업 후 seed 적용을 완료했다. 적용 후 `insurance_products=10`, source-backed active 추천 상품은 5건, `insurance_premium_quotes=92`, `approved` quote는 20건이다. 한화생명 공식 carrier quote 8건은 모두 승인됐고, 기존 보험다모아 `0원` quote는 운영 DB에 존재하던 4건만 `rejected`로 확인됐다. seed target 8개 ID 중 나머지 4개는 이전 quote row 적용 단계의 semantic duplicate skip으로 운영 DB에 존재하지 않아 no-op이었다. 적용 검증은 `../05_QA_Validation/44_HANWHA_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_31.md`에 둔다.
 
 ---
 
@@ -689,6 +691,7 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - [x] 추천 카드에서 대표 보험료와 조건별 approved quote matrix 분리 표시
 - [x] 한화생명 0원 quote blocker를 공식 carrier quote로 재조회
 - [x] 한화생명 carrier quote seed와 추천 snapshot 2건 준비
+- [x] 백업 후 한화생명 추천 snapshot 운영 DB 적용
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정

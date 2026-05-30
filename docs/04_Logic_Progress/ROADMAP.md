@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-31 01:09
+> Last Updated: 2026-05-31 01:37
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-31 (한화생명 추천 snapshot seed 준비)
+- **최종 수정일**: 2026-05-31 (한화생명 추천 snapshot DB 적용)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.26
+- **상태**: Draft v3.27
 - **phase**: Phase 2
 
 ---
@@ -68,17 +68,17 @@
 
 현재 의미는 “실제 보험상품 데이터 기반 추천”과 “무로그인·무결제 테스트 완주”를 동시에 검증하는 것이다. Test Pilot happy-path는 완료됐고, 다음 작업은 아래 순서로 진행한다.
 
-여기서 현재 추천 상품 3개는 “수집한 전체 데이터 수”가 아니라 “사용자 추천 화면에 노출 가능한 최종 snapshot 수”다. 현재까지 확보한 기반 데이터는 보험다모아 P0 샘플 56개, source catalog 후보 22개, 공식 문서 row 22개, 조건별 보험료 quote row 84개이며, 이 중 원천 근거, 매칭 키워드, caveat, approved quote를 모두 통과해 active 추천으로 발행된 상품이 3개다.
+여기서 현재 추천 상품 5개는 “수집한 전체 데이터 수”가 아니라 “사용자 추천 화면에 노출 가능한 최종 snapshot 수”다. 현재까지 확보한 기반 데이터는 보험다모아 P0 샘플 56개, source catalog 후보 22개, 공식 문서 row 22개, 조건별 보험료 quote row 92개이며, 이 중 원천 근거, 매칭 키워드, caveat, approved quote를 모두 통과해 active 추천으로 발행된 상품이 5개다.
 
 | 순서 | 트랙 | 작업 | 완료 기준 |
 |---:|---|---|---|
 | 1 | Test Pilot UX | guest session dashboard 상품 버튼 문구를 `결제하기`에서 `테스트 신청하기`로 정리 | 테스트 사용자가 실제 결제처럼 오해하지 않음 |
 | 2 | Test Pilot 회귀 | flag off 상태의 기존 지갑 연결, NEAR/ETH checkout, build/typecheck 확인 | 테스트 모드가 운영 결제 경로를 깨지 않음 |
 | 3 | 보험료 개인화 | 사용자 나이/성별 입력값과 approved quote matrix 연결 | 대표 보험료와 사용자 조건별 보험료가 구분 표시됨 |
-| 4 | 한화생명 blocker | 한화생명 표준체형/비흡연체형 0원 quote 원인 해소 | 공식 carrier quote 숫자 KRW 8건 확보. seed/apply는 후속 |
+| 4 | 한화생명 blocker | 한화생명 표준체형/비흡연체형 0원 quote 원인 해소 | 공식 carrier quote 숫자 KRW 8건 확보 및 DB 적용 완료 |
 | 5 | 신한라이프 blocker | 신한라이프 일반형 공식 문서 endpoint 추가 탐색 | 해약환급금 미지급형 문서 오연결 없이 일반형 source 처리 |
-| 6 | 보험상품 확장 | `needs_review=7`, `raw=12` source의 문서 hash, 매칭 키워드, caveat 정리 | 추천 snapshot 발행 가능한 상품 수 증가 |
-| 7 | 추천 snapshot 확대 | 새 source를 `approved`로 승격하고 `insurance_products` snapshot 발행 | 한화생명 2건 seed 준비 완료. DB apply 후 5개 노출 |
+| 6 | 보험상품 확장 | `needs_review=6`, `raw=11` source의 문서 hash, 매칭 키워드, caveat 정리 | 추천 snapshot 발행 가능한 상품 수 증가 |
+| 7 | 추천 snapshot 확대 | 새 source를 `approved`로 승격하고 `insurance_products` snapshot 발행 | 한화생명 2건 DB apply 완료. source-backed active 추천 5개 노출 |
 
 2026-05-30 23:42 KST 기준 1번 Test Pilot UX 항목을 코드에 반영했다. guest session dashboard 상품 버튼은 `테스트 신청하기`를 표시하고, 일반 지갑 세션은 기존 `결제하기` 문구를 유지한다. 다음 작업은 flag off 상태의 운영 지갑/결제 회귀 검증이다.
 
@@ -89,6 +89,8 @@
 2026-05-31 00:49 KST 기준 4번 한화생명 0원 quote blocker를 공식 carrier quote probe로 1차 해소했다. 한화생명 공식 상품 페이지 `CMS00012`와 계산 API 기준 상품 버전 55, 기준일 20260529를 확인했고, 100세 만기, 20년납, 월납, 주계약가입금액 1,000만원 조건으로 표준체형/비흡연체형 34세·44세 남녀 총 8개 숫자 KRW quote를 확보했다. 공식 페이지 예시 40세 남성/여성 표준체형과 계산 API 결과도 일치한다. 이번 단계는 DB write 없이 스크립트와 산출물만 추가했으며, 검증은 `../05_QA_Validation/42_HANWHA_LIFE_ZERO_QUOTE_BLOCKER_PROBE_2026_05_31.md`에 기록한다. 다음 작업은 한화생명 carrier quote를 seed/DB에 반영해 source-backed 추천 snapshot을 3개에서 5개로 확대하거나, 병렬로 신한라이프 일반형 blocker를 계속 탐색하는 것이다.
 
 2026-05-31 01:09 KST 기준 7번 추천 snapshot 확대의 seed 준비를 한화생명 2개 source에 대해 완료했다. `seed.ts`는 적용 시 한화생명 표준체형/비흡연체형 source를 `approved`로 승격하고, 공식 carrier quote 8건을 삽입/승인하며, 기존 보험다모아 `0원` quote 8건을 `rejected`로 내리고, `insurance_products` snapshot 2건을 추가한다. 이번 단계는 DB write 없이 seed/data/docs만 변경하며, 검증은 `../05_QA_Validation/43_HANWHA_RECOMMENDATION_SNAPSHOT_SEED_2026_05_31.md`에 기록한다. 다음 작업은 운영 DB 백업 후 seed 적용과 적용 결과 검증이다. 적용 완료 후 source-backed active 추천 상품은 KDB 1건, 교보라이프플래닛 2건, 한화생명 2건으로 총 5건이 된다.
+
+2026-05-31 01:37 KST 기준 한화생명 추천 snapshot 운영 DB 적용을 완료했다. 백업 후 `src/lib/db/seed.ts`를 실행해 한화생명 표준체형/비흡연체형 source 2건을 `approved`로 승격하고, 공식 carrier quote 8건을 삽입/승인했으며, `insurance_products` snapshot 2건을 추가했다. 운영 DB 기준 source-backed active 추천 상품은 KDB 1건, 교보라이프플래닛 2건, 한화생명 2건으로 총 5건이다. 단, 기존 보험다모아 `0원` quote는 seed target 8개 ID 중 운영 DB에 실제 존재하던 4건만 `rejected` 처리됐다. 이전 quote row 적용 단계에서 semantic duplicate skip으로 표준체형 4건이 DB에 없었기 때문에 나머지 4건 update는 no-op이었다. 적용 검증은 `../05_QA_Validation/44_HANWHA_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_31.md`에 기록한다. 다음 작업은 신한라이프 일반형 공식 문서 endpoint 탐색과 `needs_review=6`, `raw=11` source의 추천 후보 정리다.
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 매칭 키워드 정리 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.
