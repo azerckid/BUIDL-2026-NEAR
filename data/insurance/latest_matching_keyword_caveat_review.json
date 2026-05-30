@@ -1,0 +1,384 @@
+{
+  "metadata": {
+    "reviewed_at": "2026-05-30T14:41:00+09:00",
+    "timezone": "Asia/Seoul",
+    "reviewer": "codex_matching_keyword_review",
+    "output_version": "1.0",
+    "scope": "KDB Life, Hanwha Life, and Kyobo Lifeplanet matching keyword and caveat review for first recommendation snapshot preparation",
+    "input_seed": "src/lib/db/seed.ts",
+    "input_quote_probe": "data/insurance/latest_premium_quote_probe.json",
+    "input_variant_reviews": [
+      "data/insurance/latest_quote_only_source_document_variant_review.json",
+      "data/insurance/latest_kdb_shinhan_variant_resolution.json"
+    ],
+    "official_pdf_text_extracted": true,
+    "db_write_performed": false,
+    "seed_file_changed": false,
+    "recommendation_snapshot_changed": false
+  },
+  "summary": {
+    "source_candidates_reviewed": 5,
+    "matching_ready_sources": 5,
+    "snapshot_price_ready_sources": 3,
+    "premium_blocked_sources": 2,
+    "quote_rows_reviewed": 20,
+    "numeric_quote_rows": 12,
+    "zero_value_quote_rows": 8,
+    "active_recommendation_snapshot_rows_added": 0,
+    "recommended_first_snapshot_sources": [
+      "src_kdb_life_direct_cancer_202605",
+      "src_kyobo_lifeplanet_cancer_nonsmoker_202605",
+      "src_kyobo_lifeplanet_cancer_standard_202605"
+    ],
+    "premium_blocked_snapshot_sources": [
+      "src_hanwha_life_e_cancer_202604",
+      "src_hanwha_life_e_cancer_nonsmoker_202604"
+    ]
+  },
+  "risk_target_policy": {
+    "coverage_category": "oncology",
+    "matching_strategy": "risk_target",
+    "recommended_risk_targets": [
+      "pancreatic_cancer",
+      "liver_cancer",
+      "lung_cancer",
+      "breast_cancer",
+      "colon_cancer"
+    ],
+    "reason": "The current DNA risk key dictionary supports the five oncology targets above. Product terms also mention thyroid, prostate, skin, in-situ, borderline tumor, and other small-cancer or similar-cancer benefit classes, but those are not mapped as separate risk_targets unless the schema gains matching DNA flags.",
+    "excluded_from_risk_targets": [
+      "thyroid_cancer",
+      "prostate_cancer",
+      "skin_cancer",
+      "in_situ_cancer",
+      "borderline_tumor"
+    ]
+  },
+  "decisions": [
+    {
+      "provider": "한화생명",
+      "product_source_id": "src_hanwha_life_e_cancer_202604",
+      "carrier_id": "carrier_hanwha_life",
+      "e_insmarket_product_code": "L01C009000009",
+      "raw_product_name": "한화생명 e암보험(비갱신형)(무)(표준체형)",
+      "current_source_review_status": "needs_review",
+      "recommended_source_review_status": "needs_review",
+      "recommended_matching_review_status": "matching_ready_premium_blocked",
+      "recommended_coverage_category": "oncology",
+      "recommended_matching_strategy": "risk_target",
+      "recommended_risk_targets": [
+        "pancreatic_cancer",
+        "liver_cancer",
+        "lung_cancer",
+        "breast_cancer",
+        "colon_cancer"
+      ],
+      "coverage_details_candidate": {
+        "coverage_category": "oncology",
+        "matching_strategy": "risk_target",
+        "risk_targets": [
+          "pancreatic_cancer",
+          "liver_cancer",
+          "lung_cancer",
+          "breast_cancer",
+          "colon_cancer"
+        ],
+        "primary_benefit_terms": [
+          "암진단자금",
+          "특정 고액치료비관련 암진단자금",
+          "중증 갑상선암 진단자금",
+          "특정 소액암 진단자금",
+          "유사암 진단자금"
+        ],
+        "variant_terms": [
+          "표준체형",
+          "비갱신형",
+          "해약환급금 미지급형"
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "보험다모아 quote row가 전부 0원이라 대표 월 보험료나 사용자 추천 가격으로 사용할 수 없다.",
+        "암, 특정 고액치료비관련암, 중증 갑상선암, 특정 소액암은 가입 후 90일 보장 제외 조건이 있다.",
+        "계약 초기에는 암 급부별 감액지급 조건이 있으므로 카드 caveat에 표시해야 한다.",
+        "직결장암, 유방암, 여성생식기암, 전립선암, 기타피부암, 갑상선암, 대장점막내암, 제자리암, 경계성종양은 일반암과 급부가 다르다.",
+        "해약환급금 미지급형은 보험료 납입기간 중 해지 시 해약환급금을 지급하지 않는 조건이 있다."
+      ],
+      "quote_review": {
+        "quote_source": "data/insurance/latest_premium_quote_probe.json",
+        "quote_rows": 4,
+        "numeric_quote_rows": 0,
+        "condition_ids": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premium_text_values": [
+          "0원"
+        ],
+        "quote_review_status": "blocked_zero_value"
+      },
+      "snapshot_readiness": "blocked_until_nonzero_premium_or_explicit_no_price_snapshot_policy",
+      "next_action": "Do not include this source in the first active insurance_products snapshot until premium basis is resolved."
+    },
+    {
+      "provider": "한화생명",
+      "product_source_id": "src_hanwha_life_e_cancer_nonsmoker_202604",
+      "carrier_id": "carrier_hanwha_life",
+      "e_insmarket_product_code": "L01C009000010",
+      "raw_product_name": "한화생명 e암보험(비갱신형)(무)(비흡연체형)",
+      "current_source_review_status": "raw",
+      "recommended_source_review_status": "needs_review",
+      "recommended_matching_review_status": "matching_ready_premium_blocked",
+      "recommended_coverage_category": "oncology",
+      "recommended_matching_strategy": "risk_target",
+      "recommended_risk_targets": [
+        "pancreatic_cancer",
+        "liver_cancer",
+        "lung_cancer",
+        "breast_cancer",
+        "colon_cancer"
+      ],
+      "coverage_details_candidate": {
+        "coverage_category": "oncology",
+        "matching_strategy": "risk_target",
+        "risk_targets": [
+          "pancreatic_cancer",
+          "liver_cancer",
+          "lung_cancer",
+          "breast_cancer",
+          "colon_cancer"
+        ],
+        "primary_benefit_terms": [
+          "암진단자금",
+          "특정 고액치료비관련 암진단자금",
+          "중증 갑상선암 진단자금",
+          "특정 소액암 진단자금",
+          "유사암 진단자금"
+        ],
+        "variant_terms": [
+          "비흡연체형",
+          "비갱신형",
+          "해약환급금 미지급형"
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "보험다모아 quote row가 전부 0원이라 대표 월 보험료나 사용자 추천 가격으로 사용할 수 없다.",
+        "암, 특정 고액치료비관련암, 중증 갑상선암, 특정 소액암은 가입 후 90일 보장 제외 조건이 있다.",
+        "계약 초기에는 암 급부별 감액지급 조건이 있으므로 카드 caveat에 표시해야 한다.",
+        "비흡연체형은 만 19세 이상, 표준체형 가입 가능 상태, 최근 1년 비흡연 등 가입 조건이 있다.",
+        "보험기간 중 30일 이상 흡연하거나 고지 의무를 위반하면 표준체형 보험료 적용, 정산차액, 보험가입금액 감액 caveat가 발생할 수 있다."
+      ],
+      "quote_review": {
+        "quote_source": "data/insurance/latest_premium_quote_probe.json",
+        "quote_rows": 4,
+        "numeric_quote_rows": 0,
+        "condition_ids": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premium_text_values": [
+          "0원"
+        ],
+        "quote_review_status": "blocked_zero_value"
+      },
+      "snapshot_readiness": "blocked_until_nonzero_premium_or_explicit_no_price_snapshot_policy",
+      "next_action": "Do not include this source in the first active insurance_products snapshot until premium basis is resolved."
+    },
+    {
+      "provider": "KDB생명",
+      "product_source_id": "src_kdb_life_direct_cancer_202605",
+      "carrier_id": "carrier_kdb_life",
+      "e_insmarket_product_code": "L33C009000025",
+      "raw_product_name": "KDB다이렉트 암보험(해약환급금 미지급형III)(무)",
+      "current_source_review_status": "raw",
+      "recommended_source_review_status": "needs_review",
+      "recommended_matching_review_status": "matching_ready_snapshot_candidate",
+      "recommended_coverage_category": "oncology",
+      "recommended_matching_strategy": "risk_target",
+      "recommended_risk_targets": [
+        "pancreatic_cancer",
+        "liver_cancer",
+        "lung_cancer",
+        "breast_cancer",
+        "colon_cancer"
+      ],
+      "coverage_details_candidate": {
+        "coverage_category": "oncology",
+        "matching_strategy": "risk_target",
+        "risk_targets": [
+          "pancreatic_cancer",
+          "liver_cancer",
+          "lung_cancer",
+          "breast_cancer",
+          "colon_cancer"
+        ],
+        "primary_benefit_terms": [
+          "암진단보험금 I",
+          "암진단보험금 II",
+          "암진단보험금 III",
+          "소액암진단보험금"
+        ],
+        "variant_terms": [
+          "해약환급금 미지급형III",
+          "보험다모아 비갱신 암보험 query"
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "암진단보험금 I/II/III은 가입 후 90일 보장 제외 조건이 있다.",
+        "암진단보험금과 소액암진단보험금은 가입 후 2년간 50% 감액지급 조건이 있다.",
+        "기타피부암, 특정갑상선암, 대장점막내암, 비침습 방광암, 제자리암, 경계성종양은 소액암 급부로 분리된다.",
+        "해약환급금 미지급형III는 보험료 납입기간 중 해지 시 해약환급금이 없고 납입기간 이후에도 표준형보다 적다.",
+        "보험다모아 query는 비갱신형 조건으로 수집됐지만 source row renewal_type은 별도 seed PR에서 non_renewable 후보로 명시해야 한다."
+      ],
+      "quote_review": {
+        "quote_source": "data/insurance/latest_premium_quote_probe.json",
+        "quote_rows": 4,
+        "numeric_quote_rows": 4,
+        "condition_premiums_krw": {
+          "age34_male": 11230,
+          "age34_female": 8020,
+          "age44_male": 13340,
+          "age44_female": 8650
+        },
+        "quote_review_status": "needs_review_numeric_values_available"
+      },
+      "snapshot_readiness": "candidate_after_source_status_and_quote_approval_pr",
+      "next_action": "Use this source as one of the first recommendation snapshot candidates after quote rows and product source review status are explicitly approved."
+    },
+    {
+      "provider": "교보라이프플래닛",
+      "product_source_id": "src_kyobo_lifeplanet_cancer_nonsmoker_202605",
+      "carrier_id": "carrier_kyobo_lifeplanet",
+      "e_insmarket_product_code": "L43C009000022",
+      "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 비흡연체)",
+      "current_source_review_status": "raw",
+      "recommended_source_review_status": "needs_review",
+      "recommended_matching_review_status": "matching_ready_snapshot_candidate",
+      "recommended_coverage_category": "oncology",
+      "recommended_matching_strategy": "risk_target",
+      "recommended_risk_targets": [
+        "pancreatic_cancer",
+        "liver_cancer",
+        "lung_cancer",
+        "breast_cancer",
+        "colon_cancer"
+      ],
+      "coverage_details_candidate": {
+        "coverage_category": "oncology",
+        "matching_strategy": "risk_target",
+        "risk_targets": [
+          "pancreatic_cancer",
+          "liver_cancer",
+          "lung_cancer",
+          "breast_cancer",
+          "colon_cancer"
+        ],
+        "primary_benefit_terms": [
+          "일반암 진단보험금",
+          "고액암 진단보험금",
+          "유방암 및 전립선암 진단보험금",
+          "소액암 및 유사암 진단보험금",
+          "All 페이백 일반암 진단보험금"
+        ],
+        "variant_terms": [
+          "비흡연체",
+          "비갱신형",
+          "해약환급금 미지급형"
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "일반암, 고액암, 유방암 및 전립선암, All 페이백 일반암은 가입 후 90일 보장 제외 조건이 있다.",
+        "가입 후 1년 미만에는 일반암, 고액암, 유방암 및 전립선암, 소액암 및 유사암 등 주요 급부가 50% 감액지급된다.",
+        "유방암, 전립선암, 기타피부암, 중증 이외 갑상선암, 대장점막내암, 경계성종양, 제자리암은 일반암과 다른 급부로 표시해야 한다.",
+        "해약환급금 미지급형은 보험료 납입기간 중 해지 시 해약환급금이 없고 납입완료 이후에는 지급형 상품 해약환급금의 50%를 지급한다.",
+        "비흡연체는 최근 1년 비흡연, 만 19세 이상, 흡연 검사 등 가입 조건이 있으며 보험기간 중 흡연 상태가 바뀌면 표준체 보험료 적용이나 보험가입금액 감액 caveat가 발생할 수 있다."
+      ],
+      "quote_review": {
+        "quote_source": "data/insurance/latest_premium_quote_probe.json",
+        "quote_rows": 4,
+        "numeric_quote_rows": 4,
+        "condition_premiums_krw": {
+          "age34_male": 10710,
+          "age34_female": 8410,
+          "age44_male": 12910,
+          "age44_female": 9120
+        },
+        "quote_review_status": "needs_review_numeric_values_available"
+      },
+      "snapshot_readiness": "candidate_after_source_status_and_quote_approval_pr",
+      "next_action": "Use this source as one of the first recommendation snapshot candidates after quote rows and product source review status are explicitly approved."
+    },
+    {
+      "provider": "교보라이프플래닛",
+      "product_source_id": "src_kyobo_lifeplanet_cancer_standard_202605",
+      "carrier_id": "carrier_kyobo_lifeplanet",
+      "e_insmarket_product_code": "L43C009000019",
+      "raw_product_name": "(무)교보라플 비갱신암보험(해약환급금 미지급형, 표준체)",
+      "current_source_review_status": "raw",
+      "recommended_source_review_status": "needs_review",
+      "recommended_matching_review_status": "matching_ready_snapshot_candidate",
+      "recommended_coverage_category": "oncology",
+      "recommended_matching_strategy": "risk_target",
+      "recommended_risk_targets": [
+        "pancreatic_cancer",
+        "liver_cancer",
+        "lung_cancer",
+        "breast_cancer",
+        "colon_cancer"
+      ],
+      "coverage_details_candidate": {
+        "coverage_category": "oncology",
+        "matching_strategy": "risk_target",
+        "risk_targets": [
+          "pancreatic_cancer",
+          "liver_cancer",
+          "lung_cancer",
+          "breast_cancer",
+          "colon_cancer"
+        ],
+        "primary_benefit_terms": [
+          "일반암 진단보험금",
+          "고액암 진단보험금",
+          "유방암 및 전립선암 진단보험금",
+          "소액암 및 유사암 진단보험금",
+          "All 페이백 일반암 진단보험금"
+        ],
+        "variant_terms": [
+          "표준체",
+          "비갱신형",
+          "해약환급금 미지급형"
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "일반암, 고액암, 유방암 및 전립선암, All 페이백 일반암은 가입 후 90일 보장 제외 조건이 있다.",
+        "가입 후 1년 미만에는 일반암, 고액암, 유방암 및 전립선암, 소액암 및 유사암 등 주요 급부가 50% 감액지급된다.",
+        "유방암, 전립선암, 기타피부암, 중증 이외 갑상선암, 대장점막내암, 경계성종양, 제자리암은 일반암과 다른 급부로 표시해야 한다.",
+        "해약환급금 미지급형은 보험료 납입기간 중 해지 시 해약환급금이 없고 납입완료 이후에는 지급형 상품 해약환급금의 50%를 지급한다.",
+        "표준체 source는 비흡연체 할인특약을 적용하지 않는 기준 상품으로 비흡연체 source와 quote row를 분리해야 한다."
+      ],
+      "quote_review": {
+        "quote_source": "data/insurance/latest_premium_quote_probe.json",
+        "quote_rows": 4,
+        "numeric_quote_rows": 4,
+        "condition_premiums_krw": {
+          "age34_male": 11320,
+          "age34_female": 8490,
+          "age44_male": 13700,
+          "age44_female": 9210
+        },
+        "quote_review_status": "needs_review_numeric_values_available"
+      },
+      "snapshot_readiness": "candidate_after_source_status_and_quote_approval_pr",
+      "next_action": "Use this source as one of the first recommendation snapshot candidates after quote rows and product source review status are explicitly approved."
+    }
+  ],
+  "next_actions": [
+    "Prepare a separate recommendation snapshot seed PR for KDB and Kyobo Lifeplanet first, because their quote rows have numeric KRW values.",
+    "Keep Hanwha Life standard and nonsmoker sources out of active recommendations until the 0 KRW quote issue is resolved or a no-price display policy is explicitly approved.",
+    "In the snapshot PR, set product source review status changes, primary_source_document_id, coverage_details_json, coverage_caveats_json, monthly_premium_krw, premium_basis, and quote approval evidence together.",
+    "Do not include Shinhan Life standard source until general standard official documents are found."
+  ]
+}
