@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 02:20
+> Last Updated: 2026-05-31 02:49
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.20
+- **상태**: Draft v2.21
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -653,6 +653,8 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 
 산출물은 `data/insurance/latest_medical_baseline_matching_review.json`, `data/insurance/latest_medical_baseline_matching_review.csv`, 검증 문서는 `../05_QA_Validation/46_MEDICAL_BASELINE_MATCHING_REVIEW_2026_05_31.md`에 둔다. 후속 seed PR은 DB손보, KB손보, 현대해상 3개 source의 `approved` 승격, quote 12건 승인, baseline `insurance_products` snapshot row 생성을 함께 다룬다.
 
+2026-05-31 02:49 KST 기준 위 3개 실손 baseline source의 seed 준비를 완료했다. `seed.ts`는 적용 시 DB손보, KB손보, 현대해상 source 3건을 `approved`로 승격하고, 보험다모아 실손의료보험 quote 12건을 `approved`로 바꾸며, baseline `insurance_products` snapshot 3건을 추가한다. 대표 보험료는 `age34_female` 조건이고, `monthly_premium_usdc`는 고정 데모 환산율 `1 USDC = 1,350 KRW`로 계산한다. 산출물은 `data/insurance/latest_medical_baseline_recommendation_snapshot_seed.json`, 검증 문서는 `../05_QA_Validation/47_MEDICAL_BASELINE_SNAPSHOT_SEED_2026_05_31.md`에 둔다. 이번 단계도 DB write는 하지 않으며, 운영 반영은 백업 후 apply PR로 분리한다.
+
 ---
 
 ## 10. 법무·신뢰 고지
@@ -714,6 +716,7 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - [x] 한화생명 carrier quote seed와 추천 snapshot 2건 준비
 - [x] 백업 후 한화생명 추천 snapshot 운영 DB 적용
 - [x] 실손의료보험 baseline 후보 4개 매칭 키워드/caveat 정리
+- [x] DB손보/KB손보/현대해상 baseline 추천 snapshot seed 준비
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
@@ -769,3 +772,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Hanwha Recommendation Snapshot Seed](../05_QA_Validation/43_HANWHA_RECOMMENDATION_SNAPSHOT_SEED_2026_05_31.md) - 한화생명 source/quote/product snapshot seed 검증
 - **QA_Validation**: [Hanwha Recommendation Snapshot DB Apply](../05_QA_Validation/44_HANWHA_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_31.md) - 한화생명 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [Medical Baseline Matching Review](../05_QA_Validation/46_MEDICAL_BASELINE_MATCHING_REVIEW_2026_05_31.md) - 실손의료보험 baseline 후보 매칭 키워드와 caveat 검수
+- **QA_Validation**: [Medical Baseline Snapshot Seed](../05_QA_Validation/47_MEDICAL_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 실손 baseline 추천 snapshot seed 준비 검증

@@ -1,0 +1,141 @@
+{
+  "metadata": {
+    "prepared_at": "2026-05-31T02:49:00+09:00",
+    "timezone": "Asia/Seoul",
+    "generator": "manual_seed_preparation",
+    "output_version": "1.0",
+    "input_matching_review": "data/insurance/latest_medical_baseline_matching_review.json",
+    "input_seed": "src/lib/db/seed.ts",
+    "db_write_performed": false,
+    "seed_file_changed": true,
+    "recommendation_snapshot_seed_changed": true
+  },
+  "summary": {
+    "source_approvals_added": 3,
+    "quote_approvals_added": 12,
+    "insurance_product_snapshots_added": 3,
+    "representative_condition_id": "age34_female",
+    "krw_per_usdc": 1350,
+    "expected_active_source_backed_products_after_apply": 8,
+    "blocked_sources_kept_out": [
+      "src_samsung_fire_direct_medical_202605",
+      "src_shinhan_life_sol_cancer_standard_202605"
+    ]
+  },
+  "baseline_policy": {
+    "coverage_category": "medical_expense",
+    "matching_strategy": "baseline",
+    "risk_targets": [],
+    "ui_lane": "basic_medical_expense_defense",
+    "reason": "실손의료보험은 특정 DNA risk key와 직접 연결하지 않고 질병/상해 의료비를 넓게 방어하는 baseline 상품으로 표시한다."
+  },
+  "source_approvals": [
+    {
+      "product_source_id": "src_db_direct_medical_202605",
+      "provider": "DB손보",
+      "raw_product_name": "(무)다이렉트 실손의료비보험2605(CM)",
+      "review_status_after_seed": "approved",
+      "representative_premium_krw": 6854,
+      "primary_source_document_id": "doc_db_direct_medical_terms_202605",
+      "document_evidence": {
+        "carrier_match_score": 1,
+        "document_types": [
+          "terms",
+          "business_method",
+          "summary"
+        ]
+      }
+    },
+    {
+      "product_source_id": "src_kb_direct_medical_202605",
+      "provider": "KB손보",
+      "raw_product_name": "KB손보 다이렉트실손의료비보장보험(무배당)(26.05)",
+      "review_status_after_seed": "approved",
+      "representative_premium_krw": 6439,
+      "primary_source_document_id": "doc_kb_direct_medical_terms_202605",
+      "document_evidence": {
+        "carrier_match_score": 1,
+        "document_types": [
+          "terms"
+        ]
+      }
+    },
+    {
+      "product_source_id": "src_hyundai_direct_medical_202605",
+      "provider": "현대해상",
+      "raw_product_name": "(무)현대해상다이렉트실손의료비보장보험(갱신형)(Hi2605)",
+      "review_status_after_seed": "approved",
+      "representative_premium_krw": 6545,
+      "primary_source_document_id": "doc_hyundai_direct_medical_terms_202605",
+      "document_evidence": {
+        "carrier_match_score": 1,
+        "document_types": [
+          "terms"
+        ]
+      }
+    }
+  ],
+  "quote_approval_ids": [
+    "quote_src_db_direct_medical_202605_age34_male_60456bed3452",
+    "quote_src_db_direct_medical_202605_age34_female_b141dc7c5700",
+    "quote_src_db_direct_medical_202605_age44_male_26615bdcb076",
+    "quote_src_db_direct_medical_202605_age44_female_58dcc145a6b7",
+    "quote_src_kb_direct_medical_202605_age34_male_60456bed3452",
+    "quote_src_kb_direct_medical_202605_age34_female_b141dc7c5700",
+    "quote_src_kb_direct_medical_202605_age44_male_26615bdcb076",
+    "quote_src_kb_direct_medical_202605_age44_female_58dcc145a6b7",
+    "quote_src_hyundai_direct_medical_202605_age34_male_60456bed3452",
+    "quote_src_hyundai_direct_medical_202605_age34_female_b141dc7c5700",
+    "quote_src_hyundai_direct_medical_202605_age44_male_26615bdcb076",
+    "quote_src_hyundai_direct_medical_202605_age44_female_58dcc145a6b7"
+  ],
+  "insurance_product_snapshots": [
+    {
+      "id": "prod_db_direct_medical_202605",
+      "product_source_id": "src_db_direct_medical_202605",
+      "name": "DB손보 다이렉트 실손의료비보험",
+      "provider": "DB손보",
+      "coverage_category": "medical_expense",
+      "matching_strategy": "baseline",
+      "risk_targets": [],
+      "monthly_premium_krw": 6854,
+      "monthly_premium_usdc": 5.08,
+      "primary_source_document_id": "doc_db_direct_medical_terms_202605"
+    },
+    {
+      "id": "prod_kb_direct_medical_202605",
+      "product_source_id": "src_kb_direct_medical_202605",
+      "name": "KB손보 다이렉트실손의료비보장보험",
+      "provider": "KB손보",
+      "coverage_category": "medical_expense",
+      "matching_strategy": "baseline",
+      "risk_targets": [],
+      "monthly_premium_krw": 6439,
+      "monthly_premium_usdc": 4.77,
+      "primary_source_document_id": "doc_kb_direct_medical_terms_202605"
+    },
+    {
+      "id": "prod_hyundai_direct_medical_202605",
+      "product_source_id": "src_hyundai_direct_medical_202605",
+      "name": "현대해상다이렉트실손의료비보장보험",
+      "provider": "현대해상",
+      "coverage_category": "medical_expense",
+      "matching_strategy": "baseline",
+      "risk_targets": [],
+      "monthly_premium_krw": 6545,
+      "monthly_premium_usdc": 4.85,
+      "primary_source_document_id": "doc_hyundai_direct_medical_terms_202605"
+    }
+  ],
+  "safety": {
+    "legacy_demo_products_remain_archived": true,
+    "samsung_fire_kept_blocked_until_product_specific_document": true,
+    "db_apply_required_in_follow_up_pr": true,
+    "operational_backup_required_before_apply": true
+  },
+  "next_actions": [
+    "운영 DB 백업 후 src/lib/db/seed.ts를 실행한다.",
+    "적용 후 source approved +3, quote approved +12, active source-backed product +3을 검증한다.",
+    "dashboard에서 baseline 상품이 risk_target 상품과 구분되어 표시되는지 확인한다."
+  ]
+}
