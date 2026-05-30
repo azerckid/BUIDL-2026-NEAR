@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-30 15:46
+> Last Updated: 2026-05-30 16:26
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-30 (데모 보험상품 운영 추천 제거 PR)
+- **최종 수정일**: 2026-05-30 (데모 보험상품 archive DB 적용)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.13
+- **상태**: Draft v3.14
 - **phase**: Phase 2
 
 ---
@@ -60,7 +60,7 @@
 
 | 트랙 | 핵심 질문 | 다음 작업 |
 |---|---|---|
-| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | legacy demo 보험상품 archive 적용 후 추천 카드에서 대표 보험료와 조건별 approved quote matrix를 분리 표시 |
+| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | 추천 카드에서 대표 보험료와 조건별 approved quote matrix를 분리 표시 |
 | NEAR 프라이버시 기술 | IronClaw v0.28.2까지의 업데이트가 블로커 2~3을 해소하는가 | WIT-compatible WASM runtime, `tool_install`, WASM 실행 결과 반환 경로 실측 |
 | 매칭 브리지 | AI 해석과 DB 상품 추천의 경계를 어떻게 유지할 것인가 | `riskProfile.flags` -> `insurance_products.risk_targets` 결정론적 매칭 유지 |
 
@@ -100,6 +100,8 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 2026-05-30 15:31 KST 기준 첫 source-backed active 추천 snapshot seed를 운영 Turso DB에 백업 후 적용했다. 적용 후 `insurance_products=8`, source-backed active product 3건, `insurance_product_sources.review_status` 분포 `approved=3`/`needs_review=7`/`raw=12`, `insurance_premium_quotes.review_status` 분포 `approved=12`/`needs_review=72`를 확인했다. 검증은 `../05_QA_Validation/32_FIRST_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_30.md`에 둔다. 다음 작업은 추천 카드에서 대표 보험료와 조건별 approved quote matrix를 분리 표시하고, 기존 demo 상품 5건을 계속 노출할지 source-backed 상품만 노출할지 정책을 정하는 것이다.
 
 2026-05-30 15:46 KST 기준 운영 추천 경로는 source-backed 상품만 사용하도록 전환한다. `matchProducts`, dashboard, cart 경로는 `is_active=1`, `catalog_status=approved`, `product_source_id IS NOT NULL` 조건을 통과한 상품만 읽는다. `seed.ts`는 fresh DB에 legacy demo 상품을 더 이상 넣지 않고, 다음 운영 seed 적용 시 `prod_001`~`prod_005`를 `archived`로 내린다. 이번 단계는 DB write 없이 코드와 문서만 변경하며, 운영 반영은 백업 후 apply PR로 분리한다. 검증은 `../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md`에 둔다. 다음 작업은 운영 DB 백업 후 seed 적용으로 legacy demo active 상품 0건을 확인하고, 추천 카드에서 대표 보험료와 조건별 approved quote matrix를 분리 표시하는 것이다.
+
+2026-05-30 16:26 KST 기준 운영 Turso DB에 legacy demo 상품 archive를 백업 후 적용했다. 적용 후 `prod_001`~`prod_005`는 모두 `catalog_status=archived`, `is_active=0`이고, active product total은 source-backed 상품 3건만 남았다. `insurance_product_sources.review_status` 분포는 `approved=3`/`needs_review=7`/`raw=12`, `insurance_premium_quotes.review_status` 분포는 `approved=12`/`needs_review=72`로 유지됐다. 검증은 `../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md`에 둔다. 다음 작업은 추천 카드 UI에서 대표 보험료와 조건별 approved quote matrix를 분리 표시하는 것이다.
 
 ## 2. 세부 실행 계획 (Detailed Execution)
 
@@ -1166,6 +1168,7 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 - [KDB Source Document DB 적용 검증](../05_QA_Validation/28_KDB_SOURCE_DOCUMENTS_DB_APPLY_2026_05_30.md)
 - [신한라이프 일반형 공식 문서 Endpoint 탐색](../05_QA_Validation/29_SHINHAN_STANDARD_DOCUMENT_ENDPOINT_PROBE_2026_05_30.md)
 - [데모 보험상품 운영 추천 제거 검증](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md)
+- [데모 보험상품 Archive DB 적용 검증](../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md)
 - [보험상품 매칭 키워드 정리 정책](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md)
 - [AI 매칭 파이프라인](./AI_MATCHING_PIPELINE.md)
 - [두 기둥 기반 서비스 업데이트 계획](./03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md)

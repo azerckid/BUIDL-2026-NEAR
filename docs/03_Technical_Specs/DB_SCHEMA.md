@@ -1,6 +1,6 @@
 # [기술 명세] 데이터 모델 및 DB 스키마 상세 명세
 > Created: 2026-04-01 00:00
-> Last Updated: 2026-05-30 15:46
+> Last Updated: 2026-05-30 16:26
 
 - **작성일**: 2026-04-01
 - **최종 수정일**: 2026-05-30
@@ -484,7 +484,7 @@ export const insuranceProducts = sqliteTable("insurance_products", {
 
 ## 5. 시드 데이터 정책
 
-2026-05-30 기준 해커톤 데모용 mock 보험상품 5건은 운영 추천 경로에서 제거한다. `src/lib/db/seed.ts`는 fresh DB에 demo product를 더 이상 insert하지 않고, 기존 운영 DB에 남아 있는 `prod_001`~`prod_005`는 다음 seed 적용 시 `catalog_status=archived`, `is_active=0`으로 내린다.
+2026-05-30 기준 해커톤 데모용 mock 보험상품 5건은 운영 추천 경로에서 제거했다. `src/lib/db/seed.ts`는 fresh DB에 demo product를 더 이상 insert하지 않고, 기존 운영 DB에 남아 있던 `prod_001`~`prod_005`는 백업 후 `catalog_status=archived`, `is_active=0`으로 내렸다.
 
 운영 추천 가능 상품은 아래 조건을 모두 만족해야 한다.
 
@@ -496,7 +496,7 @@ and(
 );
 ```
 
-2026-05-30 첫 source-backed 추천 snapshot 기준 active 추천 상품은 KDB생명 1건과 교보라이프플래닛 2건이다. 상세 적용 검증은 `../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md`에 둔다.
+2026-05-30 첫 source-backed 추천 snapshot 기준 active 추천 상품은 KDB생명 1건과 교보라이프플래닛 2건이다. 상세 적용 검증은 `../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md`와 `../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md`에 둔다.
 
 ---
 
@@ -509,3 +509,4 @@ and(
 - [조건별 보험료 Quote Matrix 관리 방침](../04_Logic_Progress/04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md)
 - [보험료 Quote Matrix 재조회 PoC](../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md)
 - [데모 보험상품 운영 추천 제거 검증](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md)
+- [데모 보험상품 Archive DB 적용 검증](../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md)

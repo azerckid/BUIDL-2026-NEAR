@@ -1,9 +1,9 @@
 # [QA] 데모 보험상품 운영 추천 제거 검증
 > Created: 2026-05-30 15:46
-> Last Updated: 2026-05-30 15:46
+> Last Updated: 2026-05-30 16:26
 
 - **레이어**: 05_QA_Validation
-- **상태**: Draft v1.0
+- **상태**: Superseded by DB apply
 - **범위**: legacy demo insurance products 5건을 운영 추천, 대시보드, 카트 경로에서 제외하는 변경 검증
 - **결론**: 첫 source-backed 추천 snapshot이 운영 DB에 적용됐으므로, 사용자가 보는 보험 추천 경로는 `product_source_id`가 있는 실제 원천 기반 상품만 사용한다. 기존 demo 상품은 다음 seed 적용 시 `catalog_status=archived`, `is_active=0`으로 내려야 한다.
 
@@ -87,3 +87,4 @@
 - **Logic_Progress**: [로드맵](../04_Logic_Progress/ROADMAP.md) - 두 기둥 실행 트랙과 Track A 진행 상황
 - **Logic_Progress**: [조건별 보험료 Quote Matrix 관리 방침](../04_Logic_Progress/04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md) - 대표 보험료와 조건별 quote 분리 정책
 - **QA_Validation**: [First Recommendation Snapshot DB Apply](./32_FIRST_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_30.md) - 운영 DB에 첫 source-backed 상품 3건을 적용한 검증 기록
+- **QA_Validation**: [Demo Products Archive DB Apply](./34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md) - legacy demo 상품 archive 운영 DB 적용 검증
