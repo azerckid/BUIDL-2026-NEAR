@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 카탈로그 스키마 확장안
 > Created: 2026-05-27 22:43
-> Last Updated: 2026-05-29 01:25
+> Last Updated: 2026-05-30 13:52
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Approved Design v1.6
+- **상태**: Approved Design v1.7
 - **범위**: 실제 한국 보험상품 수집 데이터, 공식 문서 hash, KRW 보험료, 실손의료보험, 서비스 추천 snapshot 스키마
 - **결론**: 원천 수집 테이블과 서비스 추천 테이블을 분리한다. `insurance_product_sources`, `insurance_source_documents`, `insurance_premium_quotes`에 공식 출처와 조건별 보험료를 보존하고, 질병-보장 매핑과 매칭 키워드 정리가 끝난 상품만 확장된 `insurance_products`로 발행한다.
 
@@ -246,6 +246,8 @@ baseline 상품:
 ```
 
 서비스 화면은 `insurance_products`만 읽고, 상세 출처/감사 화면은 source tables를 참조한다.
+
+실제 발행 PR의 세부 체크리스트는 [보험상품 매칭 키워드 정리 정책](./03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md) 7절을 기준으로 한다. source row가 존재하더라도 원천 근거, 매칭 필드, 보험료 기준, snapshot row 검증을 통과하기 전에는 `insurance_products.is_active=1`로 노출하지 않는다.
 
 ---
 

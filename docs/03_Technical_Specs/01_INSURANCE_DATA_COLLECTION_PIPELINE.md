@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-30 03:06
+> Last Updated: 2026-05-30 13:52
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.8
+- **상태**: Draft v2.9
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -490,7 +490,7 @@ KDB생명 `src_kdb_life_direct_cancer_202605`는 `40869_summary`가 상품요약
 
 적용 후 `insurance_product_sources.review_status` 분포는 `needs_review=7`, `raw=15` 그대로다. 이번 단계는 KDB 공식 문서 근거 연결만 수행하며, 추천 가능 상품 승격이나 quote row 승인에는 관여하지 않는다.
 
-적용 검증 문서는 `../05_QA_Validation/28_KDB_SOURCE_DOCUMENTS_DB_APPLY_2026_05_30.md`에 둔다. 다음 단계는 신한라이프 일반형 공식 문서 endpoint 탐색과 `raw`/`needs_review` source의 매칭 키워드, caveat 정리다.
+적용 검증 문서는 `../05_QA_Validation/28_KDB_SOURCE_DOCUMENTS_DB_APPLY_2026_05_30.md`에 둔다. 다음 단계는 신한라이프 일반형 공식 문서 endpoint 탐색과 `raw`/`needs_review` source의 매칭 키워드, caveat 정리다. source row를 실제 사용자 추천으로 발행할 때는 [보험상품 매칭 키워드 정리 정책](./03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md) 7절의 추천 snapshot 발행 체크리스트를 통과해야 한다.
 
 ---
 
@@ -540,6 +540,7 @@ KDB생명 `src_kdb_life_direct_cancer_202605`는 `40869_summary`가 상품요약
 - [x] 신한라이프 표준형/해약환급금 미지급형 문서 관계 판정
 - [x] KDB생명 source document 2건 seed 후보 추가
 - [x] 백업 후 KDB생명 source document 2건 DB 적용
+- [x] 추천 snapshot 발행 기준과 PR 체크리스트 문서화
 - [ ] 신한라이프 일반형 공식 문서 endpoint 추가 탐색
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강

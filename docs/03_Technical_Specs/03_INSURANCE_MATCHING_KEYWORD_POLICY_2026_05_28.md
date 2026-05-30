@@ -1,10 +1,10 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-05-29 00:45
+> Last Updated: 2026-05-30 13:52
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.1
-- **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준
+- **상태**: Draft v1.2
+- **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준, 추천 snapshot 발행 기준
 - **결론**: 이 프로젝트에서 말하는 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DB에 보험상품을 넣기 전에 DNA risk target과 매칭할 수 있도록 `coverage_category`, `risk_targets`, `matching_strategy`, `coverage_caveats_json`을 정리하는 내부 데이터 정규화 작업이다.
 
 ---
@@ -102,25 +102,86 @@ DNA 분석 결과
 
 ---
 
-## 7. 현재 적용 상태
+## 7. 추천 snapshot 발행 체크리스트
 
-2026-05-29 기준 보험다모아 P0 샘플은 56개이며, 공식 문서 hash와 매칭 키워드 정리 샘플은 7개다. quote matrix에서 확인된 추가 15개 상품은 source catalog raw 후보로만 반영한다.
+`insurance_product_sources`와 `insurance_source_documents`는 원천 증거를 보존하는 테이블이다. 사용자가 실제로 보는 추천 카드는 `insurance_products` snapshot에서만 나온다. 따라서 원천 row가 존재한다는 사실과 추천 노출 가능 상태는 분리해서 판단한다.
+
+추천 snapshot 발행 PR은 최소한 아래 체크리스트를 통과해야 한다.
+
+### 7-1. 원천 근거 체크
+
+| 항목 | 발행 기준 |
+|---|---|
+| source row | `insurance_product_sources.id`가 존재하고 보험사, 상품명, 원문 URL이 정규화되어야 한다 |
+| source 상태 | `insurance_product_sources.review_status=approved`로 승격할 근거가 PR에 포함되어야 한다 |
+| 대표 문서 | `primary_source_document_id`로 연결할 약관, 상품요약서, 사업방법서 중 최소 1개가 있어야 한다 |
+| 문서 hash | `file_hash_sha256`은 64자 SHA-256이어야 하며, variant가 다른 문서를 재사용하면 안 된다 |
+| 확인일 | `source_checked_at`과 원천 문서의 `retrieved_at` 기준일을 기록해야 한다 |
+
+### 7-2. 매칭 필드 체크
+
+| 항목 | 발행 기준 |
+|---|---|
+| `coverage_category` | 현재 enum 중 하나로 결정한다. 맞지 않으면 snapshot 발행 전에 category 확장 PR을 먼저 낸다 |
+| `matching_strategy=risk_target` | `risk_targets`는 1개 이상이어야 하며, 실제 보장명과 DNA risk key가 과장 없이 연결되어야 한다 |
+| `matching_strategy=baseline` | 실손의료보험처럼 특정 DNA risk key에 직접 연결하지 않는 상품만 사용하며, `risk_targets=[]`를 유지한다 |
+| `matching_strategy=manual` | enum 확장 전 임시 상태로만 사용하고, 사용자 추천 노출은 보류한다 |
+| `coverage_details_json` | 주요 담보, 보장금액, 급부 차이를 카드/상세 화면이 읽을 수 있게 구조화한다 |
+| `coverage_caveats_json` | 면책기간, 감액기간, 갱신형, 소액암/유사암 급부 차이, 가입 조건을 반드시 포함한다 |
+
+### 7-3. 보험료 필드 체크
+
+| 항목 | 발행 기준 |
+|---|---|
+| 대표 보험료 | `monthly_premium_krw`와 `premium_basis`는 같은 조건을 가리켜야 한다 |
+| 조건별 보험료 | 나이, 성별, 납입기간별 가격은 `insurance_premium_quotes`에 남기고, 승인 전에는 추천 카드의 확정 가격처럼 표시하지 않는다 |
+| quote 상태 | 조건별 보험료를 UI에 노출하려면 해당 quote row의 `review_status=approved` 근거가 있어야 한다 |
+| USDC 금액 | `monthly_premium_usdc`는 checkout/demo 결제 경로 때문에 필수다. KRW-only 상품은 환산 기준과 시각을 PR에 남긴다 |
+
+### 7-4. snapshot row 체크
+
+| 항목 | 발행 기준 |
+|---|---|
+| `product_source_id` | 원천 source row를 FK로 연결한다 |
+| `primary_source_document_id` | 추천 판단의 대표 근거 문서를 FK로 연결한다 |
+| `catalog_status` | 최초 발행은 `approved`, 문서 hash 변경 또는 매칭 의심 시 `needs_review`, 판매 중단 시 `archived`로 둔다 |
+| `is_active` | 모든 체크가 끝난 상품만 `1`로 둔다. 준비 중 상품은 source table에만 남긴다 |
+| UI 문구 | 추천 이유, 출처, 확인일, caveat, 보험료 기준이 카드 또는 상세 화면에서 확인 가능해야 한다 |
+
+### 7-5. 발행 PR 필수 검증
+
+1. `insurance_product_sources.review_status` 변경 수와 대상 source id를 명시한다.
+2. 신규 또는 갱신되는 `insurance_products` row 수를 명시한다.
+3. `risk_targets`가 현재 DNA risk key 사전에 존재하는지 확인한다.
+4. `baseline` 상품이 위험 점수 랭킹에 섞이지 않는지 확인한다.
+5. 대표 보험료와 조건별 quote를 UI에서 구분해 표시하는지 확인한다.
+6. 기존 active demo 상품 수와 추천 결과가 의도치 않게 변하지 않았는지 확인한다.
+7. 문서 hash 변경, 판매 중단, 상품명 variant 발견 시 rollback 또는 `catalog_status=needs_review` 처리 방안을 PR에 남긴다.
+
+첫 실제 상품 발행 PR은 KDB, 한화생명, 교보라이프플래닛처럼 공식 문서 hash와 상품 variant가 상대적으로 명확한 후보 중에서 시작한다. 신한라이프 표준형처럼 일반형 문서 endpoint가 아직 확보되지 않은 source는 발행 대상에서 제외한다.
+
+---
+
+## 8. 현재 적용 상태
+
+2026-05-30 기준 보험다모아 P0 샘플은 56개이며, source catalog에는 22개 원천 후보와 22개 공식 문서 row가 들어 있다. quote matrix에서 확인된 84개 조건별 보험료 row는 `needs_review` 상태다. 아직 실제 source 후보 중 `insurance_products` 추천 snapshot으로 발행된 상품은 없다.
 
 | 단계 | 개수 | 의미 |
 |---|---:|---|
 | 보험다모아 P0 샘플 | 56개 | 암보험, 실손의료보험, 유병력자실손, 질병보험, 간병/치매보험 원천 후보 |
 | 공식 상품 URL 보유 | 47개 | 상품 페이지 후보 있음 |
-| 공식 문서 hash 확보 | 7개 | 약관/요약서/사업방법서 hash 확인 |
-| 매칭 키워드 정리 샘플 | 7개 | PR #7 source-aware seed 기준 |
-| quote-only raw source 후보 | 15개 | 보험다모아 quote matrix product code 연결용. 공식 문서 hash 전 |
+| source catalog 후보 | 22개 | 7개 hash-backed + 15개 quote-only raw |
+| 공식 문서 row | 22개 | 약관/요약서/사업방법서 hash 확인 후 source별 연결 |
+| quote matrix row | 84개 | 나이/성별 조건별 보험료. 전부 `needs_review` |
+| quote-only raw source 후보 | 15개 | 보험다모아 quote matrix product code 연결용. 일부 공식 문서 hash 확보 |
 | seed source 후보 총계 | 22개 | 7개 hash-backed + 15개 quote-only raw |
 | 추천 매칭 가능 상품 | 0개 | 아직 active demo 상품만 사용자 추천 흐름에 사용 |
 
-다음 단계는 quote-only raw 후보의 공식 문서 hash와 매칭 키워드를 정리하고, 협회/보험사 공시실까지 넓혀 질병 관련 보험상품 universe를 확장하는 것이다.
+다음 단계는 신한라이프 일반형 공식 문서 endpoint를 추가 탐색하고, `raw`/`needs_review` source의 매칭 키워드와 caveat를 정리한 뒤, 본 문서 7절 기준에 따라 첫 추천 snapshot 발행 PR을 준비하는 것이다.
 
 ---
 
-## 8. QA 체크리스트
+## 9. QA 체크리스트
 
 보험상품을 추천 snapshot으로 발행하기 전 아래 질문에 답한다.
 
@@ -131,10 +192,13 @@ DNA 분석 결과
 5. 실손의료보험을 특정 질병 위험 추천으로 오해하게 만들지 않았는가?
 6. 보험료가 대표 비교 조건인지, 사용자 조건별 quote인지 구분됐는가?
 7. 출처 URL, 문서 hash, 확인일이 남아 있는가?
+8. source row와 recommendation snapshot row가 분리되어 있으며, FK가 올바른가?
+9. `catalog_status=approved`와 `is_active=1`이 실제 추천 노출 의도와 일치하는가?
+10. 문서 hash가 바뀌었을 때 `catalog_status=needs_review`로 되돌릴 기준이 있는가?
 
 ---
 
-## 9. 365 Rubric 영향
+## 10. 365 Rubric 영향
 
 | Rubric | 영향 |
 |---|---|
@@ -147,7 +211,7 @@ DNA 분석 결과
 
 ---
 
-## 10. Related Documents
+## 11. Related Documents
 
 - **Technical_Specs**: [Insurance Data Collection Pipeline](./01_INSURANCE_DATA_COLLECTION_PIPELINE.md) - 보험상품 수집과 정규화 파이프라인
 - **Technical_Specs**: [Insurance Catalog Schema Extension](./02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md) - source table과 recommendation snapshot 스키마
@@ -155,3 +219,4 @@ DNA 분석 결과
 - **Logic_Progress**: [AI Matching Pipeline](../04_Logic_Progress/AI_MATCHING_PIPELINE.md) - DNA 분석 결과와 DB 상품 추천의 경계
 - **QA_Validation**: [Source-aware Seed Policy QA](../05_QA_Validation/10_SOURCE_AWARE_SEED_POLICY_2026_05_28.md) - PR #7 seed 후보 반영 검증
 - **QA_Validation**: [Source Catalog Quote Expansion](../05_QA_Validation/18_SOURCE_CATALOG_QUOTE_EXPANSION_2026_05_29.md) - quote-only raw source 후보 15개 확장 검증
+- **QA_Validation**: [KDB Source Document DB Apply](../05_QA_Validation/28_KDB_SOURCE_DOCUMENTS_DB_APPLY_2026_05_30.md) - KDB source document 2건 DB 적용 검증
