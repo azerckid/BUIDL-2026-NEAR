@@ -1,6 +1,6 @@
 # [QA] Test Pilot Mode 무로그인·무결제 플로우 검증 체크리스트
 > Created: 2026-05-30 17:18
-> Last Updated: 2026-05-30 17:53
+> Last Updated: 2026-05-30 18:20
 
 - **레이어**: 05_QA_Validation
 - **상태**: Draft
@@ -30,7 +30,7 @@
 |---|---|---|
 | Guest identity + 지갑 없는 upload/session | 구현됨 | `guest-*.testnet` 생성, guest profile upsert, `analysis_sessions.wallet_address` 연결 |
 | `runTestPilotAnalysis` | 구현됨 | guest session만 허용, 서버 feature flag guard, NEAR 서명 팝업 없이 운영 TEE 분석 공통 경로 실행 |
-| No-payment checkout | 대기 | 실제 `transactions` row와 분리된 test checkout 기록, 지갑 서명 없는 완료 화면 |
+| No-payment checkout | 구현됨, DB 적용 대기 | `test_pilot_checkouts` schema/migration, test 전용 서버 액션, 지갑 서명 없는 완료 화면 |
 | E2E | 대기 | 업로드 -> 분석 -> 추천 -> 테스트 신청 완료 전체 플로우 |
 
 ---
@@ -42,7 +42,7 @@
 | F1 | `NEXT_PUBLIC_TEST_PILOT_ENABLED=false` | 홈에 `테스트로 시작` CTA가 보이지 않는다 | 대기 |
 | F2 | `TEST_PILOT_ENABLED=false` | 서버 액션이 테스트 분석/checkout 요청을 거부한다 | 대기 |
 | F3 | `TEST_PILOT_SKIP_WALLET=true` | 지갑 미연결 상태에서도 업로드 화면 진입 가능 | 대기 |
-| F4 | `TEST_PILOT_SKIP_PAYMENT=true` | checkout에서 실제 지갑 서명 없이 완료 가능 | 대기 |
+| F4 | `TEST_PILOT_SKIP_PAYMENT=true` | checkout에서 실제 지갑 서명 없이 완료 가능 | 코드 구현, E2E 대기 |
 | F5 | production GA 환경 | 모든 테스트 플래그가 기본 false | 대기 |
 
 ---
@@ -89,14 +89,14 @@
 
 | ID | 항목 | 기대 결과 | 상태 |
 |---|---|---|---|
-| D1 | checkout 진입 | 지갑 서명 없이 checkout 화면 진입 | 대기 |
-| D2 | 결제 네트워크 선택 | 숨김 또는 disabled | 대기 |
-| D3 | 완료 버튼 | `결제 없이 테스트 신청 완료` 동작 | 대기 |
-| D4 | 실제 결제 호출 | `prepareCheckout`의 실결제 transaction 생성 경로 미호출 또는 test 전용 경로 사용 | 대기 |
-| D5 | DB 기록 | `test_pilot_checkouts` 또는 승인된 test 전용 기록에 저장 | 대기 |
-| D6 | cart 상태 | selected cart가 종료 상태로 전환되어 중복 신청 방지 | 대기 |
-| D7 | transaction 오염 방지 | 실제 결제 `transactions` row와 test completion row가 혼동되지 않음 | 대기 |
-| D8 | 성공 화면 | txHash 대신 test checkout ID 표시 | 대기 |
+| D1 | checkout 진입 | 지갑 서명 없이 checkout 화면 진입 | 코드 구현, E2E 대기 |
+| D2 | 결제 네트워크 선택 | 숨김 또는 disabled | 코드 구현, E2E 대기 |
+| D3 | 완료 버튼 | `결제 없이 테스트 신청 완료` 동작 | 코드 구현, E2E 대기 |
+| D4 | 실제 결제 호출 | `prepareCheckout`의 실결제 transaction 생성 경로 미호출 또는 test 전용 경로 사용 | 코드 구현, E2E 대기 |
+| D5 | DB 기록 | `test_pilot_checkouts` 또는 승인된 test 전용 기록에 저장 | migration DB 적용 대기 |
+| D6 | cart 상태 | selected cart가 종료 상태로 전환되어 중복 신청 방지 | 코드 구현, E2E 대기 |
+| D7 | transaction 오염 방지 | 실제 결제 `transactions` row와 test completion row가 혼동되지 않음 | 코드 구현, E2E 대기 |
+| D8 | 성공 화면 | txHash 대신 test checkout ID 표시 | 코드 구현, E2E 대기 |
 
 ---
 
@@ -104,8 +104,8 @@
 
 | ID | 항목 | 기대 결과 | 상태 |
 |---|---|---|---|
-| E1 | 테스트 배지 | 테스트 플로우 모든 주요 화면에 표시 | 대기 |
-| E2 | 보험 계약 고지 | "실제 보험 가입/계약/청약이 아님" 표시 | 대기 |
+| E1 | 테스트 배지 | 테스트 플로우 모든 주요 화면에 표시 | 코드 구현, E2E 대기 |
+| E2 | 보험 계약 고지 | "실제 보험 가입/계약/청약이 아님" 표시 | 코드 구현, E2E 대기 |
 | E3 | 보험료 고지 | "공식 비교 조건 기준 예상 보험료" 표시 | 대기 |
 | E4 | 보험사 전송 | 테스트 신청 데이터가 보험사/GA로 전송되지 않음 | 대기 |
 | E5 | 개인정보 | 테스트 완료 화면에 민감한 유전자 내용 표시 없음 | 대기 |

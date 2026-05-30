@@ -1,11 +1,11 @@
 # [기술 명세] 데이터 모델 및 DB 스키마 상세 명세
 > Created: 2026-04-01 00:00
-> Last Updated: 2026-05-30 17:18
+> Last Updated: 2026-05-30 18:20
 
 - **작성일**: 2026-04-01
 - **최종 수정일**: 2026-05-30
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.3
+- **상태**: Draft v1.4
 
 ---
 
@@ -28,8 +28,8 @@ user_profiles (1)
     │        └──< analysis_results (1)
     │
     ├──< recommendation_carts (N)
-    │        │
-    │        └──< transactions (1)
+    │        ├──< transactions (1)
+    │        └──< test_pilot_checkouts (1)
     │
 insurance_carriers (1)
     ├──< insurance_product_sources (N)
@@ -445,9 +445,9 @@ export const transactions = sqliteTable("transactions", {
 
 ---
 
-### 2-7. `test_pilot_checkouts` (제안)
+### 2-7. `test_pilot_checkouts`
 
-> 2026-05-30 기준 Test Pilot Mode 문서에서 제안한 테이블이다. 아직 Drizzle schema/migration에는 반영하지 않았다.
+> 2026-05-30 18:20 KST 기준 Drizzle schema와 `drizzle/0007_silky_magma.sql`에 반영했다. 운영 Turso DB 적용은 백업 후 별도 apply 단계에서 수행한다.
 
 테스트 기간 동안 실제 결제 없이 “테스트 신청 완료”까지 진행한 기록을 저장한다. 실제 결제 `transactions`와 혼동하지 않기 위해 별도 테이블로 분리한다.
 
@@ -455,7 +455,7 @@ export const transactions = sqliteTable("transactions", {
 |---|---|---|---|
 | `id` | TEXT | PK | UUID v4 |
 | `cart_id` | TEXT | FK → recommendation_carts, UNIQUE | 테스트 신청된 장바구니 |
-| `wallet_address` | TEXT | FK → user_profiles | `guest-*.testnet` 또는 실제 wallet |
+| `wallet_address` | TEXT | FK → user_profiles, INDEX | `guest-*.testnet` test session identity |
 | `selected_product_ids` | TEXT | NOT NULL | 선택 상품 ID JSON 배열 |
 | `total_monthly_usdc` | REAL | NOT NULL | 선택 상품 기준 월 보험료 합계. 실제 결제 금액 아님 |
 | `status` | TEXT | NOT NULL | `'completed'` |
@@ -464,7 +464,7 @@ export const transactions = sqliteTable("transactions", {
 
 **상태 전이**
 ```text
-draft 또는 active cart -> test_pilot_checkouts.completed
+active cart -> test_pilot_checkouts.completed
 recommendation_carts.status -> checked_out
 ```
 
