@@ -1,0 +1,72 @@
+{
+  "metadata": {
+    "generated_at": "2026-05-30T16:30:00+09:00",
+    "timezone": "Asia/Seoul",
+    "generator": "manual_review_pr",
+    "basis_documents": [
+      "data/insurance/latest_matching_keyword_caveat_review.json",
+      "data/insurance/latest_premium_quote_probe.json"
+    ],
+    "db_write_performed": false
+  },
+  "summary": {
+    "source_review_status_updates": 3,
+    "approved_quote_rows": 12,
+    "new_insurance_products_snapshot_rows": 3,
+    "representative_condition_id": "age34_female",
+    "krw_per_usdc_fixed_demo_rate": 1350,
+    "deferred_sources": [
+      "src_hanwha_life_e_cancer_202604",
+      "src_hanwha_life_e_cancer_nonsmoker_202604",
+      "src_shinhan_life_sol_cancer_standard_202605"
+    ]
+  },
+  "source_approvals": [
+    {
+      "product_source_id": "src_kdb_life_direct_cancer_202605",
+      "provider": "KDB생명",
+      "new_review_status": "approved",
+      "monthly_premium_krw": 8020,
+      "monthly_premium_usdc": 5.94,
+      "primary_source_document_id": "doc_kdb_life_direct_cancer_terms_202605",
+      "snapshot_product_id": "prod_kdb_life_direct_cancer_202605"
+    },
+    {
+      "product_source_id": "src_kyobo_lifeplanet_cancer_nonsmoker_202605",
+      "provider": "교보라이프플래닛",
+      "new_review_status": "approved",
+      "monthly_premium_krw": 8410,
+      "monthly_premium_usdc": 6.23,
+      "primary_source_document_id": "doc_kyobo_lifeplanet_cancer_nonsmoker_terms_202604",
+      "snapshot_product_id": "prod_kyobo_lifeplanet_cancer_nonsmoker_202605"
+    },
+    {
+      "product_source_id": "src_kyobo_lifeplanet_cancer_standard_202605",
+      "provider": "교보라이프플래닛",
+      "new_review_status": "approved",
+      "monthly_premium_krw": 8490,
+      "monthly_premium_usdc": 6.29,
+      "primary_source_document_id": "doc_kyobo_lifeplanet_cancer_standard_terms_202604",
+      "snapshot_product_id": "prod_kyobo_lifeplanet_cancer_standard_202605"
+    }
+  ],
+  "approved_quote_ids": [
+    "quote_src_kdb_life_direct_cancer_202605_age34_male_d2e77ecf4a0c",
+    "quote_src_kdb_life_direct_cancer_202605_age34_female_1015b0165c0e",
+    "quote_src_kdb_life_direct_cancer_202605_age44_male_99a3f15d59fc",
+    "quote_src_kdb_life_direct_cancer_202605_age44_female_9cf2588db68b",
+    "quote_src_kyobo_lifeplanet_cancer_nonsmoker_202605_age34_male_d2e77ecf4a0c",
+    "quote_src_kyobo_lifeplanet_cancer_nonsmoker_202605_age34_female_1015b0165c0e",
+    "quote_src_kyobo_lifeplanet_cancer_nonsmoker_202605_age44_male_99a3f15d59fc",
+    "quote_src_kyobo_lifeplanet_cancer_nonsmoker_202605_age44_female_9cf2588db68b",
+    "quote_src_kyobo_lifeplanet_cancer_standard_202605_age34_male_d2e77ecf4a0c",
+    "quote_src_kyobo_lifeplanet_cancer_standard_202605_age34_female_1015b0165c0e",
+    "quote_src_kyobo_lifeplanet_cancer_standard_202605_age44_male_99a3f15d59fc",
+    "quote_src_kyobo_lifeplanet_cancer_standard_202605_age44_female_9cf2588db68b"
+  ],
+  "next_actions": [
+    "운영 DB 백업 후 npx tsx src/lib/db/seed.ts를 실행해 source 승인, quote 승인, snapshot row 삽입을 적용한다.",
+    "적용 후 insurance_product_sources approved 3건, insurance_premium_quotes approved 12건, source-backed active insurance_products 3건을 검증한다.",
+    "한화생명 0원 quote와 신한라이프 일반형 공식 문서 endpoint는 별도 트랙에서 해소한다."
+  ]
+}

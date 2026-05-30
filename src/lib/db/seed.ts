@@ -1,9 +1,11 @@
 import "dotenv/config";
 import { createClient } from "@libsql/client";
+import { eq, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/libsql";
 import { DateTime } from "luxon";
 import {
   insuranceCarriers,
+  insurancePremiumQuotes,
   insuranceProducts,
   insuranceProductSources,
   insuranceSourceDocuments,
@@ -20,11 +22,17 @@ const now = DateTime.now().setZone("Asia/Seoul").toJSDate();
 const reviewedAt = DateTime.fromISO("2026-05-28T02:34:41.374+09:00").toJSDate();
 const quoteOnlyVariantReviewedAt = DateTime.fromISO("2026-05-29T02:58:00+09:00").toJSDate();
 const kdbShinhanVariantReviewedAt = DateTime.fromISO("2026-05-29T23:11:00+09:00").toJSDate();
+const firstRecommendationSnapshotReviewedAt = DateTime.fromISO("2026-05-30T16:30:00+09:00").toJSDate();
 
 type InsuranceCarrierSeed = typeof insuranceCarriers.$inferInsert;
 type InsuranceProductSourceSeed = typeof insuranceProductSources.$inferInsert;
 type InsuranceSourceDocumentSeed = typeof insuranceSourceDocuments.$inferInsert;
 type InsuranceProductSeed = typeof insuranceProducts.$inferInsert;
+
+type InsuranceProductSourceApproval = {
+  id: string;
+  values: Partial<InsuranceProductSourceSeed>;
+};
 
 const COMMON_PREMIUM_BASIS =
   "보험다모아 비교 조건 기준 월 보험료입니다. 실제 보험료는 나이, 성별, 가입금액, 납입기간, 갱신 여부, 특약, 인수심사 결과에 따라 달라질 수 있습니다.";
@@ -33,6 +41,9 @@ const QUOTE_ONLY_PREMIUM_BASIS =
   "보험다모아 조건별 quote matrix에서 확인한 상품입니다. source row 대표 보험료는 고정하지 않고, 나이/성별별 보험료는 insurance_premium_quotes에서 별도 관리합니다.";
 
 const quoteExpansionCheckedAt = DateTime.fromISO("2026-05-29T00:45:00+09:00").toJSDate();
+const FIRST_SNAPSHOT_KRW_PER_USDC = 1350;
+const FIRST_SNAPSHOT_PREMIUM_BASIS =
+  "보험다모아 암보험 모바일 조회 조건(age=34, sex=2, enterType=A, indemnityTypeA=1, renewTypeA=C1) 기준 월 보험료입니다. USDC 금액은 2026-05-30 첫 추천 snapshot PR에서 승인한 고정 데모 환산율 1 USDC = 1,350 KRW로 계산했으며 실시간 환율이 아닙니다.";
 
 const SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
 
@@ -43,6 +54,25 @@ const ONCOLOGY_RISK_TARGETS = [
   "breast_cancer",
   "colon_cancer",
 ];
+
+const FIRST_SNAPSHOT_APPROVED_QUOTE_IDS = [
+  "quote_src_kdb_life_direct_cancer_202605_age34_male_d2e77ecf4a0c",
+  "quote_src_kdb_life_direct_cancer_202605_age34_female_1015b0165c0e",
+  "quote_src_kdb_life_direct_cancer_202605_age44_male_99a3f15d59fc",
+  "quote_src_kdb_life_direct_cancer_202605_age44_female_9cf2588db68b",
+  "quote_src_kyobo_lifeplanet_cancer_nonsmoker_202605_age34_male_d2e77ecf4a0c",
+  "quote_src_kyobo_lifeplanet_cancer_nonsmoker_202605_age34_female_1015b0165c0e",
+  "quote_src_kyobo_lifeplanet_cancer_nonsmoker_202605_age44_male_99a3f15d59fc",
+  "quote_src_kyobo_lifeplanet_cancer_nonsmoker_202605_age44_female_9cf2588db68b",
+  "quote_src_kyobo_lifeplanet_cancer_standard_202605_age34_male_d2e77ecf4a0c",
+  "quote_src_kyobo_lifeplanet_cancer_standard_202605_age34_female_1015b0165c0e",
+  "quote_src_kyobo_lifeplanet_cancer_standard_202605_age44_male_99a3f15d59fc",
+  "quote_src_kyobo_lifeplanet_cancer_standard_202605_age44_female_9cf2588db68b",
+];
+
+function toFirstSnapshotUsdc(monthlyPremiumKrw: number) {
+  return Number((monthlyPremiumKrw / FIRST_SNAPSHOT_KRW_PER_USDC).toFixed(2));
+}
 
 type QuoteOnlyProductSourceInput = {
   id: string;
@@ -1067,6 +1097,251 @@ const SOURCE_AWARE_DOCUMENTS: InsuranceSourceDocumentSeed[] = [
   },
 ];
 
+const KDB_DIRECT_CANCER_DETAILS = {
+  coverage_category: "oncology",
+  matching_strategy: "risk_target",
+  risk_targets: ONCOLOGY_RISK_TARGETS,
+  primary_benefit_terms: [
+    "암진단보험금 I",
+    "암진단보험금 II",
+    "암진단보험금 III",
+    "소액암진단보험금",
+  ],
+  variant_terms: ["해약환급금 미지급형III", "비갱신형 보험다모아 query"],
+  quote_review_status: "approved",
+  representative_condition_id: "age34_female",
+  representative_premium_krw: 8020,
+  approved_quote_condition_premiums_krw: {
+    age34_male: 11230,
+    age34_female: 8020,
+    age44_male: 13340,
+    age44_female: 8650,
+  },
+  usdc_conversion: {
+    basis: "fixed_demo_rate",
+    krw_per_usdc: FIRST_SNAPSHOT_KRW_PER_USDC,
+    approved_at: "2026-05-30T16:30:00+09:00",
+  },
+};
+
+const KDB_DIRECT_CANCER_CAVEATS = [
+  "암진단보험금 I/II/III은 가입 후 90일 보장 제외 조건이 있다.",
+  "암진단보험금과 소액암진단보험금은 가입 후 2년간 50% 감액지급 조건이 있다.",
+  "기타피부암, 특정갑상선암, 대장점막내암, 비침습 방광암, 제자리암, 경계성종양은 소액암 급부로 분리된다.",
+  "해약환급금 미지급형III는 보험료 납입기간 중 해지 시 해약환급금이 없고 납입기간 이후에도 표준형보다 적다.",
+  "대표 보험료는 보험다모아 age34_female 조건이며 사용자 실제 조건에 따라 달라질 수 있다.",
+];
+
+const KYOBOLIFEPLANET_CANCER_COMMON_DETAILS = {
+  coverage_category: "oncology",
+  matching_strategy: "risk_target",
+  risk_targets: ONCOLOGY_RISK_TARGETS,
+  primary_benefit_terms: [
+    "일반암 진단보험금",
+    "고액암 진단보험금",
+    "유방암 및 전립선암 진단보험금",
+    "소액암 및 유사암 진단보험금",
+    "All 페이백 일반암 진단보험금",
+  ],
+  quote_review_status: "approved",
+  representative_condition_id: "age34_female",
+  usdc_conversion: {
+    basis: "fixed_demo_rate",
+    krw_per_usdc: FIRST_SNAPSHOT_KRW_PER_USDC,
+    approved_at: "2026-05-30T16:30:00+09:00",
+  },
+};
+
+const KYOBOLIFEPLANET_CANCER_COMMON_CAVEATS = [
+  "일반암, 고액암, 유방암 및 전립선암, All 페이백 일반암은 가입 후 90일 보장 제외 조건이 있다.",
+  "가입 후 1년 미만에는 일반암, 고액암, 유방암 및 전립선암, 소액암 및 유사암 등 주요 급부가 50% 감액지급된다.",
+  "유방암, 전립선암, 기타피부암, 중증 이외 갑상선암, 대장점막내암, 경계성종양, 제자리암은 일반암과 다른 급부로 표시해야 한다.",
+  "해약환급금 미지급형은 보험료 납입기간 중 해지 시 해약환급금이 없고 납입완료 이후에는 지급형 상품 해약환급금의 50%를 지급한다.",
+];
+
+const KYOBOLIFEPLANET_CANCER_NONSMOKER_DETAILS = {
+  ...KYOBOLIFEPLANET_CANCER_COMMON_DETAILS,
+  variant_terms: ["비흡연체", "비갱신형", "해약환급금 미지급형"],
+  representative_premium_krw: 8410,
+  approved_quote_condition_premiums_krw: {
+    age34_male: 10710,
+    age34_female: 8410,
+    age44_male: 12910,
+    age44_female: 9120,
+  },
+};
+
+const KYOBOLIFEPLANET_CANCER_NONSMOKER_CAVEATS = [
+  ...KYOBOLIFEPLANET_CANCER_COMMON_CAVEATS,
+  "비흡연체는 최근 1년 비흡연, 만 19세 이상, 흡연 검사 등 가입 조건이 있으며 보험기간 중 흡연 상태가 바뀌면 표준체 보험료 적용이나 보험가입금액 감액 caveat가 발생할 수 있다.",
+  "대표 보험료는 보험다모아 age34_female 조건이며 사용자 실제 조건에 따라 달라질 수 있다.",
+];
+
+const KYOBOLIFEPLANET_CANCER_STANDARD_DETAILS = {
+  ...KYOBOLIFEPLANET_CANCER_COMMON_DETAILS,
+  variant_terms: ["표준체", "비갱신형", "해약환급금 미지급형"],
+  representative_premium_krw: 8490,
+  approved_quote_condition_premiums_krw: {
+    age34_male: 11320,
+    age34_female: 8490,
+    age44_male: 13700,
+    age44_female: 9210,
+  },
+};
+
+const KYOBOLIFEPLANET_CANCER_STANDARD_CAVEATS = [
+  ...KYOBOLIFEPLANET_CANCER_COMMON_CAVEATS,
+  "표준체 source는 비흡연체 할인특약을 적용하지 않는 기준 상품으로 비흡연체 source와 quote row를 분리해야 한다.",
+  "대표 보험료는 보험다모아 age34_female 조건이며 사용자 실제 조건에 따라 달라질 수 있다.",
+];
+
+const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = [
+  {
+    id: "src_kdb_life_direct_cancer_202605",
+    values: {
+      officialProductUrl: "https://direct.kdblife.co.kr/edirect/product/cancerDetail.do?ev=1533801",
+      saleStatus: "active",
+      saleStatusEvidence:
+        "보험다모아 2026-05 quote matrix에서 숫자 월 보험료 4건을 확인했고 KDB 공식 40869_summary/40870_policy 문서 hash를 검수했다.",
+      monthlyPremiumKrw: 8020,
+      premiumText: "8,020원",
+      premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+      renewalType: "non_renewable",
+      coverageSummary:
+        "암진단보험금 I/II/III 및 소액암진단보험금 중심의 KDB생명 암보험. DNA 암 위험 key와 매칭한다.",
+      exclusionsSummary:
+        "90일 보장 제외, 2년 감액, 소액암 급부 분리, 해약환급금 미지급형III 조건을 caveat로 표시한다.",
+      coverageDetailsJson: JSON.stringify(KDB_DIRECT_CANCER_DETAILS),
+      coverageCaveatsJson: JSON.stringify(KDB_DIRECT_CANCER_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: firstRecommendationSnapshotReviewedAt,
+      lastVerifiedAt: firstRecommendationSnapshotReviewedAt,
+      updatedAt: now,
+    },
+  },
+  {
+    id: "src_kyobo_lifeplanet_cancer_nonsmoker_202605",
+    values: {
+      officialProductUrl: "https://www.lifeplanet.co.kr/lpds2/insurance/protection-cancer-insurance.dev",
+      saleStatus: "active",
+      saleStatusEvidence:
+        "보험다모아 2026-05 quote matrix에서 숫자 월 보험료 4건을 확인했고 교보라이프플래닛 HPDA01S0 공시 문서 hash 3건을 검수했다.",
+      monthlyPremiumKrw: 8410,
+      premiumText: "8,410원",
+      premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+      renewalType: "non_renewable",
+      coverageSummary:
+        "교보라이프플래닛 비흡연체 암보험. 일반암, 고액암, 유방암 및 전립선암, 소액암 및 유사암 급부를 DNA 암 위험 key와 매칭한다.",
+      exclusionsSummary:
+        "90일 보장 제외, 1년 감액, 소액암/유사암 급부 분리, 해약환급금 미지급형, 비흡연체 가입 조건을 caveat로 표시한다.",
+      coverageDetailsJson: JSON.stringify(KYOBOLIFEPLANET_CANCER_NONSMOKER_DETAILS),
+      coverageCaveatsJson: JSON.stringify(KYOBOLIFEPLANET_CANCER_NONSMOKER_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: firstRecommendationSnapshotReviewedAt,
+      lastVerifiedAt: firstRecommendationSnapshotReviewedAt,
+      updatedAt: now,
+    },
+  },
+  {
+    id: "src_kyobo_lifeplanet_cancer_standard_202605",
+    values: {
+      officialProductUrl: "https://www.lifeplanet.co.kr/lpds2/insurance/protection-cancer-insurance.dev",
+      saleStatus: "active",
+      saleStatusEvidence:
+        "보험다모아 2026-05 quote matrix에서 숫자 월 보험료 4건을 확인했고 교보라이프플래닛 HPDA01S0 공시 문서 hash 3건을 검수했다.",
+      monthlyPremiumKrw: 8490,
+      premiumText: "8,490원",
+      premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+      renewalType: "non_renewable",
+      coverageSummary:
+        "교보라이프플래닛 표준체 암보험. 일반암, 고액암, 유방암 및 전립선암, 소액암 및 유사암 급부를 DNA 암 위험 key와 매칭한다.",
+      exclusionsSummary:
+        "90일 보장 제외, 1년 감액, 소액암/유사암 급부 분리, 해약환급금 미지급형, 표준체 기준 상품임을 caveat로 표시한다.",
+      coverageDetailsJson: JSON.stringify(KYOBOLIFEPLANET_CANCER_STANDARD_DETAILS),
+      coverageCaveatsJson: JSON.stringify(KYOBOLIFEPLANET_CANCER_STANDARD_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: firstRecommendationSnapshotReviewedAt,
+      lastVerifiedAt: firstRecommendationSnapshotReviewedAt,
+      updatedAt: now,
+    },
+  },
+];
+
+const FIRST_RECOMMENDATION_SNAPSHOT_PRODUCTS: InsuranceProductSeed[] = [
+  {
+    id: "prod_kdb_life_direct_cancer_202605",
+    productSourceId: "src_kdb_life_direct_cancer_202605",
+    name: "KDB다이렉트 암보험",
+    provider: "KDB생명",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(8020),
+    monthlyPremiumKrw: 8020,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+    coverageCategory: "oncology" as const,
+    riskTargets: JSON.stringify(ONCOLOGY_RISK_TARGETS),
+    matchingStrategy: "risk_target" as const,
+    coverageDetailsJson: JSON.stringify(KDB_DIRECT_CANCER_DETAILS),
+    coverageCaveatsJson: JSON.stringify(KDB_DIRECT_CANCER_CAVEATS),
+    sourceCheckedAt: firstRecommendationSnapshotReviewedAt,
+    primarySourceDocumentId: "doc_kdb_life_direct_cancer_terms_202605",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
+  {
+    id: "prod_kyobo_lifeplanet_cancer_nonsmoker_202605",
+    productSourceId: "src_kyobo_lifeplanet_cancer_nonsmoker_202605",
+    name: "교보라플 비갱신암보험 비흡연체",
+    provider: "교보라이프플래닛",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(8410),
+    monthlyPremiumKrw: 8410,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+    coverageCategory: "oncology" as const,
+    riskTargets: JSON.stringify(ONCOLOGY_RISK_TARGETS),
+    matchingStrategy: "risk_target" as const,
+    coverageDetailsJson: JSON.stringify(KYOBOLIFEPLANET_CANCER_NONSMOKER_DETAILS),
+    coverageCaveatsJson: JSON.stringify(KYOBOLIFEPLANET_CANCER_NONSMOKER_CAVEATS),
+    sourceCheckedAt: firstRecommendationSnapshotReviewedAt,
+    primarySourceDocumentId: "doc_kyobo_lifeplanet_cancer_nonsmoker_terms_202604",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
+  {
+    id: "prod_kyobo_lifeplanet_cancer_standard_202605",
+    productSourceId: "src_kyobo_lifeplanet_cancer_standard_202605",
+    name: "교보라플 비갱신암보험 표준체",
+    provider: "교보라이프플래닛",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(8490),
+    monthlyPremiumKrw: 8490,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+    coverageCategory: "oncology" as const,
+    riskTargets: JSON.stringify(ONCOLOGY_RISK_TARGETS),
+    matchingStrategy: "risk_target" as const,
+    coverageDetailsJson: JSON.stringify(KYOBOLIFEPLANET_CANCER_STANDARD_DETAILS),
+    coverageCaveatsJson: JSON.stringify(KYOBOLIFEPLANET_CANCER_STANDARD_CAVEATS),
+    sourceCheckedAt: firstRecommendationSnapshotReviewedAt,
+    primarySourceDocumentId: "doc_kyobo_lifeplanet_cancer_standard_terms_202604",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
+];
+
 const DEMO_PRODUCTS: InsuranceProductSeed[] = [
   {
     id: "prod_001",
@@ -1150,6 +1425,11 @@ const DEMO_PRODUCTS: InsuranceProductSeed[] = [
   },
 ];
 
+const ACTIVE_INSURANCE_PRODUCTS: InsuranceProductSeed[] = [
+  ...DEMO_PRODUCTS,
+  ...FIRST_RECOMMENDATION_SNAPSHOT_PRODUCTS,
+];
+
 function assertValidSourceDocumentHashes(documents: InsuranceSourceDocumentSeed[]) {
   for (const document of documents) {
     if (!SHA256_HEX_PATTERN.test(document.fileHashSha256)) {
@@ -1179,6 +1459,14 @@ async function seed() {
       .onConflictDoNothing();
   }
 
+  console.log("Approving first recommendation snapshot source rows...");
+  for (const sourceApproval of FIRST_RECOMMENDATION_SOURCE_APPROVALS) {
+    await db
+      .update(insuranceProductSources)
+      .set(sourceApproval.values)
+      .where(eq(insuranceProductSources.id, sourceApproval.id));
+  }
+
   console.log("Seeding source-aware insurance documents...");
   for (const document of SOURCE_AWARE_DOCUMENTS) {
     await db
@@ -1187,15 +1475,21 @@ async function seed() {
       .onConflictDoNothing();
   }
 
-  console.log("Seeding active demo insurance products...");
-  for (const product of DEMO_PRODUCTS) {
+  console.log("Approving first recommendation snapshot quote rows...");
+  await db
+    .update(insurancePremiumQuotes)
+    .set({ reviewStatus: "approved" })
+    .where(inArray(insurancePremiumQuotes.id, FIRST_SNAPSHOT_APPROVED_QUOTE_IDS));
+
+  console.log("Seeding active insurance products...");
+  for (const product of ACTIVE_INSURANCE_PRODUCTS) {
     await db
       .insert(insuranceProducts)
       .values(product)
       .onConflictDoNothing();
   }
   console.log(
-    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, and ${DEMO_PRODUCTS.length} active demo products checked.`
+    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length} quote approvals, and ${ACTIVE_INSURANCE_PRODUCTS.length} active insurance products checked.`
   );
 }
 

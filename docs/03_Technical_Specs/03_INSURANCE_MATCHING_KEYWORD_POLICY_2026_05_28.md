@@ -164,9 +164,11 @@ DNA 분석 결과
 
 ## 8. 현재 적용 상태
 
-2026-05-30 기준 보험다모아 P0 샘플은 56개이며, source catalog에는 22개 원천 후보와 22개 공식 문서 row가 들어 있다. quote matrix에서 확인된 84개 조건별 보험료 row는 `needs_review` 상태다. 아직 실제 source 후보 중 `insurance_products` 추천 snapshot으로 발행된 상품은 없다.
+2026-05-30 기준 보험다모아 P0 샘플은 56개이며, source catalog에는 22개 원천 후보와 22개 공식 문서 row가 들어 있다. quote matrix에서 확인된 84개 조건별 보험료 row는 DB 적용 전 기준 `needs_review` 상태다. 실제 source 후보 중 `insurance_products` 추천 snapshot으로 발행할 첫 상품 3개는 seed에 반영했으며, 운영 DB 적용은 백업 후 별도 apply 단계에서 수행한다.
 
 2026-05-30 14:41 KST 기준 KDB생명, 한화생명, 교보라이프플래닛 암보험 후보 5개 source는 매칭 키워드와 caveat 정리를 통과했다. 다만 한화생명 2개 source는 quote row가 모두 `0원`이라 active 추천 snapshot에서는 보류한다. 첫 추천 snapshot seed PR의 우선 후보는 KDB생명 1개와 교보라이프플래닛 2개 source다. 검증은 `../05_QA_Validation/30_MATCHING_KEYWORD_CAVEAT_REVIEW_2026_05_30.md`에 둔다.
+
+2026-05-30 16:30 KST 기준 `seed.ts`는 위 3개 우선 후보를 첫 source-backed active recommendation snapshot으로 발행할 준비를 마쳤다. seed 적용 시 source 3건은 `approved`, quote row 12건은 `approved`, 신규 `insurance_products` 3건은 `catalog_status=approved`, `is_active=1`로 들어간다. 대표 보험료는 보험다모아 `age34_female` 조건이며, `monthly_premium_usdc`는 고정 데모 환산율 `1 USDC = 1,350 KRW`로 계산한다. 검증은 `../05_QA_Validation/31_FIRST_RECOMMENDATION_SNAPSHOT_SEED_2026_05_30.md`에 둔다.
 
 | 단계 | 개수 | 의미 |
 |---|---:|---|
@@ -174,14 +176,14 @@ DNA 분석 결과
 | 공식 상품 URL 보유 | 47개 | 상품 페이지 후보 있음 |
 | source catalog 후보 | 22개 | 7개 hash-backed + 15개 quote-only raw |
 | 공식 문서 row | 22개 | 약관/요약서/사업방법서 hash 확인 후 source별 연결 |
-| quote matrix row | 84개 | 나이/성별 조건별 보험료. 전부 `needs_review` |
+| quote matrix row | 84개 | 나이/성별 조건별 보험료. seed 적용 시 첫 snapshot 대상 12건만 `approved` |
 | quote-only raw source 후보 | 15개 | 보험다모아 quote matrix product code 연결용. 일부 공식 문서 hash 확보 |
 | seed source 후보 총계 | 22개 | 7개 hash-backed + 15개 quote-only raw |
 | 매칭 키워드/caveat 정리 완료 source | 5개 | KDB생명, 한화생명, 교보라이프플래닛 암보험 후보. 한화 2개는 가격 blocker |
-| 첫 snapshot 우선 후보 | 3개 | KDB생명 1개, 교보라이프플래닛 2개. source status/quote 승인/USDC 환산 PR 필요 |
-| 추천 매칭 가능 상품 | 0개 | 아직 active demo 상품만 사용자 추천 흐름에 사용 |
+| 첫 snapshot seed 반영 후보 | 3개 | KDB생명 1개, 교보라이프플래닛 2개. source status/quote 승인/USDC 환산 포함 |
+| source-backed 추천 매칭 가능 상품 | 3개 | DB 적용 후 사용자 추천 흐름에 추가될 실제 source-backed 상품 |
 
-다음 단계는 KDB/교보 3개 source의 source status 승격, quote row 승인, `insurance_products` snapshot row 생성을 묶은 첫 추천 snapshot seed PR이다. 신한라이프 일반형 문서 endpoint 탐색과 한화생명 0원 quote 해소는 별도 트랙으로 유지한다.
+다음 단계는 운영 DB 백업 후 첫 추천 snapshot seed를 적용하고, `insurance_product_sources`, `insurance_premium_quotes`, `insurance_products` 실제 row 수를 검증하는 apply PR이다. 신한라이프 일반형 문서 endpoint 탐색과 한화생명 0원 quote 해소는 별도 트랙으로 유지한다.
 
 ---
 
