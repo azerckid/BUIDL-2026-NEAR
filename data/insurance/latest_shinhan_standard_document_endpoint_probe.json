@@ -1,9 +1,9 @@
 {
   "metadata": {
-    "probed_at": "2026-05-30T14:08:00+09:00",
+    "generated_at": "2026-05-31T02:04:37.722+09:00",
     "timezone": "Asia/Seoul",
-    "generator": "manual_api_probe_via_shinhanlife_wcms",
-    "scope": "Shinhan Life standard SOL cancer official document endpoint probe",
+    "generator": "scripts/insurance/probe-shinhan-standard-documents.mjs",
+    "output_version": "2026-05-31.reprobe.v1",
     "target_product_source_id": "src_shinhan_life_sol_cancer_standard_202605",
     "target_product_code": "L11C009000007",
     "target_raw_product_name": "신한SOL암보험(무배당)(비갱신형)",
@@ -19,73 +19,278 @@
     "screen_id": "cdhi0030"
   },
   "summary": {
-    "exact_keyword_rows": 1,
-    "standard_keyword_rows": 0,
-    "active_rows_scanned": 112,
-    "active_sol_or_cancer_rows": 23,
-    "active_standard_variant_hits": 0,
-    "historical_rows_sampled": 1200,
-    "historical_standard_variant_hits": 0,
+    "query_count": 18,
+    "active_rows_scanned": 134,
+    "historical_rows_scanned": 1775,
+    "sol_or_cancer_rows": 1,
+    "standard_variant_hits": 0,
+    "no_refund_variant_hits": 1,
+    "downloaded_blocked_no_refund_documents": 3,
     "decision_status": "standard_endpoint_not_found",
     "recommended_source_review_status": "raw",
     "recommended_document_seed_action": "do_not_seed"
   },
   "queries": [
     {
+      "label": "active keyword: 신한SOL암보험",
       "title": "신한SOL암보험",
       "meta06": "TRUE",
-      "page_size": 100,
+      "page_size": 500,
+      "pages_requested": 1,
       "rows": 1,
       "standard_variant_hits": 0,
-      "returned_variant": "신한SOL암보험(무배당, 해약환급금 미지급형)"
+      "no_refund_variant_hits": 1,
+      "http_statuses": [
+        200
+      ]
     },
     {
+      "label": "active keyword: 신한SOL암보험(무배당)",
       "title": "신한SOL암보험(무배당)",
       "meta06": "TRUE",
-      "page_size": 100,
+      "page_size": 500,
+      "pages_requested": 1,
       "rows": 0,
       "standard_variant_hits": 0,
-      "returned_variant": null
+      "no_refund_variant_hits": 0,
+      "http_statuses": [
+        200
+      ]
     },
     {
+      "label": "active keyword: 신한SOL암보험(무배당)(비갱신형)",
       "title": "신한SOL암보험(무배당)(비갱신형)",
       "meta06": "TRUE",
-      "page_size": 100,
+      "page_size": 500,
+      "pages_requested": 1,
       "rows": 0,
       "standard_variant_hits": 0,
-      "returned_variant": null
+      "no_refund_variant_hits": 0,
+      "http_statuses": [
+        200
+      ]
     },
     {
+      "label": "active keyword: 신한 SOL 암보험",
+      "title": "신한 SOL 암보험",
+      "meta06": "TRUE",
+      "page_size": 500,
+      "pages_requested": 1,
+      "rows": 0,
+      "standard_variant_hits": 0,
+      "no_refund_variant_hits": 0,
+      "http_statuses": [
+        200
+      ]
+    },
+    {
+      "label": "active keyword: 신한SOL 암보험",
+      "title": "신한SOL 암보험",
+      "meta06": "TRUE",
+      "page_size": 500,
+      "pages_requested": 1,
+      "rows": 0,
+      "standard_variant_hits": 0,
+      "no_refund_variant_hits": 0,
+      "http_statuses": [
+        200
+      ]
+    },
+    {
+      "label": "active keyword: SOL암보험",
+      "title": "SOL암보험",
+      "meta06": "TRUE",
+      "page_size": 500,
+      "pages_requested": 1,
+      "rows": 1,
+      "standard_variant_hits": 0,
+      "no_refund_variant_hits": 1,
+      "http_statuses": [
+        200
+      ]
+    },
+    {
+      "label": "active keyword: 신한SOL",
+      "title": "신한SOL",
+      "meta06": "TRUE",
+      "page_size": 500,
+      "pages_requested": 1,
+      "rows": 17,
+      "standard_variant_hits": 0,
+      "no_refund_variant_hits": 1,
+      "http_statuses": [
+        200
+      ]
+    },
+    {
+      "label": "active keyword: 암보험",
+      "title": "암보험",
+      "meta06": "TRUE",
+      "page_size": 500,
+      "pages_requested": 1,
+      "rows": 3,
+      "standard_variant_hits": 0,
+      "no_refund_variant_hits": 1,
+      "http_statuses": [
+        200
+      ]
+    },
+    {
+      "label": "historical keyword: 신한SOL암보험",
+      "title": "신한SOL암보험",
+      "meta06": "",
+      "page_size": 500,
+      "pages_requested": 1,
+      "rows": 1,
+      "standard_variant_hits": 0,
+      "no_refund_variant_hits": 1,
+      "http_statuses": [
+        200
+      ]
+    },
+    {
+      "label": "historical keyword: 신한SOL암보험(무배당)",
+      "title": "신한SOL암보험(무배당)",
+      "meta06": "",
+      "page_size": 500,
+      "pages_requested": 1,
+      "rows": 0,
+      "standard_variant_hits": 0,
+      "no_refund_variant_hits": 0,
+      "http_statuses": [
+        200
+      ]
+    },
+    {
+      "label": "historical keyword: 신한SOL암보험(무배당)(비갱신형)",
+      "title": "신한SOL암보험(무배당)(비갱신형)",
+      "meta06": "",
+      "page_size": 500,
+      "pages_requested": 1,
+      "rows": 0,
+      "standard_variant_hits": 0,
+      "no_refund_variant_hits": 0,
+      "http_statuses": [
+        200
+      ]
+    },
+    {
+      "label": "historical keyword: 신한 SOL 암보험",
+      "title": "신한 SOL 암보험",
+      "meta06": "",
+      "page_size": 500,
+      "pages_requested": 1,
+      "rows": 0,
+      "standard_variant_hits": 0,
+      "no_refund_variant_hits": 0,
+      "http_statuses": [
+        200
+      ]
+    },
+    {
+      "label": "historical keyword: 신한SOL 암보험",
+      "title": "신한SOL 암보험",
+      "meta06": "",
+      "page_size": 500,
+      "pages_requested": 1,
+      "rows": 0,
+      "standard_variant_hits": 0,
+      "no_refund_variant_hits": 0,
+      "http_statuses": [
+        200
+      ]
+    },
+    {
+      "label": "historical keyword: SOL암보험",
+      "title": "SOL암보험",
+      "meta06": "",
+      "page_size": 500,
+      "pages_requested": 1,
+      "rows": 1,
+      "standard_variant_hits": 0,
+      "no_refund_variant_hits": 1,
+      "http_statuses": [
+        200
+      ]
+    },
+    {
+      "label": "historical keyword: 신한SOL",
+      "title": "신한SOL",
+      "meta06": "",
+      "page_size": 500,
+      "pages_requested": 1,
+      "rows": 21,
+      "standard_variant_hits": 0,
+      "no_refund_variant_hits": 1,
+      "http_statuses": [
+        200
+      ]
+    },
+    {
+      "label": "historical keyword: 암보험",
+      "title": "암보험",
+      "meta06": "",
+      "page_size": 500,
+      "pages_requested": 1,
+      "rows": 115,
+      "standard_variant_hits": 0,
+      "no_refund_variant_hits": 1,
+      "http_statuses": [
+        200
+      ]
+    },
+    {
+      "label": "active full catalog scan",
       "title": "",
       "meta06": "TRUE",
-      "page_size": 100,
+      "page_size": 500,
+      "pages_requested": 1,
       "rows": 112,
       "standard_variant_hits": 0,
-      "returned_variant": "active catalog scan"
+      "no_refund_variant_hits": 1,
+      "http_statuses": [
+        200
+      ]
     },
     {
+      "label": "historical full catalog scan",
       "title": "",
       "meta06": "",
-      "page_size": 100,
-      "rows": 1200,
+      "page_size": 500,
+      "pages_requested": 4,
+      "rows": 1637,
       "standard_variant_hits": 0,
-      "returned_variant": "historical catalog sample"
+      "no_refund_variant_hits": 1,
+      "http_statuses": [
+        200,
+        200,
+        200,
+        200
+      ]
     }
   ],
-  "returned_no_refund_record": {
-    "title": "신한SOL암보험(무배당, 해약환급금 미지급형)_판매중_03",
-    "channel": "인터넷모바일",
-    "raw_product_name": "신한SOL암보험(무배당, 해약환급금 미지급형)",
-    "sale_status": "TRUE",
-    "sale_start": "20260101000000",
-    "sale_end": "99991231235959",
-    "workspace_id": "DigitalPlattform",
-    "document_paths": {
-      "summary": "/repo/DigitalPlattform/cdh/cdhi/gd/pr/__media/상품요약서_신한SOL암보험(무배당_해약환급금 미지급형)_260101.pdf",
-      "business_method": "/repo/DigitalPlattform/cdh/cdhi/gd/pr/__etc/사업방법서_신한SOL암보험(무배당, 해약환급금 미지급형)_260101.pdf",
-      "terms": "/repo/DigitalPlattform/cdh/cdhi/gd/pr/__etc/판매약관_신한SOL암보험(무배당, 해약환급금 미지급형)_260101.pdf"
+  "candidate_records": [
+    {
+      "title": "신한SOL암보험(무배당, 해약환급금 미지급형)_판매중_03",
+      "meta05": "신한SOL암보험(무배당, 해약환급금 미지급형)",
+      "meta06": "TRUE",
+      "meta07": "20260101000000",
+      "meta08": "99991231235959",
+      "channel": "인터넷모바일",
+      "sale_status": "TRUE",
+      "sale_start": "20260101000000",
+      "sale_end": "99991231235959",
+      "variant_decision": "blocked_no_refund_variant",
+      "standard_hit": false,
+      "no_refund_hit": true,
+      "text": "신한라이프 인터넷모바일 보장 신한SOL암보험(무배당, 해약환급금 미지급형) 신한SOL암보험(무배당, 해약환급금 미지급형)_판매중_03 20260101000000 99991231235959",
+      "document_paths": {
+        "summary": "/repo/DigitalPlattform/cdh/cdhi/gd/pr/__media/상품요약서_신한SOL암보험(무배당_해약환급금 미지급형)_260101.pdf",
+        "business_method": "/repo/DigitalPlattform/cdh/cdhi/gd/pr/__etc/사업방법서_신한SOL암보험(무배당, 해약환급금 미지급형)_260101.pdf",
+        "terms": "/repo/DigitalPlattform/cdh/cdhi/gd/pr/__etc/판매약관_신한SOL암보험(무배당, 해약환급금 미지급형)_260101.pdf"
+      }
     }
-  },
+  ],
   "blocked_no_refund_documents": [
     {
       "document_type": "summary",
@@ -111,11 +316,11 @@
   ],
   "decision": {
     "result": "Keep src_shinhan_life_sol_cancer_standard_202605 blocked.",
-    "reason": "The official Shinhan Life disclosure endpoint currently returns only the no-refund Shinhan SOL cancer variant for Shinhan SOL cancer searches. The standard product name from Insurance Damoa did not return a matching active or sampled historical disclosure row.",
+    "reason": "The official Shinhan Life disclosure endpoint still returns no standard/general document row for the Insurance Damoa standard source. The returned Shinhan SOL cancer row is the no-refund variant, so reusing its documents would mislink the source.",
     "next_actions": [
       "Do not reuse the no-refund documents for the standard source.",
       "Keep the source review_status raw until a standard official document endpoint is found.",
-      "Continue with matching keyword and caveat cleanup for candidates whose official document variants are already clear."
+      "Proceed with matching keyword and caveat cleanup for other raw/needs_review sources whose official documents are clear."
     ]
   }
 }

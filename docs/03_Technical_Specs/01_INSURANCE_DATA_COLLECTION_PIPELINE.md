@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 01:37
+> Last Updated: 2026-05-31 02:05
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.18
+- **상태**: Draft v2.19
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -509,6 +509,8 @@ KDB생명 `src_kdb_life_direct_cancer_202605`는 `40869_summary`가 상품요약
 
 공식 공시 API에서 반환된 판매중 `신한SOL암보험` row는 `신한SOL암보험(무배당, 해약환급금 미지급형)` 1건뿐이다. 따라서 기존 hash 3건은 계속 no-refund source 전용 문서로 취급하고, `src_shinhan_life_sol_cancer_standard_202605`에는 연결하지 않는다. 검증 산출물은 `../../data/insurance/latest_shinhan_standard_document_endpoint_probe.json`, `../../data/insurance/latest_shinhan_standard_document_endpoint_probe.csv`, `../05_QA_Validation/29_SHINHAN_STANDARD_DOCUMENT_ENDPOINT_PROBE_2026_05_30.md`에 둔다. 다음 작업은 공식 문서 variant가 명확한 KDB, 한화생명, 교보라이프플래닛 후보부터 매칭 키워드와 caveat를 정리하는 것이다.
 
+2026-05-31 02:05 KST 기준 전용 스크립트 `scripts/insurance/probe-shinhan-standard-documents.mjs`를 추가해 같은 endpoint를 재탐색했다. active keyword 8개, historical keyword 8개, active full catalog, historical full catalog를 조회했고 active row 134건, historical row 1,775건을 확인했다. target `신한SOL암보험` row는 1건뿐이며 여전히 해약환급금 미지급형이다. 일반형 hit는 0건이므로 `src_shinhan_life_sol_cancer_standard_202605`는 계속 `raw` 차단 상태로 둔다. 최신 산출물은 같은 `../../data/insurance/latest_shinhan_standard_document_endpoint_probe.json`/`.csv`, 검증 문서는 `../05_QA_Validation/45_SHINHAN_STANDARD_DOCUMENT_ENDPOINT_REPROBE_2026_05_31.md`에 둔다.
+
 ### 9-17. Matching Keyword and Caveat Review
 
 2026-05-30 14:41 KST 기준 공식 문서 variant가 명확한 KDB생명, 한화생명, 교보라이프플래닛 암보험 후보 5개를 대상으로 매칭 키워드와 caveat를 정리했다.
@@ -683,6 +685,7 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - [x] 백업 후 KDB생명 source document 2건 DB 적용
 - [x] 추천 snapshot 발행 기준과 PR 체크리스트 문서화
 - [x] 신한라이프 일반형 공식 문서 endpoint 추가 탐색
+- [x] 신한라이프 일반형 공식 문서 endpoint 스크립트 기반 재탐색
 - [x] 공식 문서 variant가 명확한 후보의 매칭 키워드/caveat 정리
 - [x] KDB/교보라이프플래닛 첫 추천 snapshot seed PR 작성
 - [x] 백업 후 첫 추천 snapshot seed 운영 DB 적용
