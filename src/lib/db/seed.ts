@@ -23,10 +23,12 @@ const reviewedAt = DateTime.fromISO("2026-05-28T02:34:41.374+09:00").toJSDate();
 const quoteOnlyVariantReviewedAt = DateTime.fromISO("2026-05-29T02:58:00+09:00").toJSDate();
 const kdbShinhanVariantReviewedAt = DateTime.fromISO("2026-05-29T23:11:00+09:00").toJSDate();
 const firstRecommendationSnapshotReviewedAt = DateTime.fromISO("2026-05-30T16:30:00+09:00").toJSDate();
+const hanwhaLifeQuoteReviewedAt = DateTime.fromISO("2026-05-31T00:49:37.412+09:00").toJSDate();
 
 type InsuranceCarrierSeed = typeof insuranceCarriers.$inferInsert;
 type InsuranceProductSourceSeed = typeof insuranceProductSources.$inferInsert;
 type InsuranceSourceDocumentSeed = typeof insuranceSourceDocuments.$inferInsert;
+type InsurancePremiumQuoteSeed = typeof insurancePremiumQuotes.$inferInsert;
 type InsuranceProductSeed = typeof insuranceProducts.$inferInsert;
 
 type InsuranceProductSourceApproval = {
@@ -44,6 +46,12 @@ const quoteExpansionCheckedAt = DateTime.fromISO("2026-05-29T00:45:00+09:00").to
 const FIRST_SNAPSHOT_KRW_PER_USDC = 1350;
 const FIRST_SNAPSHOT_PREMIUM_BASIS =
   "보험다모아 암보험 모바일 조회 조건(age=34, sex=2, enterType=A, indemnityTypeA=1, renewTypeA=C1) 기준 월 보험료입니다. USDC 금액은 2026-05-30 첫 추천 snapshot PR에서 승인한 고정 데모 환산율 1 USDC = 1,350 KRW로 계산했으며 실시간 환율이 아닙니다.";
+
+const HANWHA_LIFE_CARRIER_QUOTE_PREMIUM_BASIS =
+  "한화생명 공식 다이렉트 상품 페이지 CMS00012와 계산 API 기준 월 보험료입니다. 조회 기준은 2026-05-31, 상품 버전 55, 상품 기준일 20260529, 100세 만기, 20년납, 월납, 주계약가입금액 1,000만원입니다. USDC 금액은 고정 데모 환산율 1 USDC = 1,350 KRW로 계산했으며 실시간 환율이 아닙니다.";
+
+const HANWHA_LIFE_QUOTE_SOURCE_URL =
+  "https://api.hanwhalife.com/product/calculate/v3/default";
 
 const SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
 
@@ -68,6 +76,17 @@ const FIRST_SNAPSHOT_APPROVED_QUOTE_IDS = [
   "quote_src_kyobo_lifeplanet_cancer_standard_202605_age34_female_1015b0165c0e",
   "quote_src_kyobo_lifeplanet_cancer_standard_202605_age44_male_99a3f15d59fc",
   "quote_src_kyobo_lifeplanet_cancer_standard_202605_age44_female_9cf2588db68b",
+];
+
+const HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS = [
+  "quote_src_hanwha_life_e_cancer_202604_age34_male_d2e77ecf4a0c",
+  "quote_src_hanwha_life_e_cancer_202604_age34_female_1015b0165c0e",
+  "quote_src_hanwha_life_e_cancer_202604_age44_male_99a3f15d59fc",
+  "quote_src_hanwha_life_e_cancer_202604_age44_female_9cf2588db68b",
+  "quote_src_hanwha_life_e_cancer_nonsmoker_202604_age34_male_d2e77ecf4a0c",
+  "quote_src_hanwha_life_e_cancer_nonsmoker_202604_age34_female_1015b0165c0e",
+  "quote_src_hanwha_life_e_cancer_nonsmoker_202604_age44_male_99a3f15d59fc",
+  "quote_src_hanwha_life_e_cancer_nonsmoker_202604_age44_female_9cf2588db68b",
 ];
 
 function toFirstSnapshotUsdc(monthlyPremiumKrw: number) {
@@ -1097,6 +1116,234 @@ const SOURCE_AWARE_DOCUMENTS: InsuranceSourceDocumentSeed[] = [
   },
 ];
 
+type HanwhaLifeCarrierQuoteInput = {
+  productSourceId: string;
+  conditionId: string;
+  age: number;
+  sex: "male" | "female";
+  sourceSexCode: "1" | "2";
+  birthDate: string;
+  planName: "표준체형" | "비흡연체형";
+  smokingOptionDetailId: number;
+  smokingOptionDetailCode: number;
+  monthlyPremiumKrw: number;
+  quoteHashSha256: string;
+};
+
+function buildHanwhaLifeQuoteParamsJson(input: HanwhaLifeCarrierQuoteInput) {
+  const genderOption =
+    input.sex === "male"
+      ? { optionDetailId: 8333, optionDetailCode: 3 }
+      : { optionDetailId: 8334, optionDetailCode: 4 };
+
+  return JSON.stringify({
+    onsureProdCode: "CMS00012",
+    trnnUniqNo: null,
+    inqyRqstOrgnCode: null,
+    designCalculateOptionDtoList: [
+      {
+        optionId: 3067,
+        optionCode: "OPT00001",
+        optionDetailId: null,
+        optionDetailCode: null,
+        inputValue: input.birthDate,
+        esbValue: null,
+        optionDetailTypeCode: null,
+        amountUnitCode: null,
+      },
+      {
+        optionId: 3068,
+        optionCode: "OPT00004",
+        optionDetailId: 8323,
+        optionDetailCode: 5,
+        inputValue: "",
+        esbValue: "10000000",
+        optionDetailTypeCode: "SELECT",
+        amountUnitCode: null,
+      },
+      {
+        optionId: 3069,
+        optionCode: "OPT00006",
+        optionDetailId: 8332,
+        optionDetailCode: 33,
+        inputValue: "",
+        esbValue: "X100",
+        optionDetailTypeCode: "SELECT",
+        amountUnitCode: null,
+      },
+      {
+        optionId: 3070,
+        optionCode: "OPT00003",
+        optionDetailId: genderOption.optionDetailId,
+        optionDetailCode: genderOption.optionDetailCode,
+        inputValue: "",
+        esbValue: input.sourceSexCode,
+        optionDetailTypeCode: "SELECT",
+        amountUnitCode: null,
+      },
+      {
+        optionId: 3071,
+        optionCode: "OPT00007",
+        optionDetailId: 8338,
+        optionDetailCode: 43,
+        inputValue: "",
+        esbValue: "N20",
+        optionDetailTypeCode: "SELECT",
+        amountUnitCode: null,
+      },
+      {
+        optionId: 3072,
+        optionCode: "OPT00002",
+        optionDetailId: input.smokingOptionDetailId,
+        optionDetailCode: input.smokingOptionDetailCode,
+        inputValue: "",
+        esbValue: "",
+        optionDetailTypeCode: "SELECT",
+        amountUnitCode: null,
+      },
+    ],
+  });
+}
+
+function buildHanwhaLifeCarrierQuote(input: HanwhaLifeCarrierQuoteInput): InsurancePremiumQuoteSeed {
+  return {
+    id: `quote_${input.productSourceId}_${input.conditionId}_${input.quoteHashSha256.slice(0, 12)}`,
+    productSourceId: input.productSourceId,
+    carrierId: "carrier_hanwha_life",
+    age: input.age,
+    sex: input.sex,
+    sourceSexCode: input.sourceSexCode,
+    paymentCycle: "monthly",
+    paymentPeriodYears: 20,
+    insurancePeriodYears: 100,
+    coverageAmountKrw: 10_000_000,
+    planName: input.planName,
+    renewalType: "non_renewable",
+    ridersJson: null,
+    premiumCurrency: "KRW",
+    monthlyPremiumKrw: input.monthlyPremiumKrw,
+    premiumText: `${input.monthlyPremiumKrw.toLocaleString("ko-KR")}원`,
+    quoteSourceType: "carrier_quote",
+    quoteSourceUrl: HANWHA_LIFE_QUOTE_SOURCE_URL,
+    quoteParamsJson: buildHanwhaLifeQuoteParamsJson(input),
+    quoteHashSha256: input.quoteHashSha256,
+    retrievedAt: hanwhaLifeQuoteReviewedAt,
+    reviewStatus: "approved",
+    createdAt: now,
+  };
+}
+
+const HANWHA_LIFE_CARRIER_QUOTE_ROWS: InsurancePremiumQuoteSeed[] = [
+  buildHanwhaLifeCarrierQuote({
+    productSourceId: "src_hanwha_life_e_cancer_202604",
+    conditionId: "age34_male",
+    age: 34,
+    sex: "male",
+    sourceSexCode: "1",
+    birthDate: "19920531",
+    planName: "표준체형",
+    smokingOptionDetailId: 8342,
+    smokingOptionDetailCode: 1,
+    monthlyPremiumKrw: 14840,
+    quoteHashSha256: "70223172335be09d0a58c6fc249d9687ef3c4419077cbe951d8f18779bfe3371",
+  }),
+  buildHanwhaLifeCarrierQuote({
+    productSourceId: "src_hanwha_life_e_cancer_202604",
+    conditionId: "age34_female",
+    age: 34,
+    sex: "female",
+    sourceSexCode: "2",
+    birthDate: "19920531",
+    planName: "표준체형",
+    smokingOptionDetailId: 8342,
+    smokingOptionDetailCode: 1,
+    monthlyPremiumKrw: 10950,
+    quoteHashSha256: "c087a26ded062d6ec8414bcd378230df0521217c5f3f24ec2f48b9dbd225bb5b",
+  }),
+  buildHanwhaLifeCarrierQuote({
+    productSourceId: "src_hanwha_life_e_cancer_202604",
+    conditionId: "age44_male",
+    age: 44,
+    sex: "male",
+    sourceSexCode: "1",
+    birthDate: "19820531",
+    planName: "표준체형",
+    smokingOptionDetailId: 8342,
+    smokingOptionDetailCode: 1,
+    monthlyPremiumKrw: 18680,
+    quoteHashSha256: "2ee05759f0369ccfe34c0d7f5034acc961fd7a78f5c78dd559490c0e964a6bfc",
+  }),
+  buildHanwhaLifeCarrierQuote({
+    productSourceId: "src_hanwha_life_e_cancer_202604",
+    conditionId: "age44_female",
+    age: 44,
+    sex: "female",
+    sourceSexCode: "2",
+    birthDate: "19820531",
+    planName: "표준체형",
+    smokingOptionDetailId: 8342,
+    smokingOptionDetailCode: 1,
+    monthlyPremiumKrw: 12170,
+    quoteHashSha256: "e8ab82d82bbc03d8b939273f8d9e3415e229767196ea88a47dd2e65fe390c1b6",
+  }),
+  buildHanwhaLifeCarrierQuote({
+    productSourceId: "src_hanwha_life_e_cancer_nonsmoker_202604",
+    conditionId: "age34_male",
+    age: 34,
+    sex: "male",
+    sourceSexCode: "1",
+    birthDate: "19920531",
+    planName: "비흡연체형",
+    smokingOptionDetailId: 8343,
+    smokingOptionDetailCode: 2,
+    monthlyPremiumKrw: 13460,
+    quoteHashSha256: "ccaba48d12a1a8f8a870294f29eb86d9e14d23fb2ee842d8e0c5cfa061e3e669",
+  }),
+  buildHanwhaLifeCarrierQuote({
+    productSourceId: "src_hanwha_life_e_cancer_nonsmoker_202604",
+    conditionId: "age34_female",
+    age: 34,
+    sex: "female",
+    sourceSexCode: "2",
+    birthDate: "19920531",
+    planName: "비흡연체형",
+    smokingOptionDetailId: 8343,
+    smokingOptionDetailCode: 2,
+    monthlyPremiumKrw: 10850,
+    quoteHashSha256: "48a19dd803f5407417ed5fae402bbdcca52368ba53098ca7070c7d4a07d4e646",
+  }),
+  buildHanwhaLifeCarrierQuote({
+    productSourceId: "src_hanwha_life_e_cancer_nonsmoker_202604",
+    conditionId: "age44_male",
+    age: 44,
+    sex: "male",
+    sourceSexCode: "1",
+    birthDate: "19820531",
+    planName: "비흡연체형",
+    smokingOptionDetailId: 8343,
+    smokingOptionDetailCode: 2,
+    monthlyPremiumKrw: 16820,
+    quoteHashSha256: "247f93bf437b89aafbe221303680adba5233440fb44cce0509d52e6b427657bd",
+  }),
+  buildHanwhaLifeCarrierQuote({
+    productSourceId: "src_hanwha_life_e_cancer_nonsmoker_202604",
+    conditionId: "age44_female",
+    age: 44,
+    sex: "female",
+    sourceSexCode: "2",
+    birthDate: "19820531",
+    planName: "비흡연체형",
+    smokingOptionDetailId: 8343,
+    smokingOptionDetailCode: 2,
+    monthlyPremiumKrw: 12060,
+    quoteHashSha256: "262ab3606a15b42788f1fea1c6789fc47bd2d7cff737d7639f10569e93209fb3",
+  }),
+];
+
+const HANWHA_LIFE_CARRIER_QUOTE_IDS = HANWHA_LIFE_CARRIER_QUOTE_ROWS.map(
+  (quote) => quote.id
+);
+
 const KDB_DIRECT_CANCER_DETAILS = {
   coverage_category: "oncology",
   matching_strategy: "risk_target",
@@ -1195,7 +1442,127 @@ const KYOBOLIFEPLANET_CANCER_STANDARD_CAVEATS = [
   "대표 보험료는 보험다모아 age34_female 조건이며 사용자 실제 조건에 따라 달라질 수 있다.",
 ];
 
+const HANWHA_LIFE_CANCER_COMMON_DETAILS = {
+  coverage_category: "oncology",
+  matching_strategy: "risk_target",
+  risk_targets: ONCOLOGY_RISK_TARGETS,
+  primary_benefit_terms: [
+    "일반암 진단자금",
+    "특정고액치료비암 진단자금",
+    "초기 이외 갑상선암 진단자금",
+    "기타피부암 진단자금",
+    "대장점막내암 진단자금",
+  ],
+  quote_review_status: "approved",
+  quote_source_type: "carrier_quote",
+  representative_condition_id: "age34_female",
+  quote_basis: {
+    product_code: "CMS00012",
+    product_version: "55",
+    product_reference_date: "20260529",
+    guarantee_amount_krw: 10_000_000,
+    insurance_term: "100세 만기",
+    payment_term: "20년납",
+    payment_cycle: "월납",
+  },
+  usdc_conversion: {
+    basis: "fixed_demo_rate",
+    krw_per_usdc: FIRST_SNAPSHOT_KRW_PER_USDC,
+    approved_at: "2026-05-31T00:49:37.412+09:00",
+  },
+};
+
+const HANWHA_LIFE_CANCER_COMMON_CAVEATS = [
+  "암 관련 주요 급부는 가입 후 90일 동안 보장 제외될 수 있다.",
+  "계약 초기에는 급부별 보험금이 일부만 지급되는 감액지급 조건이 있을 수 있다.",
+  "직결장암, 유방암, 여성생식기암, 전립선암, 기타피부암, 갑상선암, 대장점막내암 등은 일반암과 급부가 다를 수 있다.",
+  "해약환급금 미지급형은 보험료 납입기간 중 해지 시 해약환급금이 없을 수 있다.",
+  "대표 보험료와 조건별 보험료는 한화생명 공식 다이렉트 계산 API 기준이며 실제 청약 단계의 인수심사 결과에 따라 달라질 수 있다.",
+];
+
+const HANWHA_LIFE_CANCER_STANDARD_DETAILS = {
+  ...HANWHA_LIFE_CANCER_COMMON_DETAILS,
+  variant_terms: ["표준체형", "비갱신형", "해약환급금 미지급형"],
+  representative_premium_krw: 10950,
+  approved_quote_condition_premiums_krw: {
+    age34_male: 14840,
+    age34_female: 10950,
+    age44_male: 18680,
+    age44_female: 12170,
+  },
+};
+
+const HANWHA_LIFE_CANCER_STANDARD_CAVEATS = [
+  ...HANWHA_LIFE_CANCER_COMMON_CAVEATS,
+  "표준체형 source는 비흡연체 할인 조건을 적용하지 않는 기준 상품으로 비흡연체 source와 quote row를 분리한다.",
+];
+
+const HANWHA_LIFE_CANCER_NONSMOKER_DETAILS = {
+  ...HANWHA_LIFE_CANCER_COMMON_DETAILS,
+  variant_terms: ["비흡연체형", "비갱신형", "해약환급금 미지급형"],
+  representative_premium_krw: 10850,
+  approved_quote_condition_premiums_krw: {
+    age34_male: 13460,
+    age34_female: 10850,
+    age44_male: 16820,
+    age44_female: 12060,
+  },
+};
+
+const HANWHA_LIFE_CANCER_NONSMOKER_CAVEATS = [
+  ...HANWHA_LIFE_CANCER_COMMON_CAVEATS,
+  "비흡연체형은 만 19세 이상, 표준체형 가입 가능 상태, 최근 1년 비흡연 등 가입 조건이 있으며 흡연 상태 변경 시 표준체형 보험료 적용, 정산차액, 보험가입금액 감액 가능성이 있다.",
+];
+
 const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = [
+  {
+    id: "src_hanwha_life_e_cancer_202604",
+    values: {
+      officialProductUrl:
+        "https://direct.hanwhalife.com/products/CMS00012?utm_source=einsmarket_mo&utm_medium=association&utm_campaign=cancer",
+      saleStatus: "active",
+      saleStatusEvidence:
+        "한화생명 공식 다이렉트 상품 페이지 CMS00012 상품 버전 55, 기준일 20260529와 공식 계산 API carrier quote 4건을 확인했다.",
+      monthlyPremiumKrw: 10950,
+      premiumText: "10,950원",
+      premiumBasis: HANWHA_LIFE_CARRIER_QUOTE_PREMIUM_BASIS,
+      renewalType: "non_renewable",
+      coverageSummary:
+        "한화생명 표준체형 e암보험. 일반암과 특정암 급부를 DNA 암 위험 key와 매칭한다.",
+      exclusionsSummary:
+        "90일 보장 제외, 초기 감액, 암 급부 분리, 해약환급금 미지급형 조건을 caveat로 표시한다.",
+      coverageDetailsJson: JSON.stringify(HANWHA_LIFE_CANCER_STANDARD_DETAILS),
+      coverageCaveatsJson: JSON.stringify(HANWHA_LIFE_CANCER_STANDARD_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: hanwhaLifeQuoteReviewedAt,
+      lastVerifiedAt: hanwhaLifeQuoteReviewedAt,
+      updatedAt: now,
+    },
+  },
+  {
+    id: "src_hanwha_life_e_cancer_nonsmoker_202604",
+    values: {
+      officialProductUrl:
+        "https://direct.hanwhalife.com/products/CMS00012?utm_source=einsmarket_mo&utm_medium=association&utm_campaign=cancer",
+      saleStatus: "active",
+      saleStatusEvidence:
+        "한화생명 공식 다이렉트 상품 페이지 CMS00012 상품 버전 55, 기준일 20260529와 공식 계산 API carrier quote 4건을 확인했다.",
+      monthlyPremiumKrw: 10850,
+      premiumText: "10,850원",
+      premiumBasis: HANWHA_LIFE_CARRIER_QUOTE_PREMIUM_BASIS,
+      renewalType: "non_renewable",
+      coverageSummary:
+        "한화생명 비흡연체형 e암보험. 일반암과 특정암 급부를 DNA 암 위험 key와 매칭한다.",
+      exclusionsSummary:
+        "90일 보장 제외, 초기 감액, 암 급부 분리, 해약환급금 미지급형, 비흡연체형 가입 조건을 caveat로 표시한다.",
+      coverageDetailsJson: JSON.stringify(HANWHA_LIFE_CANCER_NONSMOKER_DETAILS),
+      coverageCaveatsJson: JSON.stringify(HANWHA_LIFE_CANCER_NONSMOKER_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: hanwhaLifeQuoteReviewedAt,
+      lastVerifiedAt: hanwhaLifeQuoteReviewedAt,
+      updatedAt: now,
+    },
+  },
   {
     id: "src_kdb_life_direct_cancer_202605",
     values: {
@@ -1268,6 +1635,54 @@ const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = 
 ];
 
 const FIRST_RECOMMENDATION_SNAPSHOT_PRODUCTS: InsuranceProductSeed[] = [
+  {
+    id: "prod_hanwha_life_e_cancer_202604",
+    productSourceId: "src_hanwha_life_e_cancer_202604",
+    name: "한화생명 e암보험 표준체형",
+    provider: "한화생명",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(10950),
+    monthlyPremiumKrw: 10950,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: HANWHA_LIFE_CARRIER_QUOTE_PREMIUM_BASIS,
+    coverageCategory: "oncology" as const,
+    riskTargets: JSON.stringify(ONCOLOGY_RISK_TARGETS),
+    matchingStrategy: "risk_target" as const,
+    coverageDetailsJson: JSON.stringify(HANWHA_LIFE_CANCER_STANDARD_DETAILS),
+    coverageCaveatsJson: JSON.stringify(HANWHA_LIFE_CANCER_STANDARD_CAVEATS),
+    sourceCheckedAt: hanwhaLifeQuoteReviewedAt,
+    primarySourceDocumentId: "doc_hanwha_life_e_cancer_terms_202604",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
+  {
+    id: "prod_hanwha_life_e_cancer_nonsmoker_202604",
+    productSourceId: "src_hanwha_life_e_cancer_nonsmoker_202604",
+    name: "한화생명 e암보험 비흡연체형",
+    provider: "한화생명",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(10850),
+    monthlyPremiumKrw: 10850,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: HANWHA_LIFE_CARRIER_QUOTE_PREMIUM_BASIS,
+    coverageCategory: "oncology" as const,
+    riskTargets: JSON.stringify(ONCOLOGY_RISK_TARGETS),
+    matchingStrategy: "risk_target" as const,
+    coverageDetailsJson: JSON.stringify(HANWHA_LIFE_CANCER_NONSMOKER_DETAILS),
+    coverageCaveatsJson: JSON.stringify(HANWHA_LIFE_CANCER_NONSMOKER_CAVEATS),
+    sourceCheckedAt: hanwhaLifeQuoteReviewedAt,
+    primarySourceDocumentId: "doc_hanwha_life_e_cancer_nonsmoker_terms_202604",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
   {
     id: "prod_kdb_life_direct_cancer_202605",
     productSourceId: "src_kdb_life_direct_cancer_202605",
@@ -1399,11 +1814,30 @@ async function seed() {
       .onConflictDoNothing();
   }
 
-  console.log("Approving first recommendation snapshot quote rows...");
+  console.log("Seeding Hanwha Life carrier quote rows...");
+  for (const quote of HANWHA_LIFE_CARRIER_QUOTE_ROWS) {
+    await db
+      .insert(insurancePremiumQuotes)
+      .values(quote)
+      .onConflictDoNothing();
+  }
+
+  console.log("Rejecting Hanwha Life e-insmarket zero quote rows...");
+  await db
+    .update(insurancePremiumQuotes)
+    .set({ reviewStatus: "rejected" })
+    .where(inArray(insurancePremiumQuotes.id, HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS));
+
+  console.log("Approving recommendation snapshot quote rows...");
   await db
     .update(insurancePremiumQuotes)
     .set({ reviewStatus: "approved" })
-    .where(inArray(insurancePremiumQuotes.id, FIRST_SNAPSHOT_APPROVED_QUOTE_IDS));
+    .where(
+      inArray(insurancePremiumQuotes.id, [
+        ...FIRST_SNAPSHOT_APPROVED_QUOTE_IDS,
+        ...HANWHA_LIFE_CARRIER_QUOTE_IDS,
+      ])
+    );
 
   console.log("Archiving legacy demo insurance products...");
   await db
@@ -1419,7 +1853,7 @@ async function seed() {
       .onConflictDoNothing();
   }
   console.log(
-    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length} quote approvals, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
+    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${HANWHA_LIFE_CARRIER_QUOTE_ROWS.length} Hanwha carrier quotes inserted if missing, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length + HANWHA_LIFE_CARRIER_QUOTE_IDS.length} quote approvals, ${HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS.length} Hanwha zero quotes rejected, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
   );
 }
 

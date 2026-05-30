@@ -1,9 +1,9 @@
 # [정책] 조건별 보험료 Quote Matrix 관리 방침
 > Created: 2026-05-28 03:00
-> Last Updated: 2026-05-31 00:49
+> Last Updated: 2026-05-31 01:09
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v1.14
+- **상태**: Draft v1.15
 - **범위**: 보험다모아/보험사 공시에서 수집한 보험료의 해석, 조건별 보험료 matrix 수집, seed 승격 정책
 - **결론**: 현재 수집된 `premium_text`는 특정 비교 조건의 대표 보험료일 뿐이다. 2026-05-28 PoC에서 암보험과 실손의료보험의 나이/성별 재조회 가능성이 확인됐고, 이를 저장할 `insurance_premium_quotes` schema/migration과 quote row 84건을 운영 Turso DB에 적용했다. 2026-05-30 첫 추천 snapshot 적용 후 KDB/교보라이프플래닛 암보험 quote 12건은 `approved`, 나머지 72건은 `needs_review`이며, UI는 대표 보험료와 사용자 선택 나이/성별 조건별 예상 보험료를 분리 표시한다. 2026-05-31에는 한화생명 `0원` quote blocker를 공식 carrier quote 8건으로 재조회해 후속 seed 승격 근거를 확보했다.
 
@@ -162,6 +162,8 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 
 조회 기준은 100세 만기, 20년납, 월납, 주계약가입금액 1,000만원이며, `quote_source_type=carrier_quote`로 관리한다. 이번 단계는 DB write 없이 `data/insurance/latest_hanwha_life_quote_blocker_probe.json`과 `../05_QA_Validation/42_HANWHA_LIFE_ZERO_QUOTE_BLOCKER_PROBE_2026_05_31.md`에 근거만 남긴다. 후속 seed PR에서 기존 한화생명 `0원` quote row를 공식 carrier quote로 교체하고, source/quote 승인과 recommendation snapshot 발행을 별도로 처리한다.
 
+2026-05-31 01:09 KST 기준 후속 seed PR 준비를 완료했다. `seed.ts`는 한화생명 공식 carrier quote 8건을 `insurance_premium_quotes`에 삽입하고 `approved`로 관리하며, 기존 보험다모아 `0원` quote row 8건은 `rejected`로 내린다. 한화생명 표준체형/비흡연체형 source 2건과 `insurance_products` snapshot 2건도 seed 적용 시 승인된다. DB 적용 전 검증은 `../05_QA_Validation/43_HANWHA_RECOMMENDATION_SNAPSHOT_SEED_2026_05_31.md`, 산출물은 `../../data/insurance/latest_hanwha_life_recommendation_snapshot_seed.json`에 둔다.
+
 ---
 
 ### 5-2. 2026-05-28 Quote Matrix PoC 결과
@@ -213,8 +215,9 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 | 11 | UI에서 "대표 보험료"와 "조건별 예상 보험료"를 분리 표시 | 완료. QA35 |
 | 12 | 사용자 나이/성별 선택값과 approved quote matrix 연결 | 완료. QA41 |
 | 13 | 한화생명 `0원` quote blocker를 공식 carrier quote로 재조회 | 완료. QA42 |
-| 14 | 한화생명 carrier quote를 seed/DB에 반영하고 추천 snapshot 확대 | 후속 seed/apply PR |
-| 15 | 가입담보 E~J 특약 조합을 별도 quote dimension으로 확장 | 후속 crawler PR |
+| 14 | 한화생명 carrier quote를 seed에 반영하고 추천 snapshot 확대 준비 | 완료. QA43 |
+| 15 | 운영 DB 백업 후 한화생명 snapshot seed 적용 | 후속 apply PR |
+| 16 | 가입담보 E~J 특약 조합을 별도 quote dimension으로 확장 | 후속 crawler PR |
 
 ---
 
@@ -248,5 +251,6 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 - **QA_Validation**: [Source Catalog Quote DB Apply](../05_QA_Validation/19_SOURCE_CATALOG_QUOTE_DB_APPLY_2026_05_29.md) - quote-only raw source 후보와 60건 추가 quote 적용 검증
 - **QA_Validation**: [First Recommendation Snapshot DB Apply](../05_QA_Validation/32_FIRST_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_30.md) - 첫 추천 snapshot quote 12건 승인과 source-backed 상품 3건 적용 검증
 - **QA_Validation**: [Hanwha Life Zero Quote Blocker Probe](../05_QA_Validation/42_HANWHA_LIFE_ZERO_QUOTE_BLOCKER_PROBE_2026_05_31.md) - 한화생명 공식 carrier quote 8건 재조회 검증
+- **QA_Validation**: [Hanwha Recommendation Snapshot Seed](../05_QA_Validation/43_HANWHA_RECOMMENDATION_SNAPSHOT_SEED_2026_05_31.md) - 한화생명 source/quote/product snapshot seed 검증
 - **QA_Validation**: [Demo Insurance Products Retirement](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md) - legacy demo 상품 운영 추천 제거 검증
 - **QA_Validation**: [Demo Products Archive DB Apply](../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md) - legacy demo 상품 archive 운영 DB 적용 검증
