@@ -48,6 +48,11 @@ export type DashboardPremiumQuote = {
   retrievedAtIso: string | null;
 };
 
+export type DashboardQuoteCondition = {
+  age: number;
+  sex: NonNullable<InsurancePremiumQuote["sex"]>;
+};
+
 export type DashboardProduct = InsuranceProduct & {
   officialProductUrl: string | null;
   sourceUrl: string | null;

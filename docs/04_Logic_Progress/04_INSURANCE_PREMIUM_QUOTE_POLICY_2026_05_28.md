@@ -1,11 +1,11 @@
 # [정책] 조건별 보험료 Quote Matrix 관리 방침
 > Created: 2026-05-28 03:00
-> Last Updated: 2026-05-30 16:40
+> Last Updated: 2026-05-31 00:17
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v1.12
+- **상태**: Draft v1.13
 - **범위**: 보험다모아/보험사 공시에서 수집한 보험료의 해석, 조건별 보험료 matrix 수집, seed 승격 정책
-- **결론**: 현재 수집된 `premium_text`는 특정 비교 조건의 대표 보험료일 뿐이다. 2026-05-28 PoC에서 암보험과 실손의료보험의 나이/성별 재조회 가능성이 확인됐고, 이를 저장할 `insurance_premium_quotes` schema/migration과 quote row 84건을 운영 Turso DB에 적용했다. 2026-05-30 첫 추천 snapshot 적용 후 KDB/교보라이프플래닛 암보험 quote 12건은 `approved`, 나머지 72건은 `needs_review`이며, UI는 대표 보험료와 조건별 예상 보험료를 분리 표시한다.
+- **결론**: 현재 수집된 `premium_text`는 특정 비교 조건의 대표 보험료일 뿐이다. 2026-05-28 PoC에서 암보험과 실손의료보험의 나이/성별 재조회 가능성이 확인됐고, 이를 저장할 `insurance_premium_quotes` schema/migration과 quote row 84건을 운영 Turso DB에 적용했다. 2026-05-30 첫 추천 snapshot 적용 후 KDB/교보라이프플래닛 암보험 quote 12건은 `approved`, 나머지 72건은 `needs_review`이며, UI는 대표 보험료와 사용자 선택 나이/성별 조건별 예상 보험료를 분리 표시한다.
 
 ---
 
@@ -143,6 +143,8 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 
 대표 추천 카드 가격은 각 source의 `age34_female` 조건을 사용한다. 조건별 quote matrix를 UI에 표시할 때는 대표 보험료와 별도 영역으로 분리하고, 아직 `needs_review`인 72건은 확정 견적처럼 노출하지 않는다. DB 적용 검증은 `../05_QA_Validation/32_FIRST_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_30.md`, UI 분리 검증은 `../05_QA_Validation/35_PREMIUM_QUOTE_MATRIX_UI_2026_05_30.md`에 둔다.
 
+2026-05-31 00:17 KST 기준 dashboard 추천 영역은 approved quote row에서 가능한 나이/성별 조건을 추출해 사용자가 선택할 수 있게 한다. 추천 카드에서는 선택 조건과 정확히 일치하는 approved quote row를 `내 조건 예상 보험료`로 강조한다. 단, checkout 합계와 `insurance_products.monthly_premium_*` 대표가는 아직 snapshot 대표가를 유지한다. 결제 금액까지 사용자 조건별 quote로 바꾸려면 장바구니/checkout 금액 산정 정책을 별도 PR에서 승인해야 한다. 검증은 `../05_QA_Validation/41_PREMIUM_QUOTE_PERSONALIZATION_2026_05_31.md`에 둔다.
+
 ---
 
 ### 5-2. 2026-05-28 Quote Matrix PoC 결과
@@ -192,7 +194,8 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 | 9 | 첫 추천 snapshot 대상 quote 12건 승인 및 source-backed 상품 3건 적용 | 완료. QA32 |
 | 10 | legacy demo 보험상품을 운영 추천 경로에서 제거 | 완료. QA33/QA34 |
 | 11 | UI에서 "대표 보험료"와 "조건별 예상 보험료"를 분리 표시 | 완료. QA35 |
-| 12 | 가입담보 E~J 특약 조합을 별도 quote dimension으로 확장 | 후속 crawler PR |
+| 12 | 사용자 나이/성별 선택값과 approved quote matrix 연결 | 완료. QA41 |
+| 13 | 가입담보 E~J 특약 조합을 별도 quote dimension으로 확장 | 후속 crawler PR |
 
 ---
 

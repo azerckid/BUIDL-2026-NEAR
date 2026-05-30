@@ -5,7 +5,11 @@ import { DateTime } from "luxon";
 import { useLocale, useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import type { DashboardPremiumQuote, DashboardProduct } from "@/actions/getDashboardData";
+import type {
+  DashboardPremiumQuote,
+  DashboardProduct,
+  DashboardQuoteCondition,
+} from "@/actions/getDashboardData";
 
 const NETWORK_LABELS: Record<string, string> = {
   near: "NEAR",
@@ -17,6 +21,7 @@ interface InsuranceProductCardProps {
   product: DashboardProduct;
   selected: boolean;
   onToggle: (id: string) => void;
+  selectedQuoteCondition: DashboardQuoteCondition | null;
 }
 
 function parseCoverageCaveats(rawCaveats: string | null): string[] {
@@ -60,7 +65,12 @@ function formatQuotePremium(quote: DashboardPremiumQuote, perMonth: string) {
   return quote.premiumText ?? "-";
 }
 
-export function InsuranceProductCard({ product, selected, onToggle }: InsuranceProductCardProps) {
+export function InsuranceProductCard({
+  product,
+  selected,
+  onToggle,
+  selectedQuoteCondition,
+}: InsuranceProductCardProps) {
   const t = useTranslations("insuranceProduct");
   const locale = useLocale();
   const isDiscount = product.discountEligible === 1 && product.originalPremiumUsdc != null;
@@ -70,6 +80,11 @@ export function InsuranceProductCard({ product, selected, onToggle }: InsuranceP
   const sourceUrl = product.sourceUrl ?? product.officialProductUrl;
   const approvedQuotes = product.approvedQuotes.slice(0, 4);
   const hiddenQuoteCount = Math.max(product.approvedQuotes.length - approvedQuotes.length, 0);
+  const selectedQuote = selectedQuoteCondition
+    ? product.approvedQuotes.find(
+        (quote) => quote.age === selectedQuoteCondition.age && quote.sex === selectedQuoteCondition.sex
+      ) ?? null
+    : null;
   const representativePremium =
     product.monthlyPremiumKrw != null
       ? `${formatKrw(product.monthlyPremiumKrw)}${t("perMonth")}`
@@ -164,11 +179,34 @@ export function InsuranceProductCard({ product, selected, onToggle }: InsuranceP
                   </span>
                 )}
               </div>
+              {selectedQuote ? (
+                <div className="mb-2 rounded-md border border-primary/35 bg-primary/10 px-2 py-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="min-w-0 truncate text-xs font-medium text-primary">
+                      {t("selectedQuote")} · {formatQuoteCondition(selectedQuote)}
+                    </span>
+                    <span className="flex-shrink-0 text-xs font-bold text-primary">
+                      {formatQuotePremium(selectedQuote, t("perMonth"))}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                selectedQuoteCondition && (
+                  <p className="mb-2 text-[11px] leading-relaxed text-muted-foreground">
+                    {t("selectedQuoteUnavailable")}
+                  </p>
+                )
+              )}
               <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                 {approvedQuotes.map((quote) => (
                   <div
                     key={quote.id}
-                    className="flex min-h-8 items-center justify-between gap-2 rounded-sm bg-muted/40 px-2 py-1.5"
+                    className={[
+                      "flex min-h-8 items-center justify-between gap-2 rounded-sm px-2 py-1.5",
+                      selectedQuote?.id === quote.id
+                        ? "bg-primary/10 ring-1 ring-primary/30"
+                        : "bg-muted/40",
+                    ].join(" ")}
                   >
                     <span className="min-w-0 truncate text-xs text-muted-foreground">
                       {formatQuoteCondition(quote)}

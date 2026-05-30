@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,11 +13,26 @@ import { RiskProfileCard } from "./RiskProfileCard";
 import { InsuranceProductCard } from "./InsuranceProductCard";
 import { ConciergeChat } from "./ConciergeChat";
 import { createCart } from "@/actions/createCart";
-import type { DashboardData, DashboardProduct, PriorityOrder } from "@/actions/getDashboardData";
+import type {
+  DashboardData,
+  DashboardProduct,
+  DashboardQuoteCondition,
+  PriorityOrder,
+} from "@/actions/getDashboardData";
 import type { RiskProfile, RiskLevel } from "@/lib/db/schema";
 import { isTestPilotClientEnabled, isTestPilotGuestIdentity } from "@/lib/test-pilot";
 
 const LEVEL_ORDER: Record<RiskLevel, number> = { high: 0, moderate: 1, normal: 2 };
+const QUOTE_SEX_ORDER: Record<DashboardQuoteCondition["sex"], number> = {
+  male: 0,
+  female: 1,
+  source_unknown: 2,
+};
+
+type QuoteConditionOptions = {
+  ages: number[];
+  sexes: DashboardQuoteCondition["sex"][];
+};
 
 function sortedCategories(
   riskProfile: RiskProfile,
@@ -28,6 +43,123 @@ function sortedCategories(
   }
   return (Object.keys(riskProfile) as Array<keyof RiskProfile>).sort(
     (a, b) => LEVEL_ORDER[riskProfile[a].level] - LEVEL_ORDER[riskProfile[b].level]
+  );
+}
+
+function getQuoteConditionOptions(products: DashboardProduct[]): QuoteConditionOptions {
+  const ages = new Set<number>();
+  const sexes = new Set<DashboardQuoteCondition["sex"]>();
+
+  for (const product of products) {
+    for (const quote of product.approvedQuotes) {
+      if (quote.age != null) ages.add(quote.age);
+      if (quote.sex != null) sexes.add(quote.sex);
+    }
+  }
+
+  return {
+    ages: Array.from(ages).sort((a, b) => a - b),
+    sexes: Array.from(sexes).sort((a, b) => QUOTE_SEX_ORDER[a] - QUOTE_SEX_ORDER[b]),
+  };
+}
+
+function getDefaultQuoteCondition(
+  options: QuoteConditionOptions
+): DashboardQuoteCondition | null {
+  if (options.ages.length === 0 || options.sexes.length === 0) return null;
+
+  return {
+    age: options.ages.includes(34) ? 34 : options.ages[0],
+    sex: options.sexes.includes("female") ? "female" : options.sexes[0],
+  };
+}
+
+function isQuoteConditionAvailable(
+  options: QuoteConditionOptions,
+  condition: DashboardQuoteCondition | null
+) {
+  if (!condition) return false;
+  return options.ages.includes(condition.age) && options.sexes.includes(condition.sex);
+}
+
+function getQuoteSexLabelKey(sex: DashboardQuoteCondition["sex"]) {
+  if (sex === "male") return "quoteCondition.sexMale";
+  if (sex === "female") return "quoteCondition.sexFemale";
+  return "quoteCondition.sexUnknown";
+}
+
+interface QuoteConditionSelectorProps {
+  options: QuoteConditionOptions;
+  selectedCondition: DashboardQuoteCondition | null;
+  onChange: (condition: DashboardQuoteCondition) => void;
+}
+
+function QuoteConditionSelector({
+  options,
+  selectedCondition,
+  onChange,
+}: QuoteConditionSelectorProps) {
+  const t = useTranslations("dashboard");
+
+  if (!selectedCondition || options.ages.length === 0 || options.sexes.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="rounded-lg border border-border/60 bg-muted/25 p-3">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold text-foreground">{t("quoteCondition.title")}</p>
+          <p className="text-[11px] text-muted-foreground">{t("quoteCondition.caption")}</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-[7rem_1fr]">
+        <label className="flex flex-col gap-1 text-xs font-medium text-muted-foreground">
+          {t("quoteCondition.age")}
+          <select
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm text-foreground outline-none focus:border-primary"
+            value={selectedCondition.age}
+            onChange={(event) => {
+              onChange({
+                age: Number(event.target.value),
+                sex: selectedCondition.sex,
+              });
+            }}
+          >
+            {options.ages.map((age) => (
+              <option key={age} value={age}>
+                {t("quoteCondition.ageValue", { age })}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-muted-foreground">
+            {t("quoteCondition.sex")}
+          </span>
+          <div className="grid grid-cols-2 gap-1 sm:grid-cols-3">
+            {options.sexes.map((sex) => {
+              const isSelected = selectedCondition.sex === sex;
+              return (
+                <button
+                  key={sex}
+                  type="button"
+                  className={[
+                    "h-9 rounded-md border px-2 text-xs font-medium transition-colors",
+                    isSelected
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-background text-muted-foreground hover:text-foreground",
+                  ].join(" ")}
+                  onClick={() => onChange({ age: selectedCondition.age, sex })}
+                >
+                  {t(getQuoteSexLabelKey(sex) as Parameters<typeof t>[0])}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -42,6 +174,9 @@ interface CartSummaryProps {
   recommendReason?: string | null;
   advisoryMessages?: DashboardData["advisoryMessages"];
   isTestPilotSession: boolean;
+  quoteConditionOptions: QuoteConditionOptions;
+  selectedQuoteCondition: DashboardQuoteCondition | null;
+  onQuoteConditionChange: (condition: DashboardQuoteCondition) => void;
 }
 
 function ProductList({
@@ -53,6 +188,9 @@ function ProductList({
   recommendReason,
   advisoryMessages,
   isTestPilotSession,
+  quoteConditionOptions,
+  selectedQuoteCondition,
+  onQuoteConditionChange,
 }: CartSummaryProps) {
   const t = useTranslations("dashboard");
 
@@ -67,6 +205,12 @@ function ProductList({
 
   return (
     <div className="flex flex-col gap-3">
+      <QuoteConditionSelector
+        options={quoteConditionOptions}
+        selectedCondition={selectedQuoteCondition}
+        onChange={onQuoteConditionChange}
+      />
+
       {products.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">{t("noProducts")}</p>
       ) : (
@@ -86,6 +230,7 @@ function ProductList({
                 product={product}
                 selected={selectedIds.has(product.id)}
                 onToggle={onToggle}
+                selectedQuoteCondition={selectedQuoteCondition}
               />
               {reason && recommendReason && (
                 <p className="mt-1 ml-1 text-xs text-muted-foreground">
@@ -133,6 +278,9 @@ interface RevealFlowProps {
   onCheckout: () => void;
   isPending: boolean;
   isTestPilotSession: boolean;
+  quoteConditionOptions: QuoteConditionOptions;
+  selectedQuoteCondition: DashboardQuoteCondition | null;
+  onQuoteConditionChange: (condition: DashboardQuoteCondition) => void;
 }
 
 function RevealFlow({
@@ -142,6 +290,9 @@ function RevealFlow({
   onCheckout,
   isPending,
   isTestPilotSession,
+  quoteConditionOptions,
+  selectedQuoteCondition,
+  onQuoteConditionChange,
 }: RevealFlowProps) {
   const { riskProfile, products, advisoryMessages, reasoning, coverageGapSummary, priorityOrder } = data;
   const t = useTranslations("dashboard");
@@ -308,6 +459,9 @@ function RevealFlow({
               recommendReason={t("reveal.recommendReason")}
               advisoryMessages={advisoryMessages}
               isTestPilotSession={isTestPilotSession}
+              quoteConditionOptions={quoteConditionOptions}
+              selectedQuoteCondition={selectedQuoteCondition}
+              onQuoteConditionChange={onQuoteConditionChange}
             />
           </motion.div>
         )}
@@ -326,6 +480,9 @@ interface LegacyTabsProps {
   onCheckout: () => void;
   isPending: boolean;
   isTestPilotSession: boolean;
+  quoteConditionOptions: QuoteConditionOptions;
+  selectedQuoteCondition: DashboardQuoteCondition | null;
+  onQuoteConditionChange: (condition: DashboardQuoteCondition) => void;
 }
 
 function LegacyTabs({
@@ -335,6 +492,9 @@ function LegacyTabs({
   onCheckout,
   isPending,
   isTestPilotSession,
+  quoteConditionOptions,
+  selectedQuoteCondition,
+  onQuoteConditionChange,
 }: LegacyTabsProps) {
   const { riskProfile, products, priorityOrder } = data;
   const t = useTranslations("dashboard");
@@ -368,6 +528,9 @@ function LegacyTabs({
           onCheckout={onCheckout}
           isPending={isPending}
           isTestPilotSession={isTestPilotSession}
+          quoteConditionOptions={quoteConditionOptions}
+          selectedQuoteCondition={selectedQuoteCondition}
+          onQuoteConditionChange={onQuoteConditionChange}
         />
       </TabsContent>
     </Tabs>
@@ -386,6 +549,22 @@ export function DashboardClient({ data }: DashboardClientProps) {
   const t = useTranslations("dashboard");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isPending, startTransition] = useTransition();
+  const quoteConditionOptions = useMemo(
+    () => getQuoteConditionOptions(data.products),
+    [data.products]
+  );
+  const defaultQuoteCondition = useMemo(
+    () => getDefaultQuoteCondition(quoteConditionOptions),
+    [quoteConditionOptions]
+  );
+  const [userQuoteCondition, setUserQuoteCondition] =
+    useState<DashboardQuoteCondition | null>(defaultQuoteCondition);
+  const selectedQuoteCondition = isQuoteConditionAvailable(
+    quoteConditionOptions,
+    userQuoteCondition
+  )
+    ? userQuoteCondition
+    : defaultQuoteCondition;
 
   const hasAiData = !!(advisoryMessages && reasoning && coverageGapSummary);
   const isTestPilotSession = isTestPilotClientEnabled() && isTestPilotGuestIdentity(walletAddress);
@@ -444,6 +623,9 @@ export function DashboardClient({ data }: DashboardClientProps) {
           onCheckout={handleCheckout}
           isPending={isPending}
           isTestPilotSession={isTestPilotSession}
+          quoteConditionOptions={quoteConditionOptions}
+          selectedQuoteCondition={selectedQuoteCondition}
+          onQuoteConditionChange={setUserQuoteCondition}
         />
       ) : (
         <LegacyTabs
@@ -453,6 +635,9 @@ export function DashboardClient({ data }: DashboardClientProps) {
           onCheckout={handleCheckout}
           isPending={isPending}
           isTestPilotSession={isTestPilotSession}
+          quoteConditionOptions={quoteConditionOptions}
+          selectedQuoteCondition={selectedQuoteCondition}
+          onQuoteConditionChange={setUserQuoteCondition}
         />
       )}
 
