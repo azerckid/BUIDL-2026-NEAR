@@ -2,10 +2,12 @@
   "common": {
     "steps": {
       "walletConnect": "Connect Wallet",
+      "testPilotStart": "Start Test",
       "fileUpload": "Upload File",
       "teeAnalysis": "TEE Analysis",
       "insuranceRecommend": "Recommendations",
-      "payment": "Payment"
+      "payment": "Payment",
+      "testApplication": "Test Request"
     },
     "back": "Back",
     "loading": "Loading..."
@@ -19,6 +21,10 @@
     "connectPrompt": "Connect your NEAR Testnet wallet to begin",
     "startUpload": "Upload Genetic File",
     "walletConnected": "Wallet connected — ready to proceed",
+    "testPilot": {
+      "start": "Start Test",
+      "noLogin": "During testing, you can try the flow without signup, wallet, or payment"
+    },
     "features": {
       "tee": {
         "label": "TEE",
@@ -42,6 +48,8 @@
     "backLabel": "Home",
     "title": "Upload Genetic File",
     "description": "Your file is never sent to the server. Only a hash is computed in the browser, then the original is analyzed inside TEE.",
+    "testPilotBadge": "Test Mode",
+    "testPilotDescription": "Continue with a test session without signup or wallet connection. Raw genetic data is not stored and is purged after analysis.",
     "supportedFormats": "Supported formats: GenTok(.txt), VCF(.vcf), CSV(.csv), PDF(.pdf)",
     "maxSize": "Max file size: 5MB"
   },
@@ -166,6 +174,9 @@
     "sessionError": "Failed to create session",
     "sessionCreated": "Session created — redirecting to analysis",
     "processError": "An error occurred during processing",
+    "profileError": "Failed to create test profile",
+    "testPilotBadge": "Test Session",
+    "testPilotGuest": "Creating upload and analysis session as {identity}",
     "fileTooLarge": "File size must not exceed 5MB",
     "invalidFormat": "Only .vcf, .txt, .csv, .pdf files are allowed"
   },

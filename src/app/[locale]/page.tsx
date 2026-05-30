@@ -8,6 +8,8 @@ import { WalletConnect } from "@/components/modules/WalletConnect";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "@/i18n/navigation";
+import { FlaskConical } from "lucide-react";
+import { getOrCreateTestPilotGuestIdentity, isTestPilotClientEnabled } from "@/lib/test-pilot";
 
 const DnaBackground = dynamic(
   () => import("@/components/modules/DnaBackground").then((m) => ({ default: m.DnaBackground })),
@@ -18,6 +20,7 @@ export default function Home() {
   const { isConnected } = useWallet();
   const router = useRouter();
   const t = useTranslations("home");
+  const isTestPilotEnabled = isTestPilotClientEnabled();
 
   const FEATURES = [
     { label: t("features.tee.label"), title: t("features.tee.title"), desc: t("features.tee.desc") },
@@ -54,11 +57,41 @@ export default function Home() {
 
           {!isConnected ? (
             <div className="flex flex-col items-center gap-3">
+              {isTestPilotEnabled && (
+                <>
+                  <Button
+                    size="lg"
+                    onClick={() => {
+                      getOrCreateTestPilotGuestIdentity();
+                      router.push("/upload?mode=test");
+                    }}
+                    className="min-w-[220px] gap-2 font-semibold"
+                  >
+                    <FlaskConical size={16} />
+                    {t("testPilot.start")}
+                  </Button>
+                  <p className="text-xs text-primary">{t("testPilot.noLogin")}</p>
+                </>
+              )}
               <WalletConnect />
               <p className="text-xs text-muted-foreground">{t("connectPrompt")}</p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-3">
+              {isTestPilotEnabled && (
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => {
+                    getOrCreateTestPilotGuestIdentity();
+                    router.push("/upload?mode=test");
+                  }}
+                  className="min-w-[220px] gap-2 font-semibold"
+                >
+                  <FlaskConical size={16} />
+                  {t("testPilot.start")}
+                </Button>
+              )}
               <Button
                 size="lg"
                 onClick={() => router.push("/upload")}

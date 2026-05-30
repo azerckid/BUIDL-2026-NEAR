@@ -8,9 +8,12 @@ import { Lock, LockOpen, Upload, FileText, X } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { createSession } from "@/actions/createSession";
+import { upsertUserProfile } from "@/actions/upsertUserProfile";
 import { useWallet } from "@/context/WalletContext";
+import { maskTestPilotGuestIdentity } from "@/lib/test-pilot";
 
 // ─── 파일 검증 상수 ───────────────────────────────────────────────────────────
 
@@ -64,10 +67,16 @@ function formatFileSize(bytes: number): string {
 
 // ─── 컴포넌트 ─────────────────────────────────────────────────────────────────
 
-export function FileUploadZone() {
+interface FileUploadZoneProps {
+  testPilotGuestId?: string | null;
+}
+
+export function FileUploadZone({ testPilotGuestId = null }: FileUploadZoneProps) {
   const router = useRouter();
   const t = useTranslations("fileUpload");
   const { accountId } = useWallet();
+  const effectiveAccountId = testPilotGuestId ?? accountId;
+  const isTestPilot = Boolean(testPilotGuestId);
 
   const STAGE_LABEL: Record<ProcessStage, string> = {
     idle: "",
@@ -114,7 +123,6 @@ export function FileUploadZone() {
     setSelectedFile(file);
     setIsLocked(true);
     toast.success(t("validationPassed"));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [t]);
 
   const handleDrop = useCallback(
@@ -145,7 +153,6 @@ export function FileUploadZone() {
     } catch {
       toast.error(t("sampleFetchError"));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [validateAndSetFile, t]);
 
   const handleClearFile = useCallback(() => {
@@ -157,7 +164,7 @@ export function FileUploadZone() {
   }, []);
 
   const handleStartAnalysis = useCallback(async () => {
-    if (!selectedFile || !accountId) return;
+    if (!selectedFile || !effectiveAccountId) return;
     setIsProcessing(true);
 
     try {
@@ -173,7 +180,17 @@ export function FileUploadZone() {
       //    raw 파일은 사전 업로드하지 않는다. 분석 시점에 attested TEE chat
       //    completions 프롬프트로만 전달되어 휘발성 메모리에서 처리/purge된다.
       setStage("creating");
-      const sessionResult = await createSession(accountId, fileHash, fileType);
+      if (isTestPilot) {
+        const profileResult = await upsertUserProfile(effectiveAccountId);
+        if (!profileResult.success) {
+          toast.error(profileResult.error ?? t("profileError"));
+          setIsProcessing(false);
+          setStage("idle");
+          return;
+        }
+      }
+
+      const sessionResult = await createSession(effectiveAccountId, fileHash, fileType);
 
       if (!sessionResult.success || !sessionResult.sessionId) {
         toast.error(sessionResult.error ?? t("sessionError"));
@@ -197,8 +214,7 @@ export function FileUploadZone() {
       setIsProcessing(false);
       setStage("idle");
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedFile, accountId, router, t]);
+  }, [selectedFile, effectiveAccountId, isTestPilot, router, t]);
 
   const dropZoneClass = [
     "relative w-full rounded-2xl border-2 border-dashed transition-colors duration-200",
@@ -212,6 +228,19 @@ export function FileUploadZone() {
 
   return (
     <div className="flex flex-col items-center gap-6 w-full max-w-lg">
+      {testPilotGuestId && (
+        <div className="flex w-full items-center justify-between gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-left">
+          <div className="flex flex-col gap-1">
+            <Badge variant="outline" className="w-fit border-primary/40 text-primary">
+              {t("testPilotBadge")}
+            </Badge>
+            <p className="text-xs text-muted-foreground">
+              {t("testPilotGuest", { identity: maskTestPilotGuestIdentity(testPilotGuestId) })}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* 드롭존 */}
       <div
         onDragOver={(e) => {
