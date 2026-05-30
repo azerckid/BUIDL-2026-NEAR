@@ -1,9 +1,11 @@
 # [UI/UX 설계] 유전자 AI 보험 Web DApp 사용자 흐름 (User Flow)
+> Created: 2026-03-31 00:00
+> Last Updated: 2026-05-30 17:18
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-04-03
+- **최종 수정일**: 2026-05-30 (테스트 기간 무로그인·무결제 플로우 추가)
 - **레이어**: 02_UI_Screens
-- **상태**: Draft v1.0
+- **상태**: Draft v1.1
 
 ---
 
@@ -49,6 +51,59 @@
 
 ---
 
+## 2-A. 테스트 기간 사용자 여정 (No Login / No Payment)
+
+테스트 기간에는 일반 사용자가 지갑 설치, 회원가입, 결제를 하지 않고도 서비스 가치를 끝까지 확인할 수 있어야 한다. 이 플로우는 production 가입/결제 플로우를 대체하지 않고 `Test Pilot Mode`가 켜진 환경에서만 노출한다.
+
+### Test Step 1: 테스트로 시작
+
+- **화면 구성**: 랜딩 페이지의 primary CTA를 `테스트로 시작`으로 표시.
+- **사용자 행동**: 지갑 연결 없이 CTA 클릭.
+- **시스템 동작**: 브라우저 sessionStorage에 `guest-<random>.testnet` 형식의 테스트 identity 생성.
+- **UX 포인트**: "가입·결제 없이 체험" 배지를 표시해 테스트 플로우임을 명확히 한다.
+
+### Test Step 2: 유전자 결과 업로드
+
+- **화면 구성**: 기존 파일 업로드 화면 유지.
+- **사용자 행동**: DTC 결과 파일을 업로드.
+- **시스템 동작**: guest identity로 `user_profiles`와 `analysis_sessions`를 생성.
+- **UX 포인트**: "유전자 원본은 저장하지 않으며 분석 후 폐기됩니다" 문구를 유지한다.
+
+### Test Step 3: TEE 분석
+
+- **화면 구성**: 기존 분석 진행 화면 유지.
+- **사용자 행동**: 별도 지갑 서명 없이 분석 진행.
+- **시스템 동작**: 테스트 모드 전용 서버 액션이 NEAR 서명 검증만 생략하고, TEE 분석과 상품 매칭은 실제 경로를 사용한다.
+- **UX 포인트**: 테스트 모드 배지를 표시하되, 프라이버시 처리 과정은 실제 플로우와 동일하게 보여준다.
+
+### Test Step 4: 실제 상품 추천 확인
+
+- **화면 구성**: source-backed 추천 카드 표시.
+- **사용자 행동**: 추천 상품과 조건별 예상 보험료 확인 후 상품 선택.
+- **시스템 동작**: 운영 추천 필터와 approved quote matrix만 사용.
+- **UX 포인트**: 대표 보험료와 조건별 예상 보험료를 분리 표시하고, 실제 가입 보험료가 아님을 고지한다.
+
+### Test Step 5: 결제 없이 테스트 신청 완료
+
+- **화면 구성**: checkout 화면의 결제 버튼을 `결제 없이 테스트 신청 완료`로 변경.
+- **사용자 행동**: 실제 지갑 서명 없이 완료 버튼 클릭.
+- **시스템 동작**: `test_pilot_checkouts`에 테스트 신청 기록을 남기고 cart를 `checked_out`으로 종료.
+- **UX 포인트**: 트랜잭션 해시 대신 테스트 신청 ID를 표시한다. "실제 보험 가입, 청약, 결제가 아닙니다" 고지를 성공 화면에 포함한다.
+
+---
+
+## 2-B. 테스트 모드와 운영 모드 비교
+
+| 단계 | 운영 모드 | 테스트 모드 |
+|---|---|---|
+| 시작 | NEAR 지갑 연결 | `테스트로 시작` |
+| 사용자 식별 | wallet address | `guest-*.testnet` |
+| 분석 인증 | NEAR 서명 검증 | 테스트 서버 액션에서 서명 검증 생략 |
+| 추천 상품 | source-backed active 상품 | 동일 |
+| 보험료 표시 | 대표 보험료 + approved quote matrix | 동일 |
+| checkout | NEAR/ETH 결제 | no-payment test checkout |
+| 완료 화면 | txHash, 결제 네트워크 | test checkout ID, 테스트 고지 |
+
 ---
 
 ## 3. 에러 케이스 및 엣지 케이스 흐름 (Error & Edge Cases)
@@ -72,6 +127,18 @@
 ### E-5: 결제 트랜잭션 실패 (Step 5)
 - **발생 조건**: Confidential Intents 트랜잭션 revert.
 - **처리**: "결제가 취소되었습니다. 보험사로 어떠한 정보도 전송되지 않았습니다." Dialog 노출. 잔액 즉시 환불 확인 링크(NEAR Explorer) 제공.
+
+### E-6: 테스트 모드가 꺼진 상태에서 테스트 URL 접근
+- **발생 조건**: `TEST_PILOT_ENABLED=false`인데 사용자가 테스트 시작 URL 또는 테스트 checkout URL에 접근.
+- **처리**: 운영 홈으로 돌려보내고 "현재 테스트 모드는 비활성화되어 있습니다" 안내 표시.
+
+### E-7: guest session 만료
+- **발생 조건**: sessionStorage가 삭제됐거나 `analysis_results.expires_at`이 만료된 경우.
+- **처리**: 업로드 화면으로 이동시키고 "테스트 세션이 만료되었습니다. 다시 시작해 주세요" 안내 표시.
+
+### E-8: 테스트 checkout 중 실제 결제 경로 진입 시도
+- **발생 조건**: guest identity 상태에서 NEAR/ETH 결제 버튼 또는 결제 네트워크 선택 진입.
+- **처리**: 결제 경로를 차단하고 no-payment checkout 화면으로 되돌린다.
 
 ---
 
@@ -117,6 +184,8 @@
 
 ---
 
-## 관련 문서
-- [비즈니스 기획안](../01_Concept_Design/GENETIC_AI_INSURANCE_AGENT.md)
-- [기술 검증 시나리오](../05_QA_Validation/SECURITY_CHECKLIST.md)
+## 7. Related Documents
+- **Concept_Design**: [비즈니스 기획안](../01_Concept_Design/GENETIC_AI_INSURANCE_AGENT.md) - 서비스 가치와 프라이버시 설계 배경
+- **Technical_Specs**: [Test Pilot Mode](../03_Technical_Specs/04_TEST_PILOT_MODE_SPEC_2026_05_30.md) - 무로그인·무결제 테스트 플로우 기술 명세
+- **QA_Validation**: [Test Pilot Mode QA Checklist](../05_QA_Validation/36_TEST_PILOT_MODE_QA_2026_05_30.md) - 테스트 모드 검증 기준
+- **QA_Validation**: [기술 검증 시나리오](../05_QA_Validation/SECURITY_CHECKLIST.md) - 프라이버시·보안 검증 기준

@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-30 16:40
+> Last Updated: 2026-05-30 17:18
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-30 (조건별 보험료 UI 분리 표시)
+- **최종 수정일**: 2026-05-30 (Test Pilot Mode 무로그인·무결제 정책 문서화)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.15
+- **상태**: Draft v3.16
 - **phase**: Phase 2
 
 ---
@@ -60,7 +60,7 @@
 
 | 트랙 | 핵심 질문 | 다음 작업 |
 |---|---|---|
-| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | 사용자 나이/성별 입력값과 approved quote matrix를 연결하는 개인화 선택 로직 설계 |
+| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | Test Pilot Mode에서 source-backed 추천을 무로그인·무결제로 끝까지 체험 가능하게 구현 |
 | NEAR 프라이버시 기술 | IronClaw v0.28.2까지의 업데이트가 블로커 2~3을 해소하는가 | WIT-compatible WASM runtime, `tool_install`, WASM 실행 결과 반환 경로 실측 |
 | 매칭 브리지 | AI 해석과 DB 상품 추천의 경계를 어떻게 유지할 것인가 | `riskProfile.flags` -> `insurance_products.risk_targets` 결정론적 매칭 유지 |
 
@@ -104,6 +104,8 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 2026-05-30 16:26 KST 기준 운영 Turso DB에 legacy demo 상품 archive를 백업 후 적용했다. 적용 후 `prod_001`~`prod_005`는 모두 `catalog_status=archived`, `is_active=0`이고, active product total은 source-backed 상품 3건만 남았다. `insurance_product_sources.review_status` 분포는 `approved=3`/`needs_review=7`/`raw=12`, `insurance_premium_quotes.review_status` 분포는 `approved=12`/`needs_review=72`로 유지됐다. 검증은 `../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md`에 둔다. 다음 작업은 추천 카드 UI에서 대표 보험료와 조건별 approved quote matrix를 분리 표시하는 것이다.
 
 2026-05-30 16:40 KST 기준 추천 카드 UI에서 대표 보험료와 조건별 approved quote matrix를 분리 표시했다. `getDashboardData`는 active source-backed 상품의 `product_source_id` 기준으로 `insurance_premium_quotes.review_status='approved'` row만 조회해 카드에 연결하고, `InsuranceProductCard`는 대표 KRW 보험료, USDC 환산값, 조건별 예상 보험료, 공식 비교 조건 caveat를 구분해서 표시한다. `needs_review` quote 72건은 UI에 노출하지 않는다. 검증은 `../05_QA_Validation/35_PREMIUM_QUOTE_MATRIX_UI_2026_05_30.md`에 둔다. 다음 작업은 사용자 나이/성별 입력값과 approved quote matrix를 연결하는 개인화 선택 로직을 설계하고, 한화생명 0원 quote와 신한라이프 일반형 문서 endpoint를 계속 해소하는 것이다.
+
+2026-05-30 17:18 KST 기준 서비스 테스트 기간을 위한 Test Pilot Mode 정책을 문서화했다. 테스트 사용자는 사인업, 로그인, NEAR 지갑 연결 없이 `guest-*.testnet` identity로 업로드와 분석을 진행하고, 실제 결제 없이 `테스트 신청 완료`까지 갈 수 있어야 한다. 운영 결제·지갑 플로우는 유지하되 feature flag로 분기하고, test checkout은 실제 `transactions` row와 혼동되지 않도록 별도 `test_pilot_checkouts` 모델을 권장한다. 기술 명세는 `../03_Technical_Specs/04_TEST_PILOT_MODE_SPEC_2026_05_30.md`, UI 흐름은 `../02_UI_Screens/USER_FLOW.md`, QA 체크리스트는 `../05_QA_Validation/36_TEST_PILOT_MODE_QA_2026_05_30.md`에 둔다. 다음 작업은 guest identity 생성, 지갑 없는 session 생성, test analysis action, no-payment checkout을 순차 구현하는 것이다.
 
 ## 2. 세부 실행 계획 (Detailed Execution)
 
