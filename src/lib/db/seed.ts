@@ -1342,91 +1342,15 @@ const FIRST_RECOMMENDATION_SNAPSHOT_PRODUCTS: InsuranceProductSeed[] = [
   },
 ];
 
-const DEMO_PRODUCTS: InsuranceProductSeed[] = [
-  {
-    id: "prod_001",
-    name: "췌장·간 집중 보장 특약",
-    provider: "KB손해보험",
-    chainNetwork: "near" as const,
-    contractAddress: null,
-    monthlyPremiumUsdc: 32.0,
-    originalPremiumUsdc: 45.0,
-    coverageCategory: "oncology" as const,
-    riskTargets: JSON.stringify(["pancreatic_cancer", "liver_cancer"]),
-    matchingStrategy: "risk_target",
-    catalogStatus: "approved",
-    discountEligible: 1,
-    isActive: 1,
-    createdAt: now,
-  },
-  {
-    id: "prod_002",
-    name: "암 진단비 강화 특약",
-    provider: "삼성생명",
-    chainNetwork: "near" as const,
-    contractAddress: null,
-    monthlyPremiumUsdc: 47.0,
-    originalPremiumUsdc: 60.0,
-    coverageCategory: "oncology" as const,
-    riskTargets: JSON.stringify(["pancreatic_cancer", "lung_cancer", "colon_cancer"]),
-    matchingStrategy: "risk_target",
-    catalogStatus: "approved",
-    discountEligible: 1,
-    isActive: 1,
-    createdAt: now,
-  },
-  {
-    id: "prod_003",
-    name: "당뇨·대사 관리 특약",
-    provider: "한화생명",
-    chainNetwork: "near" as const,
-    contractAddress: null,
-    monthlyPremiumUsdc: 18.5,
-    originalPremiumUsdc: null,
-    coverageCategory: "metabolic" as const,
-    riskTargets: JSON.stringify(["type2_diabetes", "hyperlipidemia"]),
-    matchingStrategy: "risk_target",
-    catalogStatus: "approved",
-    discountEligible: 0,
-    isActive: 1,
-    createdAt: now,
-  },
-  {
-    id: "prod_004",
-    name: "심혈관 정밀 보장 특약",
-    provider: "신한라이프",
-    chainNetwork: "near" as const,
-    contractAddress: null,
-    monthlyPremiumUsdc: 29.0,
-    originalPremiumUsdc: 38.0,
-    coverageCategory: "cardiovascular" as const,
-    riskTargets: JSON.stringify(["myocardial_infarction", "stroke", "arrhythmia"]),
-    matchingStrategy: "risk_target",
-    catalogStatus: "approved",
-    discountEligible: 1,
-    isActive: 1,
-    createdAt: now,
-  },
-  {
-    id: "prod_005",
-    name: "치매 조기 진단 특약",
-    provider: "교보생명",
-    chainNetwork: "near" as const,
-    contractAddress: null,
-    monthlyPremiumUsdc: 22.0,
-    originalPremiumUsdc: null,
-    coverageCategory: "neurological" as const,
-    riskTargets: JSON.stringify(["alzheimers", "parkinsons"]),
-    matchingStrategy: "risk_target",
-    catalogStatus: "approved",
-    discountEligible: 0,
-    isActive: 1,
-    createdAt: now,
-  },
+const LEGACY_DEMO_PRODUCT_IDS = [
+  "prod_001",
+  "prod_002",
+  "prod_003",
+  "prod_004",
+  "prod_005",
 ];
 
 const ACTIVE_INSURANCE_PRODUCTS: InsuranceProductSeed[] = [
-  ...DEMO_PRODUCTS,
   ...FIRST_RECOMMENDATION_SNAPSHOT_PRODUCTS,
 ];
 
@@ -1481,7 +1405,13 @@ async function seed() {
     .set({ reviewStatus: "approved" })
     .where(inArray(insurancePremiumQuotes.id, FIRST_SNAPSHOT_APPROVED_QUOTE_IDS));
 
-  console.log("Seeding active insurance products...");
+  console.log("Archiving legacy demo insurance products...");
+  await db
+    .update(insuranceProducts)
+    .set({ catalogStatus: "archived", isActive: 0 })
+    .where(inArray(insuranceProducts.id, LEGACY_DEMO_PRODUCT_IDS));
+
+  console.log("Seeding active source-backed insurance products...");
   for (const product of ACTIVE_INSURANCE_PRODUCTS) {
     await db
       .insert(insuranceProducts)
@@ -1489,7 +1419,7 @@ async function seed() {
       .onConflictDoNothing();
   }
   console.log(
-    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length} quote approvals, and ${ACTIVE_INSURANCE_PRODUCTS.length} active insurance products checked.`
+    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length} quote approvals, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
   );
 }
 

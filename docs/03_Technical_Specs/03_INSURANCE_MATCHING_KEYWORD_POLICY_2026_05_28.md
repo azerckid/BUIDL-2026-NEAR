@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-05-30 15:31
+> Last Updated: 2026-05-30 15:46
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.4
+- **상태**: Draft v1.5
 - **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준, 추천 snapshot 발행 기준
 - **결론**: 이 프로젝트에서 말하는 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DB에 보험상품을 넣기 전에 DNA risk target과 매칭할 수 있도록 `coverage_category`, `risk_targets`, `matching_strategy`, `coverage_caveats_json`을 정리하는 내부 데이터 정규화 작업이다.
 
@@ -146,6 +146,7 @@ DNA 분석 결과
 | `primary_source_document_id` | 추천 판단의 대표 근거 문서를 FK로 연결한다 |
 | `catalog_status` | 최초 발행은 `approved`, 문서 hash 변경 또는 매칭 의심 시 `needs_review`, 판매 중단 시 `archived`로 둔다 |
 | `is_active` | 모든 체크가 끝난 상품만 `1`로 둔다. 준비 중 상품은 source table에만 남긴다 |
+| 운영 추천 조건 | 서비스 추천 경로는 `is_active=1`, `catalog_status=approved`, `product_source_id IS NOT NULL` 상품만 읽는다 |
 | UI 문구 | 추천 이유, 출처, 확인일, caveat, 보험료 기준이 카드 또는 상세 화면에서 확인 가능해야 한다 |
 
 ### 7-5. 발행 PR 필수 검증
@@ -155,7 +156,7 @@ DNA 분석 결과
 3. `risk_targets`가 현재 DNA risk key 사전에 존재하는지 확인한다.
 4. `baseline` 상품이 위험 점수 랭킹에 섞이지 않는지 확인한다.
 5. 대표 보험료와 조건별 quote를 UI에서 구분해 표시하는지 확인한다.
-6. 기존 active demo 상품 수와 추천 결과가 의도치 않게 변하지 않았는지 확인한다.
+6. legacy demo 상품이 운영 추천, 대시보드, 카트 경로에 노출되지 않는지 확인한다.
 7. 문서 hash 변경, 판매 중단, 상품명 variant 발견 시 rollback 또는 `catalog_status=needs_review` 처리 방안을 PR에 남긴다.
 
 첫 실제 상품 발행 PR은 KDB, 한화생명, 교보라이프플래닛처럼 공식 문서 hash와 상품 variant가 상대적으로 명확한 후보 중에서 시작한다. 신한라이프 표준형처럼 일반형 문서 endpoint가 아직 확보되지 않은 source는 발행 대상에서 제외한다.
@@ -172,6 +173,8 @@ DNA 분석 결과
 
 2026-05-30 15:31 KST 기준 위 seed를 운영 Turso DB에 백업 후 적용했다. 적용 후 `insurance_products=8`, source-backed active 상품 3건, `insurance_product_sources.review_status` 분포 `approved=3`, `needs_review=7`, `raw=12`, `insurance_premium_quotes.review_status` 분포 `approved=12`, `needs_review=72`를 확인했다. 검증은 `../05_QA_Validation/32_FIRST_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_30.md`에 둔다.
 
+2026-05-30 15:46 KST 기준 legacy demo 상품은 운영 추천 경로에서 제거한다. 추천 엔진, 대시보드, 카트는 source-backed active 상품만 읽으며, 다음 seed 적용 시 `prod_001`~`prod_005`는 `catalog_status=archived`, `is_active=0`으로 내려간다. 이번 단계의 DB 적용은 백업 후 별도 apply PR로 진행한다. 검증은 `../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md`에 둔다.
+
 | 단계 | 개수 | 의미 |
 |---|---:|---|
 | 보험다모아 P0 샘플 | 56개 | 암보험, 실손의료보험, 유병력자실손, 질병보험, 간병/치매보험 원천 후보 |
@@ -185,7 +188,7 @@ DNA 분석 결과
 | 첫 snapshot seed 반영 후보 | 3개 | KDB생명 1개, 교보라이프플래닛 2개. source status/quote 승인/USDC 환산 포함 |
 | source-backed 추천 매칭 가능 상품 | 3개 | 운영 DB에 적용된 실제 source-backed active 상품 |
 
-다음 단계는 추천 카드에서 대표 보험료와 조건별 approved quote matrix를 분리 표시하고, 기존 demo 상품 5건을 유지할지 source-backed 상품만 노출할지 정책을 정하는 것이다. 신한라이프 일반형 문서 endpoint 탐색과 한화생명 0원 quote 해소는 별도 트랙으로 유지한다.
+다음 단계는 운영 DB 백업 후 legacy demo 상품 5건을 archive 처리하고, 추천 카드에서 대표 보험료와 조건별 approved quote matrix를 분리 표시하는 것이다. 신한라이프 일반형 문서 endpoint 탐색과 한화생명 0원 quote 해소는 별도 트랙으로 유지한다.
 
 ---
 
@@ -229,3 +232,4 @@ DNA 분석 결과
 - **QA_Validation**: [Source Catalog Quote Expansion](../05_QA_Validation/18_SOURCE_CATALOG_QUOTE_EXPANSION_2026_05_29.md) - quote-only raw source 후보 15개 확장 검증
 - **QA_Validation**: [KDB Source Document DB Apply](../05_QA_Validation/28_KDB_SOURCE_DOCUMENTS_DB_APPLY_2026_05_30.md) - KDB source document 2건 DB 적용 검증
 - **QA_Validation**: [Matching Keyword Caveat Review](../05_QA_Validation/30_MATCHING_KEYWORD_CAVEAT_REVIEW_2026_05_30.md) - 첫 추천 snapshot 전 매칭 키워드와 caveat 검수
+- **QA_Validation**: [Demo Insurance Products Retirement](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md) - legacy demo 상품 운영 추천 제거 검증

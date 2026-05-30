@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { activeSourceBackedProductFilter } from "@/lib/db/insuranceProductFilters";
 import { insuranceProducts, type InsuranceProduct } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 import { TeeAnalysisOutput } from "@/types/tee-output";
 
 export interface ProductMatchGroups {
@@ -57,7 +57,7 @@ export async function matchProductGroups(
   const products = await db
     .select()
     .from(insuranceProducts)
-    .where(eq(insuranceProducts.isActive, 1));
+    .where(activeSourceBackedProductFilter());
 
   const riskTargetProducts = products
     .filter((product) => {

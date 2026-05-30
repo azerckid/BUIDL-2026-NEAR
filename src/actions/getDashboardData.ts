@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { activeSourceBackedProductFilter } from "@/lib/db/insuranceProductFilters";
 import {
   analysisResults,
   insuranceProducts,
@@ -129,7 +130,7 @@ export async function getDashboardData(
   const allProducts = await db
     .select()
     .from(insuranceProducts)
-    .where(eq(insuranceProducts.isActive, 1));
+    .where(activeSourceBackedProductFilter());
 
   const productMap = new Map(allProducts.map((p) => [p.id, p]));
   const products = recommendedProductIds
