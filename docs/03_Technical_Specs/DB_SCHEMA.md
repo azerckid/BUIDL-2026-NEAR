@@ -1,11 +1,11 @@
 # [기술 명세] 데이터 모델 및 DB 스키마 상세 명세
 > Created: 2026-04-01 00:00
-> Last Updated: 2026-05-28 19:28
+> Last Updated: 2026-05-30 15:46
 
 - **작성일**: 2026-04-01
-- **최종 수정일**: 2026-05-28
+- **최종 수정일**: 2026-05-30
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.1
+- **상태**: Draft v1.2
 
 ---
 
@@ -482,79 +482,21 @@ export const insuranceProducts = sqliteTable("insurance_products", {
 
 ---
 
-## 5. 시드 데이터 (Mock 보험 상품)
+## 5. 시드 데이터 정책
 
-해커톤 데모용 최소 시드 데이터. `src/lib/db/seed.ts`에 위치.
+2026-05-30 기준 해커톤 데모용 mock 보험상품 5건은 운영 추천 경로에서 제거한다. `src/lib/db/seed.ts`는 fresh DB에 demo product를 더 이상 insert하지 않고, 기존 운영 DB에 남아 있는 `prod_001`~`prod_005`는 다음 seed 적용 시 `catalog_status=archived`, `is_active=0`으로 내린다.
+
+운영 추천 가능 상품은 아래 조건을 모두 만족해야 한다.
 
 ```typescript
-export const SEED_PRODUCTS = [
-  {
-    id: "prod_001",
-    name: "췌장·간 집중 보장 특약",
-    provider: "KB손해보험",
-    chainNetwork: "near",
-    contractAddress: null,
-    monthlyPremiumUsdc: 32.0,
-    originalPremiumUsdc: 45.0,
-    coverageCategory: "oncology",
-    riskTargets: JSON.stringify(["pancreatic_cancer", "liver_cancer"]),
-    discountEligible: 1,
-    isActive: 1,
-  },
-  {
-    id: "prod_002",
-    name: "암 진단비 강화 특약",
-    provider: "삼성생명",
-    chainNetwork: "near",
-    contractAddress: null,
-    monthlyPremiumUsdc: 47.0,
-    originalPremiumUsdc: 60.0,
-    coverageCategory: "oncology",
-    riskTargets: JSON.stringify(["pancreatic_cancer", "lung_cancer", "colon_cancer"]),
-    discountEligible: 1,
-    isActive: 1,
-  },
-  {
-    id: "prod_003",
-    name: "당뇨·대사 관리 특약",
-    provider: "한화생명",
-    chainNetwork: "near",
-    contractAddress: null,
-    monthlyPremiumUsdc: 18.5,
-    originalPremiumUsdc: null,
-    coverageCategory: "metabolic",
-    riskTargets: JSON.stringify(["type2_diabetes", "hyperlipidemia"]),
-    discountEligible: 0,
-    isActive: 1,
-  },
-  {
-    id: "prod_004",
-    name: "심혈관 정밀 보장 특약",
-    provider: "신한라이프",
-    chainNetwork: "near",
-    contractAddress: null,
-    monthlyPremiumUsdc: 29.0,
-    originalPremiumUsdc: 38.0,
-    coverageCategory: "cardiovascular",
-    riskTargets: JSON.stringify(["myocardial_infarction", "stroke", "arrhythmia"]),
-    discountEligible: 1,
-    isActive: 1,
-  },
-  {
-    id: "prod_005",
-    name: "치매 조기 진단 특약",
-    provider: "교보생명",
-    chainNetwork: "near",
-    contractAddress: null,
-    monthlyPremiumUsdc: 22.0,
-    originalPremiumUsdc: null,
-    coverageCategory: "neurological",
-    riskTargets: JSON.stringify(["alzheimers", "parkinsons"]),
-    discountEligible: 0,
-    isActive: 1,
-  },
-];
+and(
+  eq(insuranceProducts.isActive, 1),
+  eq(insuranceProducts.catalogStatus, "approved"),
+  isNotNull(insuranceProducts.productSourceId)
+);
 ```
+
+2026-05-30 첫 source-backed 추천 snapshot 기준 active 추천 상품은 KDB생명 1건과 교보라이프플래닛 2건이다. 상세 적용 검증은 `../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md`에 둔다.
 
 ---
 
@@ -566,3 +508,4 @@ export const SEED_PRODUCTS = [
 - [보험상품 카탈로그 스키마 확장안](./02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md)
 - [조건별 보험료 Quote Matrix 관리 방침](../04_Logic_Progress/04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md)
 - [보험료 Quote Matrix 재조회 PoC](../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md)
+- [데모 보험상품 운영 추천 제거 검증](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md)

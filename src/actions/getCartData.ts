@@ -1,9 +1,10 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { activeSourceBackedProductFilter } from "@/lib/db/insuranceProductFilters";
 import { recommendationCarts, insuranceProducts, analysisResults } from "@/lib/db/schema";
 import type { InsuranceProduct } from "@/lib/db/schema";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 
 export interface CartData {
   cartId: string;
@@ -33,18 +34,24 @@ export async function getCartData(cartId: string): Promise<CartData | null> {
 
   let selectedProductIds: string[];
   try {
-    selectedProductIds = JSON.parse(cart.selectedProductIds);
+    const parsedProductIds = JSON.parse(cart.selectedProductIds);
+    if (!Array.isArray(parsedProductIds)) return null;
+    const productIds = parsedProductIds.filter((id): id is string => typeof id === "string");
+    selectedProductIds = Array.from(new Set(productIds));
   } catch {
     return null;
   }
 
-  const products: InsuranceProduct[] =
-    selectedProductIds.length > 0
-      ? await db
-          .select()
-          .from(insuranceProducts)
-          .where(inArray(insuranceProducts.id, selectedProductIds))
-      : [];
+  if (selectedProductIds.length === 0) return null;
+
+  const products: InsuranceProduct[] = await db
+    .select()
+    .from(insuranceProducts)
+    .where(
+      and(activeSourceBackedProductFilter(), inArray(insuranceProducts.id, selectedProductIds))
+    );
+
+  if (products.length !== selectedProductIds.length) return null;
 
   const resultRows = await db
     .select({ zkpProofHash: analysisResults.zkpProofHash })

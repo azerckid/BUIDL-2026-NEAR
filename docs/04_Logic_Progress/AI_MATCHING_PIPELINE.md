@@ -1,7 +1,7 @@
 # [로직 설계] AI 에이전트 매칭 알고리즘 및 프롬프트 파이프라인
 
 - **작성일**: 2026-04-01
-- **최종 수정일**: 2026-04-01
+- **최종 수정일**: 2026-05-30
 - **레이어**: 04_Logic_Progress
 - **상태**: Draft v1.0
 
@@ -517,7 +517,7 @@ export async function runAnalysis(sessionId: string, fileBuffer: ArrayBuffer): P
 }
 ```
 
-그 결과 `priorityOrder`는 `["oncology", "metabolic", "cardiovascular", "neurological"]`이 되고, `prod_001`, `prod_002`, `prod_003`이 상위 추천 상품으로 매칭된다.
+그 결과 `priorityOrder`는 `["oncology", "metabolic", "cardiovascular", "neurological"]`이 된다. 2026-05-30 이후 운영 추천 경로는 source-backed active 상품만 읽으므로, 예시 입력은 KDB생명과 교보라이프플래닛의 암보험 snapshot 3건 중 암 risk target과 교집합이 있는 상품으로 매칭된다. legacy demo 상품 `prod_001`~`prod_005`는 추천 결과에 포함하지 않는다.
 
 ---
 
@@ -582,3 +582,4 @@ export async function runAnalysis(sessionId: string, fileBuffer: ArrayBuffer): P
 - [사용자 플로우](../02_UI_Screens/USER_FLOW.md)
 - [로드맵](./ROADMAP.md)
 - [비즈니스 모델](../01_Concept_Design/B2B_BROKER_CONCEPT.md)
+- [데모 보험상품 운영 추천 제거 검증](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md)

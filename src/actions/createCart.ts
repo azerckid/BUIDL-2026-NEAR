@@ -1,8 +1,9 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { activeSourceBackedProductFilter } from "@/lib/db/insuranceProductFilters";
 import { recommendationCarts, insuranceProducts } from "@/lib/db/schema";
-import { inArray } from "drizzle-orm";
+import { and, inArray } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { DateTime } from "luxon";
 import { z } from "zod";
@@ -25,7 +26,8 @@ export async function createCart(input: unknown): Promise<CreateCartResult> {
     return { success: false, error: parsed.error.issues[0]?.message ?? "입력값이 올바르지 않습니다" };
   }
 
-  const { walletAddress, sessionId, selectedProductIds } = parsed.data;
+  const { walletAddress, sessionId } = parsed.data;
+  const selectedProductIds = Array.from(new Set(parsed.data.selectedProductIds));
 
   // 선택한 상품의 보험료 합산
   const products = await db
@@ -35,10 +37,12 @@ export async function createCart(input: unknown): Promise<CreateCartResult> {
       originalPremiumUsdc: insuranceProducts.originalPremiumUsdc,
     })
     .from(insuranceProducts)
-    .where(inArray(insuranceProducts.id, selectedProductIds));
+    .where(
+      and(activeSourceBackedProductFilter(), inArray(insuranceProducts.id, selectedProductIds))
+    );
 
-  if (products.length === 0) {
-    return { success: false, error: "유효한 상품이 없습니다" };
+  if (products.length !== selectedProductIds.length) {
+    return { success: false, error: "선택한 상품 중 추천 대상이 아닌 상품이 포함되어 있습니다" };
   }
 
   let totalMonthlyUsdc = 0;
