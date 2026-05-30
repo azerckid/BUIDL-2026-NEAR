@@ -5,7 +5,7 @@ import { DateTime } from "luxon";
 import { useLocale, useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import type { DashboardProduct } from "@/actions/getDashboardData";
+import type { DashboardPremiumQuote, DashboardProduct } from "@/actions/getDashboardData";
 
 const NETWORK_LABELS: Record<string, string> = {
   near: "NEAR",
@@ -52,6 +52,14 @@ function formatSourceDate(value: string | null, locale: string) {
   return date.isValid ? date.toFormat("yyyy.LL.dd") : null;
 }
 
+function formatQuotePremium(quote: DashboardPremiumQuote, perMonth: string) {
+  if (quote.monthlyPremiumKrw != null) {
+    return `${formatKrw(quote.monthlyPremiumKrw)}${perMonth}`;
+  }
+
+  return quote.premiumText ?? "-";
+}
+
 export function InsuranceProductCard({ product, selected, onToggle }: InsuranceProductCardProps) {
   const t = useTranslations("insuranceProduct");
   const locale = useLocale();
@@ -60,6 +68,23 @@ export function InsuranceProductCard({ product, selected, onToggle }: InsuranceP
   const caveats = parseCoverageCaveats(product.coverageCaveatsJson);
   const sourceDate = formatSourceDate(product.sourceCheckedAtIso, locale);
   const sourceUrl = product.sourceUrl ?? product.officialProductUrl;
+  const approvedQuotes = product.approvedQuotes.slice(0, 4);
+  const hiddenQuoteCount = Math.max(product.approvedQuotes.length - approvedQuotes.length, 0);
+  const representativePremium =
+    product.monthlyPremiumKrw != null
+      ? `${formatKrw(product.monthlyPremiumKrw)}${t("perMonth")}`
+      : `$${product.monthlyPremiumUsdc.toFixed(1)}${t("perMonth")}`;
+
+  function formatQuoteCondition(quote: DashboardPremiumQuote) {
+    const parts: string[] = [];
+
+    if (quote.age != null) parts.push(t("ageValue", { age: quote.age }));
+    if (quote.sex === "male") parts.push(t("sexMale"));
+    if (quote.sex === "female") parts.push(t("sexFemale"));
+    if (quote.sex === "source_unknown") parts.push(t("sexUnknown"));
+
+    return parts.length > 0 ? parts.join(" · ") : t("conditionUnavailable");
+  }
 
   return (
     <Card
@@ -87,18 +112,22 @@ export function InsuranceProductCard({ product, selected, onToggle }: InsuranceP
               <p className="text-sm font-semibold text-foreground leading-tight">{product.name}</p>
               <p className="mt-0.5 text-xs text-muted-foreground">{product.provider}</p>
             </div>
-            <div className="flex flex-col items-end flex-shrink-0">
+            <div className="flex max-w-[9.5rem] flex-shrink-0 flex-col items-end text-right">
+              <span className="text-[11px] font-medium text-muted-foreground">
+                {t("representativePremium")}
+              </span>
               {isDiscount && (
                 <span className="text-xs text-muted-foreground line-through">
                   ${product.originalPremiumUsdc!.toFixed(0)}{t("perMonth")}
                 </span>
               )}
               <span className="text-sm font-bold text-foreground">
-                ${product.monthlyPremiumUsdc.toFixed(1)}{t("perMonth")}
+                {representativePremium}
               </span>
               {product.monthlyPremiumKrw != null && (
                 <span className="text-xs text-muted-foreground">
-                  {formatKrw(product.monthlyPremiumKrw)}{t("perMonth")}
+                  {t("settlementEstimate")}: ${product.monthlyPremiumUsdc.toFixed(1)}
+                  {t("perMonth")}
                 </span>
               )}
             </div>
@@ -124,6 +153,37 @@ export function InsuranceProductCard({ product, selected, onToggle }: InsuranceP
               </Badge>
             )}
           </div>
+
+          {approvedQuotes.length > 0 && (
+            <div className="mt-3 border-t border-border/50 pt-2.5">
+              <div className="mb-1.5 flex items-center justify-between gap-2">
+                <p className="text-xs font-semibold text-foreground">{t("conditionalQuotes")}</p>
+                {hiddenQuoteCount > 0 && (
+                  <span className="text-[11px] text-muted-foreground">
+                    {t("moreQuotes", { count: hiddenQuoteCount })}
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                {approvedQuotes.map((quote) => (
+                  <div
+                    key={quote.id}
+                    className="flex min-h-8 items-center justify-between gap-2 rounded-sm bg-muted/40 px-2 py-1.5"
+                  >
+                    <span className="min-w-0 truncate text-xs text-muted-foreground">
+                      {formatQuoteCondition(quote)}
+                    </span>
+                    <span className="flex-shrink-0 text-xs font-semibold text-foreground">
+                      {formatQuotePremium(quote, t("perMonth"))}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground">
+                {t("quoteCaveat")}
+              </p>
+            </div>
+          )}
 
           {(product.premiumBasis || sourceUrl || caveats.length > 0) && (
             <div className="mt-3 flex flex-col gap-1.5 border-t border-border/50 pt-2.5">

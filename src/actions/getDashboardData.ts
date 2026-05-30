@@ -4,12 +4,13 @@ import { db } from "@/lib/db";
 import { activeSourceBackedProductFilter } from "@/lib/db/insuranceProductFilters";
 import {
   analysisResults,
+  insurancePremiumQuotes,
   insuranceProducts,
   insuranceProductSources,
   insuranceSourceDocuments,
   riskProfileSchema,
 } from "@/lib/db/schema";
-import type { InsuranceProduct, RiskProfile } from "@/lib/db/schema";
+import type { InsurancePremiumQuote, InsuranceProduct, RiskProfile } from "@/lib/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import { DateTime } from "luxon";
 import { z } from "zod";
@@ -28,12 +29,32 @@ const priorityOrderSchema = z.array(
 export type AdvisoryMessages = z.infer<typeof advisoryMessagesSchema>;
 export type PriorityOrder = z.infer<typeof priorityOrderSchema>;
 
+export type DashboardPremiumQuote = {
+  id: string;
+  productSourceId: string;
+  age: number | null;
+  sex: InsurancePremiumQuote["sex"];
+  paymentCycle: string | null;
+  paymentPeriodYears: number | null;
+  insurancePeriodYears: number | null;
+  coverageAmountKrw: number | null;
+  planName: string | null;
+  renewalType: string | null;
+  premiumCurrency: InsurancePremiumQuote["premiumCurrency"];
+  monthlyPremiumKrw: number | null;
+  premiumText: string | null;
+  quoteSourceType: InsurancePremiumQuote["quoteSourceType"];
+  quoteSourceUrl: string | null;
+  retrievedAtIso: string | null;
+};
+
 export type DashboardProduct = InsuranceProduct & {
   officialProductUrl: string | null;
   sourceUrl: string | null;
   sourceDocumentType: string | null;
   sourceRetrievedAtIso: string | null;
   sourceCheckedAtIso: string | null;
+  approvedQuotes: DashboardPremiumQuote[];
 };
 
 export interface DashboardData {
@@ -54,6 +75,54 @@ function toIsoDateTime(value: Date | number | null | undefined): string | null {
 
   const dateTime = value instanceof Date ? DateTime.fromJSDate(value) : DateTime.fromSeconds(value);
   return dateTime.isValid ? dateTime.toISO() : null;
+}
+
+const QUOTE_SEX_SORT_ORDER: Record<NonNullable<InsurancePremiumQuote["sex"]>, number> = {
+  male: 0,
+  female: 1,
+  source_unknown: 2,
+};
+
+function compareNullableNumber(left: number | null, right: number | null): number {
+  if (left === right) return 0;
+  if (left === null) return 1;
+  if (right === null) return -1;
+  return left - right;
+}
+
+function compareDashboardPremiumQuotes(
+  left: DashboardPremiumQuote,
+  right: DashboardPremiumQuote
+): number {
+  const ageDiff = compareNullableNumber(left.age, right.age);
+  if (ageDiff !== 0) return ageDiff;
+
+  const leftSexOrder = left.sex ? QUOTE_SEX_SORT_ORDER[left.sex] : 99;
+  const rightSexOrder = right.sex ? QUOTE_SEX_SORT_ORDER[right.sex] : 99;
+  if (leftSexOrder !== rightSexOrder) return leftSexOrder - rightSexOrder;
+
+  return left.id.localeCompare(right.id);
+}
+
+function toDashboardPremiumQuote(quote: InsurancePremiumQuote): DashboardPremiumQuote {
+  return {
+    id: quote.id,
+    productSourceId: quote.productSourceId,
+    age: quote.age,
+    sex: quote.sex,
+    paymentCycle: quote.paymentCycle,
+    paymentPeriodYears: quote.paymentPeriodYears,
+    insurancePeriodYears: quote.insurancePeriodYears,
+    coverageAmountKrw: quote.coverageAmountKrw,
+    planName: quote.planName,
+    renewalType: quote.renewalType,
+    premiumCurrency: quote.premiumCurrency,
+    monthlyPremiumKrw: quote.monthlyPremiumKrw,
+    premiumText: quote.premiumText,
+    quoteSourceType: quote.quoteSourceType,
+    quoteSourceUrl: quote.quoteSourceUrl,
+    retrievedAtIso: toIsoDateTime(quote.retrievedAt),
+  };
 }
 
 export async function getDashboardData(
@@ -152,7 +221,7 @@ export async function getDashboardData(
     )
   );
 
-  const [productSources, sourceDocumentsByPrimaryId, sourceDocumentsByProductSource] =
+  const [productSources, sourceDocumentsByPrimaryId, sourceDocumentsByProductSource, premiumQuotes] =
     await Promise.all([
       productSourceIds.length > 0
         ? db
@@ -172,6 +241,17 @@ export async function getDashboardData(
             .from(insuranceSourceDocuments)
             .where(inArray(insuranceSourceDocuments.productSourceId, productSourceIds))
         : Promise.resolve([]),
+      productSourceIds.length > 0
+        ? db
+            .select()
+            .from(insurancePremiumQuotes)
+            .where(
+              and(
+                inArray(insurancePremiumQuotes.productSourceId, productSourceIds),
+                eq(insurancePremiumQuotes.reviewStatus, "approved")
+              )
+            )
+        : Promise.resolve([] as InsurancePremiumQuote[]),
     ]);
 
   const productSourceMap = new Map(productSources.map((source) => [source.id, source]));
@@ -199,6 +279,18 @@ export async function getDashboardData(
     }
   }
 
+  const approvedQuotesByProductSource = new Map<string, DashboardPremiumQuote[]>();
+  for (const quote of premiumQuotes) {
+    const dashboardQuote = toDashboardPremiumQuote(quote);
+    const quotes = approvedQuotesByProductSource.get(dashboardQuote.productSourceId) ?? [];
+    quotes.push(dashboardQuote);
+    approvedQuotesByProductSource.set(dashboardQuote.productSourceId, quotes);
+  }
+
+  for (const quotes of approvedQuotesByProductSource.values()) {
+    quotes.sort(compareDashboardPremiumQuotes);
+  }
+
   const dashboardProducts: DashboardProduct[] = products.map((product) => {
     const productSource = product.productSourceId
       ? productSourceMap.get(product.productSourceId) ?? null
@@ -224,6 +316,9 @@ export async function getDashboardData(
       sourceDocumentType: sourceDocument?.documentType ?? null,
       sourceRetrievedAtIso: toIsoDateTime(sourceDocument?.retrievedAt),
       sourceCheckedAtIso: toIsoDateTime(sourceCheckedAt),
+      approvedQuotes: product.productSourceId
+        ? approvedQuotesByProductSource.get(product.productSourceId) ?? []
+        : [],
     };
   });
 
