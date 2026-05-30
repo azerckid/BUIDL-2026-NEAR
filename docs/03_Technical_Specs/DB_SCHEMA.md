@@ -1,11 +1,11 @@
 # [기술 명세] 데이터 모델 및 DB 스키마 상세 명세
 > Created: 2026-04-01 00:00
-> Last Updated: 2026-05-30 16:26
+> Last Updated: 2026-05-30 17:18
 
 - **작성일**: 2026-04-01
 - **최종 수정일**: 2026-05-30
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.2
+- **상태**: Draft v1.3
 
 ---
 
@@ -445,6 +445,33 @@ export const transactions = sqliteTable("transactions", {
 
 ---
 
+### 2-7. `test_pilot_checkouts` (제안)
+
+> 2026-05-30 기준 Test Pilot Mode 문서에서 제안한 테이블이다. 아직 Drizzle schema/migration에는 반영하지 않았다.
+
+테스트 기간 동안 실제 결제 없이 “테스트 신청 완료”까지 진행한 기록을 저장한다. 실제 결제 `transactions`와 혼동하지 않기 위해 별도 테이블로 분리한다.
+
+| 컬럼명 | 타입 | 제약 | 설명 |
+|---|---|---|---|
+| `id` | TEXT | PK | UUID v4 |
+| `cart_id` | TEXT | FK → recommendation_carts, UNIQUE | 테스트 신청된 장바구니 |
+| `wallet_address` | TEXT | FK → user_profiles | `guest-*.testnet` 또는 실제 wallet |
+| `selected_product_ids` | TEXT | NOT NULL | 선택 상품 ID JSON 배열 |
+| `total_monthly_usdc` | REAL | NOT NULL | 선택 상품 기준 월 보험료 합계. 실제 결제 금액 아님 |
+| `status` | TEXT | NOT NULL | `'completed'` |
+| `disclaimer_accepted` | INTEGER | NOT NULL | 테스트 고지 확인 여부 |
+| `created_at` | INTEGER | NOT NULL | 테스트 신청 완료 시각 |
+
+**상태 전이**
+```text
+draft 또는 active cart -> test_pilot_checkouts.completed
+recommendation_carts.status -> checked_out
+```
+
+운영 결제 전환 시에는 이 테이블을 실제 결제 근거로 사용하지 않는다.
+
+---
+
 ## 3. 전체 상태 전이 요약
 
 ```
@@ -460,6 +487,9 @@ transactions.status:
   pending → broadcasting → confirmed
                          → failed
                          → reverted
+
+test_pilot_checkouts.status:
+  completed
 ```
 
 ---
@@ -506,6 +536,7 @@ and(
 - [AI 매칭 파이프라인](../04_Logic_Progress/AI_MATCHING_PIPELINE.md)
 - [NEAR 프라이버시 아키텍처](./NEAR_PRIVACY_STACK_ARCH.md)
 - [보험상품 카탈로그 스키마 확장안](./02_INSURANCE_CATALOG_SCHEMA_EXTENSION_2026_05_27.md)
+- [Test Pilot Mode 기술 명세](./04_TEST_PILOT_MODE_SPEC_2026_05_30.md)
 - [조건별 보험료 Quote Matrix 관리 방침](../04_Logic_Progress/04_INSURANCE_PREMIUM_QUOTE_POLICY_2026_05_28.md)
 - [보험료 Quote Matrix 재조회 PoC](../05_QA_Validation/12_PREMIUM_QUOTE_MATRIX_POC_2026_05_28.md)
 - [데모 보험상품 운영 추천 제거 검증](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md)
