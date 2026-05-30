@@ -527,6 +527,25 @@ KDB생명 `src_kdb_life_direct_cancer_202605`는 `40869_summary`가 상품요약
 
 검수 결과는 `data/insurance/latest_matching_keyword_caveat_review.json`, `data/insurance/latest_matching_keyword_caveat_review.csv`, `../05_QA_Validation/30_MATCHING_KEYWORD_CAVEAT_REVIEW_2026_05_30.md`에 둔다. 다음 단계는 KDB/교보 3개 source의 source status 승격, quote 승인, `insurance_products` snapshot row 생성을 묶은 별도 seed PR이다.
 
+### 9-18. First Recommendation Snapshot Seed
+
+2026-05-30 16:30 KST 기준 KDB생명 1개와 교보라이프플래닛 2개 source를 첫 source-backed active 추천 snapshot 후보로 발행할 수 있도록 `seed.ts`를 갱신했다.
+
+| 항목 | 결과 |
+|---|---:|
+| source `approved` 승격 대상 | 3 |
+| quote `approved` 대상 | 12 |
+| 신규 `insurance_products` snapshot row | 3 |
+| 대표 보험료 조건 | `age34_female` |
+| USDC 환산 기준 | `1 USDC = 1,350 KRW` 고정 데모 환산율 |
+| 이번 PR DB write | 0 |
+
+적용 대상은 `src_kdb_life_direct_cancer_202605`, `src_kyobo_lifeplanet_cancer_nonsmoker_202605`, `src_kyobo_lifeplanet_cancer_standard_202605`다. 세 상품 모두 `coverage_category=oncology`, `matching_strategy=risk_target`, `risk_targets=[pancreatic_cancer,liver_cancer,lung_cancer,breast_cancer,colon_cancer]`를 사용한다.
+
+대표 보험료는 보험다모아 암보험 모바일 조회 조건 `age=34`, `sex=2`, `enterType=A`, `indemnityTypeA=1`, `renewTypeA=C1`의 월 보험료다. `monthly_premium_usdc`는 checkout/demo 경로 때문에 함께 저장하되, 실시간 환율이 아니라 이번 snapshot PR에서 승인한 고정 데모 환산값으로 취급한다.
+
+seed 변경 근거는 `../../data/insurance/latest_first_recommendation_snapshot_seed.json`과 `../05_QA_Validation/31_FIRST_RECOMMENDATION_SNAPSHOT_SEED_2026_05_30.md`에 둔다. 운영 DB 적용은 백업 후 `npx tsx src/lib/db/seed.ts` 실행 및 적용 검증 PR로 분리한다. 한화생명 2개 source는 `0원` quote 해소 전까지, 신한라이프 표준형 source는 일반형 공식 문서 endpoint 확보 전까지 계속 추천 snapshot에서 제외한다.
+
 ---
 
 ## 10. 법무·신뢰 고지
@@ -578,7 +597,8 @@ KDB생명 `src_kdb_life_direct_cancer_202605`는 `40869_summary`가 상품요약
 - [x] 추천 snapshot 발행 기준과 PR 체크리스트 문서화
 - [x] 신한라이프 일반형 공식 문서 endpoint 추가 탐색
 - [x] 공식 문서 variant가 명확한 후보의 매칭 키워드/caveat 정리
-- [ ] KDB/교보라이프플래닛 첫 추천 snapshot seed PR 작성
+- [x] KDB/교보라이프플래닛 첫 추천 snapshot seed PR 작성
+- [ ] 백업 후 첫 추천 snapshot seed 운영 DB 적용
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
