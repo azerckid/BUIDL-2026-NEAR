@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-05-31 02:49
+> Last Updated: 2026-05-31 03:20
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.8
+- **상태**: Draft v1.9
 - **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준, 추천 snapshot 발행 기준
 - **결론**: 이 프로젝트에서 말하는 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DB에 보험상품을 넣기 전에 DNA risk target과 매칭할 수 있도록 `coverage_category`, `risk_targets`, `matching_strategy`, `coverage_caveats_json`을 정리하는 내부 데이터 정규화 작업이다.
 
@@ -181,21 +181,24 @@ DNA 분석 결과
 
 2026-05-31 02:49 KST 기준 DB손보, KB손보, 현대해상 3개 실손 baseline source의 추천 snapshot seed 준비를 완료했다. seed 적용 시 source 3건은 `approved`, quote row 12건은 `approved`, 신규 baseline `insurance_products` 3건은 `catalog_status=approved`, `is_active=1`로 들어간다. 대표 보험료는 보험다모아 `age34_female` 조건이며, `monthly_premium_usdc`는 고정 데모 환산율 `1 USDC = 1,350 KRW`로 계산한다. 이번 단계는 DB write 없이 seed/data/docs만 변경하며, 운영 반영은 백업 후 apply PR로 분리한다. 검증은 `../05_QA_Validation/47_MEDICAL_BASELINE_SNAPSHOT_SEED_2026_05_31.md`에 둔다.
 
+2026-05-31 03:20 KST 기준 위 seed를 운영 Turso DB에 백업 후 적용했다. 적용 후 source-backed active 상품은 5개에서 8개로 늘었고, DB손보, KB손보, 현대해상 3개 실손 baseline source와 product snapshot이 모두 `approved`/active 상태다. 단, seed target quote 12건 중 운영 DB에 실제 존재한 row는 여성 조건 6건뿐이라 quote approved는 20건에서 26건으로 증가했다. 남성 조건 6건은 no-op이었고 별도 재적재 PR에서 처리한다. 검증은 `../05_QA_Validation/48_MEDICAL_BASELINE_SNAPSHOT_DB_APPLY_2026_05_31.md`에 둔다.
+
 | 단계 | 개수 | 의미 |
 |---|---:|---|
 | 보험다모아 P0 샘플 | 56개 | 암보험, 실손의료보험, 유병력자실손, 질병보험, 간병/치매보험 원천 후보 |
 | 공식 상품 URL 보유 | 47개 | 상품 페이지 후보 있음 |
 | source catalog 후보 | 22개 | 7개 hash-backed + 15개 quote-only raw |
 | 공식 문서 row | 22개 | 약관/요약서/사업방법서 hash 확인 후 source별 연결 |
-| quote matrix row | 92개 | 나이/성별 조건별 보험료. 현재 KDB/교보/한화 20건 `approved`, 이번 seed 적용 후 실손 baseline 12건 추가 승인 예정 |
+| quote matrix row | 92개 | 나이/성별 조건별 보험료. 현재 KDB/교보/한화 20건 + 실손 여성 조건 6건 `approved` |
 | quote-only raw source 후보 | 15개 | 보험다모아 quote matrix product code 연결용. 일부 공식 문서 hash 확보 |
 | seed source 후보 총계 | 22개 | 7개 hash-backed + 15개 quote-only raw |
 | 매칭 키워드/caveat 정리 완료 source | 9개 | KDB/한화/교보 암보험 5개 + DB/KB/현대/삼성 실손 baseline 4개 |
-| source-backed 추천 매칭 가능 상품 | 5개 | 운영 DB에 적용된 실제 source-backed active 상품 |
-| baseline seed 준비 완료 상품 | 3개 | DB손보, KB손보, 현대해상 실손의료보험. 운영 apply 후 active 추천 8개 예정 |
+| source-backed 추천 매칭 가능 상품 | 8개 | 운영 DB에 적용된 실제 source-backed active 상품 |
+| baseline active 상품 | 3개 | DB손보, KB손보, 현대해상 실손의료보험 |
+| 실손 남성 quote 재적재 필요 | 6개 | seed target에는 있었으나 운영 DB에 없어 no-op 처리된 남성 조건 quote row |
 | 문서 특이성 blocker | 1개 | 삼성화재 실손의료보험. 상품 전용 문서 endpoint 재탐색 전까지 보류 |
 
-다음 단계는 운영 DB 백업 후 seed apply PR로 DB손보, KB손보, 현대해상 3개 baseline snapshot을 실제 DB에 반영하는 것이다. 적용 후 source-backed active 추천 상품은 5개에서 8개가 된다. 삼성화재 실손은 상품 전용 공식 문서 endpoint를 재탐색한다.
+다음 단계는 실손 남성 조건 quote 6건의 DB 재적재 여부를 확인하고, 사용자 조건별 보험료 UI에서 남성 조건 선택 시 fallback 문구가 필요한지 점검하는 것이다. 삼성화재 실손은 상품 전용 공식 문서 endpoint를 재탐색한다.
 
 ---
 
@@ -243,3 +246,4 @@ DNA 분석 결과
 - **QA_Validation**: [Demo Products Archive DB Apply](../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md) - legacy demo 상품 archive 운영 DB 적용 검증
 - **QA_Validation**: [Medical Baseline Matching Review](../05_QA_Validation/46_MEDICAL_BASELINE_MATCHING_REVIEW_2026_05_31.md) - 실손의료보험 baseline 후보 매칭 키워드와 caveat 검수
 - **QA_Validation**: [Medical Baseline Snapshot Seed](../05_QA_Validation/47_MEDICAL_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 실손 baseline 추천 snapshot seed 준비 검증
+- **QA_Validation**: [Medical Baseline Snapshot DB Apply](../05_QA_Validation/48_MEDICAL_BASELINE_SNAPSHOT_DB_APPLY_2026_05_31.md) - 실손 baseline 추천 snapshot 운영 DB 적용 검증
