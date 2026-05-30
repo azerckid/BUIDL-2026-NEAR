@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-31 02:49
+> Last Updated: 2026-05-31 03:20
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-31 (실손 baseline 추천 snapshot seed 준비)
+- **최종 수정일**: 2026-05-31 (실손 baseline 추천 snapshot DB 적용)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.30
+- **상태**: Draft v3.31
 - **phase**: Phase 2
 
 ---
@@ -68,7 +68,7 @@
 
 현재 의미는 “실제 보험상품 데이터 기반 추천”과 “무로그인·무결제 테스트 완주”를 동시에 검증하는 것이다. Test Pilot happy-path는 완료됐고, 다음 작업은 아래 순서로 진행한다.
 
-여기서 현재 추천 상품 5개는 “수집한 전체 데이터 수”가 아니라 “사용자 추천 화면에 노출 가능한 최종 snapshot 수”다. 현재까지 확보한 기반 데이터는 보험다모아 P0 샘플 56개, source catalog 후보 22개, 공식 문서 row 22개, 조건별 보험료 quote row 92개이며, 이 중 원천 근거, 매칭 키워드, caveat, approved quote를 모두 통과해 active 추천으로 발행된 상품이 5개다. 이번 실손 baseline seed를 운영 DB에 적용하면 active 추천 상품은 8개가 된다.
+여기서 현재 추천 상품 8개는 “수집한 전체 데이터 수”가 아니라 “사용자 추천 화면에 노출 가능한 최종 snapshot 수”다. 현재까지 확보한 기반 데이터는 보험다모아 P0 샘플 56개, source catalog 후보 22개, 공식 문서 row 22개, 조건별 보험료 quote row 92개이며, 이 중 원천 근거, 매칭 키워드, caveat, approved quote를 통과해 active 추천으로 발행된 상품이 8개다. 다만 실손 baseline 남성 조건 quote 6건은 운영 DB에 없어 별도 재적재가 필요하다.
 
 | 순서 | 트랙 | 작업 | 완료 기준 |
 |---:|---|---|---|
@@ -78,7 +78,7 @@
 | 4 | 한화생명 blocker | 한화생명 표준체형/비흡연체형 0원 quote 원인 해소 | 공식 carrier quote 숫자 KRW 8건 확보 및 DB 적용 완료 |
 | 5 | 신한라이프 blocker | 신한라이프 일반형 공식 문서 endpoint 추가 탐색 | 스크립트 기반 재탐색 완료. 일반형 endpoint 미발견으로 raw 차단 유지 |
 | 6 | 보험상품 확장 | `needs_review=6`, `raw=11` source의 문서 hash, 매칭 키워드, caveat 정리 | 실손 baseline 4개 1차 정리 완료. 3개 snapshot seed 준비, 1개 문서 blocker |
-| 7 | 추천 snapshot 확대 | 새 source를 `approved`로 승격하고 `insurance_products` snapshot 발행 | 한화생명 2건 DB apply 완료. 실손 baseline 3건 seed 준비. 적용 후 source-backed active 추천 8개 예정 |
+| 7 | 추천 snapshot 확대 | 새 source를 `approved`로 승격하고 `insurance_products` snapshot 발행 | 실손 baseline 3건 DB apply 완료. source-backed active 추천 8개 노출 |
 
 2026-05-30 23:42 KST 기준 1번 Test Pilot UX 항목을 코드에 반영했다. guest session dashboard 상품 버튼은 `테스트 신청하기`를 표시하고, 일반 지갑 세션은 기존 `결제하기` 문구를 유지한다. 다음 작업은 flag off 상태의 운영 지갑/결제 회귀 검증이다.
 
@@ -97,6 +97,8 @@
 2026-05-31 02:20 KST 기준 6번 보험상품 확장의 첫 묶음으로 실손의료보험 baseline 후보 4개를 검수했다. DB손보, KB손보, 현대해상은 공식 문서 match score 1.0과 조건별 숫자 KRW quote 4건씩이 있어 `coverage_category=medical_expense`, `matching_strategy=baseline`, `risk_targets=[]`로 다음 baseline 추천 snapshot seed 후보가 된다. 삼성화재는 quote는 있으나 문서 URL이 generic `realloss.pdf`이고 match score가 0.65라 상품 전용 문서 endpoint 재탐색 전까지 보류한다. 검증은 `../05_QA_Validation/46_MEDICAL_BASELINE_MATCHING_REVIEW_2026_05_31.md`에 기록한다. 다음 작업은 DB손보, KB손보, 현대해상 3개 source를 `approved`로 승격하고 quote 12건을 승인한 뒤 baseline `insurance_products` snapshot 3건을 준비하는 seed PR이다.
 
 2026-05-31 02:49 KST 기준 7번 추천 snapshot 확대의 실손 baseline seed 준비를 완료했다. `seed.ts`는 적용 시 DB손보, KB손보, 현대해상 source 3건을 `approved`로 승격하고, 보험다모아 실손 quote 12건을 `approved`로 바꾸며, baseline `insurance_products` snapshot 3건을 추가한다. 대표 보험료는 `age34_female` 조건이고, `monthly_premium_usdc`는 고정 데모 환산율 `1 USDC = 1,350 KRW`로 계산한다. 이번 단계는 DB write 없이 seed/data/docs만 변경하며, 검증은 `../05_QA_Validation/47_MEDICAL_BASELINE_SNAPSHOT_SEED_2026_05_31.md`에 기록한다. 다음 작업은 운영 DB 백업 후 seed 적용과 적용 결과 검증이다. 적용 완료 후 source-backed active 추천 상품은 KDB 1건, 교보라이프플래닛 2건, 한화생명 2건, 실손 baseline 3건으로 총 8건이 된다.
+
+2026-05-31 03:20 KST 기준 실손 baseline 추천 snapshot 운영 DB 적용을 완료했다. 백업 후 `src/lib/db/seed.ts`를 실행해 DB손보, KB손보, 현대해상 source 3건을 `approved`로 승격하고, baseline `insurance_products` snapshot 3건을 추가했다. 운영 DB 기준 source-backed active 추천 상품은 KDB 1건, 교보라이프플래닛 2건, 한화생명 2건, 실손 baseline 3건으로 총 8건이다. 단, seed target quote 12건 중 운영 DB에 실제 존재한 row는 여성 조건 6건뿐이어서 `insurance_premium_quotes.review_status=approved`는 20건에서 26건으로 증가했다. 남성 조건 6건은 이전 quote row apply 단계의 semantic duplicate skip 영향 가능성이 있어 별도 재적재 PR로 추적한다. 검증은 `../05_QA_Validation/48_MEDICAL_BASELINE_SNAPSHOT_DB_APPLY_2026_05_31.md`에 기록한다. 다음 작업은 실손 남성 조건 quote 6건 재적재 여부 확인과 삼성화재 상품 전용 문서 endpoint 재탐색이다.
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 매칭 키워드 정리 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.
@@ -1218,6 +1220,7 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 - [신한라이프 일반형 공식 문서 Endpoint 재탐색](../05_QA_Validation/45_SHINHAN_STANDARD_DOCUMENT_ENDPOINT_REPROBE_2026_05_31.md)
 - [실손의료보험 Baseline 매칭 키워드 검수](../05_QA_Validation/46_MEDICAL_BASELINE_MATCHING_REVIEW_2026_05_31.md)
 - [실손의료보험 Baseline 추천 Snapshot Seed 검증](../05_QA_Validation/47_MEDICAL_BASELINE_SNAPSHOT_SEED_2026_05_31.md)
+- [실손의료보험 Baseline 추천 Snapshot DB 적용 검증](../05_QA_Validation/48_MEDICAL_BASELINE_SNAPSHOT_DB_APPLY_2026_05_31.md)
 - [데모 보험상품 운영 추천 제거 검증](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md)
 - [데모 보험상품 Archive DB 적용 검증](../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md)
 - [보험상품 매칭 키워드 정리 정책](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md)
