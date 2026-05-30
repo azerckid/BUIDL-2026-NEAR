@@ -1,6 +1,6 @@
 # [QA] 실손의료보험 Baseline 추천 Snapshot DB 적용 검증
 > Created: 2026-05-31 03:20
-> Last Updated: 2026-05-31 03:20
+> Last Updated: 2026-05-31 03:58
 
 - **레이어**: 05_QA_Validation
 - **상태**: Passed with note
@@ -150,9 +150,9 @@ Quote review 상태:
 | `src_hyundai_direct_medical_202605` | 34/female | 6,545 | approved |
 | `src_hyundai_direct_medical_202605` | 44/female | 9,949 | approved |
 
-운영 DB에 없어 이번 apply에서 no-op이 된 seed target ID:
+이번 apply에서 no-op이 된 seed target ID:
 
-| Missing quote ID | 조건 |
+| Old seed quote ID | 조건 |
 |---|---|
 | `quote_src_db_direct_medical_202605_age34_male_60456bed3452` | DB손보 34/male |
 | `quote_src_db_direct_medical_202605_age44_male_26615bdcb076` | DB손보 44/male |
@@ -161,7 +161,18 @@ Quote review 상태:
 | `quote_src_hyundai_direct_medical_202605_age34_male_60456bed3452` | 현대해상 34/male |
 | `quote_src_hyundai_direct_medical_202605_age44_male_26615bdcb076` | 현대해상 44/male |
 
-이 6개 남성 조건 row는 `data/insurance/latest_premium_quote_rows_apply.json`의 matched source catalog에는 존재하지만 운영 DB에는 없다. 이전 quote row apply 단계의 semantic duplicate skip 영향 가능성이 높으며, 확정 원인과 재적재는 별도 PR에서 처리한다.
+후속 읽기 전용 확인 결과, 이 6개 남성 조건 quote는 운영 DB에 없던 것이 아니라 같은 `product_source_id`, 나이, 성별, 보험료 기준의 row가 다른 `quote_hash_sha256` suffix ID로 존재했다. 따라서 재적재가 아니라 seed approval target ID 교정이 필요하다.
+
+| Actual DB quote ID | 조건 | KRW | 현재 상태 |
+|---|---|---:|---|
+| `quote_src_db_direct_medical_202605_age34_male_f20570f4817b` | DB손보 34/male | 6,219 | needs_review |
+| `quote_src_db_direct_medical_202605_age44_male_2a491b5a1fab` | DB손보 44/male | 9,320 | needs_review |
+| `quote_src_kb_direct_medical_202605_age34_male_f20570f4817b` | KB손보 34/male | 6,400 | needs_review |
+| `quote_src_kb_direct_medical_202605_age44_male_2a491b5a1fab` | KB손보 44/male | 9,074 | needs_review |
+| `quote_src_hyundai_direct_medical_202605_age34_male_f20570f4817b` | 현대해상 34/male | 6,740 | needs_review |
+| `quote_src_hyundai_direct_medical_202605_age44_male_2a491b5a1fab` | 현대해상 44/male | 9,190 | needs_review |
+
+교정 PR은 `src/lib/db/seed.ts`와 seed 산출물의 `MEDICAL_BASELINE_APPROVED_QUOTE_IDS`를 위 actual DB ID로 바꾼다. 운영 DB write는 별도 apply PR에서 수행하며, 적용 후 quote approved는 26건에서 32건이 된다.
 
 ---
 
@@ -196,4 +207,5 @@ Quote review 상태:
 - **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - Track A 진행 상태
 - **QA_Validation**: [Medical Baseline Matching Review](./46_MEDICAL_BASELINE_MATCHING_REVIEW_2026_05_31.md) - 이번 apply의 선행 매칭 검수
 - **QA_Validation**: [Medical Baseline Snapshot Seed](./47_MEDICAL_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 이번 apply의 seed 준비 검증
+- **QA_Validation**: [Medical Baseline Male Quote ID Correction](./49_MEDICAL_BASELINE_MALE_QUOTE_ID_CORRECTION_2026_05_31.md) - 실손 남성 조건 quote approval ID 교정 검증
 - **QA_Validation**: [Hanwha Recommendation Snapshot DB Apply](./44_HANWHA_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_31.md) - 직전 추천 snapshot DB apply 패턴

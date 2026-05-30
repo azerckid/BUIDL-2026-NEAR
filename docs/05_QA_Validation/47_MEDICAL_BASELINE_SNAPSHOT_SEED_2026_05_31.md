@@ -1,6 +1,6 @@
 # [QA] 실손의료보험 Baseline 추천 Snapshot Seed 검증
 > Created: 2026-05-31 02:49
-> Last Updated: 2026-05-31 03:20
+> Last Updated: 2026-05-31 03:58
 
 - **레이어**: 05_QA_Validation
 - **상태**: Passed
@@ -99,7 +99,9 @@
 
 적용 PR에서는 운영 DB 백업 후 `npx tsx src/lib/db/seed.ts`를 실행하고 위 카운트를 검증한다.
 
-2026-05-31 03:20 KST 운영 DB apply 결과 active source-backed 추천 상품은 예상대로 8건이 됐다. 다만 seed target quote 12건 중 운영 DB에 실제 존재한 row는 6건뿐이어서 quote approved는 32건이 아니라 26건으로 확인됐다. 남성 조건 6건은 no-op이었으며, 세부 적용 기록은 `./48_MEDICAL_BASELINE_SNAPSHOT_DB_APPLY_2026_05_31.md`에 둔다.
+2026-05-31 03:20 KST 운영 DB apply 결과 active source-backed 추천 상품은 예상대로 8건이 됐다. 다만 seed target quote 12건 중 당시 target ID로 매칭된 row는 6건뿐이어서 quote approved는 32건이 아니라 26건으로 확인됐다. 남성 조건 6건은 no-op이었으며, 세부 적용 기록은 `./48_MEDICAL_BASELINE_SNAPSHOT_DB_APPLY_2026_05_31.md`에 둔다.
+
+2026-05-31 03:58 KST 후속 읽기 전용 확인 결과, 남성 조건 6건은 운영 DB에 없던 것이 아니라 다른 `quote_hash_sha256` suffix ID로 존재했다. 따라서 `MEDICAL_BASELINE_APPROVED_QUOTE_IDS`의 남성 조건 6건을 운영 DB 실제 row ID로 교정했다. 이번 교정도 DB write는 하지 않으며, 후속 apply PR에서 quote approved를 26건에서 32건으로 올린다.
 
 ---
 
@@ -133,6 +135,7 @@
 - **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - Track A 진행 상태
 - **QA_Validation**: [Medical Baseline Matching Review](./46_MEDICAL_BASELINE_MATCHING_REVIEW_2026_05_31.md) - 이번 seed의 선행 검수
 - **QA_Validation**: [Medical Baseline Snapshot DB Apply](./48_MEDICAL_BASELINE_SNAPSHOT_DB_APPLY_2026_05_31.md) - 이번 seed의 운영 DB 적용 검증
+- **QA_Validation**: [Medical Baseline Male Quote ID Correction](./49_MEDICAL_BASELINE_MALE_QUOTE_ID_CORRECTION_2026_05_31.md) - 실손 남성 quote approval ID 교정 검증
 - **QA_Validation**: [Premium Quote Matrix UI](./35_PREMIUM_QUOTE_MATRIX_UI_2026_05_30.md) - 조건별 quote 표시 UI
 - **Data**: [Medical Baseline Recommendation Snapshot Seed JSON](../../data/insurance/latest_medical_baseline_recommendation_snapshot_seed.json) - 구조화 seed 준비 결과
 - **Data**: [Medical Baseline Matching Review JSON](../../data/insurance/latest_medical_baseline_matching_review.json) - source별 baseline 매칭 검수
