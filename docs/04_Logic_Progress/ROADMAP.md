@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-30 23:42
+> Last Updated: 2026-05-30 23:58
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-30 (Test Pilot CTA 정리)
+- **최종 수정일**: 2026-05-30 (Test Pilot flag off 회귀 검증)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.22
+- **상태**: Draft v3.23
 - **phase**: Phase 2
 
 ---
@@ -81,6 +81,8 @@
 | 7 | 추천 snapshot 확대 | 새 source를 `approved`로 승격하고 `insurance_products` snapshot 발행 | source-backed active 추천 상품이 현재 3개에서 단계적으로 증가 |
 
 2026-05-30 23:42 KST 기준 1번 Test Pilot UX 항목을 코드에 반영했다. guest session dashboard 상품 버튼은 `테스트 신청하기`를 표시하고, 일반 지갑 세션은 기존 `결제하기` 문구를 유지한다. 다음 작업은 flag off 상태의 운영 지갑/결제 회귀 검증이다.
+
+2026-05-30 23:58 KST 기준 2번 Test Pilot 회귀 자동 검증을 완료했다. Local flag off 환경에서 Playwright E2E 21/21, `npm run build`, `npx tsc --noEmit --incremental false`가 통과했고, 홈 화면의 `테스트로 시작` visible CTA는 0개로 확인했다. 실제 NEAR/ETH 지갑 서명 checkout은 브라우저 지갑과 testnet 잔액이 필요한 수동 E2E 항목으로 유지한다. 다음 구현 작업은 3번 보험료 개인화, 즉 사용자 나이/성별 입력값과 approved quote matrix 연결이다.
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 매칭 키워드 정리 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.

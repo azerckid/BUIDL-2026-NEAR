@@ -1,11 +1,11 @@
 # [QA] Test Pilot Mode 무로그인·무결제 플로우 검증 체크리스트
 > Created: 2026-05-30 17:18
-> Last Updated: 2026-05-30 23:42
+> Last Updated: 2026-05-30 23:58
 
 - **레이어**: 05_QA_Validation
-- **상태**: Completed for Test Pilot happy-path E2E
+- **상태**: Completed for Test Pilot happy-path E2E and automated flag-off regression
 - **범위**: 테스트 기간 동안 사인업·로그인·지갑 연결·실결제 없이 전체 플로우를 완료하는 기능의 DoD
-- **결론**: Test Pilot Mode는 운영 DB 기준 happy-path E2E를 완료했다. 테스트 사용자는 지갑 연결과 실제 결제 없이 업로드, TEE 분석, source-backed 추천, no-payment checkout까지 완료할 수 있다. 실제 보험 가입/청약/결제가 아니며, 운영 결제 플로우와 데이터가 혼동되지 않아야 한다.
+- **결론**: Test Pilot Mode는 운영 DB 기준 happy-path E2E와 local flag-off 자동 회귀 검증을 완료했다. 테스트 사용자는 지갑 연결과 실제 결제 없이 업로드, TEE 분석, source-backed 추천, no-payment checkout까지 완료할 수 있다. flag off 상태에서는 테스트 CTA가 숨겨지고 기존 지갑 중심 진입 가드가 유지된다. 실제 보험 가입/청약/결제가 아니며, 운영 결제 플로우와 데이터가 혼동되지 않아야 한다.
 
 ---
 
@@ -39,11 +39,11 @@
 
 | ID | 항목 | 기대 결과 | 상태 |
 |---|---|---|---|
-| F1 | `NEXT_PUBLIC_TEST_PILOT_ENABLED=false` | 홈에 `테스트로 시작` CTA가 보이지 않는다 | 대기 |
-| F2 | `TEST_PILOT_ENABLED=false` | 서버 액션이 테스트 분석/checkout 요청을 거부한다 | 대기 |
+| F1 | `NEXT_PUBLIC_TEST_PILOT_ENABLED=false` | 홈에 `테스트로 시작` CTA가 보이지 않는다 | 통과 |
+| F2 | `TEST_PILOT_ENABLED=false` | 서버 액션이 테스트 분석/checkout 요청을 거부한다 | 통과(가드 확인) |
 | F3 | `TEST_PILOT_SKIP_WALLET=true` | 지갑 미연결 상태에서도 업로드 화면 진입 가능 | 통과 |
 | F4 | `TEST_PILOT_SKIP_PAYMENT=true` | checkout에서 실제 지갑 서명 없이 완료 가능 | 통과 |
-| F5 | production GA 환경 | 모든 테스트 플래그가 기본 false | 대기 |
+| F5 | production GA 환경 | 모든 테스트 플래그가 기본 false | 보류: 테스트 기간에는 production flag 활성화 |
 
 ---
 
@@ -116,11 +116,11 @@
 
 | ID | 항목 | 기대 결과 | 상태 |
 |---|---|---|---|
-| R1 | 운영 지갑 플로우 | 테스트 flag off 상태에서 기존 지갑 연결 플로우 유지 | 대기 |
-| R2 | 운영 checkout | 테스트 flag off 상태에서 기존 NEAR/ETH checkout 유지 | 대기 |
+| R1 | 운영 지갑 플로우 | 테스트 flag off 상태에서 기존 지갑 연결 플로우 유지 | 통과 |
+| R2 | 운영 checkout | 테스트 flag off 상태에서 기존 NEAR/ETH checkout 유지 | 제한 통과: 실서명은 수동 잔여 |
 | R3 | source-backed 추천 | 운영 추천 필터 유지 | 통과 |
-| R4 | build | `npm run build` 통과 | 대기 |
-| R5 | typecheck | `npx tsc --noEmit --incremental false` 통과 | 대기 |
+| R4 | build | `npm run build` 통과 | 통과 |
+| R5 | typecheck | `npx tsc --noEmit --incremental false` 통과 | 통과 |
 
 ---
 
@@ -146,3 +146,4 @@
 - **QA_Validation**: [Premium Quote Matrix UI](./35_PREMIUM_QUOTE_MATRIX_UI_2026_05_30.md) - 직전 추천 카드 UI 검증
 - **QA_Validation**: [Test Pilot 0007 DB Apply](./38_TEST_PILOT_0007_DB_APPLY_2026_05_30.md) - 운영 DB migration 적용 검증
 - **QA_Validation**: [Test Pilot E2E](./39_TEST_PILOT_E2E_2026_05_30.md) - 업로드부터 no-payment checkout 완료까지 E2E 검증
+- **QA_Validation**: [Test Pilot Flag Off Regression](./40_TEST_PILOT_FLAG_OFF_REGRESSION_2026_05_30.md) - flag off 상태의 자동 회귀 검증
