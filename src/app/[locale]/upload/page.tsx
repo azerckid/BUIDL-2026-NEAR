@@ -1,33 +1,71 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { useWallet } from "@/context/WalletContext";
 import { AppHeader } from "@/components/modules/AppHeader";
 import { FileUploadZone } from "@/components/modules/FileUploadZone";
+import { Badge } from "@/components/ui/badge";
+import { getOrCreateTestPilotGuestIdentity, isTestPilotClientEnabled } from "@/lib/test-pilot";
 
 export default function UploadPage() {
   const { isConnected, isLoading } = useWallet();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations("upload");
   const tc = useTranslations("common");
+  const [testPilotGuestId, setTestPilotGuestId] = useState<string | null>(null);
+
+  const isTestPilotRequested = searchParams.get("mode") === "test";
+  const isTestPilotAllowed = isTestPilotRequested && isTestPilotClientEnabled();
 
   useEffect(() => {
-    if (!isLoading && !isConnected) {
+    let cancelled = false;
+    const setGuestId = (guestId: string | null) => {
+      queueMicrotask(() => {
+        if (!cancelled) setTestPilotGuestId(guestId);
+      });
+    };
+
+    if (isLoading) return;
+
+    if (isTestPilotAllowed) {
+      const guestId = getOrCreateTestPilotGuestIdentity();
+      setGuestId(guestId);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    setGuestId(null);
+
+    if (!isConnected) {
       router.replace("/");
     }
-  }, [isConnected, isLoading, router]);
 
-  if (isLoading || !isConnected) return null;
+    return () => {
+      cancelled = true;
+    };
+  }, [isConnected, isLoading, isTestPilotAllowed, router]);
 
-  const STEPS = [
-    tc("steps.walletConnect"),
-    tc("steps.fileUpload"),
-    tc("steps.teeAnalysis"),
-    tc("steps.insuranceRecommend"),
-    tc("steps.payment"),
-  ];
+  const canAccessUpload = isConnected || Boolean(testPilotGuestId);
+
+  const STEPS = useMemo(() => {
+    const firstStep = testPilotGuestId ? tc("steps.testPilotStart") : tc("steps.walletConnect");
+    const finalStep = testPilotGuestId ? tc("steps.testApplication") : tc("steps.payment");
+
+    return [
+      firstStep,
+      tc("steps.fileUpload"),
+      tc("steps.teeAnalysis"),
+      tc("steps.insuranceRecommend"),
+      finalStep,
+    ];
+  }, [tc, testPilotGuestId]);
+
+  if (isLoading || !canAccessUpload) return null;
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -65,11 +103,18 @@ export default function UploadPage() {
 
       <main className="flex flex-1 flex-col items-center justify-center px-6 py-12 gap-8">
         <div className="flex flex-col items-center gap-2 text-center">
+          {testPilotGuestId && (
+            <Badge variant="outline" className="border-primary/40 bg-primary/5 text-primary">
+              {t("testPilotBadge")}
+            </Badge>
+          )}
           <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
-          <p className="text-sm text-muted-foreground max-w-md">{t("description")}</p>
+          <p className="text-sm text-muted-foreground max-w-md">
+            {testPilotGuestId ? t("testPilotDescription") : t("description")}
+          </p>
         </div>
 
-        <FileUploadZone />
+        <FileUploadZone testPilotGuestId={testPilotGuestId} />
 
         <div className="flex flex-col items-center gap-1 text-center">
           <p className="text-xs text-muted-foreground">{t("supportedFormats")}</p>

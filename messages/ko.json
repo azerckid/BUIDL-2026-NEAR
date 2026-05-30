@@ -2,10 +2,12 @@
   "common": {
     "steps": {
       "walletConnect": "지갑 연결",
+      "testPilotStart": "테스트 시작",
       "fileUpload": "파일 업로드",
       "teeAnalysis": "TEE 분석",
       "insuranceRecommend": "보험 추천",
-      "payment": "결제"
+      "payment": "결제",
+      "testApplication": "테스트 신청"
     },
     "back": "이전",
     "loading": "로딩 중..."
@@ -19,6 +21,10 @@
     "connectPrompt": "NEAR Testnet 지갑을 연결하여 분석을 시작하세요",
     "startUpload": "유전자 파일 업로드 시작",
     "walletConnected": "지갑 연결 완료 — 다음 단계로 진행할 수 있습니다",
+    "testPilot": {
+      "start": "테스트로 시작",
+      "noLogin": "테스트 기간에는 가입·지갑·결제 없이 체험할 수 있습니다"
+    },
     "features": {
       "tee": {
         "label": "TEE",
@@ -42,6 +48,8 @@
     "backLabel": "홈으로",
     "title": "유전자 파일 업로드",
     "description": "파일은 서버로 전송되지 않습니다. 브라우저에서 해시값만 계산된 후 TEE 내부에서 원본 분석이 진행됩니다.",
+    "testPilotBadge": "테스트 모드",
+    "testPilotDescription": "가입과 지갑 연결 없이 테스트 세션으로 진행합니다. 유전자 원본은 저장하지 않으며 분석 후 폐기됩니다.",
     "supportedFormats": "지원 형식: GenTok(.txt), VCF(.vcf), CSV(.csv), PDF(.pdf)",
     "maxSize": "최대 파일 크기: 5MB"
   },
@@ -166,6 +174,9 @@
     "sessionError": "세션 생성 실패",
     "sessionCreated": "세션 생성 완료 — 분석 화면으로 이동합니다",
     "processError": "처리 중 오류가 발생했습니다",
+    "profileError": "테스트 프로필 생성에 실패했습니다",
+    "testPilotBadge": "테스트 세션",
+    "testPilotGuest": "{identity}로 업로드와 분석 세션을 생성합니다",
     "fileTooLarge": "파일 크기는 5MB를 초과할 수 없습니다",
     "invalidFormat": ".vcf, .txt, .csv, .pdf 파일만 허용됩니다"
   },
