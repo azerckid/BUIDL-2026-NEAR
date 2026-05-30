@@ -71,6 +71,7 @@
     "totalPremium": "월 보험료 합계",
     "processing": "처리 중...",
     "checkout": "결제하기",
+    "testApplication": "테스트 신청하기",
     "selectPrompt": "상품을 하나 이상 선택해 주세요",
     "cartError": "카트 생성에 실패했습니다",
     "cartCreated": "카트가 생성되었습니다",

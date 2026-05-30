@@ -15,6 +15,7 @@ import { ConciergeChat } from "./ConciergeChat";
 import { createCart } from "@/actions/createCart";
 import type { DashboardData, DashboardProduct, PriorityOrder } from "@/actions/getDashboardData";
 import type { RiskProfile, RiskLevel } from "@/lib/db/schema";
+import { isTestPilotClientEnabled, isTestPilotGuestIdentity } from "@/lib/test-pilot";
 
 const LEVEL_ORDER: Record<RiskLevel, number> = { high: 0, moderate: 1, normal: 2 };
 
@@ -40,6 +41,7 @@ interface CartSummaryProps {
   isPending: boolean;
   recommendReason?: string | null;
   advisoryMessages?: DashboardData["advisoryMessages"];
+  isTestPilotSession: boolean;
 }
 
 function ProductList({
@@ -50,6 +52,7 @@ function ProductList({
   onCheckout,
   recommendReason,
   advisoryMessages,
+  isTestPilotSession,
 }: CartSummaryProps) {
   const t = useTranslations("dashboard");
 
@@ -114,7 +117,7 @@ function ProductList({
           disabled={selectedIds.size === 0 || isPending}
           onClick={onCheckout}
         >
-          {isPending ? t("processing") : t("checkout")}
+          {isPending ? t("processing") : t(isTestPilotSession ? "testApplication" : "checkout")}
         </Button>
       </div>
     </div>
@@ -129,9 +132,17 @@ interface RevealFlowProps {
   onToggle: (id: string) => void;
   onCheckout: () => void;
   isPending: boolean;
+  isTestPilotSession: boolean;
 }
 
-function RevealFlow({ data, selectedIds, onToggle, onCheckout, isPending }: RevealFlowProps) {
+function RevealFlow({
+  data,
+  selectedIds,
+  onToggle,
+  onCheckout,
+  isPending,
+  isTestPilotSession,
+}: RevealFlowProps) {
   const { riskProfile, products, advisoryMessages, reasoning, coverageGapSummary, priorityOrder } = data;
   const t = useTranslations("dashboard");
   const tRisk = useTranslations("riskProfile");
@@ -296,6 +307,7 @@ function RevealFlow({ data, selectedIds, onToggle, onCheckout, isPending }: Reve
               isPending={isPending}
               recommendReason={t("reveal.recommendReason")}
               advisoryMessages={advisoryMessages}
+              isTestPilotSession={isTestPilotSession}
             />
           </motion.div>
         )}
@@ -313,9 +325,17 @@ interface LegacyTabsProps {
   onToggle: (id: string) => void;
   onCheckout: () => void;
   isPending: boolean;
+  isTestPilotSession: boolean;
 }
 
-function LegacyTabs({ data, selectedIds, onToggle, onCheckout, isPending }: LegacyTabsProps) {
+function LegacyTabs({
+  data,
+  selectedIds,
+  onToggle,
+  onCheckout,
+  isPending,
+  isTestPilotSession,
+}: LegacyTabsProps) {
   const { riskProfile, products, priorityOrder } = data;
   const t = useTranslations("dashboard");
   const orderedCategories = sortedCategories(riskProfile, priorityOrder);
@@ -347,6 +367,7 @@ function LegacyTabs({ data, selectedIds, onToggle, onCheckout, isPending }: Lega
           onToggle={onToggle}
           onCheckout={onCheckout}
           isPending={isPending}
+          isTestPilotSession={isTestPilotSession}
         />
       </TabsContent>
     </Tabs>
@@ -367,6 +388,7 @@ export function DashboardClient({ data }: DashboardClientProps) {
   const [isPending, startTransition] = useTransition();
 
   const hasAiData = !!(advisoryMessages && reasoning && coverageGapSummary);
+  const isTestPilotSession = isTestPilotClientEnabled() && isTestPilotGuestIdentity(walletAddress);
 
   function toggleProduct(id: string) {
     setSelectedIds((prev) => {
@@ -421,6 +443,7 @@ export function DashboardClient({ data }: DashboardClientProps) {
           onToggle={toggleProduct}
           onCheckout={handleCheckout}
           isPending={isPending}
+          isTestPilotSession={isTestPilotSession}
         />
       ) : (
         <LegacyTabs
@@ -429,6 +452,7 @@ export function DashboardClient({ data }: DashboardClientProps) {
           onToggle={toggleProduct}
           onCheckout={handleCheckout}
           isPending={isPending}
+          isTestPilotSession={isTestPilotSession}
         />
       )}
 
