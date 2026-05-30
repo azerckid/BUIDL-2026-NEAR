@@ -1,11 +1,13 @@
 # [QA] 신한라이프 일반형 공식 문서 Endpoint 탐색
 > Created: 2026-05-30 14:08
-> Last Updated: 2026-05-30 14:08
+> Last Updated: 2026-05-31 02:05
 
 - **레이어**: 05_QA_Validation
-- **상태**: Passed with Blocker
+- **상태**: Superseded by QA45
 - **범위**: 신한라이프 `L11C009000007` 표준형 source의 공식 일반형 상품요약서, 사업방법서, 판매약관 endpoint 탐색
 - **결론**: 신한라이프 공식 공시 `wcms` endpoint를 exact keyword, 표준형 상품명, 판매중 전체 scan, 과거 row sample 방식으로 재조회했지만 `신한SOL암보험(무배당)(비갱신형)` 일반형 문서 row는 찾지 못했다. 현재 endpoint가 반환하는 `신한SOL암보험` 판매중 row는 해약환급금 미지급형 1건뿐이므로, `src_shinhan_life_sol_cancer_standard_202605`는 계속 `raw` 차단 상태로 둔다. DB write와 `seed.ts` 변경은 하지 않았다.
+
+2026-05-31 02:05 KST 기준 전용 스크립트 기반 재탐색으로 이 결론을 다시 확인했다. 최신 산출물은 같은 `data/insurance/latest_shinhan_standard_document_endpoint_probe.json`/`.csv` 경로를 갱신하므로, 현재 기준 판단은 `./45_SHINHAN_STANDARD_DOCUMENT_ENDPOINT_REPROBE_2026_05_31.md`를 우선한다.
 
 ---
 
@@ -110,5 +112,6 @@
 - **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - Track A 진행 상태
 - **QA_Validation**: [KDB/신한 Source 문서 Variant 재검수](./26_KDB_SHINHAN_VARIANT_REVIEW_2026_05_29.md) - 기존 신한 차단 근거
 - **QA_Validation**: [KDB Source Document DB 적용 검증](./28_KDB_SOURCE_DOCUMENTS_DB_APPLY_2026_05_30.md) - 직전 Track A 완료 상태
+- **QA_Validation**: [신한라이프 일반형 공식 문서 Endpoint 재탐색](./45_SHINHAN_STANDARD_DOCUMENT_ENDPOINT_REPROBE_2026_05_31.md) - 최신 스크립트 기반 재탐색 결과
 - **Data**: [Shinhan Standard Document Endpoint Probe JSON](../../data/insurance/latest_shinhan_standard_document_endpoint_probe.json) - 구조화 endpoint 탐색 결과
 - **Data**: [Shinhan Standard Document Endpoint Probe CSV](../../data/insurance/latest_shinhan_standard_document_endpoint_probe.csv) - 조회 조건별 요약
