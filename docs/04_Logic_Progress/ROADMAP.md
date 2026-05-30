@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-30 19:26
+> Last Updated: 2026-05-30 21:00
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-30 (Test Pilot E2E 완료)
+- **최종 수정일**: 2026-05-30 (현재 남은 구현 순서 정리)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.20
+- **상태**: Draft v3.21
 - **phase**: Phase 2
 
 ---
@@ -63,6 +63,22 @@
 | 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | Test Pilot Mode에서 source-backed 추천을 무로그인·무결제로 끝까지 체험 가능하게 구현 |
 | NEAR 프라이버시 기술 | IronClaw v0.28.2까지의 업데이트가 블로커 2~3을 해소하는가 | WIT-compatible WASM runtime, `tool_install`, WASM 실행 결과 반환 경로 실측 |
 | 매칭 브리지 | AI 해석과 DB 상품 추천의 경계를 어떻게 유지할 것인가 | `riskProfile.flags` -> `insurance_products.risk_targets` 결정론적 매칭 유지 |
+
+### 2026-05-30 현재 남은 구현 순서
+
+현재 의미는 “실제 보험상품 데이터 기반 추천”과 “무로그인·무결제 테스트 완주”를 동시에 검증하는 것이다. Test Pilot happy-path는 완료됐고, 다음 작업은 아래 순서로 진행한다.
+
+여기서 현재 추천 상품 3개는 “수집한 전체 데이터 수”가 아니라 “사용자 추천 화면에 노출 가능한 최종 snapshot 수”다. 현재까지 확보한 기반 데이터는 보험다모아 P0 샘플 56개, source catalog 후보 22개, 공식 문서 row 22개, 조건별 보험료 quote row 84개이며, 이 중 원천 근거, 매칭 키워드, caveat, approved quote를 모두 통과해 active 추천으로 발행된 상품이 3개다.
+
+| 순서 | 트랙 | 작업 | 완료 기준 |
+|---:|---|---|---|
+| 1 | Test Pilot UX | guest session dashboard 상품 버튼 문구를 `결제하기`에서 `테스트 신청하기`로 정리 | 테스트 사용자가 실제 결제처럼 오해하지 않음 |
+| 2 | Test Pilot 회귀 | flag off 상태의 기존 지갑 연결, NEAR/ETH checkout, build/typecheck 확인 | 테스트 모드가 운영 결제 경로를 깨지 않음 |
+| 3 | 보험료 개인화 | 사용자 나이/성별 입력값과 approved quote matrix 연결 | 대표 보험료와 사용자 조건별 보험료가 구분 표시됨 |
+| 4 | 한화생명 blocker | 한화생명 표준체형/비흡연체형 0원 quote 원인 해소 | 숫자 KRW quote 확보 후 추천 snapshot 후보로 승격 가능 |
+| 5 | 신한라이프 blocker | 신한라이프 일반형 공식 문서 endpoint 추가 탐색 | 해약환급금 미지급형 문서 오연결 없이 일반형 source 처리 |
+| 6 | 보험상품 확장 | `needs_review=7`, `raw=12` source의 문서 hash, 매칭 키워드, caveat 정리 | 추천 snapshot 발행 가능한 상품 수 증가 |
+| 7 | 추천 snapshot 확대 | 새 source를 `approved`로 승격하고 `insurance_products` snapshot 발행 | source-backed active 추천 상품이 현재 3개에서 단계적으로 증가 |
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 매칭 키워드 정리 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.
