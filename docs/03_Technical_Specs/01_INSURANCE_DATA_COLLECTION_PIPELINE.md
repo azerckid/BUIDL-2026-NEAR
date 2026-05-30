@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-30 16:40
+> Last Updated: 2026-05-31 00:49
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.15
+- **상태**: Draft v2.16
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -607,6 +607,28 @@ archive 대상은 `prod_001`, `prod_002`, `prod_003`, `prod_004`, `prod_005`다.
 
 `getDashboardData`는 active source-backed 상품의 `product_source_id`에 연결된 approved quote row만 조회한다. `InsuranceProductCard`는 대표 가격과 조건별 예상 보험료를 서로 다른 영역에 렌더링하고, 보험다모아 공식 비교 조건 기준이라는 caveat를 함께 표시한다. 검증은 `../05_QA_Validation/35_PREMIUM_QUOTE_MATRIX_UI_2026_05_30.md`에 둔다.
 
+### 9-23. Hanwha Life Carrier Quote Probe
+
+2026-05-31 00:49 KST 기준 보험다모아에서 `0원`으로 수집됐던 한화생명 e암보험 표준체형/비흡연체형 quote를 한화생명 공식 다이렉트 상품 페이지와 계산 API로 재조회했다.
+
+```bash
+npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
+```
+
+| 항목 | 결과 |
+|---|---:|
+| 대상 source | 2 |
+| 기존 보험다모아 0원 quote row | 8 |
+| 공식 carrier numeric quote row | 8 |
+| 공식 상품 페이지 예시 row | 6 |
+| 40세 남성/여성 표준체형 API/page 일치 | 2/2 |
+| 이번 PR DB write | 0 |
+| 이번 PR 추천 snapshot 발행 | 0 |
+
+조회 기준은 100세 만기, 20년납, 월납, 주계약가입금액 1,000만원이다. 산출물은 `data/insurance/latest_hanwha_life_quote_blocker_probe.json`, `data/insurance/latest_hanwha_life_quote_blocker_probe.csv`, 검증 문서는 `../05_QA_Validation/42_HANWHA_LIFE_ZERO_QUOTE_BLOCKER_PROBE_2026_05_31.md`에 둔다.
+
+한화생명 API 응답에는 호출마다 달라질 수 있는 `sskey`가 포함되므로, 산출물은 raw API response hash와 stable quote hash를 분리한다. 후속 seed PR에서는 기존 `0원` quote row를 `quote_source_type=carrier_quote` 기준의 숫자 KRW row로 대체하고, 운영 DB 백업 후 적용한다.
+
 ---
 
 ## 10. 법무·신뢰 고지
@@ -663,6 +685,7 @@ archive 대상은 `prod_001`, `prod_002`, `prod_003`, `prod_004`, `prod_005`다.
 - [x] legacy demo 보험상품 운영 추천 제거 코드/seed 정책 작성
 - [x] 백업 후 legacy demo 보험상품 archive 운영 DB 적용
 - [x] 추천 카드에서 대표 보험료와 조건별 approved quote matrix 분리 표시
+- [x] 한화생명 0원 quote blocker를 공식 carrier quote로 재조회
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
@@ -714,3 +737,4 @@ archive 대상은 `prod_001`, `prod_002`, `prod_003`, `prod_004`, `prod_005`다.
 - **QA_Validation**: [First Recommendation Snapshot DB Apply](../05_QA_Validation/32_FIRST_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_30.md) - 첫 source-backed 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [Demo Insurance Products Retirement](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md) - legacy demo 상품 운영 추천 제거 검증
 - **QA_Validation**: [Demo Products Archive DB Apply](../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md) - legacy demo 상품 archive 운영 DB 적용 검증
+- **QA_Validation**: [Hanwha Life Zero Quote Blocker Probe](../05_QA_Validation/42_HANWHA_LIFE_ZERO_QUOTE_BLOCKER_PROBE_2026_05_31.md) - 한화생명 공식 carrier quote 8건 재조회 검증
