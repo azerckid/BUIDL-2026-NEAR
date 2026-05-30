@@ -1,6 +1,6 @@
 # [QA] Test Pilot Mode 무로그인·무결제 플로우 검증 체크리스트
 > Created: 2026-05-30 17:18
-> Last Updated: 2026-05-30 18:20
+> Last Updated: 2026-05-30 18:50
 
 - **레이어**: 05_QA_Validation
 - **상태**: Draft
@@ -30,7 +30,7 @@
 |---|---|---|
 | Guest identity + 지갑 없는 upload/session | 구현됨 | `guest-*.testnet` 생성, guest profile upsert, `analysis_sessions.wallet_address` 연결 |
 | `runTestPilotAnalysis` | 구현됨 | guest session만 허용, 서버 feature flag guard, NEAR 서명 팝업 없이 운영 TEE 분석 공통 경로 실행 |
-| No-payment checkout | 구현됨, DB 적용 대기 | `test_pilot_checkouts` schema/migration, test 전용 서버 액션, 지갑 서명 없는 완료 화면 |
+| No-payment checkout | 구현됨, DB 적용 완료, E2E 대기 | `test_pilot_checkouts` schema/migration, test 전용 서버 액션, 지갑 서명 없는 완료 화면 |
 | E2E | 대기 | 업로드 -> 분석 -> 추천 -> 테스트 신청 완료 전체 플로우 |
 
 ---
@@ -93,7 +93,7 @@
 | D2 | 결제 네트워크 선택 | 숨김 또는 disabled | 코드 구현, E2E 대기 |
 | D3 | 완료 버튼 | `결제 없이 테스트 신청 완료` 동작 | 코드 구현, E2E 대기 |
 | D4 | 실제 결제 호출 | `prepareCheckout`의 실결제 transaction 생성 경로 미호출 또는 test 전용 경로 사용 | 코드 구현, E2E 대기 |
-| D5 | DB 기록 | `test_pilot_checkouts` 또는 승인된 test 전용 기록에 저장 | migration DB 적용 대기 |
+| D5 | DB 기록 | `test_pilot_checkouts` 또는 승인된 test 전용 기록에 저장 | DB 적용 완료, E2E 대기 |
 | D6 | cart 상태 | selected cart가 종료 상태로 전환되어 중복 신청 방지 | 코드 구현, E2E 대기 |
 | D7 | transaction 오염 방지 | 실제 결제 `transactions` row와 test completion row가 혼동되지 않음 | 코드 구현, E2E 대기 |
 | D8 | 성공 화면 | txHash 대신 test checkout ID 표시 | 코드 구현, E2E 대기 |
@@ -144,3 +144,4 @@
 - **Technical_Specs**: [DB Schema](../03_Technical_Specs/DB_SCHEMA.md) - wallet/cart/transaction 현재 상태 모델
 - **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - 후속 구현 일정
 - **QA_Validation**: [Premium Quote Matrix UI](./35_PREMIUM_QUOTE_MATRIX_UI_2026_05_30.md) - 직전 추천 카드 UI 검증
+- **QA_Validation**: [Test Pilot 0007 DB Apply](./38_TEST_PILOT_0007_DB_APPLY_2026_05_30.md) - 운영 DB migration 적용 검증

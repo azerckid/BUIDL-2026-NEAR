@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-30 18:20
+> Last Updated: 2026-05-30 18:50
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-30 (Test Pilot Mode no-payment checkout 구현)
+- **최종 수정일**: 2026-05-30 (Test Pilot 0007 DB 적용)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.18
+- **상태**: Draft v3.19
 - **phase**: Phase 2
 
 ---
@@ -110,6 +110,8 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 2026-05-30 17:53 KST 기준 Test Pilot Mode 2단계로 `runTestPilotAnalysis` 서버 액션과 분석 화면의 guest session 분기를 구현했다. `guest-*.testnet` 분석 세션은 `TEST_PILOT_ENABLED=true` 및 `TEST_PILOT_SKIP_WALLET=true`일 때만 NEAR 서명 검증 없이 실행되고, TEE 분석·attestation·ZKP commitment·source-backed 상품 매칭·결과 저장은 운영 `runAnalysis`와 동일한 공통 경로를 사용한다. 브라우저 `sessionStorage`의 원본 파일은 분석 요청 직전에 제거한다. 다음 작업은 `test_pilot_checkouts` schema/migration과 no-payment checkout 완료 화면 구현이다.
 
 2026-05-30 18:20 KST 기준 Test Pilot Mode 3단계로 `test_pilot_checkouts` Drizzle schema와 `drizzle/0007_silky_magma.sql` migration, `completeTestPilotCheckout` 서버 액션, checkout 화면의 no-payment 분기를 구현했다. `guest-*.testnet` cart는 `TEST_PILOT_ENABLED=true` 및 `TEST_PILOT_SKIP_PAYMENT=true`일 때만 실제 `transactions` row 생성 없이 test checkout row로 완료되고, 성공 화면은 tx hash 대신 Test Checkout ID를 표시한다. 운영 결제 NEAR/ETH 경로는 기존 `prepareCheckout`/`confirmCheckout` 경로를 유지한다. 다음 작업은 운영 DB 백업 후 0007 migration 적용과 Test Pilot E2E 검증이다.
+
+2026-05-30 18:50 KST 기준 운영 Turso DB에 백업 후 `drizzle/0007_silky_magma.sql`을 적용했다. 적용 후 DB는 `test_pilot_checkouts` 테이블과 `test_pilot_checkouts_cart_id_unique`, `test_pilot_checkouts_wallet_idx` 인덱스를 보유하며, 신규 row는 0건이다. 기존 핵심 row count는 유지됐고 `__drizzle_migrations`는 7건에서 8건으로 증가했다. 적용 검증은 `../05_QA_Validation/38_TEST_PILOT_0007_DB_APPLY_2026_05_30.md`에 둔다. 다음 작업은 Test Pilot 환경변수를 켠 상태에서 업로드 -> 분석 -> 추천 -> 무결제 테스트 신청 완료 E2E를 수행하는 것이다.
 
 ## 2. 세부 실행 계획 (Detailed Execution)
 

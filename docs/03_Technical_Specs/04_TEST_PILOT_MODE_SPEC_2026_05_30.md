@@ -1,9 +1,9 @@
 # [기술 명세] Test Pilot Mode: 무로그인·무결제 서비스 테스트 플로우
 > Created: 2026-05-30 17:18
-> Last Updated: 2026-05-30 18:20
+> Last Updated: 2026-05-30 18:50
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.1
+- **상태**: Draft v1.2
 - **범위**: 테스트 기간 동안 회원가입·로그인·지갑 연결·실결제 없이 업로드부터 추천 완료까지 진행하는 별도 플로우
 - **결론**: 테스트 기간에는 `Test Pilot Mode`를 feature flag로 켜고, 임시 guest identity와 no-payment checkout을 사용한다. 운영 결제·지갑 플로우는 삭제하지 않고, 테스트 모드의 모든 데이터와 화면은 실제 보험 가입/결제가 아님을 명확히 표시한다.
 
@@ -233,7 +233,7 @@ test_pilot_checkouts
 | 2 | `guest-*.testnet` identity 생성 및 user profile upsert | 구현 완료 |
 | 3 | 지갑 없이 upload/session 생성 가능하도록 UI 분기 | 구현 완료 |
 | 4 | `runTestPilotAnalysis` 또는 인증 우회 서버 액션 구현 | 구현 완료 |
-| 5 | `test_pilot_checkouts` schema/migration 설계 | 구현 완료: `drizzle/0007_silky_magma.sql`, DB 적용 대기 |
+| 5 | `test_pilot_checkouts` schema/migration 설계 | 구현 완료: `drizzle/0007_silky_magma.sql`, 운영 DB 적용 완료 |
 | 6 | no-payment checkout 완료 화면 구현 | 구현 완료: test 전용 서버 액션과 완료 화면 |
 | 7 | 테스트 모드 E2E 작성: 업로드 -> 분석 -> 추천 -> 신청 완료 | QA PR |
 
@@ -260,3 +260,4 @@ test_pilot_checkouts
 - **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - Test Pilot Mode 후속 구현 순서
 - **QA_Validation**: [Test Pilot Mode QA Checklist](../05_QA_Validation/36_TEST_PILOT_MODE_QA_2026_05_30.md) - 테스트 모드 완료 조건과 검증 항목
 - **QA_Validation**: [No-payment Checkout Implementation QA](../05_QA_Validation/37_TEST_PILOT_NO_PAYMENT_CHECKOUT_2026_05_30.md) - 서버 가드, DB 분리, UI 분기 검증 기록
+- **QA_Validation**: [Test Pilot 0007 DB Apply](../05_QA_Validation/38_TEST_PILOT_0007_DB_APPLY_2026_05_30.md) - 운영 DB migration 적용 검증

@@ -1,11 +1,11 @@
 # [기술 명세] 데이터 모델 및 DB 스키마 상세 명세
 > Created: 2026-04-01 00:00
-> Last Updated: 2026-05-30 18:20
+> Last Updated: 2026-05-30 18:50
 
 - **작성일**: 2026-04-01
 - **최종 수정일**: 2026-05-30
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.4
+- **상태**: Draft v1.5
 
 ---
 
@@ -447,7 +447,7 @@ export const transactions = sqliteTable("transactions", {
 
 ### 2-7. `test_pilot_checkouts`
 
-> 2026-05-30 18:20 KST 기준 Drizzle schema와 `drizzle/0007_silky_magma.sql`에 반영했다. 운영 Turso DB 적용은 백업 후 별도 apply 단계에서 수행한다.
+> 2026-05-30 18:50 KST 기준 Drizzle schema와 `drizzle/0007_silky_magma.sql`을 운영 Turso DB에 적용했다. 적용 검증은 `../05_QA_Validation/38_TEST_PILOT_0007_DB_APPLY_2026_05_30.md`에 둔다.
 
 테스트 기간 동안 실제 결제 없이 “테스트 신청 완료”까지 진행한 기록을 저장한다. 실제 결제 `transactions`와 혼동하지 않기 위해 별도 테이블로 분리한다.
 
