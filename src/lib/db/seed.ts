@@ -24,6 +24,7 @@ const quoteOnlyVariantReviewedAt = DateTime.fromISO("2026-05-29T02:58:00+09:00")
 const kdbShinhanVariantReviewedAt = DateTime.fromISO("2026-05-29T23:11:00+09:00").toJSDate();
 const firstRecommendationSnapshotReviewedAt = DateTime.fromISO("2026-05-30T16:30:00+09:00").toJSDate();
 const hanwhaLifeQuoteReviewedAt = DateTime.fromISO("2026-05-31T00:49:37.412+09:00").toJSDate();
+const medicalBaselineSnapshotReviewedAt = DateTime.fromISO("2026-05-31T02:49:00+09:00").toJSDate();
 
 type InsuranceCarrierSeed = typeof insuranceCarriers.$inferInsert;
 type InsuranceProductSourceSeed = typeof insuranceProductSources.$inferInsert;
@@ -52,6 +53,9 @@ const HANWHA_LIFE_CARRIER_QUOTE_PREMIUM_BASIS =
 
 const HANWHA_LIFE_QUOTE_SOURCE_URL =
   "https://api.hanwhalife.com/product/calculate/v3/default";
+
+const MEDICAL_BASELINE_PREMIUM_BASIS =
+  "보험다모아 실손의료보험 모바일 공개 비교 조건 기준 월 보험료입니다. 대표 보험료는 age34_female 조건이며, 조건별 보험료는 insurance_premium_quotes의 approved quote matrix에서 별도 표시합니다. USDC 금액은 고정 데모 환산율 1 USDC = 1,350 KRW로 계산했으며 실시간 환율이 아닙니다.";
 
 const SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
 
@@ -87,6 +91,21 @@ const HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS = [
   "quote_src_hanwha_life_e_cancer_nonsmoker_202604_age34_female_1015b0165c0e",
   "quote_src_hanwha_life_e_cancer_nonsmoker_202604_age44_male_99a3f15d59fc",
   "quote_src_hanwha_life_e_cancer_nonsmoker_202604_age44_female_9cf2588db68b",
+];
+
+const MEDICAL_BASELINE_APPROVED_QUOTE_IDS = [
+  "quote_src_db_direct_medical_202605_age34_male_60456bed3452",
+  "quote_src_db_direct_medical_202605_age34_female_b141dc7c5700",
+  "quote_src_db_direct_medical_202605_age44_male_26615bdcb076",
+  "quote_src_db_direct_medical_202605_age44_female_58dcc145a6b7",
+  "quote_src_kb_direct_medical_202605_age34_male_60456bed3452",
+  "quote_src_kb_direct_medical_202605_age34_female_b141dc7c5700",
+  "quote_src_kb_direct_medical_202605_age44_male_26615bdcb076",
+  "quote_src_kb_direct_medical_202605_age44_female_58dcc145a6b7",
+  "quote_src_hyundai_direct_medical_202605_age34_male_60456bed3452",
+  "quote_src_hyundai_direct_medical_202605_age34_female_b141dc7c5700",
+  "quote_src_hyundai_direct_medical_202605_age44_male_26615bdcb076",
+  "quote_src_hyundai_direct_medical_202605_age44_female_58dcc145a6b7",
 ];
 
 function toFirstSnapshotUsdc(monthlyPremiumKrw: number) {
@@ -1514,6 +1533,96 @@ const HANWHA_LIFE_CANCER_NONSMOKER_CAVEATS = [
   "비흡연체형은 만 19세 이상, 표준체형 가입 가능 상태, 최근 1년 비흡연 등 가입 조건이 있으며 흡연 상태 변경 시 표준체형 보험료 적용, 정산차액, 보험가입금액 감액 가능성이 있다.",
 ];
 
+const MEDICAL_BASELINE_COMMON_DETAILS = {
+  coverage_category: "medical_expense",
+  matching_strategy: "baseline",
+  risk_targets: [],
+  baseline_terms: [
+    "실손의료비",
+    "질병 치료비",
+    "상해 치료비",
+    "급여 의료비",
+    "비급여 의료비",
+  ],
+  quote_review_status: "approved",
+  quote_source_type: "e_insmarket",
+  representative_condition_id: "age34_female",
+  usdc_conversion: {
+    basis: "fixed_demo_rate",
+    krw_per_usdc: FIRST_SNAPSHOT_KRW_PER_USDC,
+    approved_at: "2026-05-31T02:49:00+09:00",
+  },
+};
+
+const MEDICAL_BASELINE_COMMON_CAVEATS = [
+  "유전자 위험 특화 추천이 아니라 기본 의료비 방어 baseline으로 표시한다.",
+  "실손의료보험은 자기부담금, 급여/비급여, 보장 한도, 갱신 조건이 적용된다.",
+  "보험다모아 quote는 공개 비교 조건 기준 예시 보험료이며 개인별 인수 심사 견적이 아니다.",
+  "갱신 시 보험료가 달라질 수 있다.",
+];
+
+const DB_DIRECT_MEDICAL_DETAILS = {
+  ...MEDICAL_BASELINE_COMMON_DETAILS,
+  representative_premium_krw: 6854,
+  approved_quote_condition_premiums_krw: {
+    age34_male: 6219,
+    age34_female: 6854,
+    age44_male: 9320,
+    age44_female: 11030,
+  },
+  document_evidence: {
+    carrier_match_score: 1,
+    document_types: ["terms", "business_method", "summary"],
+  },
+};
+
+const DB_DIRECT_MEDICAL_CAVEATS = [
+  ...MEDICAL_BASELINE_COMMON_CAVEATS,
+  "DB손보 source는 약관, 사업방법서, 상품요약서 hash가 모두 확보되어 대표 문서와 보조 문서 확인이 가능하다.",
+];
+
+const KB_DIRECT_MEDICAL_DETAILS = {
+  ...MEDICAL_BASELINE_COMMON_DETAILS,
+  representative_premium_krw: 6439,
+  approved_quote_condition_premiums_krw: {
+    age34_male: 6400,
+    age34_female: 6439,
+    age44_male: 9074,
+    age44_female: 10323,
+  },
+  document_evidence: {
+    carrier_match_score: 1,
+    document_types: ["terms"],
+  },
+};
+
+const KB_DIRECT_MEDICAL_CAVEATS = [
+  ...MEDICAL_BASELINE_COMMON_CAVEATS,
+  "KB손보 source의 대표 문서는 약관 1건이며, 상품요약서와 사업방법서 hash는 아직 별도 row로 확보하지 않았다.",
+  "고정 PDF URL은 정기 refresh 시 hash 변경 여부를 재확인한다.",
+];
+
+const HYUNDAI_DIRECT_MEDICAL_DETAILS = {
+  ...MEDICAL_BASELINE_COMMON_DETAILS,
+  representative_premium_krw: 6545,
+  approved_quote_condition_premiums_krw: {
+    age34_male: 6740,
+    age34_female: 6545,
+    age44_male: 9190,
+    age44_female: 9949,
+  },
+  document_evidence: {
+    carrier_match_score: 1,
+    document_types: ["terms"],
+  },
+};
+
+const HYUNDAI_DIRECT_MEDICAL_CAVEATS = [
+  ...MEDICAL_BASELINE_COMMON_CAVEATS,
+  "현대해상 source는 갱신형 상품이므로 갱신 보험료 변동과 재가입 조건을 추천 카드 caveat에 표시한다.",
+  "대표 문서는 약관 1건이며, 상품요약서와 사업방법서 hash는 아직 별도 row로 확보하지 않았다.",
+];
+
 const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = [
   {
     id: "src_hanwha_life_e_cancer_202604",
@@ -1629,6 +1738,72 @@ const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = 
       reviewStatus: "approved",
       reviewedAt: firstRecommendationSnapshotReviewedAt,
       lastVerifiedAt: firstRecommendationSnapshotReviewedAt,
+      updatedAt: now,
+    },
+  },
+  {
+    id: "src_db_direct_medical_202605",
+    values: {
+      saleStatus: "active",
+      saleStatusEvidence:
+        "DB손보 공시실 API에서 2026-05 판매중 실손의료비보험 row와 약관/사업방법서/상품요약서 PDF hash 3건을 확인했고 보험다모아 조건별 quote 4건을 검수했다.",
+      monthlyPremiumKrw: 6854,
+      premiumText: "6,854원",
+      premiumBasis: MEDICAL_BASELINE_PREMIUM_BASIS,
+      renewalType: "renewable",
+      coverageSummary:
+        "질병과 상해 치료비를 폭넓게 보상하는 DB손보 실손의료보험 baseline 상품.",
+      exclusionsSummary:
+        "자기부담금, 급여/비급여, 보장 한도, 갱신 조건을 caveat로 표시한다.",
+      coverageDetailsJson: JSON.stringify(DB_DIRECT_MEDICAL_DETAILS),
+      coverageCaveatsJson: JSON.stringify(DB_DIRECT_MEDICAL_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: medicalBaselineSnapshotReviewedAt,
+      lastVerifiedAt: medicalBaselineSnapshotReviewedAt,
+      updatedAt: now,
+    },
+  },
+  {
+    id: "src_kb_direct_medical_202605",
+    values: {
+      saleStatus: "active",
+      saleStatusEvidence:
+        "KB손보 공시 문서 match score 1.0 약관 hash와 보험다모아 조건별 quote 4건을 검수했다.",
+      monthlyPremiumKrw: 6439,
+      premiumText: "6,439원",
+      premiumBasis: MEDICAL_BASELINE_PREMIUM_BASIS,
+      renewalType: "renewable",
+      coverageSummary:
+        "질병과 상해 치료비를 폭넓게 보상하는 KB손보 실손의료보험 baseline 상품.",
+      exclusionsSummary:
+        "자기부담금, 급여/비급여, 보장 한도, 갱신 조건, 고정 PDF URL refresh caveat를 표시한다.",
+      coverageDetailsJson: JSON.stringify(KB_DIRECT_MEDICAL_DETAILS),
+      coverageCaveatsJson: JSON.stringify(KB_DIRECT_MEDICAL_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: medicalBaselineSnapshotReviewedAt,
+      lastVerifiedAt: medicalBaselineSnapshotReviewedAt,
+      updatedAt: now,
+    },
+  },
+  {
+    id: "src_hyundai_direct_medical_202605",
+    values: {
+      saleStatus: "active",
+      saleStatusEvidence:
+        "현대해상 공시 문서 match score 1.0 약관 hash와 보험다모아 조건별 quote 4건을 검수했다.",
+      monthlyPremiumKrw: 6545,
+      premiumText: "6,545원",
+      premiumBasis: MEDICAL_BASELINE_PREMIUM_BASIS,
+      renewalType: "renewable",
+      coverageSummary:
+        "질병과 상해 치료비를 폭넓게 보상하는 현대해상 실손의료보험 baseline 상품.",
+      exclusionsSummary:
+        "자기부담금, 급여/비급여, 보장 한도, 갱신 보험료 변동과 재가입 조건을 caveat로 표시한다.",
+      coverageDetailsJson: JSON.stringify(HYUNDAI_DIRECT_MEDICAL_DETAILS),
+      coverageCaveatsJson: JSON.stringify(HYUNDAI_DIRECT_MEDICAL_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: medicalBaselineSnapshotReviewedAt,
+      lastVerifiedAt: medicalBaselineSnapshotReviewedAt,
       updatedAt: now,
     },
   },
@@ -1755,6 +1930,78 @@ const FIRST_RECOMMENDATION_SNAPSHOT_PRODUCTS: InsuranceProductSeed[] = [
     isActive: 1,
     createdAt: now,
   },
+  {
+    id: "prod_db_direct_medical_202605",
+    productSourceId: "src_db_direct_medical_202605",
+    name: "DB손보 다이렉트 실손의료비보험",
+    provider: "DB손보",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(6854),
+    monthlyPremiumKrw: 6854,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: MEDICAL_BASELINE_PREMIUM_BASIS,
+    coverageCategory: "medical_expense" as const,
+    riskTargets: JSON.stringify([]),
+    matchingStrategy: "baseline" as const,
+    coverageDetailsJson: JSON.stringify(DB_DIRECT_MEDICAL_DETAILS),
+    coverageCaveatsJson: JSON.stringify(DB_DIRECT_MEDICAL_CAVEATS),
+    sourceCheckedAt: medicalBaselineSnapshotReviewedAt,
+    primarySourceDocumentId: "doc_db_direct_medical_terms_202605",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
+  {
+    id: "prod_kb_direct_medical_202605",
+    productSourceId: "src_kb_direct_medical_202605",
+    name: "KB손보 다이렉트실손의료비보장보험",
+    provider: "KB손보",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(6439),
+    monthlyPremiumKrw: 6439,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: MEDICAL_BASELINE_PREMIUM_BASIS,
+    coverageCategory: "medical_expense" as const,
+    riskTargets: JSON.stringify([]),
+    matchingStrategy: "baseline" as const,
+    coverageDetailsJson: JSON.stringify(KB_DIRECT_MEDICAL_DETAILS),
+    coverageCaveatsJson: JSON.stringify(KB_DIRECT_MEDICAL_CAVEATS),
+    sourceCheckedAt: medicalBaselineSnapshotReviewedAt,
+    primarySourceDocumentId: "doc_kb_direct_medical_terms_202605",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
+  {
+    id: "prod_hyundai_direct_medical_202605",
+    productSourceId: "src_hyundai_direct_medical_202605",
+    name: "현대해상다이렉트실손의료비보장보험",
+    provider: "현대해상",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(6545),
+    monthlyPremiumKrw: 6545,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: MEDICAL_BASELINE_PREMIUM_BASIS,
+    coverageCategory: "medical_expense" as const,
+    riskTargets: JSON.stringify([]),
+    matchingStrategy: "baseline" as const,
+    coverageDetailsJson: JSON.stringify(HYUNDAI_DIRECT_MEDICAL_DETAILS),
+    coverageCaveatsJson: JSON.stringify(HYUNDAI_DIRECT_MEDICAL_CAVEATS),
+    sourceCheckedAt: medicalBaselineSnapshotReviewedAt,
+    primarySourceDocumentId: "doc_hyundai_direct_medical_terms_202605",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
 ];
 
 const LEGACY_DEMO_PRODUCT_IDS = [
@@ -1836,6 +2083,7 @@ async function seed() {
       inArray(insurancePremiumQuotes.id, [
         ...FIRST_SNAPSHOT_APPROVED_QUOTE_IDS,
         ...HANWHA_LIFE_CARRIER_QUOTE_IDS,
+        ...MEDICAL_BASELINE_APPROVED_QUOTE_IDS,
       ])
     );
 
@@ -1853,7 +2101,7 @@ async function seed() {
       .onConflictDoNothing();
   }
   console.log(
-    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${HANWHA_LIFE_CARRIER_QUOTE_ROWS.length} Hanwha carrier quotes inserted if missing, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length + HANWHA_LIFE_CARRIER_QUOTE_IDS.length} quote approvals, ${HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS.length} Hanwha zero quotes rejected, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
+    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${HANWHA_LIFE_CARRIER_QUOTE_ROWS.length} Hanwha carrier quotes inserted if missing, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length + HANWHA_LIFE_CARRIER_QUOTE_IDS.length + MEDICAL_BASELINE_APPROVED_QUOTE_IDS.length} quote approvals, ${HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS.length} Hanwha zero quotes rejected, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
   );
 }
 
