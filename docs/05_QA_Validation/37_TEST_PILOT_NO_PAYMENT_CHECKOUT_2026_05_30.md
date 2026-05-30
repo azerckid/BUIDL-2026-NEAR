@@ -1,11 +1,11 @@
 # [QA] Test Pilot Mode No-Payment Checkout 구현 검증
 > Created: 2026-05-30 18:20
-> Last Updated: 2026-05-30 18:20
+> Last Updated: 2026-05-30 18:50
 
 - **레이어**: 05_QA_Validation
 - **상태**: Draft
 - **범위**: `test_pilot_checkouts` schema/migration, no-payment checkout 서버 액션, Checkout UI 테스트 모드 분기
-- **결론**: Test Pilot checkout은 실제 `transactions` row를 만들지 않고, `guest-*.testnet` cart만 별도 `test_pilot_checkouts` row로 완료 처리한다. 운영 DB에는 `drizzle/0007_silky_magma.sql` 적용이 아직 필요하다.
+- **결론**: Test Pilot checkout은 실제 `transactions` row를 만들지 않고, `guest-*.testnet` cart만 별도 `test_pilot_checkouts` row로 완료 처리한다. 운영 DB에는 `drizzle/0007_silky_magma.sql` 적용까지 완료됐고, 남은 작업은 Test Pilot E2E다.
 
 ---
 
@@ -37,8 +37,8 @@
 
 | 항목 | 기대 동작 | 상태 |
 |---|---|---|
-| test row 저장 | `test_pilot_checkouts`에 1 cart당 1 row 저장 | migration 적용 후 E2E 필요 |
-| cart 종료 | 성공 시 `recommendation_carts.status=checked_out` | migration 적용 후 E2E 필요 |
+| test row 저장 | `test_pilot_checkouts`에 1 cart당 1 row 저장 | DB 적용 완료, E2E 필요 |
+| cart 종료 | 성공 시 `recommendation_carts.status=checked_out` | DB 적용 완료, E2E 필요 |
 | 실결제 오염 방지 | no-payment 경로에서 `transactions` insert 없음 | 코드 검토 완료, DB E2E 필요 |
 | 중복 방지 | `test_pilot_checkouts.cart_id` unique index로 동일 cart 중복 완료 차단 | migration 생성 완료 |
 
@@ -59,10 +59,9 @@
 
 ## 5. 남은 검증
 
-1. 운영 DB 백업 후 `drizzle/0007_silky_magma.sql` 적용.
-2. `TEST_PILOT_ENABLED=true`, `NEXT_PUBLIC_TEST_PILOT_ENABLED=true`, `TEST_PILOT_SKIP_WALLET=true`, `TEST_PILOT_SKIP_PAYMENT=true` 환경에서 업로드 -> 분석 -> 추천 -> no-payment checkout E2E 수행.
-3. E2E 후 `test_pilot_checkouts` row 생성, `recommendation_carts.status=checked_out`, `transactions` row 미생성을 확인.
-4. flag off 상태에서 기존 NEAR/ETH checkout UI와 서버 액션이 유지되는지 회귀 검증.
+1. `TEST_PILOT_ENABLED=true`, `NEXT_PUBLIC_TEST_PILOT_ENABLED=true`, `TEST_PILOT_SKIP_WALLET=true`, `TEST_PILOT_SKIP_PAYMENT=true` 환경에서 업로드 -> 분석 -> 추천 -> no-payment checkout E2E 수행.
+2. E2E 후 `test_pilot_checkouts` row 생성, `recommendation_carts.status=checked_out`, `transactions` row 미생성을 확인.
+3. flag off 상태에서 기존 NEAR/ETH checkout UI와 서버 액션이 유지되는지 회귀 검증.
 
 ---
 
@@ -85,3 +84,4 @@
 - **Technical_Specs**: [DB Schema](../03_Technical_Specs/DB_SCHEMA.md) - `test_pilot_checkouts` schema와 migration 상태
 - **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - Test Pilot Mode 진행 위치와 다음 작업
 - **QA_Validation**: [Test Pilot Mode QA Checklist](./36_TEST_PILOT_MODE_QA_2026_05_30.md) - 전체 Test Pilot Mode DoD
+- **QA_Validation**: [Test Pilot 0007 DB Apply](./38_TEST_PILOT_0007_DB_APPLY_2026_05_30.md) - 운영 DB migration 적용 검증
