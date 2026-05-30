@@ -1,11 +1,11 @@
 # [QA] Test Pilot Mode No-Payment Checkout 구현 검증
 > Created: 2026-05-30 18:20
-> Last Updated: 2026-05-30 18:50
+> Last Updated: 2026-05-30 19:26
 
 - **레이어**: 05_QA_Validation
-- **상태**: Draft
+- **상태**: Completed
 - **범위**: `test_pilot_checkouts` schema/migration, no-payment checkout 서버 액션, Checkout UI 테스트 모드 분기
-- **결론**: Test Pilot checkout은 실제 `transactions` row를 만들지 않고, `guest-*.testnet` cart만 별도 `test_pilot_checkouts` row로 완료 처리한다. 운영 DB에는 `drizzle/0007_silky_magma.sql` 적용까지 완료됐고, 남은 작업은 Test Pilot E2E다.
+- **결론**: Test Pilot checkout은 실제 `transactions` row를 만들지 않고, `guest-*.testnet` cart만 별도 `test_pilot_checkouts` row로 완료 처리한다. 운영 DB 적용 후 E2E에서 `test_pilot_checkouts` 1건 생성, cart `checked_out` 전환, `transactions` row 미증가를 확인했다.
 
 ---
 
@@ -37,9 +37,9 @@
 
 | 항목 | 기대 동작 | 상태 |
 |---|---|---|
-| test row 저장 | `test_pilot_checkouts`에 1 cart당 1 row 저장 | DB 적용 완료, E2E 필요 |
-| cart 종료 | 성공 시 `recommendation_carts.status=checked_out` | DB 적용 완료, E2E 필요 |
-| 실결제 오염 방지 | no-payment 경로에서 `transactions` insert 없음 | 코드 검토 완료, DB E2E 필요 |
+| test row 저장 | `test_pilot_checkouts`에 1 cart당 1 row 저장 | E2E 통과 |
+| cart 종료 | 성공 시 `recommendation_carts.status=checked_out` | E2E 통과 |
+| 실결제 오염 방지 | no-payment 경로에서 `transactions` insert 없음 | E2E 통과 |
 | 중복 방지 | `test_pilot_checkouts.cart_id` unique index로 동일 cart 중복 완료 차단 | migration 생성 완료 |
 
 ---
@@ -57,11 +57,19 @@
 
 ---
 
-## 5. 남은 검증
+## 5. E2E 검증 결과
 
-1. `TEST_PILOT_ENABLED=true`, `NEXT_PUBLIC_TEST_PILOT_ENABLED=true`, `TEST_PILOT_SKIP_WALLET=true`, `TEST_PILOT_SKIP_PAYMENT=true` 환경에서 업로드 -> 분석 -> 추천 -> no-payment checkout E2E 수행.
-2. E2E 후 `test_pilot_checkouts` row 생성, `recommendation_carts.status=checked_out`, `transactions` row 미생성을 확인.
-3. flag off 상태에서 기존 NEAR/ETH checkout UI와 서버 액션이 유지되는지 회귀 검증.
+2026-05-30 19:23 KST 기준 `TEST_PILOT_ENABLED=true`, `NEXT_PUBLIC_TEST_PILOT_ENABLED=true`, `TEST_PILOT_SKIP_WALLET=true`, `TEST_PILOT_SKIP_PAYMENT=true` 환경에서 업로드 -> 분석 -> 추천 -> no-payment checkout E2E를 완료했다.
+
+| 항목 | 결과 |
+|---|---|
+| `test_pilot_checkouts` | 0건 -> 1건 |
+| `recommendation_carts` | 64건 -> 65건 |
+| E2E cart status | `checked_out` |
+| `transactions` | 45건 유지 |
+| 성공 화면 | Test Checkout ID 표시 |
+
+남은 회귀 검증은 flag off 상태에서 기존 NEAR/ETH checkout UI와 서버 액션이 유지되는지 확인하는 것이다.
 
 ---
 
@@ -85,3 +93,4 @@
 - **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - Test Pilot Mode 진행 위치와 다음 작업
 - **QA_Validation**: [Test Pilot Mode QA Checklist](./36_TEST_PILOT_MODE_QA_2026_05_30.md) - 전체 Test Pilot Mode DoD
 - **QA_Validation**: [Test Pilot 0007 DB Apply](./38_TEST_PILOT_0007_DB_APPLY_2026_05_30.md) - 운영 DB migration 적용 검증
+- **QA_Validation**: [Test Pilot E2E](./39_TEST_PILOT_E2E_2026_05_30.md) - 운영 DB 기준 E2E 검증 결과
