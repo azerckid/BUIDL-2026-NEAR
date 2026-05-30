@@ -1,11 +1,11 @@
 # [QA] Test Pilot Mode DB Migration 0007 적용 검증
 > Created: 2026-05-30 18:50
-> Last Updated: 2026-05-30 18:50
+> Last Updated: 2026-05-30 19:26
 
 - **레이어**: 05_QA_Validation
 - **상태**: Completed
 - **범위**: Turso DB schema migration `drizzle/0007_silky_magma.sql`
-- **결론**: 백업 생성 후 `test_pilot_checkouts` 테이블 migration을 Turso DB에 적용했고, 신규 테이블, unique/index, FK, Drizzle migration 기록이 모두 확인됐다. Test Pilot E2E는 다음 단계로 남는다.
+- **결론**: 백업 생성 후 `test_pilot_checkouts` 테이블 migration을 Turso DB에 적용했고, 신규 테이블, unique/index, FK, Drizzle migration 기록이 모두 확인됐다. 이후 Test Pilot E2E에서 신규 row 1건 생성과 실제 `transactions` 미증가를 확인했다.
 
 ---
 
@@ -124,9 +124,9 @@ migrations applied successfully
 
 ---
 
-## 6. 남은 작업
+## 6. 후속 E2E 결과
 
-1. Test Pilot 환경변수 활성화:
+Test Pilot 환경변수 활성화:
 
 ```env
 TEST_PILOT_ENABLED=true
@@ -135,16 +135,19 @@ TEST_PILOT_SKIP_WALLET=true
 TEST_PILOT_SKIP_PAYMENT=true
 ```
 
-2. E2E 실행:
+E2E 실행:
 
 ```text
 테스트로 시작 -> 업로드 -> TEE 분석 -> 추천 확인 -> 결제 없이 테스트 신청 완료
 ```
 
-3. E2E 후 검증:
-    - `test_pilot_checkouts` row가 1건 증가한다.
-    - 해당 cart가 `recommendation_carts.status='checked_out'`으로 전환된다.
-    - `transactions` row가 증가하지 않는다.
+2026-05-30 19:23 KST 기준 아래 결과를 확인했다.
+
+- `test_pilot_checkouts` row가 0건에서 1건으로 증가했다.
+- 해당 cart가 `recommendation_carts.status='checked_out'`으로 전환됐다.
+- `transactions` row는 45건으로 유지됐다.
+
+상세 검증은 `./39_TEST_PILOT_E2E_2026_05_30.md`에 둔다.
 
 ---
 
@@ -167,3 +170,4 @@ TEST_PILOT_SKIP_PAYMENT=true
 - **Technical_Specs**: [DB Schema](../03_Technical_Specs/DB_SCHEMA.md) - `test_pilot_checkouts` schema
 - **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - Test Pilot Mode 진행 상태
 - **QA_Validation**: [No-payment Checkout Implementation QA](./37_TEST_PILOT_NO_PAYMENT_CHECKOUT_2026_05_30.md) - 코드 구현과 migration 생성 검증
+- **QA_Validation**: [Test Pilot E2E](./39_TEST_PILOT_E2E_2026_05_30.md) - 운영 DB 기준 E2E 검증 결과
