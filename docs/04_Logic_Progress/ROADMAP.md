@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-30 03:06
+> Last Updated: 2026-05-30 13:52
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-30 (KDB source document DB 적용)
+- **최종 수정일**: 2026-05-30 (추천 snapshot 발행 기준 문서화)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.8
+- **상태**: Draft v3.9
 - **phase**: Phase 2
 
 ---
@@ -60,7 +60,7 @@
 
 | 트랙 | 핵심 질문 | 다음 작업 |
 |---|---|---|
-| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | 신한라이프 일반형 공식 문서 endpoint 탐색, raw/needs_review 매칭 키워드 정리 |
+| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | 신한라이프 일반형 공식 문서 endpoint 탐색, raw/needs_review 매칭 키워드 정리, 첫 추천 snapshot 발행 PR 준비 |
 | NEAR 프라이버시 기술 | IronClaw v0.28.2까지의 업데이트가 블로커 2~3을 해소하는가 | WIT-compatible WASM runtime, `tool_install`, WASM 실행 결과 반환 경로 실측 |
 | 매칭 브리지 | AI 해석과 DB 상품 추천의 경계를 어떻게 유지할 것인가 | `riskProfile.flags` -> `insurance_products.risk_targets` 결정론적 매칭 유지 |
 
@@ -88,6 +88,8 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 2026-05-30 00:11 KST 기준 KDB생명 source document 2건을 `seed.ts` 후보로 추가했다. seed 기준 `insurance_source_documents` 입력은 20개에서 22개로 증가하지만, `insurance_product_sources.review_status`, `insurance_products`, 추천 노출 상태는 변경하지 않는다. 검증은 `../05_QA_Validation/27_KDB_SOURCE_DOCUMENT_SEED_CANDIDATES_2026_05_30.md`에 둔다. 다음 작업은 운영 DB 백업 후 KDB 문서 2건을 적용하는 apply PR과 신한라이프 일반형 공식 문서 endpoint 탐색이다.
 
 2026-05-30 03:06 KST 기준 KDB생명 source document 2건을 운영 Turso DB에 백업 후 적용했다. 적용 후 DB는 `insurance_source_documents=22`, KDB 신규 문서 row 2건 존재, invalid hash 0건, 제외한 `40869_policy` 갱신형 hash row 0건, `insurance_product_sources.review_status` 분포 `needs_review=7`/`raw=15`를 확인했다. 적용 기록은 `../05_QA_Validation/28_KDB_SOURCE_DOCUMENTS_DB_APPLY_2026_05_30.md`에 둔다. 다음 작업은 신한라이프 일반형 공식 문서 endpoint 탐색과 raw/needs_review source의 매칭 키워드, caveat 정리다.
+
+2026-05-30 13:52 KST 기준 추천 snapshot 발행 기준을 [보험상품 매칭 키워드 정리 정책](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md) 7절에 명시했다. 앞으로 source 후보를 사용자 추천에 노출하려면 원천 근거, 매칭 필드, 대표/조건별 보험료, `insurance_products` snapshot row, PR 검증 항목을 모두 통과해야 한다. 이는 실제 보험상품 수집 완료와 사용자 추천 노출 사이의 마지막 관문이다.
 
 ## 2. 세부 실행 계획 (Detailed Execution)
 
