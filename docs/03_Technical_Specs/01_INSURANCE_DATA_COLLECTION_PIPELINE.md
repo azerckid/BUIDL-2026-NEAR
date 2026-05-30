@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 02:05
+> Last Updated: 2026-05-31 02:20
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.19
+- **상태**: Draft v2.20
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -635,6 +635,24 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 
 2026-05-31 01:37 KST 기준 운영 DB 백업 후 seed 적용을 완료했다. 적용 후 `insurance_products=10`, source-backed active 추천 상품은 5건, `insurance_premium_quotes=92`, `approved` quote는 20건이다. 한화생명 공식 carrier quote 8건은 모두 승인됐고, 기존 보험다모아 `0원` quote는 운영 DB에 존재하던 4건만 `rejected`로 확인됐다. seed target 8개 ID 중 나머지 4개는 이전 quote row 적용 단계의 semantic duplicate skip으로 운영 DB에 존재하지 않아 no-op이었다. 적용 검증은 `../05_QA_Validation/44_HANWHA_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_31.md`에 둔다.
 
+### 9-24. Medical Baseline Matching Review
+
+2026-05-31 02:20 KST 기준 공식 문서 hash와 조건별 quote row가 있는 실손의료보험 4개 source를 대상으로 baseline 매칭 키워드와 caveat를 정리했다.
+
+| 항목 | 결과 |
+|---|---:|
+| 검수 source | 4 |
+| baseline ready source | 3 |
+| 문서 특이성 blocker | 1 |
+| quote row 확인 | 16 |
+| 숫자 KRW quote row | 16 |
+| 이번 PR DB write | 0 |
+| 이번 PR 추천 snapshot 발행 | 0 |
+
+공통 매칭 값은 `coverage_category=medical_expense`, `matching_strategy=baseline`, `risk_targets=[]`다. DB손보, KB손보, 현대해상은 문서 match score 1.0과 조건별 숫자 KRW quote 4건씩이 있어 다음 baseline 추천 snapshot seed 후보로 둔다. 삼성화재는 quote는 충분하지만 문서 URL이 generic `realloss.pdf`이고 match score가 0.65라 2605.1 상품 전용 문서 endpoint 재탐색 전까지 snapshot에서 제외한다.
+
+산출물은 `data/insurance/latest_medical_baseline_matching_review.json`, `data/insurance/latest_medical_baseline_matching_review.csv`, 검증 문서는 `../05_QA_Validation/46_MEDICAL_BASELINE_MATCHING_REVIEW_2026_05_31.md`에 둔다. 후속 seed PR은 DB손보, KB손보, 현대해상 3개 source의 `approved` 승격, quote 12건 승인, baseline `insurance_products` snapshot row 생성을 함께 다룬다.
+
 ---
 
 ## 10. 법무·신뢰 고지
@@ -695,6 +713,7 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - [x] 한화생명 0원 quote blocker를 공식 carrier quote로 재조회
 - [x] 한화생명 carrier quote seed와 추천 snapshot 2건 준비
 - [x] 백업 후 한화생명 추천 snapshot 운영 DB 적용
+- [x] 실손의료보험 baseline 후보 4개 매칭 키워드/caveat 정리
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
@@ -748,3 +767,5 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Demo Products Archive DB Apply](../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md) - legacy demo 상품 archive 운영 DB 적용 검증
 - **QA_Validation**: [Hanwha Life Zero Quote Blocker Probe](../05_QA_Validation/42_HANWHA_LIFE_ZERO_QUOTE_BLOCKER_PROBE_2026_05_31.md) - 한화생명 공식 carrier quote 8건 재조회 검증
 - **QA_Validation**: [Hanwha Recommendation Snapshot Seed](../05_QA_Validation/43_HANWHA_RECOMMENDATION_SNAPSHOT_SEED_2026_05_31.md) - 한화생명 source/quote/product snapshot seed 검증
+- **QA_Validation**: [Hanwha Recommendation Snapshot DB Apply](../05_QA_Validation/44_HANWHA_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_31.md) - 한화생명 추천 snapshot 운영 DB 적용 검증
+- **QA_Validation**: [Medical Baseline Matching Review](../05_QA_Validation/46_MEDICAL_BASELINE_MATCHING_REVIEW_2026_05_31.md) - 실손의료보험 baseline 후보 매칭 키워드와 caveat 검수
