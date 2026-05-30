@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-30 13:52
+> Last Updated: 2026-05-30 14:08
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-30 (추천 snapshot 발행 기준 문서화)
+- **최종 수정일**: 2026-05-30 (신한라이프 일반형 endpoint 탐색)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.9
+- **상태**: Draft v3.10
 - **phase**: Phase 2
 
 ---
@@ -60,7 +60,7 @@
 
 | 트랙 | 핵심 질문 | 다음 작업 |
 |---|---|---|
-| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | 신한라이프 일반형 공식 문서 endpoint 탐색, raw/needs_review 매칭 키워드 정리, 첫 추천 snapshot 발행 PR 준비 |
+| 실제 보험상품 카탈로그 | 실제 판매 상품과 조건별 보험료를 어떤 공식 출처로 검증하고 주기적으로 갱신할 것인가 | KDB/한화생명/교보라이프플래닛 후보의 매칭 키워드와 caveat 정리, 첫 추천 snapshot 발행 PR 준비 |
 | NEAR 프라이버시 기술 | IronClaw v0.28.2까지의 업데이트가 블로커 2~3을 해소하는가 | WIT-compatible WASM runtime, `tool_install`, WASM 실행 결과 반환 경로 실측 |
 | 매칭 브리지 | AI 해석과 DB 상품 추천의 경계를 어떻게 유지할 것인가 | `riskProfile.flags` -> `insurance_products.risk_targets` 결정론적 매칭 유지 |
 
@@ -90,6 +90,8 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 2026-05-30 03:06 KST 기준 KDB생명 source document 2건을 운영 Turso DB에 백업 후 적용했다. 적용 후 DB는 `insurance_source_documents=22`, KDB 신규 문서 row 2건 존재, invalid hash 0건, 제외한 `40869_policy` 갱신형 hash row 0건, `insurance_product_sources.review_status` 분포 `needs_review=7`/`raw=15`를 확인했다. 적용 기록은 `../05_QA_Validation/28_KDB_SOURCE_DOCUMENTS_DB_APPLY_2026_05_30.md`에 둔다. 다음 작업은 신한라이프 일반형 공식 문서 endpoint 탐색과 raw/needs_review source의 매칭 키워드, caveat 정리다.
 
 2026-05-30 13:52 KST 기준 추천 snapshot 발행 기준을 [보험상품 매칭 키워드 정리 정책](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md) 7절에 명시했다. 앞으로 source 후보를 사용자 추천에 노출하려면 원천 근거, 매칭 필드, 대표/조건별 보험료, `insurance_products` snapshot row, PR 검증 항목을 모두 통과해야 한다. 이는 실제 보험상품 수집 완료와 사용자 추천 노출 사이의 마지막 관문이다.
+
+2026-05-30 14:08 KST 기준 신한라이프 `L11C009000007` 일반형 공식 문서 endpoint를 추가 탐색했다. 신한라이프 공식 공시 `wcms` endpoint의 exact keyword, 표준형 keyword, 판매중 전체 112 row, 과거 포함 sample 1200 row를 확인했지만 `신한SOL암보험(무배당)(비갱신형)` 일반형 문서 row는 찾지 못했다. 현재 판매중 row는 해약환급금 미지급형 1건뿐이므로 `src_shinhan_life_sol_cancer_standard_202605`는 계속 `raw` 차단 상태로 유지한다. 검증은 `../05_QA_Validation/29_SHINHAN_STANDARD_DOCUMENT_ENDPOINT_PROBE_2026_05_30.md`에 둔다. 다음 작업은 공식 문서 variant가 명확한 KDB, 한화생명, 교보라이프플래닛 후보부터 매칭 키워드와 caveat를 정리하는 것이다.
 
 ## 2. 세부 실행 계획 (Detailed Execution)
 
@@ -1154,6 +1156,7 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 - [KDB/신한 Source 문서 Variant 재검수](../05_QA_Validation/26_KDB_SHINHAN_VARIANT_REVIEW_2026_05_29.md)
 - [KDB Source Document Seed 후보 추가 검증](../05_QA_Validation/27_KDB_SOURCE_DOCUMENT_SEED_CANDIDATES_2026_05_30.md)
 - [KDB Source Document DB 적용 검증](../05_QA_Validation/28_KDB_SOURCE_DOCUMENTS_DB_APPLY_2026_05_30.md)
+- [신한라이프 일반형 공식 문서 Endpoint 탐색](../05_QA_Validation/29_SHINHAN_STANDARD_DOCUMENT_ENDPOINT_PROBE_2026_05_30.md)
 - [보험상품 매칭 키워드 정리 정책](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md)
 - [AI 매칭 파이프라인](./AI_MATCHING_PIPELINE.md)
 - [두 기둥 기반 서비스 업데이트 계획](./03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md)

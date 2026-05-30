@@ -1,0 +1,6 @@
+probed_at,provider,product_source_id,product_code,query_title,meta06,rows,standard_variant_hits,decision,next_action
+2026-05-30T14:08:00+09:00,신한라이프생명,src_shinhan_life_sol_cancer_standard_202605,L11C009000007,신한SOL암보험,TRUE,1,0,no_refund_only,Do not seed no-refund documents into the standard source.
+2026-05-30T14:08:00+09:00,신한라이프생명,src_shinhan_life_sol_cancer_standard_202605,L11C009000007,신한SOL암보험(무배당),TRUE,0,0,standard_endpoint_not_found,Keep source raw.
+2026-05-30T14:08:00+09:00,신한라이프생명,src_shinhan_life_sol_cancer_standard_202605,L11C009000007,신한SOL암보험(무배당)(비갱신형),TRUE,0,0,standard_endpoint_not_found,Keep source raw.
+2026-05-30T14:08:00+09:00,신한라이프생명,src_shinhan_life_sol_cancer_standard_202605,L11C009000007,,TRUE,112,0,active_catalog_scan_no_standard_hit,Continue with candidates whose document variants are clear.
+2026-05-30T14:08:00+09:00,신한라이프생명,src_shinhan_life_sol_cancer_standard_202605,L11C009000007,,historical_sample,1200,0,historical_sample_no_standard_hit,Do not unblock the standard source from this probe.

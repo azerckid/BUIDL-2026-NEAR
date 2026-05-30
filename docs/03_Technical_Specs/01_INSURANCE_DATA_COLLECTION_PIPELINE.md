@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-30 13:52
+> Last Updated: 2026-05-30 14:08
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.9
+- **상태**: Draft v2.10
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -492,6 +492,23 @@ KDB생명 `src_kdb_life_direct_cancer_202605`는 `40869_summary`가 상품요약
 
 적용 검증 문서는 `../05_QA_Validation/28_KDB_SOURCE_DOCUMENTS_DB_APPLY_2026_05_30.md`에 둔다. 다음 단계는 신한라이프 일반형 공식 문서 endpoint 탐색과 `raw`/`needs_review` source의 매칭 키워드, caveat 정리다. source row를 실제 사용자 추천으로 발행할 때는 [보험상품 매칭 키워드 정리 정책](./03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md) 7절의 추천 snapshot 발행 체크리스트를 통과해야 한다.
 
+### 9-16. Shinhan Standard Document Endpoint Probe
+
+2026-05-30 14:08 KST 기준 신한라이프 공식 공시 `wcms` endpoint에서 `src_shinhan_life_sol_cancer_standard_202605`의 일반형 문서 endpoint를 추가 탐색했다.
+
+| 항목 | 결과 |
+|---|---:|
+| Exact keyword `신한SOL암보험` row | 1 |
+| 표준형 keyword row | 0 |
+| 판매중 전체 scan row | 112 |
+| 판매중 scan의 표준형 hit | 0 |
+| 과거 포함 sample row | 1200 |
+| 과거 포함 sample의 표준형 hit | 0 |
+| 신규 seed 후보 document row | 0 |
+| DB write | 0 |
+
+공식 공시 API에서 반환된 판매중 `신한SOL암보험` row는 `신한SOL암보험(무배당, 해약환급금 미지급형)` 1건뿐이다. 따라서 기존 hash 3건은 계속 no-refund source 전용 문서로 취급하고, `src_shinhan_life_sol_cancer_standard_202605`에는 연결하지 않는다. 검증 산출물은 `../../data/insurance/latest_shinhan_standard_document_endpoint_probe.json`, `../../data/insurance/latest_shinhan_standard_document_endpoint_probe.csv`, `../05_QA_Validation/29_SHINHAN_STANDARD_DOCUMENT_ENDPOINT_PROBE_2026_05_30.md`에 둔다. 다음 작업은 공식 문서 variant가 명확한 KDB, 한화생명, 교보라이프플래닛 후보부터 매칭 키워드와 caveat를 정리하는 것이다.
+
 ---
 
 ## 10. 법무·신뢰 고지
@@ -541,7 +558,8 @@ KDB생명 `src_kdb_life_direct_cancer_202605`는 `40869_summary`가 상품요약
 - [x] KDB생명 source document 2건 seed 후보 추가
 - [x] 백업 후 KDB생명 source document 2건 DB 적용
 - [x] 추천 snapshot 발행 기준과 PR 체크리스트 문서화
-- [ ] 신한라이프 일반형 공식 문서 endpoint 추가 탐색
+- [x] 신한라이프 일반형 공식 문서 endpoint 추가 탐색
+- [ ] 공식 문서 variant가 명확한 후보의 매칭 키워드/caveat 정리
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
@@ -588,3 +606,4 @@ KDB생명 `src_kdb_life_direct_cancer_202605`는 `40869_summary`가 상품요약
 - **QA_Validation**: [KDB/Shinhan Variant Review](../05_QA_Validation/26_KDB_SHINHAN_VARIANT_REVIEW_2026_05_29.md) - KDB와 신한라이프 차단 후보 variant 재검수
 - **QA_Validation**: [KDB Source Document Seed Candidates](../05_QA_Validation/27_KDB_SOURCE_DOCUMENT_SEED_CANDIDATES_2026_05_30.md) - KDB source document 2건 seed 후보 추가 검증
 - **QA_Validation**: [KDB Source Document DB Apply](../05_QA_Validation/28_KDB_SOURCE_DOCUMENTS_DB_APPLY_2026_05_30.md) - KDB source document 2건 DB 적용 검증
+- **QA_Validation**: [Shinhan Standard Document Endpoint Probe](../05_QA_Validation/29_SHINHAN_STANDARD_DOCUMENT_ENDPOINT_PROBE_2026_05_30.md) - 신한라이프 표준형 공식 문서 endpoint 탐색 결과
