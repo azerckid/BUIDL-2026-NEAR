@@ -1,9 +1,9 @@
 # [QA] 한화생명 추천 Snapshot Seed 검증
 > Created: 2026-05-31 01:09
-> Last Updated: 2026-05-31 01:09
+> Last Updated: 2026-05-31 01:37
 
 - **레이어**: 05_QA_Validation
-- **상태**: Ready for DB apply
+- **상태**: DB apply completed separately
 - **범위**: 한화생명 e암보험 표준체형/비흡연체형 source 승인, 공식 carrier quote row 8건 seed 반영, `insurance_products` snapshot row 2건 추가
 - **결론**: 한화생명 공식 carrier quote 근거가 확보된 2개 source를 추천 snapshot 후보로 승격하도록 `seed.ts`를 갱신했다. 이번 PR은 seed/data/docs 변경이며 운영 DB write는 하지 않는다.
 
@@ -98,9 +98,11 @@
 | `insurance_product_sources.review_status=approved` | 5 |
 | `insurance_premium_quotes.review_status=approved` | 20 |
 | 한화생명 carrier quote row | 8 |
-| 한화생명 0원 quote `rejected` row | 8 |
+| 한화생명 0원 quote `rejected` target ID | 8 |
 
 ---
+
+DB 적용 결과, seed target ID는 8개였지만 운영 DB에 실제 존재하던 기존 `0원` quote row는 4개였다. 나머지 4개 target ID는 이전 quote row 적용 단계에서 semantic duplicate skip으로 DB에 없었으므로 no-op이다. 적용 검증은 `./44_HANWHA_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_31.md`에 둔다.
 
 ## 7. 범위 밖
 

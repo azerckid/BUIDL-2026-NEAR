@@ -1,11 +1,11 @@
 # [정책] 조건별 보험료 Quote Matrix 관리 방침
 > Created: 2026-05-28 03:00
-> Last Updated: 2026-05-31 01:09
+> Last Updated: 2026-05-31 01:37
 
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v1.15
+- **상태**: Draft v1.16
 - **범위**: 보험다모아/보험사 공시에서 수집한 보험료의 해석, 조건별 보험료 matrix 수집, seed 승격 정책
-- **결론**: 현재 수집된 `premium_text`는 특정 비교 조건의 대표 보험료일 뿐이다. 2026-05-28 PoC에서 암보험과 실손의료보험의 나이/성별 재조회 가능성이 확인됐고, 이를 저장할 `insurance_premium_quotes` schema/migration과 quote row 84건을 운영 Turso DB에 적용했다. 2026-05-30 첫 추천 snapshot 적용 후 KDB/교보라이프플래닛 암보험 quote 12건은 `approved`, 나머지 72건은 `needs_review`이며, UI는 대표 보험료와 사용자 선택 나이/성별 조건별 예상 보험료를 분리 표시한다. 2026-05-31에는 한화생명 `0원` quote blocker를 공식 carrier quote 8건으로 재조회해 후속 seed 승격 근거를 확보했다.
+- **결론**: 현재 수집된 `premium_text`는 특정 비교 조건의 대표 보험료일 뿐이다. 2026-05-28 PoC에서 암보험과 실손의료보험의 나이/성별 재조회 가능성이 확인됐고, 이를 저장할 `insurance_premium_quotes` schema/migration을 운영 Turso DB에 적용했다. 2026-05-31 한화생명 적용 후 운영 quote row는 92건이며, KDB/교보/한화 암보험 quote 20건은 `approved`, 68건은 `needs_review`, 한화생명 기존 `0원` quote 4건은 `rejected`다. UI는 대표 보험료와 사용자 선택 나이/성별 조건별 예상 보험료를 분리 표시한다.
 
 ---
 
@@ -162,7 +162,9 @@ source-aware seed 정책 PR에서는 대표 보험료와 `premium_basis`를 `ins
 
 조회 기준은 100세 만기, 20년납, 월납, 주계약가입금액 1,000만원이며, `quote_source_type=carrier_quote`로 관리한다. 이번 단계는 DB write 없이 `data/insurance/latest_hanwha_life_quote_blocker_probe.json`과 `../05_QA_Validation/42_HANWHA_LIFE_ZERO_QUOTE_BLOCKER_PROBE_2026_05_31.md`에 근거만 남긴다. 후속 seed PR에서 기존 한화생명 `0원` quote row를 공식 carrier quote로 교체하고, source/quote 승인과 recommendation snapshot 발행을 별도로 처리한다.
 
-2026-05-31 01:09 KST 기준 후속 seed PR 준비를 완료했다. `seed.ts`는 한화생명 공식 carrier quote 8건을 `insurance_premium_quotes`에 삽입하고 `approved`로 관리하며, 기존 보험다모아 `0원` quote row 8건은 `rejected`로 내린다. 한화생명 표준체형/비흡연체형 source 2건과 `insurance_products` snapshot 2건도 seed 적용 시 승인된다. DB 적용 전 검증은 `../05_QA_Validation/43_HANWHA_RECOMMENDATION_SNAPSHOT_SEED_2026_05_31.md`, 산출물은 `../../data/insurance/latest_hanwha_life_recommendation_snapshot_seed.json`에 둔다.
+2026-05-31 01:09 KST 기준 후속 seed PR 준비를 완료했다. `seed.ts`는 한화생명 공식 carrier quote 8건을 `insurance_premium_quotes`에 삽입하고 `approved`로 관리하며, 기존 보험다모아 `0원` quote target ID 8건은 `rejected`로 내린다. 한화생명 표준체형/비흡연체형 source 2건과 `insurance_products` snapshot 2건도 seed 적용 시 승인된다. DB 적용 전 검증은 `../05_QA_Validation/43_HANWHA_RECOMMENDATION_SNAPSHOT_SEED_2026_05_31.md`, 산출물은 `../../data/insurance/latest_hanwha_life_recommendation_snapshot_seed.json`에 둔다.
+
+2026-05-31 01:37 KST 기준 운영 DB 적용을 완료했다. 적용 후 `insurance_premium_quotes`는 총 92건이며, `approved=20`, `needs_review=68`, `rejected=4`다. 한화생명 공식 carrier quote 8건은 모두 `approved`이고, 기존 보험다모아 `0원` quote는 운영 DB에 실제 존재하던 4건만 `rejected`로 변경됐다. seed target 8개 ID 중 나머지 4건은 이전 quote row 적용 단계의 semantic duplicate skip 때문에 운영 DB에 없어서 no-op이었다. 적용 검증은 `../05_QA_Validation/44_HANWHA_RECOMMENDATION_SNAPSHOT_DB_APPLY_2026_05_31.md`에 둔다.
 
 ---
 
