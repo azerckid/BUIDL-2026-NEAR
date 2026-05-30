@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-30 21:00
+> Last Updated: 2026-05-30 23:42
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-30 (현재 남은 구현 순서 정리)
+- **최종 수정일**: 2026-05-30 (Test Pilot CTA 정리)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.21
+- **상태**: Draft v3.22
 - **phase**: Phase 2
 
 ---
@@ -79,6 +79,8 @@
 | 5 | 신한라이프 blocker | 신한라이프 일반형 공식 문서 endpoint 추가 탐색 | 해약환급금 미지급형 문서 오연결 없이 일반형 source 처리 |
 | 6 | 보험상품 확장 | `needs_review=7`, `raw=12` source의 문서 hash, 매칭 키워드, caveat 정리 | 추천 snapshot 발행 가능한 상품 수 증가 |
 | 7 | 추천 snapshot 확대 | 새 source를 `approved`로 승격하고 `insurance_products` snapshot 발행 | source-backed active 추천 상품이 현재 3개에서 단계적으로 증가 |
+
+2026-05-30 23:42 KST 기준 1번 Test Pilot UX 항목을 코드에 반영했다. guest session dashboard 상품 버튼은 `테스트 신청하기`를 표시하고, 일반 지갑 세션은 기존 `결제하기` 문구를 유지한다. 다음 작업은 flag off 상태의 운영 지갑/결제 회귀 검증이다.
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 매칭 키워드 정리 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.

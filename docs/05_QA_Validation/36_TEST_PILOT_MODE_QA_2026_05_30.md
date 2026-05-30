@@ -1,6 +1,6 @@
 # [QA] Test Pilot Mode 무로그인·무결제 플로우 검증 체크리스트
 > Created: 2026-05-30 17:18
-> Last Updated: 2026-05-30 19:26
+> Last Updated: 2026-05-30 23:42
 
 - **레이어**: 05_QA_Validation
 - **상태**: Completed for Test Pilot happy-path E2E
@@ -81,7 +81,7 @@
 | C2 | 보험료 | 대표 보험료와 조건별 예상 보험료 분리 표시 | 통과 |
 | C3 | quote 상태 | `approved` quote만 UI 노출 | 통과 |
 | C4 | 테스트 고지 | "실제 보험 가입/청약이 아님" 문구 표시 | 통과 |
-| C5 | CTA | `결제하기` 대신 `테스트 신청하기` 또는 동등 문구 표시 | 개선 필요 |
+| C5 | CTA | `결제하기` 대신 `테스트 신청하기` 또는 동등 문구 표시 | 통과 |
 
 ---
 

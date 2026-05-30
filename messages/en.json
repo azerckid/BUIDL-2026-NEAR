@@ -71,6 +71,7 @@
     "totalPremium": "Monthly Premium Total",
     "processing": "Processing...",
     "checkout": "Proceed to Checkout",
+    "testApplication": "Submit Test Request",
     "selectPrompt": "Please select at least one product",
     "cartError": "Failed to create cart",
     "cartCreated": "Cart created",
