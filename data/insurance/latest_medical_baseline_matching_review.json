@@ -1,32 +1,32 @@
 {
   "metadata": {
-    "reviewed_at": "2026-05-31T02:20:00+09:00",
+    "reviewed_at": "2026-05-31T16:14:00+09:00",
     "timezone": "Asia/Seoul",
     "reviewer": "codex_medical_baseline_matching_review",
-    "output_version": "1.0",
+    "output_version": "1.1",
     "scope": "Medical expense baseline matching keyword and caveat review for source-backed recommendation expansion",
     "input_seed": "src/lib/db/seed.ts",
     "input_carrier_disclosure_probe": "data/insurance/latest_carrier_disclosure_probe.json",
     "input_quote_rows_apply": "data/insurance/latest_premium_quote_rows_apply.json",
+    "input_samsung_fire_reprobe": "data/insurance/latest_samsung_fire_medical_document_reprobe.json",
     "db_write_performed": false,
     "seed_file_changed": false,
     "recommendation_snapshot_changed": false
   },
   "summary": {
     "source_candidates_reviewed": 4,
-    "baseline_ready_sources": 3,
-    "blocked_sources": 1,
+    "baseline_ready_sources": 4,
+    "blocked_sources": 0,
     "quote_rows_reviewed": 16,
     "numeric_quote_rows": 16,
     "active_recommendation_snapshot_rows_added": 0,
     "recommended_next_snapshot_sources": [
       "src_db_direct_medical_202605",
       "src_kb_direct_medical_202605",
-      "src_hyundai_direct_medical_202605"
-    ],
-    "blocked_snapshot_sources": [
+      "src_hyundai_direct_medical_202605",
       "src_samsung_fire_direct_medical_202605"
-    ]
+    ],
+    "blocked_snapshot_sources": []
   },
   "baseline_policy": {
     "coverage_category": "medical_expense",
@@ -238,12 +238,12 @@
       "raw_product_name": "무배당 삼성화재 다이렉트 실손의료비보험(2605.1)",
       "current_source_review_status": "needs_review",
       "recommended_source_review_status": "needs_review",
-      "recommended_matching_review_status": "baseline_blocked_document_specificity",
+      "recommended_matching_review_status": "baseline_ready_snapshot_candidate",
       "recommended_coverage_category": "medical_expense",
       "recommended_matching_strategy": "baseline",
       "recommended_risk_targets": [],
       "document_evidence": {
-        "carrier_match_score": 0.65,
+        "carrier_match_score": 1,
         "document_count": 1,
         "document_types": [
           "terms"
@@ -251,7 +251,18 @@
         "primary_source_document_candidate": "doc_samsung_fire_direct_medical_terms_202605",
         "sha256": [
           "db0ed9738c9f59fbb28b678b910e0bdd3ef4bf08bdac52643c2e2dd167003415"
-        ]
+        ],
+        "product_specific_reprobe": {
+          "status": "resolved",
+          "source": "data/insurance/latest_samsung_fire_medical_document_reprobe.json",
+          "direct_product_page_url": "https://direct.samsungfire.com/mall/PP030404_001.html?pcMode=true",
+          "document_url": "https://direct.samsungfire.com/docs/realloss.pdf",
+          "evidence": [
+            "직접 상품 상세 페이지가 상품명과 상품약관 링크를 노출한다.",
+            "직접 상품 상세 페이지가 2026년 5월 요율 개정과 5세대 실손의료비보험 출시를 명시한다.",
+            "PDF 텍스트가 무배당 삼성화재 다이렉트 실손의료비보험(2605.1) 및 일반형 조항을 포함한다."
+          ]
+        }
       },
       "coverage_details_candidate": {
         "coverage_category": "medical_expense",
@@ -268,7 +279,7 @@
         "유전자 위험 특화 추천이 아니라 기본 의료비 방어 baseline으로 표시한다.",
         "실손의료보험은 자기부담금, 급여/비급여, 보장 한도, 갱신 조건이 적용된다.",
         "보험다모아 quote는 공개 비교 조건 기준 예시 보험료이며 개인별 인수 심사 견적이 아니다.",
-        "현재 확보 URL은 generic realloss.pdf이며 carrier match score가 0.65라 2605.1 상품 전용 문서인지 재확인이 필요하다."
+        "직접 상품 상세 페이지와 PDF 텍스트 근거로 realloss.pdf가 삼성화재 다이렉트 실손의료비보험(2605.1) 약관임을 확인했다."
       ],
       "quote_review": {
         "quote_source": "data/insurance/latest_premium_quote_rows_apply.json",
@@ -288,13 +299,12 @@
         ],
         "quote_review_status": "needs_review_numeric_values_available"
       },
-      "snapshot_readiness": "blocked_until_product_specific_document_confirmed",
-      "next_action": "삼성화재 공식 상품별 약관 endpoint를 재탐색해 2605.1 전용 문서 여부를 확인한 뒤 승격 여부를 판단한다."
+      "snapshot_readiness": "ready_for_seed_pr_after_source_document_update",
+      "next_action": "승격 PR에서 source approved, quote approved, baseline insurance_products snapshot row를 함께 생성한다."
     }
   ],
   "next_actions": [
-    "DB손보, KB손보, 현대해상 3개 baseline 후보를 대상으로 source approved, quote approved, insurance_products snapshot row 생성 seed PR을 준비한다.",
-    "삼성화재는 product-specific document endpoint를 재탐색하기 전까지 snapshot 발행 대상에서 제외한다.",
+    "삼성화재 baseline 후보를 대상으로 source approved, quote approved, insurance_products snapshot row 생성 seed PR을 준비한다.",
     "실손 baseline 상품은 위험 점수 랭킹이 아니라 별도 기본 의료비 방어 섹션으로 표시되는지 seed PR과 UI 검증에서 확인한다."
   ]
 }
