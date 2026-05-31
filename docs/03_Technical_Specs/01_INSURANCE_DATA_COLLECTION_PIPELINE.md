@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 18:23
+> Last Updated: 2026-05-31 18:51
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.30
+- **상태**: Draft v2.31
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -206,6 +206,8 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 검증 산출물은 `../../data/insurance/latest_shinhan_no_refund_matching_review.json`, `../../data/insurance/latest_shinhan_no_refund_matching_review.csv`, 검증 문서는 `../05_QA_Validation/57_SHINHAN_NO_REFUND_MATCHING_REVIEW_2026_05_31.md`에 둔다.
 
 2026-05-31 18:23 KST 기준 위 검수 결과를 `seed.ts`에 반영할 준비를 완료했다. 다음 apply PR에서 source-backed active 추천 상품은 9건에서 10건으로 증가해야 하며, approved quote는 36건에서 40건으로 증가해야 한다. seed 준비 검증 문서는 `../05_QA_Validation/58_SHINHAN_NO_REFUND_SNAPSHOT_SEED_2026_05_31.md`에 둔다.
+
+2026-05-31 18:51 KST 기준 신한라이프 해약환급금 미지급형 추천 snapshot을 운영 DB에 적용했다. 적용 후 `insurance_products=15`, source-backed active 추천 상품 10건, approved quote 40건을 확인했다. 적용 검증 문서는 `../05_QA_Validation/59_SHINHAN_NO_REFUND_DB_APPLY_2026_05_31.md`에 둔다.
 
 ---
 
@@ -832,3 +834,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Remaining Source Candidate Triage](../05_QA_Validation/56_REMAINING_SOURCE_CANDIDATE_TRIAGE_2026_05_31.md) - 남은 source 후보 처리 순서 검증
 - **QA_Validation**: [Shinhan No-refund Matching Review](../05_QA_Validation/57_SHINHAN_NO_REFUND_MATCHING_REVIEW_2026_05_31.md) - 신한라이프 해약환급금 미지급형 암보험 매칭 키워드 검증
 - **QA_Validation**: [Shinhan No-refund Snapshot Seed](../05_QA_Validation/58_SHINHAN_NO_REFUND_SNAPSHOT_SEED_2026_05_31.md) - 신한라이프 해약환급금 미지급형 추천 snapshot seed 검증
+- **QA_Validation**: [Shinhan No-refund DB Apply](../05_QA_Validation/59_SHINHAN_NO_REFUND_DB_APPLY_2026_05_31.md) - 신한라이프 해약환급금 미지급형 추천 snapshot 운영 DB 적용 검증
