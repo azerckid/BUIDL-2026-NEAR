@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 17:57
+> Last Updated: 2026-05-31 18:09
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.28
+- **상태**: Draft v2.29
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -190,6 +190,20 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 | endpoint blocker 유지 | 1 | 일반형 공식 문서 endpoint 미발견 | 신한라이프 표준형 차단 유지 |
 
 상세 산출물은 `../../data/insurance/latest_remaining_source_candidate_triage.json`, `../../data/insurance/latest_remaining_source_candidate_triage.csv`, 검증 문서는 `../05_QA_Validation/56_REMAINING_SOURCE_CANDIDATE_TRIAGE_2026_05_31.md`에 둔다.
+
+### 7-2. 신한라이프 해약환급금 미지급형 매칭 검수
+
+2026-05-31 18:09 KST 기준 `src_shinhan_life_sol_cancer_202601`의 공식 PDF 3건을 재다운로드해 seed hash와 일치함을 확인했다. 상품요약서와 약관 기준으로 암진단급여금, 여성유방암 진단급여금, 전립선암 진단급여금, 소액암 진단급여금이 구분되므로 `coverage_category=oncology`, `matching_strategy=risk_target` 후보로 정리한다.
+
+| 항목 | 값 |
+|---|---|
+| source | `src_shinhan_life_sol_cancer_202601` |
+| 대표 문서 | `doc_shinhan_life_sol_cancer_terms_202601` |
+| 대표 보험료 | 34세 여성 6,750 KRW |
+| quote row | 4건, 현재 `needs_review`, 다음 seed PR에서 `approved` 후보 |
+| 다음 작업 | source approval, quote approval, `insurance_products` snapshot 1건 seed |
+
+검증 산출물은 `../../data/insurance/latest_shinhan_no_refund_matching_review.json`, `../../data/insurance/latest_shinhan_no_refund_matching_review.csv`, 검증 문서는 `../05_QA_Validation/57_SHINHAN_NO_REFUND_MATCHING_REVIEW_2026_05_31.md`에 둔다.
 
 ---
 
@@ -814,3 +828,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Samsung Fire Baseline Snapshot Seed](../05_QA_Validation/54_SAMSUNG_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 삼성화재 실손 baseline 추천 snapshot seed 검증
 - **QA_Validation**: [Samsung Fire Baseline DB Apply](../05_QA_Validation/55_SAMSUNG_FIRE_BASELINE_DB_APPLY_2026_05_31.md) - 삼성화재 실손 baseline 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [Remaining Source Candidate Triage](../05_QA_Validation/56_REMAINING_SOURCE_CANDIDATE_TRIAGE_2026_05_31.md) - 남은 source 후보 처리 순서 검증
+- **QA_Validation**: [Shinhan No-refund Matching Review](../05_QA_Validation/57_SHINHAN_NO_REFUND_MATCHING_REVIEW_2026_05_31.md) - 신한라이프 해약환급금 미지급형 암보험 매칭 키워드 검증
