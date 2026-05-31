@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 20:13
+> Last Updated: 2026-05-31 21:27
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.36
+- **상태**: Draft v2.37
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -288,6 +288,23 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 | baseline active product | 4 | 5 |
 
 적용 검증 문서는 `../05_QA_Validation/64_NH_FIRE_BASELINE_DB_APPLY_2026_05_31.md`에 둔다. 다음 작업은 Dashboard와 상담 AI에서 농협손보 baseline 상품 설명을 확인하거나, 남은 raw source adapter를 순차 보강하는 것이다.
+
+### 7-8. 메리츠화재 공시 adapter probe
+
+2026-05-31 21:27 KST 기준 메리츠화재 실손의료비보험 공식 상품 페이지의 약관 확인 흐름을 추적하는 `meritz_direct_pdf_list` adapter를 추가했다. 공식 상품 페이지는 PDF URL을 직접 노출하지 않고 `pdClusPdf.downPdClus('6ADGE')`를 호출한다. adapter는 `/json.smart`의 `retrievePdfFileLst` 응답에서 PDF 목록과 암호화된 `atcFilePthNm#[E]` 값을 받고, 같은 세션 cookie로 `/hp/fileDownload.do`를 호출해 PDF hash를 계산한다.
+
+| 항목 | 값 |
+|---|---|
+| source | `src_meritz_direct_medical_202605` |
+| 공식 상품 페이지 | `https://store.meritzfire.com/health-and-kids/direct-medicalInfo.do` |
+| PDF 목록 API | `https://store.meritzfire.com/json.smart` |
+| product code | `6ADGE` |
+| best_match_score | `1` |
+| 신규 hash 문서 | 약관, 사업방법서, 상품요약서 3건 |
+
+이번 단계는 DB write 없이 crawler, probe 산출물, QA 문서만 갱신한다. 산출물은 `../../data/insurance/latest_meritz_fire_disclosure_adapter_probe.json`, `../../data/insurance/latest_meritz_fire_disclosure_adapter_probe_summary.csv`, 검증 문서는 `../05_QA_Validation/65_MERITZ_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md`에 둔다.
+
+주의할 점은 사업방법서와 상품요약서 파일명이 `2408`을 포함하고, 다운로드 URL이 session-bound encrypted query를 사용한다는 점이다. 따라서 다음 단계에서는 문서 variant와 citation 저장 방식을 확인한 뒤 `medical_expense` baseline 매칭 키워드/caveat 정리와 source document seed 여부를 결정한다.
 
 ---
 
@@ -850,6 +867,8 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - [x] 백업 후 DB손보/KB손보/현대해상 남성 quote approval ID 운영 DB 적용
 - [x] 삼성화재 baseline 추천 snapshot seed 준비
 - [x] 백업 후 삼성화재 baseline 추천 snapshot 운영 DB 적용
+- [x] 농협손보 공시 adapter 보강 및 baseline 추천 snapshot 운영 DB 적용
+- [x] 메리츠화재 공시 adapter 보강 및 공식 문서 hash 3건 확보
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
@@ -922,3 +941,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [NH Fire Medical Matching Review](../05_QA_Validation/62_NH_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md) - 농협손보 실손 baseline 매칭 키워드 검수
 - **QA_Validation**: [NH Fire Baseline Snapshot Seed](../05_QA_Validation/63_NH_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 농협손보 실손 baseline 추천 snapshot seed 검증
 - **QA_Validation**: [NH Fire Baseline DB Apply](../05_QA_Validation/64_NH_FIRE_BASELINE_DB_APPLY_2026_05_31.md) - 농협손보 실손 baseline 추천 snapshot 운영 DB 적용 검증
+- **QA_Validation**: [Meritz Fire Disclosure Adapter Probe](../05_QA_Validation/65_MERITZ_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md) - 메리츠화재 실손의료비보험 공식 문서 hash 검증

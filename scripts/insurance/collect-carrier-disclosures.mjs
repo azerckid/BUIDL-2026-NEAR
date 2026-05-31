@@ -144,6 +144,26 @@ const CARRIER_PROFILES = {
       "다이렉트 모바일 glCommonCode Medical_Self 항목에서 현재 약관 PDF 파일명을 조회한다.",
     ],
   },
+  메리츠화재: {
+    provider: "메리츠화재",
+    source_url: "https://store.meritzfire.com/health-and-kids/direct-medicalInfo.do",
+    api_searches: [
+      {
+        kind: "meritz_direct_pdf_list",
+        endpoint: "https://store.meritzfire.com/json.smart",
+        download_endpoint: "https://store.meritzfire.com/hp/fileDownload.do",
+        referer: "https://store.meritzfire.com/health-and-kids/direct-medicalInfo.do",
+        screen_id: "DMI1805NI000001",
+        product_code: "6ADGE",
+        product_name: "(무) 메리츠 다이렉트 실손의료비보험2605",
+        keywords: ["메리츠 다이렉트 실손의료비보험", "실손의료비보험", "2605", "6ADGE"],
+      },
+    ],
+    notes: [
+      "상품 페이지의 downPdf handler가 pdClusPdf.downPdClus('6ADGE')를 호출한다.",
+      "PDF 목록은 /json.smart retrievePdfFileLst API로 조회하고, 다운로드는 같은 세션 쿠키와 암호화된 atcFilePthNm#[E] 값을 /hp/fileDownload.do에 전달해야 한다.",
+    ],
+  },
   DB손보: {
     provider: "DB손보",
     source_url: "https://www.idbins.com/FWMAIV1534.do",
@@ -473,6 +493,9 @@ async function fetchApiSearchRecords(search, options) {
   if (search.kind === "kb_direct_terms") {
     return fetchKbDirectTermsRecords(search);
   }
+  if (search.kind === "meritz_direct_pdf_list") {
+    return await fetchMeritzDirectPdfListRecords(search, options);
+  }
   if (search.kind === "samsunglife_policy_url") {
     return await fetchSamsungLifePolicyRecords(search, options);
   }
@@ -636,6 +659,165 @@ function makeNhFireDownloadUrl(fileId, afileSeqn) {
   url.searchParams.set("fileId", fileId);
   url.searchParams.set("afileSeqn", afileSeqn);
   return url.toString();
+}
+
+async function fetchMeritzDirectPdfListRecords(search, options) {
+  const response = await fetchWithTimeout(search.endpoint, {
+    timeoutMs: options.timeoutMs,
+    method: "POST",
+    accept: "application/json,text/plain,*/*",
+    contentType: "application/json; charset=UTF-8",
+    headers: {
+      Origin: "https://store.meritzfire.com",
+      Referer: search.referer,
+    },
+    body: JSON.stringify({
+      header: makeMeritzJsonSmartHeader(
+        "f.cg.he.ct.tm.o.bc.CtrCnfBc.retrievePdfFileLst",
+        search.screen_id,
+      ),
+      body: {
+        pdCd: search.product_code,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const sessionCookie = extractResponseCookieHeader(response);
+  const payload = await response.json();
+  if (payload?.header?.prcesResultDivCd !== "0") {
+    throw new Error(`Meritz API returned non-success result: ${payload?.msg?.standMsg ?? "unknown"}`);
+  }
+
+  const pdfList = payload?.body?.pdfList ?? [];
+  if (pdfList.length === 0) {
+    throw new Error("Missing Meritz PDF list");
+  }
+
+  const links = pdfList
+    .map((item) => makeMeritzDocumentLink(item, search, sessionCookie))
+    .filter(Boolean);
+
+  return [
+    {
+      text: cleanText(
+        [
+          search.product_name,
+          search.product_code,
+          ...links.map((link) => `${link.text} ${link.title} ${link.href}`),
+          ...(search.keywords ?? []),
+        ]
+          .filter(Boolean)
+          .join(" "),
+      ),
+      links,
+    },
+  ];
+}
+
+function makeMeritzJsonSmartHeader(serviceId, screenId) {
+  return {
+    encryDivCd: "0",
+    globId: "",
+    rcvmsgSrvId: serviceId,
+    resultRcvmsgSrvId: "",
+    esbIntfId: "",
+    exsIntfId: "",
+    ipv6Addr1: "",
+    ipv6Addr2: "",
+    teleMsgMacAdr: "",
+    envirInfoDivCd: "",
+    firstTranssLcatgBizafairCd: "",
+    transsLcatgBizafairCd: "",
+    reqRespnsDivCd: "Q",
+    syncDivCd: "S",
+    teleMsgReqDttm: DateTime.now().setZone("Asia/Seoul").toFormat("yyyyLLddHHmmssSSS"),
+    prcesResultDivCd: "",
+    teleMsgRespnsDttm: "",
+    clienTrespnsDttm: "",
+    handcapLcatgBizafairCd: "",
+    teleMsgVerDivCd: "",
+    langDivCd: "KR",
+    belongGrpCd: "",
+    empNo: "",
+    empId: "",
+    dptCd: "",
+    hgrkDptCd: "",
+    nxupDptCd: "",
+    transGrpCd: "F",
+    screenId,
+    lowrnkScreenId: "",
+    resveLet: "",
+  };
+}
+
+function makeMeritzDocumentLink(item, search, sessionCookie) {
+  const encryptedPath = item["atcFilePthNm#[E]"];
+  if (!encryptedPath || !item.ortxtFileNm) {
+    return null;
+  }
+
+  const downloadUrl = new URL(search.download_endpoint);
+  downloadUrl.searchParams.set("path", encryptedPath);
+  downloadUrl.searchParams.set("id", encryptedPath);
+  downloadUrl.searchParams.set("orgFileName", item.ortxtFileNm);
+  downloadUrl.searchParams.set("pdfView", "Y");
+
+  const documentType = inferMeritzDocumentType(item.cmAtcFileCtgCd, item.ortxtFileNm);
+  return {
+    url: downloadUrl.toString(),
+    href: item.atcFilePthNm ?? item.ortxtFileNm,
+    text: meritzDocumentLabel(documentType),
+    title: `${search.product_name} ${meritzDocumentLabel(documentType)} ${item.ortxtFileNm}`,
+    document_type: documentType,
+    discovered_from: search.endpoint,
+    headers: {
+      Referer: search.referer,
+      ...(sessionCookie ? { Cookie: sessionCookie } : {}),
+    },
+  };
+}
+
+function inferMeritzDocumentType(categoryCode, fileName) {
+  if (categoryCode === "6103") {
+    return "summary";
+  }
+  if (categoryCode === "6104") {
+    return "business_method";
+  }
+  if (categoryCode === "6102") {
+    return "terms";
+  }
+  return inferDocumentType(fileName);
+}
+
+function meritzDocumentLabel(documentType) {
+  if (documentType === "summary") {
+    return "상품요약서";
+  }
+  if (documentType === "business_method") {
+    return "사업방법서";
+  }
+  if (documentType === "terms") {
+    return "보험약관";
+  }
+  return "공시문서";
+}
+
+function extractResponseCookieHeader(response) {
+  const rawCookie = response.headers.get("set-cookie");
+  if (!rawCookie) {
+    return "";
+  }
+
+  return rawCookie
+    .split(/, (?=[^;,]+=)/g)
+    .map((cookie) => cookie.split(";")[0])
+    .filter(Boolean)
+    .join("; ");
 }
 
 function fetchKbDirectTermsRecords(search) {
@@ -1248,6 +1430,7 @@ async function probeProductDisclosure(product, carrierPage, profile, options) {
         document_type: link.document_type,
         discovered_from: link.discovered_from ?? profile.source_url,
         source_context: link.title || link.text || acceptedRecord.text,
+        headers: link.headers,
       });
     }
   }
@@ -1308,6 +1491,7 @@ async function probeDocumentCandidate(candidate, options) {
     const response = await fetchWithTimeout(candidate.url, {
       timeoutMs: options.timeoutMs,
       accept: "application/pdf,text/html,application/xhtml+xml,*/*;q=0.8",
+      headers: candidate.headers,
     });
     const contentType = response.headers.get("content-type");
     const contentLength = parseContentLength(response.headers.get("content-length"));
