@@ -2,6 +2,7 @@
 
 import OpenAI from "openai";
 import { z } from "zod";
+import { conciergeProductContextSchema } from "@/lib/tee/concierge-product-context";
 import { buildSystemPrompt } from "@/lib/tee/concierge-system-prompt";
 
 const client = new OpenAI({
@@ -27,6 +28,7 @@ const inputSchema = z.object({
     )
     .max(20),
   riskProfile: z.record(z.string(), riskEntrySchema),
+  productContext: conciergeProductContextSchema.optional(),
 });
 
 function formatRiskContext(
@@ -45,7 +47,10 @@ export async function chatWithConcierge(
 ): Promise<{ reply: string } | { error: string }> {
   const parsed = inputSchema.parse(input);
   const riskContext = formatRiskContext(parsed.riskProfile);
-  const systemPrompt = buildSystemPrompt(riskContext);
+  const systemPrompt = buildSystemPrompt(
+    riskContext,
+    parsed.productContext ?? { selectedQuoteCondition: null, products: [] }
+  );
 
   const messages: OpenAI.ChatCompletionMessageParam[] = [
     { role: "system", content: systemPrompt },

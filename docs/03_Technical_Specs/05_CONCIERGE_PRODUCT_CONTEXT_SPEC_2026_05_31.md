@@ -1,9 +1,9 @@
 # [기술 명세] The Secret Keeper 추천상품 컨텍스트 주입 설계
 > Created: 2026-05-31 13:46
-> Last Updated: 2026-05-31 13:46
+> Last Updated: 2026-05-31 14:12
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.0
+- **상태**: Implemented v1.1
 - **범위**: 상담 AI가 현재 Dashboard에 노출된 source-backed 추천 보험상품을 DB 근거로 설명할 수 있도록 컨텍스트를 주입하는 설계
 - **결론**: 상담 AI는 상품명을 생성하지 않는다. `getDashboardData`가 이미 조회한 추천 상품, approved quote, 공식 출처, caveat만 요약 컨텍스트로 받아 설명한다.
 
@@ -92,7 +92,7 @@ NEAR AI / Qwen response
 
 ## 4. 컨텍스트 스키마 초안
 
-구현 시 `src/actions/chatWithConcierge.ts`에 Zod schema를 추가한다.
+구현은 공유 스키마 파일 `src/lib/tee/concierge-product-context.ts`에 `ConciergeProductContext` Zod schema를 두고, `src/actions/chatWithConcierge.ts`가 서버 액션 입력에서 이를 검증한다. 클라이언트 컴포넌트는 type-only import만 사용해 Zod 런타임을 불필요하게 번들에 싣지 않는다.
 
 ```typescript
 type ConciergeProductContext = {
@@ -181,6 +181,7 @@ baseline 상품은 특정 유전자 위험에 직접 대응하는 상품이 아�
 
 | 파일 | 변경 내용 |
 |---|---|
+| `src/lib/tee/concierge-product-context.ts` | `ConciergeProductContext` Zod schema와 타입 정의 |
 | `src/actions/chatWithConcierge.ts` | `productContext` Zod schema 추가, prompt builder 호출 인자 확장 |
 | `src/lib/tee/concierge-system-prompt.ts` | `productContext` formatter와 guardrail 추가 |
 | `src/components/modules/ConciergeChat.tsx` | props에 product context 추가 |
@@ -188,6 +189,14 @@ baseline 상품은 특정 유전자 위험에 직접 대응하는 상품이 아�
 | `messages/ko.json`, `messages/en.json` | 필요 시 empty/help 문구 업데이트 |
 
 DB schema 변경은 필요 없다. 이미 `getDashboardData`가 추천 상품과 approved quote를 한 번에 반환한다.
+
+2026-05-31 14:12 KST 구현 결과:
+
+- `DashboardClient`는 현재 Dashboard에 표시되는 `data.products` 최대 12개만 상담 컨텍스트로 변환한다.
+- 상품별 approved quote summary는 최대 4개로 제한하고, 선택된 나이/성별 조건과 일치하는 quote를 별도 `selectedQuote`로 전달한다.
+- `coverageCaveatsJson`과 `riskTargets`는 짧은 문자열 배열로 파싱하고 길이를 제한한다.
+- `buildSystemPrompt`는 상품 목록 밖의 상품명, 가격, 출처를 생성하지 말라는 guardrail을 추가했다.
+- 기존 `riskProfile`만 전달하던 상담 경로는 `riskProfile + productContext` 경로로 확장됐다.
 
 ---
 
@@ -229,13 +238,13 @@ DB schema 변경은 필요 없다. 이미 `getDashboardData`가 추천 상품과
 
 ## 9. 구현 순서
 
-1. `ConciergeProductContext` type과 Zod schema를 `chatWithConcierge.ts`에 추가한다.
-2. `DashboardClient`에서 `data.products`와 `selectedQuoteCondition`을 상담용 context로 변환한다.
-3. `ConciergeChat` props에 `productContext`를 추가한다.
-4. `buildSystemPrompt`를 `buildSystemPrompt(riskContext, productContext)` 형태로 확장한다.
-5. 상품 컨텍스트 formatter에서 JSON을 사람이 읽기 쉬운 짧은 텍스트로 변환한다.
-6. 상품 질문 QA를 추가한다.
-7. 실제 Test Pilot Dashboard에서 KDB, 한화, 교보, DB손보, KB손보, 현대해상 질문을 수동 검증한다.
+1. 완료 - `ConciergeProductContext` type과 Zod schema를 `src/lib/tee/concierge-product-context.ts`에 추가한다.
+2. 완료 - `DashboardClient`에서 `data.products`와 `selectedQuoteCondition`을 상담용 context로 변환한다.
+3. 완료 - `ConciergeChat` props에 `productContext`를 추가한다.
+4. 완료 - `buildSystemPrompt`를 `buildSystemPrompt(riskContext, productContext)` 형태로 확장한다.
+5. 완료 - 상품 컨텍스트 formatter에서 JSON을 사람이 읽기 쉬운 짧은 텍스트로 변환한다.
+6. 완료 - 상품 질문 QA를 추가한다.
+7. 후속 - 실제 Test Pilot Dashboard에서 KDB, 한화, 교보, DB손보, KB손보, 현대해상 질문을 수동 검증한다.
 
 ---
 
@@ -248,3 +257,4 @@ DB schema 변경은 필요 없다. 이미 `getDashboardData`가 추천 상품과
 - **Logic_Progress**: [AI Matching Pipeline](../04_Logic_Progress/AI_MATCHING_PIPELINE.md) - 분석 AI와 DB 상품 추천의 책임 경계
 - **Logic_Progress**: [Roadmap](../04_Logic_Progress/ROADMAP.md) - 현재 추천 상품 수와 다음 구현 순서
 - **QA_Validation**: [Medical Baseline Quote UI Verification](../05_QA_Validation/51_MEDICAL_BASELINE_QUOTE_UI_VERIFICATION_2026_05_31.md) - 최신 추천 카드 UI 검증
+- **QA_Validation**: [The Secret Keeper Product Context QA](../05_QA_Validation/52_CONCIERGE_PRODUCT_CONTEXT_QA_2026_05_31.md) - 추천상품 컨텍스트 주입 구현 검증

@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-31 13:46
+> Last Updated: 2026-05-31 14:12
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-31 (상담 AI 추천상품 컨텍스트 설계)
+- **최종 수정일**: 2026-05-31 (상담 AI 추천상품 컨텍스트 구현)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.35
+- **상태**: Draft v3.36
 - **phase**: Phase 2
 
 ---
@@ -79,7 +79,7 @@
 | 5 | 신한라이프 blocker | 신한라이프 일반형 공식 문서 endpoint 추가 탐색 | 스크립트 기반 재탐색 완료. 일반형 endpoint 미발견으로 raw 차단 유지 |
 | 6 | 보험상품 확장 | `needs_review=6`, `raw=11` source의 문서 hash, 매칭 키워드, caveat 정리 | 실손 baseline 4개 1차 정리 완료. 3개 snapshot seed 준비, 1개 문서 blocker |
 | 7 | 추천 snapshot 확대 | 새 source를 `approved`로 승격하고 `insurance_products` snapshot 발행 | 실손 baseline 3건 DB apply 및 남성 quote approval 적용 완료. quote approved 32건 |
-| 8 | 상담 AI 상품 설명 | The Secret Keeper에 추천상품 목록, 보험료, 출처, caveat context 전달 | 사용자가 KDB/교보/한화/DB/KB/현대해상 상품을 물으면 DB-selected 추천상품 기준으로 설명 |
+| 8 | 상담 AI 상품 설명 | The Secret Keeper에 추천상품 목록, 보험료, 출처, caveat context 전달 | 구현 완료. 사용자가 KDB/교보/한화/DB/KB/현대해상 상품을 물으면 DB-selected 추천상품 기준으로 설명 |
 
 2026-05-30 23:42 KST 기준 1번 Test Pilot UX 항목을 코드에 반영했다. guest session dashboard 상품 버튼은 `테스트 신청하기`를 표시하고, 일반 지갑 세션은 기존 `결제하기` 문구를 유지한다. 다음 작업은 flag off 상태의 운영 지갑/결제 회귀 검증이다.
 
@@ -108,6 +108,8 @@
 2026-05-31 11:50 KST 기준 로컬 임시 DB와 로컬 Dashboard에서 실손 baseline 남성 조건 UI 표시를 검증했다. `추천 보험 (3)` 탭에서 남성 34세 선택 시 DB손보 6,219 KRW, KB손보 6,400 KRW, 현대해상 6,740 KRW가 `내 조건 예상 보험료`로 표시됐고, 남성 44세 선택 시 DB손보 9,320 KRW, KB손보 9,074 KRW, 현대해상 9,190 KRW가 표시됐다. `선택한 조건의 승인 보험료가 아직 없습니다.` fallback은 표시되지 않았다. 검증은 `../05_QA_Validation/51_MEDICAL_BASELINE_QUOTE_UI_VERIFICATION_2026_05_31.md`에 기록한다. 다음 작업은 삼성화재 실손의료보험 상품 전용 문서 endpoint 재탐색과 남은 raw/needs_review source 정리다.
 
 2026-05-31 13:46 KST 기준 상담 AI가 추천상품을 DB 근거로 설명할 수 있도록 The Secret Keeper 추천상품 컨텍스트 주입 설계를 추가했다. 현재 채팅 경로는 `riskProfile`만 전달하므로, 다음 구현 PR에서는 `DashboardData.products`의 추천상품 목록, 대표/조건별 보험료, 공식 출처, caveat를 요약해 `chatWithConcierge`에 전달한다. 상담 AI는 새 상품을 생성하지 않고 현재 추천 결과에 포함된 DB-selected 상품만 설명한다. 설계 문서는 `../03_Technical_Specs/05_CONCIERGE_PRODUCT_CONTEXT_SPEC_2026_05_31.md`에 둔다. 다음 작업은 이 설계에 따라 `ConciergeProductContext`를 코드에 연결하는 구현 PR이다.
+
+2026-05-31 14:12 KST 기준 8번 상담 AI 상품 설명 구현을 완료했다. `DashboardClient`는 현재 추천 화면의 source-backed active 상품과 선택된 나이/성별 조건을 `ConciergeProductContext`로 축약하고, `ConciergeChat`은 이를 `chatWithConcierge`에 전달한다. 서버 액션은 Zod schema로 상품 컨텍스트를 검증하며, `buildSystemPrompt`는 대표 보험료, 선택 조건 보험료, approved quote 요약, 공식 출처, caveat와 목록 밖 상품 생성 금지 guardrail을 포함한다. 검증은 `../05_QA_Validation/52_CONCIERGE_PRODUCT_CONTEXT_QA_2026_05_31.md`에 기록한다. 다음 작업은 실제 Test Pilot Dashboard에서 KDB, 한화, 교보, DB손보, KB손보, 현대해상 상품 질문을 NEAR AI 응답 기준으로 수동 검증하고, 삼성화재 상품 전용 문서 endpoint 재탐색과 남은 raw/needs_review source 정리를 이어가는 것이다.
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 매칭 키워드 정리 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.
