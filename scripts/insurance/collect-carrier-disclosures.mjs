@@ -41,6 +41,29 @@ const CARRIER_PROFILES = {
     source_url: "https://idblife.com/notice/product/sale",
     notes: ["판매상품공시 표가 서버 렌더링 HTML로 노출된다."],
   },
+  농협손보: {
+    provider: "농협손보",
+    source_url: "https://www.nhfire.co.kr/product/retrieveProduct.nhfire?pdtCd=D711117",
+    api_searches: [
+      {
+        kind: "nhfire_product_page_downloads",
+        endpoint: "https://www.nhfire.co.kr/product/retrieveProduct.nhfire?pdtCd=D711117",
+        product_code: "D711117",
+        product_name: "(무) 헤아림다이렉트실손의료비보험(전환계약용)2605",
+        keywords: [
+          "헤아림실손의료비보험2605",
+          "헤아림다이렉트실손의료비보험",
+          "실손의료비보험",
+          "전환계약용",
+          "2605",
+        ],
+      },
+    ],
+    notes: [
+      "상품 상세 페이지의 fnPdtFileDownload(fileId, afileSeqn, afileNm) 호출에서 약관 다운로드 식별자를 조회한다.",
+      "실제 PDF는 /imageView/downloadFile.ajax?fileId=...&afileSeqn=... query로 다운로드된다.",
+    ],
+  },
   교보라이프플래닛: {
     provider: "교보라이프플래닛",
     source_url: "https://www.lifeplanet.co.kr/disclosure/good/HPDA01S0.dev",
@@ -441,6 +464,9 @@ async function fetchApiSearchRecords(search, options) {
   if (search.kind === "dbins_product_search") {
     return await fetchDbInsuranceProductRecords(search, options);
   }
+  if (search.kind === "nhfire_product_page_downloads") {
+    return await fetchNhFireProductPageDownloadRecords(search, options);
+  }
   if (search.kind === "hyundai_direct_terms") {
     return await fetchHyundaiDirectTermsRecords(search, options);
   }
@@ -530,6 +556,86 @@ function makeDbInsuranceDocumentLinks(record, discoveredFrom) {
       document_type: documentType,
       discovered_from: discoveredFrom,
     }));
+}
+
+async function fetchNhFireProductPageDownloadRecords(search, options) {
+  const response = await fetchWithTimeout(search.endpoint, {
+    timeoutMs: options.timeoutMs,
+    accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  const html = decodeHtml(buffer, parseCharset(response.headers.get("content-type")));
+  const links = extractNhFireProductDownloadLinks(html, search);
+  if (links.length === 0) {
+    throw new Error("Missing fnPdtFileDownload document links");
+  }
+
+  return [
+    {
+      text: cleanText(
+        [
+          search.product_name,
+          search.product_code,
+          ...links.map((link) => `${link.text} ${link.title} ${link.href}`),
+          ...(search.keywords ?? []),
+        ]
+          .filter(Boolean)
+          .join(" "),
+      ),
+      links,
+    },
+  ];
+}
+
+function extractNhFireProductDownloadLinks(html, search) {
+  const links = [];
+  const downloadPattern =
+    /fnPdtFileDownload\(\s*["']([^"']*)["']\s*,\s*["']([^"']*)["']\s*,\s*["']([^"']*)["']\s*\)/g;
+
+  for (const match of html.matchAll(downloadPattern)) {
+    const fileId = htmlDecode(match[1]).trim();
+    const afileSeqn = htmlDecode(match[2]).trim();
+    const fileName = htmlDecode(match[3]).trim();
+    if (!fileId || !afileSeqn || !fileName) {
+      continue;
+    }
+
+    const linkText = inferNhFireDocumentLabel(html, match.index ?? 0, fileName);
+    links.push({
+      url: makeNhFireDownloadUrl(fileId, afileSeqn),
+      href: fileName,
+      text: linkText,
+      title: `${search.product_name} ${linkText}`,
+      document_type: inferDocumentType(`${linkText} ${fileName}`),
+      discovered_from: search.endpoint,
+    });
+  }
+
+  return uniqueBy(links, (link) => `${link.url}|${link.href}`);
+}
+
+function inferNhFireDocumentLabel(html, matchIndex, fileName) {
+  const context = html.slice(Math.max(0, matchIndex - 240), matchIndex + 240);
+  const text = cleanText(context);
+  if (text.includes("약관") || fileName.includes("약관")) {
+    return "약관";
+  }
+  if (text.includes("안내장") || fileName.includes("안내장")) {
+    return "안내장";
+  }
+  return inferDocumentType(fileName);
+}
+
+function makeNhFireDownloadUrl(fileId, afileSeqn) {
+  const url = new URL("https://www.nhfire.co.kr/imageView/downloadFile.ajax");
+  url.searchParams.set("fileId", fileId);
+  url.searchParams.set("afileSeqn", afileSeqn);
+  return url.toString();
 }
 
 function fetchKbDirectTermsRecords(search) {

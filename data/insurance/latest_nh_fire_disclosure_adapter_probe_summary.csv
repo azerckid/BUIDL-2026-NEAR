@@ -1,0 +1,2 @@
+source_id,carrier,product_group,product_name,e_insmarket_product_code,result_status,best_match_score,document_type,sha256,content_length_bytes,document_url,next_action
+src_nh_fire_medical_202605,농협손보,실손의료보험,"(무) 헤아림실손의료비보험2605",N71G004000001G,hashed,1,terms,0306fb42f84fa976ff9680aadf6a1b348e87d5c99cd503e85b1e82b9bf728048,3065859,https://www.nhfire.co.kr/imageView/downloadFile.ajax?fileId=F004074317&afileSeqn=1,matching_keyword_review_then_source_document_seed
