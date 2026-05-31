@@ -661,6 +661,8 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 
 2026-05-31 04:49 KST 기준 운영 DB 백업 후 교정된 seed를 재실행했다. 실손 baseline target quote 12건은 모두 운영 DB에 존재하며, 여성 6건과 남성 6건이 모두 `approved` 상태다. 전체 `insurance_premium_quotes.review_status=approved`는 26건에서 32건으로 증가했고, `needs_review`는 62건에서 56건으로 감소했다. `insurance_products=13`, source-backed active 추천 상품 8건은 변하지 않았다. 검증 문서는 `../05_QA_Validation/50_MEDICAL_BASELINE_MALE_QUOTE_DB_APPLY_2026_05_31.md`에 둔다.
 
+2026-05-31 11:50 KST 기준 로컬 임시 DB와 로컬 Dashboard에서 위 approved quote 12건이 UI에 정상 표시되는지 검증했다. 남성 34세 선택 시 DB손보 6,219 KRW, KB손보 6,400 KRW, 현대해상 6,740 KRW가 표시됐고, 남성 44세 선택 시 DB손보 9,320 KRW, KB손보 9,074 KRW, 현대해상 9,190 KRW가 표시됐다. 검증 문서는 `../05_QA_Validation/51_MEDICAL_BASELINE_QUOTE_UI_VERIFICATION_2026_05_31.md`에 둔다.
+
 ---
 
 ## 10. 법무·신뢰 고지
@@ -785,3 +787,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Medical Baseline Snapshot DB Apply](../05_QA_Validation/48_MEDICAL_BASELINE_SNAPSHOT_DB_APPLY_2026_05_31.md) - 실손 baseline 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [Medical Baseline Male Quote ID Correction](../05_QA_Validation/49_MEDICAL_BASELINE_MALE_QUOTE_ID_CORRECTION_2026_05_31.md) - 실손 남성 quote approval ID 교정 검증
 - **QA_Validation**: [Medical Baseline Male Quote DB Apply](../05_QA_Validation/50_MEDICAL_BASELINE_MALE_QUOTE_DB_APPLY_2026_05_31.md) - 실손 남성 quote approval 운영 DB 적용 검증
+- **QA_Validation**: [Medical Baseline Quote UI Verification](../05_QA_Validation/51_MEDICAL_BASELINE_QUOTE_UI_VERIFICATION_2026_05_31.md) - 실손 baseline 남성 조건 quote UI 표시 검증

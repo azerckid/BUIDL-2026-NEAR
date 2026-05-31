@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-31 04:49
+> Last Updated: 2026-05-31 11:50
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-31 (실손 남성 quote approval DB 적용)
+- **최종 수정일**: 2026-05-31 (실손 남성 quote UI 표시 검증)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.33
+- **상태**: Draft v3.34
 - **phase**: Phase 2
 
 ---
@@ -103,6 +103,8 @@
 2026-05-31 03:58 KST 기준 후속 읽기 전용 확인에서 실손 baseline 남성 quote 6건은 운영 DB에 존재하지만 다른 `quote_hash_sha256` suffix ID로 저장되어 있음을 확인했다. 따라서 재적재가 아니라 `MEDICAL_BASELINE_APPROVED_QUOTE_IDS`를 actual DB ID로 교정하는 것이 맞다. 이번 단계는 DB write 없이 seed/data/docs만 변경하며, 후속 apply 후 `insurance_premium_quotes.review_status=approved`는 26건에서 32건으로 증가해야 한다. 검증은 `../05_QA_Validation/49_MEDICAL_BASELINE_MALE_QUOTE_ID_CORRECTION_2026_05_31.md`에 기록한다. 다음 작업은 운영 DB 백업 후 seed 재실행으로 교정된 남성 quote 6건을 승인하고, 삼성화재 상품 전용 문서 endpoint를 재탐색하는 것이다.
 
 2026-05-31 04:49 KST 기준 실손 baseline 남성 quote approval ID 교정을 운영 DB에 백업 후 적용했다. seed 재실행 후 실손 baseline target quote 12건은 모두 `approved` 상태이며, 전체 `insurance_premium_quotes.review_status=approved`는 26건에서 32건으로 증가했다. `insurance_products=13`, source-backed active 추천 상품 8건은 변하지 않았다. 검증은 `../05_QA_Validation/50_MEDICAL_BASELINE_MALE_QUOTE_DB_APPLY_2026_05_31.md`에 기록한다. 다음 작업은 사용자 조건별 보험료 UI에서 남성 조건 표시를 확인하고, 삼성화재 상품 전용 문서 endpoint를 재탐색하는 것이다.
+
+2026-05-31 11:50 KST 기준 로컬 임시 DB와 로컬 Dashboard에서 실손 baseline 남성 조건 UI 표시를 검증했다. `추천 보험 (3)` 탭에서 남성 34세 선택 시 DB손보 6,219 KRW, KB손보 6,400 KRW, 현대해상 6,740 KRW가 `내 조건 예상 보험료`로 표시됐고, 남성 44세 선택 시 DB손보 9,320 KRW, KB손보 9,074 KRW, 현대해상 9,190 KRW가 표시됐다. `선택한 조건의 승인 보험료가 아직 없습니다.` fallback은 표시되지 않았다. 검증은 `../05_QA_Validation/51_MEDICAL_BASELINE_QUOTE_UI_VERIFICATION_2026_05_31.md`에 기록한다. 다음 작업은 삼성화재 실손의료보험 상품 전용 문서 endpoint 재탐색과 남은 raw/needs_review source 정리다.
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 매칭 키워드 정리 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.
@@ -1227,6 +1229,7 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 - [실손의료보험 Baseline 추천 Snapshot DB 적용 검증](../05_QA_Validation/48_MEDICAL_BASELINE_SNAPSHOT_DB_APPLY_2026_05_31.md)
 - [실손의료보험 Baseline 남성 Quote ID 교정 검증](../05_QA_Validation/49_MEDICAL_BASELINE_MALE_QUOTE_ID_CORRECTION_2026_05_31.md)
 - [실손의료보험 Baseline 남성 Quote DB 적용 검증](../05_QA_Validation/50_MEDICAL_BASELINE_MALE_QUOTE_DB_APPLY_2026_05_31.md)
+- [실손의료보험 조건별 Quote UI 표시 검증](../05_QA_Validation/51_MEDICAL_BASELINE_QUOTE_UI_VERIFICATION_2026_05_31.md)
 - [데모 보험상품 운영 추천 제거 검증](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md)
 - [데모 보험상품 Archive DB 적용 검증](../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md)
 - [보험상품 매칭 키워드 정리 정책](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md)
