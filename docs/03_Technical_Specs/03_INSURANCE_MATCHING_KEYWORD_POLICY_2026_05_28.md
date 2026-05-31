@@ -202,7 +202,9 @@ DNA 분석 결과
 | 실손 남성 quote approval ID 적용 완료 | 6개 | 운영 DB actual row를 approved로 승격 완료 |
 | 문서 특이성 blocker | 1개 | 삼성화재 실손의료보험. 상품 전용 문서 endpoint 재탐색 전까지 보류 |
 
-다음 단계는 사용자 조건별 보험료 UI에서 남성 조건이 정상 표시되는지 점검하고, 삼성화재 실손의 상품 전용 공식 문서 endpoint를 재탐색하는 것이다.
+2026-05-31 11:50 KST 기준 로컬 Dashboard에서 사용자 조건별 보험료 UI가 실손 baseline 남성 quote를 정상 표시하는지 검증했다. 남성 34세와 44세 모두 DB손보, KB손보, 현대해상 3개 카드가 approved quote를 `내 조건 예상 보험료`로 표시했고, 승인 보험료 없음 fallback은 표시되지 않았다. 검증은 `../05_QA_Validation/51_MEDICAL_BASELINE_QUOTE_UI_VERIFICATION_2026_05_31.md`에 둔다.
+
+다음 단계는 삼성화재 실손의 상품 전용 공식 문서 endpoint를 재탐색하고, 남은 raw/needs_review source의 매칭 키워드와 caveat를 정리하는 것이다.
 
 ---
 
@@ -253,3 +255,4 @@ DNA 분석 결과
 - **QA_Validation**: [Medical Baseline Snapshot DB Apply](../05_QA_Validation/48_MEDICAL_BASELINE_SNAPSHOT_DB_APPLY_2026_05_31.md) - 실손 baseline 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [Medical Baseline Male Quote ID Correction](../05_QA_Validation/49_MEDICAL_BASELINE_MALE_QUOTE_ID_CORRECTION_2026_05_31.md) - 실손 baseline 남성 quote approval ID 교정 검증
 - **QA_Validation**: [Medical Baseline Male Quote DB Apply](../05_QA_Validation/50_MEDICAL_BASELINE_MALE_QUOTE_DB_APPLY_2026_05_31.md) - 실손 baseline 남성 quote approval 운영 DB 적용 검증
+- **QA_Validation**: [Medical Baseline Quote UI Verification](../05_QA_Validation/51_MEDICAL_BASELINE_QUOTE_UI_VERIFICATION_2026_05_31.md) - 실손 baseline 남성 조건 quote UI 표시 검증
