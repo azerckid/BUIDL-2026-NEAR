@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 17:26
+> Last Updated: 2026-05-31 17:57
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.27
+- **상태**: Draft v2.28
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -177,6 +177,19 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 | 판매상태 | `is_active` |
 
 `coverage_category`와 `risk_targets`는 자동 추출 결과를 그대로 사용하지 않는다. 추천 결과에 영향을 주는 필드이므로 질병-보장 매핑과 매칭 키워드 정리가 끝난 뒤 서비스 DB에 반영한다.
+
+### 7-1. PR #59 이후 남은 source 처리 큐
+
+2026-05-31 17:57 KST 기준 운영 DB 읽기 전용 확인 결과, source-backed active 추천 상품은 9개이고 남은 non-approved source는 13개다. 이 13개는 동일한 상태가 아니므로 다음 순서로 처리한다.
+
+| 처리 묶음 | source 수 | 기준 | 다음 작업 |
+|---|---:|---|---|
+| 매칭 키워드/caveat 검수 후보 | 1 | 공식 문서 3건과 quote 4건이 있음 | 신한라이프 해약환급금 미지급형 암보험 검수 |
+| 공식 문서 probe 필요 | 10 | quote는 있으나 source document 0건 | 보험사별 상품 페이지/공시 adapter 보강 |
+| category 정책 결정 필요 | 1 | 문서는 있으나 현 enum에 맞지 않음 | 삼성생명 입원 건강보험 category 확장 판단 |
+| endpoint blocker 유지 | 1 | 일반형 공식 문서 endpoint 미발견 | 신한라이프 표준형 차단 유지 |
+
+상세 산출물은 `../../data/insurance/latest_remaining_source_candidate_triage.json`, `../../data/insurance/latest_remaining_source_candidate_triage.csv`, 검증 문서는 `../05_QA_Validation/56_REMAINING_SOURCE_CANDIDATE_TRIAGE_2026_05_31.md`에 둔다.
 
 ---
 
@@ -800,3 +813,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Samsung Fire Medical Document Reprobe](../05_QA_Validation/53_SAMSUNG_FIRE_MEDICAL_DOCUMENT_REPROBE_2026_05_31.md) - 삼성화재 실손 상품 전용 문서 재탐색 검증
 - **QA_Validation**: [Samsung Fire Baseline Snapshot Seed](../05_QA_Validation/54_SAMSUNG_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 삼성화재 실손 baseline 추천 snapshot seed 검증
 - **QA_Validation**: [Samsung Fire Baseline DB Apply](../05_QA_Validation/55_SAMSUNG_FIRE_BASELINE_DB_APPLY_2026_05_31.md) - 삼성화재 실손 baseline 추천 snapshot 운영 DB 적용 검증
+- **QA_Validation**: [Remaining Source Candidate Triage](../05_QA_Validation/56_REMAINING_SOURCE_CANDIDATE_TRIAGE_2026_05_31.md) - 남은 source 후보 처리 순서 검증
