@@ -185,6 +185,28 @@ const CARRIER_PROFILES = {
       "CM_COMM_FileDownload_ACT.do는 같은 파일명을 GET query로 전달해도 공식 PDF를 반환한다.",
     ],
   },
+  한화손보: {
+    provider: "한화손보",
+    source_url: "https://www.hanwhadirect.com/",
+    api_searches: [
+      {
+        kind: "hanwha_direct_terms_pdf",
+        script_url:
+          "https://www.hanwhadirect.com/resource/inspl/ltr/cncr/js/main.js?sid=20260601",
+        referer: "https://www.hanwhadirect.com/ltr/cncr/",
+        base_url: "https://www.hanwhadirect.com",
+        terms_file: "LA02969001.pdf",
+        user_agent:
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+        product_name: "한화 다이렉트 내가고른 암보험 무배당 2604",
+        keywords: ["내가고른 암보험", "암보험", "2604", "LA02969001"],
+      },
+    ],
+    notes: [
+      "다이렉트 내가고른 암보험 화면의 약관 다운로드 버튼은 ltr/cncr main.js에서 /clapdf/LA02969001.pdf를 호출한다.",
+      "landing.do는 세션 쿠키가 없으면 error page로 이동할 수 있어 crawler는 공식 JS와 clapdf PDF 경로를 직접 검증한다.",
+    ],
+  },
   미래에셋생명: {
     provider: "미래에셋생명",
     source_url: "https://life.miraeasset.com/micro/disclosure/product/PC-HO-080301-000000.do",
@@ -550,6 +572,9 @@ async function fetchApiSearchRecords(search, options) {
   if (search.kind === "heungkuk_direct_download_file") {
     return fetchHeungkukDirectDownloadFileRecords(search);
   }
+  if (search.kind === "hanwha_direct_terms_pdf") {
+    return await fetchHanwhaDirectTermsPdfRecords(search, options);
+  }
   if (search.kind === "miraeasset_disclosure_product_list") {
     return await fetchMiraeassetDisclosureProductListRecords(search, options);
   }
@@ -914,6 +939,62 @@ function makeHeungkukDirectDownloadUrl(search) {
   url.searchParams.set("fileType", search.file_type);
   url.searchParams.set("downFileName", search.terms_file);
   return url.toString();
+}
+
+async function fetchHanwhaDirectTermsPdfRecords(search, options) {
+  const response = await fetchWithTimeout(search.script_url, {
+    timeoutMs: options.timeoutMs,
+    accept: "application/javascript,text/javascript,*/*",
+    headers: {
+      "User-Agent": search.user_agent,
+      Referer: search.referer,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const script = await response.text();
+  const pdfPaths = [...script.matchAll(/downPdf\(['"]([^'"]+\.pdf)['"]\)/gi)].map(
+    (match) => match[1],
+  );
+  const targetPath = pdfPaths.find((path) => path.includes(search.terms_file));
+
+  if (!targetPath) {
+    throw new Error(`Terms PDF ${search.terms_file} was not found in Hanwha Direct script`);
+  }
+
+  const termsUrl = new URL(targetPath, search.base_url).toString();
+
+  return [
+    {
+      text: cleanText(
+        [
+          search.product_name,
+          search.terms_file,
+          "보험약관",
+          "약관 다운로드",
+          ...(search.keywords ?? []),
+        ]
+          .filter(Boolean)
+          .join(" "),
+      ),
+      links: [
+        {
+          url: termsUrl,
+          text: "보험약관",
+          title: `${search.product_name} 보험약관 ${search.terms_file}`,
+          document_type: "terms",
+          discovered_from: search.script_url,
+          headers: {
+            "User-Agent": search.user_agent,
+            Referer: search.referer,
+          },
+        },
+      ],
+    },
+  ];
 }
 
 async function fetchMiraeassetDisclosureProductListRecords(search, options) {

@@ -1,0 +1,8 @@
+provider,raw_product_name,result_status,best_match_score,document_count,hashed_document_count,document_types,next_action
+농협손보,(무) 헤아림실손의료비보험2605,hashed,1,1,1,terms,already_processed_or_pending_review
+메리츠화재,(무) 메리츠 다이렉트 실손의료비보험2605,hashed,1,3,3,business_method|summary|terms,already_processed_or_pending_review
+흥국화재,(무)흥Good 다이렉트 실손의료보험(26.05),hashed,1,1,1,terms,already_processed_or_pending_review
+DB생명,(무)e로운 암보험(해약환급금 미지급형)(2601),no_match,0.3333,0,0,,No disclosure row passed the product-name matching threshold.
+미래에셋생명,온라인 암보험 무배당 [기본형],hashed,1,3,3,business_method|summary|terms,already_processed_or_pending_review
+미래에셋생명,온라인 암보험 무배당 [해약환급금이없는유형],hashed,1,3,3,business_method|summary|terms,already_processed_or_pending_review
+한화손보,한화 다이렉트 내가고른 암보험 무배당2604,hashed,1,1,1,terms,variant_review_then_matching_review
