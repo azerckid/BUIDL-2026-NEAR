@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-05-31 16:42
+> Last Updated: 2026-05-31 17:26
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.13
+- **상태**: Draft v1.14
 - **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준, 추천 snapshot 발행 기준
 - **결론**: 이 프로젝트에서 말하는 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DB에 보험상품을 넣기 전에 DNA risk target과 매칭할 수 있도록 `coverage_category`, `risk_targets`, `matching_strategy`, `coverage_caveats_json`을 정리하는 내부 데이터 정규화 작업이다.
 
@@ -193,15 +193,15 @@ DNA 분석 결과
 | 공식 상품 URL 보유 | 47개 | 상품 페이지 후보 있음 |
 | source catalog 후보 | 22개 | 7개 hash-backed + 15개 quote-only raw |
 | 공식 문서 row | 22개 | 약관/요약서/사업방법서 hash 확인 후 source별 연결 |
-| quote matrix row | 92개 | 나이/성별 조건별 보험료. 현재 KDB/교보/한화 20건 + 실손 baseline 12건, 총 32건 `approved`, 삼성화재 4건 seed 승인 준비 |
+| quote matrix row | 92개 | 나이/성별 조건별 보험료. 현재 KDB/교보/한화 20건 + 실손 baseline 16건, 총 36건 `approved` |
 | quote-only raw source 후보 | 15개 | 보험다모아 quote matrix product code 연결용. 일부 공식 문서 hash 확보 |
 | seed source 후보 총계 | 22개 | 7개 hash-backed + 15개 quote-only raw |
 | 매칭 키워드/caveat 정리 완료 source | 9개 | KDB/한화/교보 암보험 5개 + DB/KB/현대/삼성 실손 baseline 4개 |
-| source-backed 추천 매칭 가능 상품 | 8개 | 운영 DB에 적용된 실제 source-backed active 상품 |
-| baseline active 상품 | 3개 | DB손보, KB손보, 현대해상 실손의료보험 |
+| source-backed 추천 매칭 가능 상품 | 9개 | 운영 DB에 적용된 실제 source-backed active 상품 |
+| baseline active 상품 | 4개 | DB손보, KB손보, 삼성화재, 현대해상 실손의료보험 |
 | 실손 남성 quote approval ID 적용 완료 | 6개 | 운영 DB actual row를 approved로 승격 완료 |
 | 문서 특이성 blocker | 0개 | 삼성화재 실손의료보험은 직접 상품 상세 페이지와 PDF 텍스트 근거로 blocker 해소 |
-| 미적용 baseline seed 후보 | 1개 | 삼성화재 실손의료보험. source/quote/snapshot seed 준비 완료, 운영 DB apply 대기 |
+| 미적용 baseline seed 후보 | 0개 | 삼성화재 실손의료보험까지 운영 DB apply 완료 |
 
 2026-05-31 11:50 KST 기준 로컬 Dashboard에서 사용자 조건별 보험료 UI가 실손 baseline 남성 quote를 정상 표시하는지 검증했다. 남성 34세와 44세 모두 DB손보, KB손보, 현대해상 3개 카드가 approved quote를 `내 조건 예상 보험료`로 표시했고, 승인 보험료 없음 fallback은 표시되지 않았다. 검증은 `../05_QA_Validation/51_MEDICAL_BASELINE_QUOTE_UI_VERIFICATION_2026_05_31.md`에 둔다.
 
@@ -209,7 +209,9 @@ DNA 분석 결과
 
 2026-05-31 16:42 KST 기준 삼성화재 실손 baseline 추천 snapshot seed 준비를 완료했다. `seed.ts`는 적용 시 삼성화재 source 1건을 `approved`로 승격하고, 운영 DB 읽기 전용 확인으로 확정한 quote 4건을 `approved`로 바꾸며, baseline `insurance_products` snapshot 1건을 추가한다. DB write는 하지 않았고 운영 반영은 백업 후 apply PR로 분리한다. 검증은 `../05_QA_Validation/54_SAMSUNG_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md`에 둔다.
 
-다음 단계는 삼성화재 seed 운영 DB apply PR이며, 병렬로 남은 raw/needs_review source의 매칭 키워드와 caveat를 정리하는 것이다.
+2026-05-31 17:26 KST 기준 삼성화재 실손 baseline 추천 snapshot을 운영 DB에 백업 후 적용했다. source-backed active 추천 상품은 9개, approved quote는 36개, baseline active 상품은 4개가 됐다. 검증은 `../05_QA_Validation/55_SAMSUNG_FIRE_BASELINE_DB_APPLY_2026_05_31.md`에 둔다.
+
+다음 단계는 남은 raw/needs_review source의 매칭 키워드와 caveat를 정리하고, 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플을 source catalog 후보로 올리는 것이다.
 
 ---
 
@@ -263,3 +265,4 @@ DNA 분석 결과
 - **QA_Validation**: [Medical Baseline Quote UI Verification](../05_QA_Validation/51_MEDICAL_BASELINE_QUOTE_UI_VERIFICATION_2026_05_31.md) - 실손 baseline 남성 조건 quote UI 표시 검증
 - **QA_Validation**: [Samsung Fire Medical Document Reprobe](../05_QA_Validation/53_SAMSUNG_FIRE_MEDICAL_DOCUMENT_REPROBE_2026_05_31.md) - 삼성화재 실손 상품 전용 문서 재탐색 검증
 - **QA_Validation**: [Samsung Fire Baseline Snapshot Seed](../05_QA_Validation/54_SAMSUNG_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 삼성화재 실손 baseline 추천 snapshot seed 검증
+- **QA_Validation**: [Samsung Fire Baseline DB Apply](../05_QA_Validation/55_SAMSUNG_FIRE_BASELINE_DB_APPLY_2026_05_31.md) - 삼성화재 실손 baseline 추천 snapshot 운영 DB 적용 검증

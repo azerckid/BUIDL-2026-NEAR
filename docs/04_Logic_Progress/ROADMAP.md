@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-31 16:42
+> Last Updated: 2026-05-31 17:26
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-31 (삼성화재 실손 추천 snapshot seed 준비)
+- **최종 수정일**: 2026-05-31 (삼성화재 실손 추천 snapshot 운영 DB 적용)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.38
+- **상태**: Draft v3.39
 - **phase**: Phase 2
 
 ---
@@ -68,7 +68,7 @@
 
 현재 의미는 “실제 보험상품 데이터 기반 추천”과 “무로그인·무결제 테스트 완주”를 동시에 검증하는 것이다. Test Pilot happy-path는 완료됐고, 다음 작업은 아래 순서로 진행한다.
 
-여기서 현재 추천 상품 8개는 “수집한 전체 데이터 수”가 아니라 “사용자 추천 화면에 노출 가능한 최종 snapshot 수”다. 현재까지 확보한 기반 데이터는 보험다모아 P0 샘플 56개, source catalog 후보 22개, 공식 문서 row 22개, 조건별 보험료 quote row 92개이며, 이 중 원천 근거, 매칭 키워드, caveat, approved quote를 통과해 active 추천으로 발행된 상품이 8개다. 실손 baseline 남성 조건 quote 6건도 운영 DB에 approved로 반영되어 조건별 보험료 approved row는 32건이다. 삼성화재 실손 1건은 seed 준비가 완료됐고, 운영 DB apply 후 active 추천 상품은 9개가 된다.
+여기서 현재 추천 상품 9개는 “수집한 전체 데이터 수”가 아니라 “사용자 추천 화면에 노출 가능한 최종 snapshot 수”다. 현재까지 확보한 기반 데이터는 보험다모아 P0 샘플 56개, source catalog 후보 22개, 공식 문서 row 22개, 조건별 보험료 quote row 92개이며, 이 중 원천 근거, 매칭 키워드, caveat, approved quote를 통과해 active 추천으로 발행된 상품이 9개다. 실손 baseline 남성 조건 quote 6건과 삼성화재 quote 4건도 운영 DB에 approved로 반영되어 조건별 보험료 approved row는 36건이다.
 
 | 순서 | 트랙 | 작업 | 완료 기준 |
 |---:|---|---|---|
@@ -78,7 +78,7 @@
 | 4 | 한화생명 blocker | 한화생명 표준체형/비흡연체형 0원 quote 원인 해소 | 공식 carrier quote 숫자 KRW 8건 확보 및 DB 적용 완료 |
 | 5 | 신한라이프 blocker | 신한라이프 일반형 공식 문서 endpoint 추가 탐색 | 스크립트 기반 재탐색 완료. 일반형 endpoint 미발견으로 raw 차단 유지 |
 | 6 | 보험상품 확장 | `needs_review=6`, `raw=11` source의 문서 hash, 매칭 키워드, caveat 정리 | 실손 baseline 4개 정리 완료. 삼성화재 문서 blocker 해소 |
-| 7 | 추천 snapshot 확대 | 새 source를 `approved`로 승격하고 `insurance_products` snapshot 발행 | 실손 baseline 3건 DB apply 및 남성 quote approval 적용 완료. 삼성화재 1건 seed 준비 완료, apply 대기 |
+| 7 | 추천 snapshot 확대 | 새 source를 `approved`로 승격하고 `insurance_products` snapshot 발행 | 실손 baseline 4건 DB apply 완료. 운영 active 추천 9건 |
 | 8 | 상담 AI 상품 설명 | The Secret Keeper에 추천상품 목록, 보험료, 출처, caveat context 전달 | 구현 완료. 사용자가 KDB/교보/한화/DB/KB/현대해상 상품을 물으면 DB-selected 추천상품 기준으로 설명 |
 
 2026-05-30 23:42 KST 기준 1번 Test Pilot UX 항목을 코드에 반영했다. guest session dashboard 상품 버튼은 `테스트 신청하기`를 표시하고, 일반 지갑 세션은 기존 `결제하기` 문구를 유지한다. 다음 작업은 flag off 상태의 운영 지갑/결제 회귀 검증이다.
@@ -114,6 +114,8 @@
 2026-05-31 16:14 KST 기준 삼성화재 실손의료보험 상품 전용 문서 endpoint 재탐색을 완료했다. `scripts/insurance/probe-samsung-fire-medical-documents.mjs`는 삼성화재 직접 상품 상세 페이지와 `realloss.pdf` 약관을 조회하고, 직접 상품 페이지의 상품명/상품약관/2026년 5월 5세대 실손 근거와 PDF 텍스트의 `2605.1`/일반형 조항을 확인했다. 기존 PDF hash `db0ed9738c9f59fbb28b678b910e0bdd3ef4bf08bdac52643c2e2dd167003415`와도 일치한다. 검증은 `../05_QA_Validation/53_SAMSUNG_FIRE_MEDICAL_DOCUMENT_REPROBE_2026_05_31.md`에 기록한다. 다음 작업은 삼성화재 source approved, quote 4건 approved, baseline `insurance_products` snapshot 1건을 준비하는 seed PR이다. 적용 후 운영 source-backed active 추천 상품은 8건에서 9건이 된다.
 
 2026-05-31 16:42 KST 기준 삼성화재 실손 baseline 추천 snapshot seed 준비를 완료했다. `seed.ts`는 적용 시 삼성화재 source 1건을 `approved`로 승격하고, 운영 DB 읽기 전용 확인으로 확정한 quote 4건을 `approved`로 바꾸며, `prod_samsung_fire_direct_medical_202605` snapshot 1건을 추가한다. 이번 단계는 DB write 없이 seed/data/docs만 변경하며, 검증은 `../05_QA_Validation/54_SAMSUNG_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md`에 기록한다. 다음 작업은 운영 DB 백업 후 seed apply PR이다. 적용 후 운영 source-backed active 추천 상품은 8건에서 9건이 된다.
+
+2026-05-31 17:26 KST 기준 삼성화재 실손 baseline 추천 snapshot을 운영 DB에 백업 후 적용했다. 적용 후 `insurance_products=14`, source-backed active 추천 상품은 8건에서 9건으로 늘었고, `insurance_product_sources.review_status=approved`는 9건, `insurance_premium_quotes.review_status=approved`는 32건에서 36건으로 증가했다. 삼성화재 source 1건, quote 4건, product snapshot 1건이 모두 approved/active 상태다. 검증은 `../05_QA_Validation/55_SAMSUNG_FIRE_BASELINE_DB_APPLY_2026_05_31.md`에 기록한다. 다음 작업은 남은 raw/needs_review source 13개의 공식 문서, 매칭 키워드, caveat 정리와 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개 처리다.
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 매칭 키워드 정리 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.
@@ -1241,6 +1243,7 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 - [실손의료보험 조건별 Quote UI 표시 검증](../05_QA_Validation/51_MEDICAL_BASELINE_QUOTE_UI_VERIFICATION_2026_05_31.md)
 - [삼성화재 실손의료보험 상품 전용 문서 재탐색](../05_QA_Validation/53_SAMSUNG_FIRE_MEDICAL_DOCUMENT_REPROBE_2026_05_31.md)
 - [삼성화재 실손 Baseline 추천 Snapshot Seed 검증](../05_QA_Validation/54_SAMSUNG_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md)
+- [삼성화재 실손 Baseline 추천 Snapshot DB 적용 검증](../05_QA_Validation/55_SAMSUNG_FIRE_BASELINE_DB_APPLY_2026_05_31.md)
 - [데모 보험상품 운영 추천 제거 검증](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md)
 - [데모 보험상품 Archive DB 적용 검증](../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md)
 - [보험상품 매칭 키워드 정리 정책](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md)
