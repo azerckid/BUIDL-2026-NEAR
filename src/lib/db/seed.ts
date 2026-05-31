@@ -28,6 +28,7 @@ const medicalBaselineSnapshotReviewedAt = DateTime.fromISO("2026-05-31T02:49:00+
 const samsungFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T16:42:00+09:00").toJSDate();
 const shinhanNoRefundSnapshotReviewedAt = DateTime.fromISO("2026-05-31T18:09:00+09:00").toJSDate();
 const nhFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T19:49:00+09:00").toJSDate();
+const meritzFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T21:39:00+09:00").toJSDate();
 
 type InsuranceCarrierSeed = typeof insuranceCarriers.$inferInsert;
 type InsuranceProductSourceSeed = typeof insuranceProductSources.$inferInsert;
@@ -117,6 +118,10 @@ const MEDICAL_BASELINE_APPROVED_QUOTE_IDS = [
   "quote_src_nh_fire_medical_202605_age34_female_b141dc7c5700",
   "quote_src_nh_fire_medical_202605_age44_male_26615bdcb076",
   "quote_src_nh_fire_medical_202605_age44_female_58dcc145a6b7",
+  "quote_src_meritz_direct_medical_202605_age34_male_60456bed3452",
+  "quote_src_meritz_direct_medical_202605_age34_female_b141dc7c5700",
+  "quote_src_meritz_direct_medical_202605_age44_male_26615bdcb076",
+  "quote_src_meritz_direct_medical_202605_age44_female_58dcc145a6b7",
 ];
 
 const SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS = [
@@ -1151,6 +1156,51 @@ const SOURCE_AWARE_DOCUMENTS: InsuranceSourceDocumentSeed[] = [
     createdAt: now,
   },
   {
+    id: "doc_meritz_direct_medical_terms_202605",
+    productSourceId: "src_meritz_direct_medical_202605",
+    carrierId: "carrier_meritz_fire",
+    sourceType: "carrier_disclosure",
+    documentType: "terms",
+    sourceUrl: "https://store.meritzfire.com/health-and-kids/direct-medicalInfo.do",
+    fileHashSha256: "bbbb86eb265233a01b71b0cc298748267531839a39bcf8aec79d442475274c0c",
+    contentType: "application/pdf;charset=UTF-8",
+    contentLengthBytes: 2776323,
+    retrievedAt: meritzFireMedicalSnapshotReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
+  {
+    id: "doc_meritz_direct_medical_business_method_202605",
+    productSourceId: "src_meritz_direct_medical_202605",
+    carrierId: "carrier_meritz_fire",
+    sourceType: "carrier_disclosure",
+    documentType: "business_method",
+    sourceUrl: "https://store.meritzfire.com/health-and-kids/direct-medicalInfo.do",
+    fileHashSha256: "2331cd4a07e8fabd5977e6a715a174d822a9ac495f5b956335d600b75b43d280",
+    contentType: "application/pdf;charset=UTF-8",
+    contentLengthBytes: 95371,
+    retrievedAt: meritzFireMedicalSnapshotReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
+  {
+    id: "doc_meritz_direct_medical_summary_202605",
+    productSourceId: "src_meritz_direct_medical_202605",
+    carrierId: "carrier_meritz_fire",
+    sourceType: "carrier_disclosure",
+    documentType: "summary",
+    sourceUrl: "https://store.meritzfire.com/health-and-kids/direct-medicalInfo.do",
+    fileHashSha256: "6b02df741bb07a565d5315c3a5ce1655bcd56bdded61e9531c1bcaad60ce661e",
+    contentType: "application/pdf;charset=UTF-8",
+    contentLengthBytes: 127920,
+    retrievedAt: meritzFireMedicalSnapshotReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
+  {
     id: "doc_samsung_life_hospital_health_terms_202601",
     productSourceId: "src_samsung_life_hospital_health_202601",
     carrierId: "carrier_samsung_life",
@@ -1754,6 +1804,38 @@ const NH_FIRE_MEDICAL_CAVEATS = [
   "대표 문서는 약관 1건이며, 상품요약서와 사업방법서 hash는 아직 별도 row로 확보하지 않았다.",
 ];
 
+const MERITZ_DIRECT_MEDICAL_DETAILS = {
+  ...MEDICAL_BASELINE_COMMON_DETAILS,
+  representative_premium_krw: 7103,
+  approved_quote_condition_premiums_krw: {
+    age34_male: 6643,
+    age34_female: 7103,
+    age44_male: 8635,
+    age44_female: 10519,
+  },
+  document_evidence: {
+    carrier_match_score: 1,
+    document_types: ["terms", "business_method", "summary"],
+    official_product_page: "https://store.meritzfire.com/health-and-kids/direct-medicalInfo.do",
+    pdf_list_api: "https://store.meritzfire.com/json.smart",
+    product_code: "6ADGE",
+    document_hash_sha256: [
+      "bbbb86eb265233a01b71b0cc298748267531839a39bcf8aec79d442475274c0c",
+      "2331cd4a07e8fabd5977e6a715a174d822a9ac495f5b956335d600b75b43d280",
+      "6b02df741bb07a565d5315c3a5ce1655bcd56bdded61e9531c1bcaad60ce661e",
+    ],
+    citation_policy:
+      "session-bound encrypted fileDownload URL은 저장하지 않고 공식 상품 페이지와 adapter 재실행으로 hash를 재검증한다.",
+  },
+};
+
+const MERITZ_DIRECT_MEDICAL_CAVEATS = [
+  ...MEDICAL_BASELINE_COMMON_CAVEATS,
+  "메리츠화재 PDF 다운로드는 session-bound encrypted URL이므로 공식 상품 페이지와 adapter 재검증 절차를 출처 caveat로 표시한다.",
+  "사업방법서와 상품요약서 파일명에는 2408이 포함되지만 2026-05-31 기준 공식 상품 페이지의 6ADGE 문서 목록에서 같은 상품명으로 제공된 파일이다.",
+  "대표 문서는 약관이며, 사업방법서와 상품요약서 hash도 source evidence로 함께 보존한다.",
+];
+
 const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = [
   {
     id: "src_shinhan_life_sol_cancer_202601",
@@ -2004,6 +2086,29 @@ const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = 
       reviewStatus: "approved",
       reviewedAt: nhFireMedicalSnapshotReviewedAt,
       lastVerifiedAt: nhFireMedicalSnapshotReviewedAt,
+      updatedAt: now,
+    },
+  },
+  {
+    id: "src_meritz_direct_medical_202605",
+    values: {
+      officialProductUrl: "https://store.meritzfire.com/health-and-kids/direct-medicalInfo.do",
+      saleStatus: "active",
+      saleStatusEvidence:
+        "메리츠화재 공식 상품 페이지의 6ADGE PDF 목록 API에서 약관/사업방법서/상품요약서 3건의 SHA-256을 확인했고 보험다모아 조건별 quote 4건을 검수했다.",
+      monthlyPremiumKrw: 7103,
+      premiumText: "7,103원",
+      premiumBasis: MEDICAL_BASELINE_PREMIUM_BASIS,
+      renewalType: "renewable",
+      coverageSummary:
+        "질병과 상해 치료비를 폭넓게 보상하는 메리츠화재 실손의료보험 baseline 상품.",
+      exclusionsSummary:
+        "자기부담금, 급여/비급여, 보장 한도, 갱신 조건, session-bound PDF citation caveat를 표시한다.",
+      coverageDetailsJson: JSON.stringify(MERITZ_DIRECT_MEDICAL_DETAILS),
+      coverageCaveatsJson: JSON.stringify(MERITZ_DIRECT_MEDICAL_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: meritzFireMedicalSnapshotReviewedAt,
+      lastVerifiedAt: meritzFireMedicalSnapshotReviewedAt,
       updatedAt: now,
     },
   },
@@ -2268,6 +2373,30 @@ const FIRST_RECOMMENDATION_SNAPSHOT_PRODUCTS: InsuranceProductSeed[] = [
     coverageCaveatsJson: JSON.stringify(NH_FIRE_MEDICAL_CAVEATS),
     sourceCheckedAt: nhFireMedicalSnapshotReviewedAt,
     primarySourceDocumentId: "doc_nh_fire_medical_terms_202605",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
+  {
+    id: "prod_meritz_direct_medical_202605",
+    productSourceId: "src_meritz_direct_medical_202605",
+    name: "메리츠 다이렉트 실손의료비보험",
+    provider: "메리츠화재",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(7103),
+    monthlyPremiumKrw: 7103,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: MEDICAL_BASELINE_PREMIUM_BASIS,
+    coverageCategory: "medical_expense" as const,
+    riskTargets: JSON.stringify([]),
+    matchingStrategy: "baseline" as const,
+    coverageDetailsJson: JSON.stringify(MERITZ_DIRECT_MEDICAL_DETAILS),
+    coverageCaveatsJson: JSON.stringify(MERITZ_DIRECT_MEDICAL_CAVEATS),
+    sourceCheckedAt: meritzFireMedicalSnapshotReviewedAt,
+    primarySourceDocumentId: "doc_meritz_direct_medical_terms_202605",
     catalogStatus: "approved" as const,
     discountEligible: 0,
     originalPremiumUsdc: null,
