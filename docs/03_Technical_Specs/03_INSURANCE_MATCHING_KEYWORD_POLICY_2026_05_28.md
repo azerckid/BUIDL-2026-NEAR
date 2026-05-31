@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-05-31 23:03
+> Last Updated: 2026-05-31 23:25
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.30
+- **상태**: Draft v1.31
 - **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준, 추천 snapshot 발행 기준
 - **결론**: 이 프로젝트에서 말하는 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DB에 보험상품을 넣기 전에 DNA risk target과 매칭할 수 있도록 `coverage_category`, `risk_targets`, `matching_strategy`, `coverage_caveats_json`을 정리하는 내부 데이터 정규화 작업이다.
 
@@ -243,7 +243,9 @@ DNA 분석 결과
 
 2026-05-31 23:03 KST 기준 흥국화재 source document seed, quote approval, baseline snapshot seed를 준비했다. 적용 시 `doc_heungkuk_fire_direct_medical_terms_202605`, quote 4건, `prod_heungkuk_fire_direct_medical_202605`가 운영 추천 경로로 들어가며 source-backed active 추천 상품은 12건에서 13건으로 늘어난다. 이번 단계는 DB write 없이 seed/data/docs만 변경하고, 운영 반영은 백업 후 apply PR에서 진행한다. 검증은 `../05_QA_Validation/71_HEUNGKUK_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md`에 둔다.
 
-다음 단계는 흥국화재 seed apply PR이거나, 미래에셋생명, 한화손보 adapter를 순차 추가해 공식 문서 hash를 확보하는 것이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
+2026-05-31 23:25 KST 기준 흥국화재 실손 baseline 추천 snapshot을 운영 DB에 적용했다. source-backed active 추천 상품은 12건에서 13건, approved quote는 48건에서 52건, baseline active product는 6건에서 7건이 됐다. 검증은 `../05_QA_Validation/72_HEUNGKUK_FIRE_BASELINE_DB_APPLY_2026_05_31.md`에 둔다.
+
+다음 단계는 Dashboard와 상담 AI에서 흥국화재 카드 설명을 확인하거나, 미래에셋생명, 한화손보 adapter를 순차 추가해 공식 문서 hash를 확보하는 것이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
 
 ---
 
@@ -314,3 +316,4 @@ DNA 분석 결과
 - **QA_Validation**: [Heungkuk Fire Disclosure Adapter Probe](../05_QA_Validation/69_HEUNGKUK_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md) - 흥국화재 실손의료비보험 공식 약관 hash 검증
 - **QA_Validation**: [Heungkuk Fire Medical Matching Review](../05_QA_Validation/70_HEUNGKUK_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md) - 흥국화재 실손 baseline 매칭 키워드 검수
 - **QA_Validation**: [Heungkuk Fire Baseline Snapshot Seed](../05_QA_Validation/71_HEUNGKUK_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 흥국화재 실손 baseline 추천 snapshot seed 검증
+- **QA_Validation**: [Heungkuk Fire Baseline DB Apply](../05_QA_Validation/72_HEUNGKUK_FIRE_BASELINE_DB_APPLY_2026_05_31.md) - 흥국화재 실손 baseline 추천 snapshot 운영 DB 적용 검증
