@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-06-01 01:57
+> Last Updated: 2026-06-01 02:09
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-06-01 (한화손보 암보험 adapter)
+- **최종 수정일**: 2026-06-01 (한화손보 암보험 matching review)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.61
+- **상태**: Draft v3.62
 - **phase**: Phase 2
 
 ---
@@ -68,7 +68,7 @@
 
 현재 의미는 “실제 보험상품 데이터 기반 추천”과 “무로그인·무결제 테스트 완주”를 동시에 검증하는 것이다. Test Pilot happy-path는 완료됐고, 다음 작업은 아래 순서로 진행한다.
 
-여기서 현재 추천 상품 15개는 “수집한 전체 데이터 수”가 아니라 “사용자 추천 화면에 노출 가능한 최종 snapshot 수”다. 현재까지 확보한 기반 데이터는 보험다모아 P0 샘플 56개, source catalog 후보 22개, 공식 문서 row 33개, 조건별 보험료 quote row 92개이며, 이 중 원천 근거, 매칭 키워드, caveat, approved quote를 통과해 active 추천으로 발행된 상품이 15개다. 미래에셋생명까지 적용된 조건별 보험료 approved row는 60건이다. 구조화된 source 후보 22개 중 approved는 15개, 아직 남은 non-approved source는 7개다. 2026-06-01 01:57 KST 기준 한화손보 암보험 약관 hash 1건은 crawler 산출물로 확보했지만 DB/추천 snapshot에는 아직 반영하지 않았다.
+여기서 현재 추천 상품 15개는 “수집한 전체 데이터 수”가 아니라 “사용자 추천 화면에 노출 가능한 최종 snapshot 수”다. 현재까지 확보한 기반 데이터는 보험다모아 P0 샘플 56개, source catalog 후보 22개, 공식 문서 row 33개, 조건별 보험료 quote row 92개이며, 이 중 원천 근거, 매칭 키워드, caveat, approved quote를 통과해 active 추천으로 발행된 상품이 15개다. 미래에셋생명까지 적용된 조건별 보험료 approved row는 60건이다. 구조화된 source 후보 22개 중 approved는 15개, 아직 남은 non-approved source는 7개다. 2026-06-01 02:09 KST 기준 한화손보 암보험 약관 hash 1건과 매칭 키워드/caveat 정리는 완료했지만 DB/추천 snapshot에는 아직 반영하지 않았다.
 
 | 순서 | 트랙 | 작업 | 완료 기준 |
 |---:|---|---|---|
@@ -160,6 +160,8 @@
 2026-06-01 01:08 KST 기준 미래에셋생명 온라인 암보험 2건의 추천 snapshot을 운영 DB에 적용했다. 백업 후 `src/lib/db/seed.ts`를 실행해 source document 6건을 추가하고, source 2건을 `approved`로 승격하고, quote 8건을 `approved`로 바꾸며, product snapshot 2건을 active로 발행했다. 운영 DB 기준 source-backed active 추천 상품은 15건, oncology active 상품은 8건, approved quote는 60건이다. 검증은 `../05_QA_Validation/76_MIRAEASSET_LIFE_CANCER_DB_APPLY_2026_06_01.md`에 기록한다. 다음 작업은 Dashboard와 상담 AI에서 미래에셋생명 카드 설명을 수동 확인하거나, 한화손보 adapter를 순차 보강하는 것이다.
 
 2026-06-01 01:57 KST 기준 한화손보 다이렉트 내가고른 암보험 약관 adapter를 보강했다. 공식 다이렉트 화면의 `main.js`에서 `downPdf('/clapdf/LA02969001.pdf')` 호출을 확인하고, 브라우저 User-Agent와 Referer를 포함해 공식 PDF를 hash했다. 신규 SHA-256은 `ca8dd26a25c1aa60cefb4c298c8df843f8a35d5bf0ff758a0624e37ddaf15ca0`다. 이번 단계는 DB write 없이 crawler/data/docs만 변경했으며, 운영 active 추천 상품은 15건으로 유지된다. 검증은 `../05_QA_Validation/77_HANWHA_GENERAL_CANCER_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md`에 기록한다. 다음 작업은 한화손보 암보험 문서 variant와 매칭 키워드/caveat를 정리하는 것이다.
+
+2026-06-01 02:09 KST 기준 한화손보 다이렉트 내가고른 암보험 문서 variant와 매칭 키워드/caveat 정리를 완료했다. 약관 `LA02969001.pdf`는 상품명, 개정일 `2026.04.01`, SHA-256이 확인됐고, source는 `coverage_category=oncology`, `matching_strategy=risk_target`, 공통 5개 암 risk target 기준의 snapshot 후보가 됐다. 숫자 quote 4건도 있으므로 다음 작업은 source document 1건, quote 4건 approval, active product snapshot 1건을 seed에 준비하는 것이다. 이번 단계는 data/docs만 변경했으며 운영 active 추천 상품은 15건으로 유지된다. 검증은 `../05_QA_Validation/78_HANWHA_GENERAL_CANCER_MATCHING_REVIEW_2026_06_01.md`에 기록한다.
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 매칭 키워드 정리 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.
@@ -1310,6 +1312,7 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 - [미래에셋생명 온라인 암보험 추천 Snapshot Seed 검증](../05_QA_Validation/75_MIRAEASSET_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md)
 - [미래에셋생명 온라인 암보험 추천 Snapshot DB 적용 검증](../05_QA_Validation/76_MIRAEASSET_LIFE_CANCER_DB_APPLY_2026_06_01.md)
 - [한화손보 암보험 공시 Adapter Probe 검증](../05_QA_Validation/77_HANWHA_GENERAL_CANCER_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md)
+- [한화손보 암보험 매칭 검수](../05_QA_Validation/78_HANWHA_GENERAL_CANCER_MATCHING_REVIEW_2026_06_01.md)
 - [데모 보험상품 운영 추천 제거 검증](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md)
 - [데모 보험상품 Archive DB 적용 검증](../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md)
 - [보험상품 매칭 키워드 정리 정책](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md)

@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-06-01 01:57
+> Last Updated: 2026-06-01 02:09
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.36
+- **상태**: Draft v1.37
 - **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준, 추천 snapshot 발행 기준
 - **결론**: 이 프로젝트에서 말하는 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DB에 보험상품을 넣기 전에 DNA risk target과 매칭할 수 있도록 `coverage_category`, `risk_targets`, `matching_strategy`, `coverage_caveats_json`을 정리하는 내부 데이터 정규화 작업이다.
 
@@ -255,7 +255,9 @@ DNA 분석 결과
 
 2026-06-01 01:57 KST 기준 한화손보 다이렉트 내가고른 암보험 약관 PDF 1건을 공식 JS download path 기준으로 hash했다. 신규 hash는 `ca8dd26a25c1aa60cefb4c298c8df843f8a35d5bf0ff758a0624e37ddaf15ca0`이며, 이번 단계는 crawler/data/docs만 변경한다. 한화손보 암보험은 아직 `raw`이므로 다음 PR에서 문서 variant, `coverage_category=oncology`, `matching_strategy=risk_target`, caveat를 정리한 뒤 seed 발행 여부를 결정한다. 검증은 `../05_QA_Validation/77_HANWHA_GENERAL_CANCER_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md`에 둔다.
 
-다음 단계는 한화손보 암보험 문서 variant와 매칭 키워드/caveat를 정리하는 것이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
+2026-06-01 02:09 KST 기준 한화손보 다이렉트 내가고른 암보험을 `coverage_category=oncology`, `matching_strategy=risk_target`, 공통 5개 암 risk target 기준의 snapshot 후보로 정리했다. 약관은 선택특약형 상품, 암 90일 면책, 1년 미만 50% 감액, 4대유사암 별도 급부, 갱신형 특약 보험료 변동, 납입면제 제외, 해약환급금 caveat를 명시한다. 숫자 KRW quote 4건이 있으므로 다음 seed PR에서 source document 1건, quote approval 4건, active `insurance_products` snapshot 1건을 준비할 수 있다. 검증은 `../05_QA_Validation/78_HANWHA_GENERAL_CANCER_MATCHING_REVIEW_2026_06_01.md`에 둔다.
+
+다음 단계는 한화손보 암보험 source document seed, quote approval, active product snapshot을 준비하는 것이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
 
 ---
 
@@ -332,3 +334,4 @@ DNA 분석 결과
 - **QA_Validation**: [Mirae Asset Life Cancer Snapshot Seed](../05_QA_Validation/75_MIRAEASSET_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md) - 미래에셋생명 온라인 암보험 추천 snapshot seed 검증
 - **QA_Validation**: [Mirae Asset Life Cancer DB Apply](../05_QA_Validation/76_MIRAEASSET_LIFE_CANCER_DB_APPLY_2026_06_01.md) - 미래에셋생명 온라인 암보험 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [Hanwha General Cancer Disclosure Adapter Probe](../05_QA_Validation/77_HANWHA_GENERAL_CANCER_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md) - 한화손보 암보험 공식 약관 hash 검증
+- **QA_Validation**: [Hanwha General Cancer Matching Review](../05_QA_Validation/78_HANWHA_GENERAL_CANCER_MATCHING_REVIEW_2026_06_01.md) - 한화손보 암보험 매칭 키워드와 caveat 검수

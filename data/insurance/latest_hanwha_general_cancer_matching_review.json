@@ -1,0 +1,140 @@
+{
+  "metadata": {
+    "reviewed_at": "2026-06-01T02:09:00+09:00",
+    "timezone": "Asia/Seoul",
+    "reviewer": "codex_matching_keyword_review",
+    "output_version": "1.0",
+    "scope": "Hanwha General direct cancer insurance variant and matching keyword review",
+    "input_disclosure_probe": "data/insurance/latest_hanwha_general_cancer_disclosure_adapter_probe.json",
+    "input_quote_rows": "data/insurance/latest_premium_quote_rows_apply.json",
+    "input_seed": "src/lib/db/seed.ts",
+    "official_pdf_text_extracted": true,
+    "db_read_only_check_performed": false,
+    "db_write_performed": false,
+    "seed_file_changed": false,
+    "recommendation_snapshot_changed": false
+  },
+  "summary": {
+    "source_candidates_reviewed": 1,
+    "matching_ready_sources": 1,
+    "snapshot_price_ready_sources": 1,
+    "official_document_unique_hashes": 1,
+    "shared_document_sources": [],
+    "quote_rows_reviewed": 4,
+    "numeric_quote_rows": 4,
+    "active_recommendation_snapshot_rows_added": 0,
+    "recommended_next_snapshot_sources": [
+      "src_hanwha_general_direct_cancer_202604"
+    ]
+  },
+  "risk_target_policy": {
+    "coverage_category": "oncology",
+    "matching_strategy": "risk_target",
+    "recommended_risk_targets": [
+      "pancreatic_cancer",
+      "liver_cancer",
+      "lung_cancer",
+      "breast_cancer",
+      "colon_cancer"
+    ],
+    "reason": "The terms define cancer diagnosis, similar cancer, treatment, surgery, hospitalization, and advanced cancer treatment benefits. The current DNA risk key dictionary supports the five oncology targets above. Four similar cancers, thyroid cancer, skin cancer, in-situ cancer, borderline tumor, CAR-T, proton radiation, IMRT, and Da Vinci benefits remain caveats or optional benefit terms rather than direct risk_targets."
+  },
+  "official_document_review": {
+    "terms_title": "한화 다이렉트 내가고른 암보험 무배당2604",
+    "document_revision_date": "2026-04-01",
+    "file_name": "LA02969001.pdf",
+    "document_type": "terms",
+    "document_url": "https://www.hanwhadirect.com/clapdf/LA02969001.pdf",
+    "sha256": "ca8dd26a25c1aa60cefb4c298c8df843f8a35d5bf0ff758a0624e37ddaf15ca0",
+    "content_length_bytes": 2071737,
+    "variant_decision": "The official PDF title, revision date, and product name match the quote-only source. No separate summary or business-method hash was found in this adapter pass, so the next seed PR should add one terms document row first and keep summary/business_method absent until official URLs are confirmed."
+  },
+  "decisions": [
+    {
+      "provider": "한화손보",
+      "product_source_id": "src_hanwha_general_direct_cancer_202604",
+      "carrier_id": "carrier_hanwha_general",
+      "e_insmarket_product_code": "N02C009000016",
+      "raw_product_name": "한화 다이렉트 내가고른 암보험 무배당2604",
+      "current_source_review_status": "raw",
+      "recommended_source_review_status": "needs_review",
+      "recommended_matching_review_status": "matching_ready_snapshot_candidate",
+      "recommended_coverage_category": "oncology",
+      "recommended_matching_strategy": "risk_target",
+      "recommended_risk_targets": [
+        "pancreatic_cancer",
+        "liver_cancer",
+        "lung_cancer",
+        "breast_cancer",
+        "colon_cancer"
+      ],
+      "coverage_details_candidate": {
+        "coverage_category": "oncology",
+        "matching_strategy": "risk_target",
+        "risk_targets": [
+          "pancreatic_cancer",
+          "liver_cancer",
+          "lung_cancer",
+          "breast_cancer",
+          "colon_cancer"
+        ],
+        "primary_benefit_terms": [
+          "암(4대유사암제외)진단비",
+          "4대유사암진단비",
+          "10대고액치료비암진단비"
+        ],
+        "optional_benefit_terms": [
+          "암(4대유사암제외)항암방사선치료비",
+          "암(4대유사암제외)항암약물치료비",
+          "암(특정유사암포함)표적항암약물허가치료비",
+          "암(특정유사암포함)항암양성자방사선치료비",
+          "암(특정유사암포함)항암세기조절방사선치료비",
+          "카티(CAR-T)항암약물허가치료비",
+          "다빈치로봇수술비",
+          "암 직접치료 입원비",
+          "암 수술비"
+        ],
+        "similar_cancer_terms": [
+          "기타피부암",
+          "갑상선암",
+          "제자리암",
+          "경계성종양"
+        ],
+        "variant_terms": [
+          "무배당2604",
+          "약관 개정 2026.04.01",
+          "LA02969001.pdf"
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "공식 약관은 사용자가 가입한 특약별 보험금 지급사유와 미지급사유를 반드시 확인해야 한다고 안내하므로, 추천 UI에는 선택특약형 상품이라는 caveat를 표시한다.",
+        "암(4대유사암제외)진단비는 계약일부터 90일 이하에는 지급금액이 없고, 90일 초과 1년 미만에는 보험가입금액의 50%, 1년 이상에는 보험가입금액을 기준으로 지급한다.",
+        "4대유사암은 기타피부암, 갑상선암, 제자리암, 경계성종양으로 정의되며 일반암과 별도 급부로 표시한다.",
+        "4대유사암진단비는 세부보장별로 계약일부터 1년 미만 보험가입금액 50%, 1년 이상 보험가입금액 기준이다.",
+        "특정유사암은 특별약관에서 기타피부암과 갑상선암으로 정의되며, 표적항암, 양성자방사선, 세기조절방사선, 재활, 호스피스, 다빈치로봇수술 등은 가입 특약별 조건을 따른다.",
+        "갱신형 특별약관은 10년 갱신주기와 갱신일 현재 기초율을 적용하므로 나이 증가와 기초율 변동에 따라 보험료가 인상 또는 인하될 수 있다.",
+        "보험료 납입면제는 암 진단확정 시 적용되지만 기타피부암, 갑상선암, 제자리암, 경계성종양은 제외되고, 갱신형 특별약관은 납입면제 대상에서 제외된다.",
+        "해약환급금은 납입한 보험료보다 적거나 없을 수 있다."
+      ],
+      "quote_review": {
+        "quote_rows": 4,
+        "numeric_quote_rows": 4,
+        "condition_premiums_krw": {
+          "age34_male": 13721,
+          "age34_female": 12204,
+          "age44_male": 17151,
+          "age44_female": 13018
+        },
+        "quote_review_status": "numeric_ready_needs_approval"
+      },
+      "snapshot_readiness": "candidate_after_source_document_seed_and_quote_approval_pr",
+      "next_action": "Prepare one terms source document seed row, approve four numeric quote rows after actual DB ID confirmation, and add one active oncology insurance_products snapshot."
+    }
+  ],
+  "next_actions": [
+    "Add one source document seed row for the official terms PDF.",
+    "Approve four numeric quote rows after confirming actual DB IDs.",
+    "Prepare one oncology insurance_products snapshot with representative age34_female KRW premium and fixed demo USDC conversion.",
+    "Keep source review_status raw until the seed PR is applied to DB."
+  ]
+}
