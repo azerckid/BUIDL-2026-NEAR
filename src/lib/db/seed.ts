@@ -30,6 +30,7 @@ const shinhanNoRefundSnapshotReviewedAt = DateTime.fromISO("2026-05-31T18:09:00+
 const nhFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T19:49:00+09:00").toJSDate();
 const meritzFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T21:39:00+09:00").toJSDate();
 const heungkukFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T22:34:00+09:00").toJSDate();
+const miraeassetLifeCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T00:48:00+09:00").toJSDate();
 
 type InsuranceCarrierSeed = typeof insuranceCarriers.$inferInsert;
 type InsuranceProductSourceSeed = typeof insuranceProductSources.$inferInsert;
@@ -134,6 +135,17 @@ const SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS = [
   "quote_src_shinhan_life_sol_cancer_202601_age34_male_0d807392cd7d",
   "quote_src_shinhan_life_sol_cancer_202601_age44_female_88d1cf1a2fad",
   "quote_src_shinhan_life_sol_cancer_202601_age44_male_dbd72b264aa2",
+];
+
+const MIRAEASSET_LIFE_CANCER_APPROVED_QUOTE_IDS = [
+  "quote_src_miraeasset_online_cancer_basic_202605_age34_female_1015b0165c0e",
+  "quote_src_miraeasset_online_cancer_basic_202605_age34_male_d2e77ecf4a0c",
+  "quote_src_miraeasset_online_cancer_basic_202605_age44_female_9cf2588db68b",
+  "quote_src_miraeasset_online_cancer_basic_202605_age44_male_99a3f15d59fc",
+  "quote_src_miraeasset_online_cancer_no_refund_202605_age34_female_1015b0165c0e",
+  "quote_src_miraeasset_online_cancer_no_refund_202605_age34_male_d2e77ecf4a0c",
+  "quote_src_miraeasset_online_cancer_no_refund_202605_age44_female_9cf2588db68b",
+  "quote_src_miraeasset_online_cancer_no_refund_202605_age44_male_99a3f15d59fc",
 ];
 
 function toFirstSnapshotUsdc(monthlyPremiumKrw: number) {
@@ -1222,6 +1234,102 @@ const SOURCE_AWARE_DOCUMENTS: InsuranceSourceDocumentSeed[] = [
     createdAt: now,
   },
   {
+    id: "doc_miraeasset_online_cancer_basic_summary_202604",
+    productSourceId: "src_miraeasset_online_cancer_basic_202605",
+    carrierId: "carrier_miraeasset_life",
+    sourceType: "carrier_disclosure",
+    documentType: "summary",
+    sourceUrl:
+      "https://life.miraeasset.com/micro/cmmnFileDown.do?pathType=gongci_u1&fileName=%EC%98%A8%EB%9D%BC%EC%9D%B8+%EC%95%94%EB%B3%B4%ED%97%98+%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%83%81%ED%92%88%EC%9A%94%EC%95%BD%EC%84%9C_20260401.pdf&orgFileName=%EC%98%A8%EB%9D%BC%EC%9D%B8+%EC%95%94%EB%B3%B4%ED%97%98+%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%83%81%ED%92%88%EC%9A%94%EC%95%BD%EC%84%9C_20260401.pdf&filePath=%2Fuploadwas%2Flife%2F%2Fhtml%2Fgongci%2Fupload%2F1%2F",
+    fileHashSha256: "133a9d91d3547e04ed25717275ce350ae0988c480ddde008346dd109255e722f",
+    contentType: "application/pdf;charset=ISO-8859-1",
+    contentLengthBytes: 3945603,
+    retrievedAt: miraeassetLifeCancerSnapshotReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
+  {
+    id: "doc_miraeasset_online_cancer_basic_terms_202605",
+    productSourceId: "src_miraeasset_online_cancer_basic_202605",
+    carrierId: "carrier_miraeasset_life",
+    sourceType: "carrier_disclosure",
+    documentType: "terms",
+    sourceUrl:
+      "https://life.miraeasset.com/micro/cmmnFileDown.do?pathType=gongci_u1&fileName=%EC%98%A8%EB%9D%BC%EC%9D%B8+%EC%95%94%EB%B3%B4%ED%97%98+%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%95%BD%EA%B4%80_20260501.pdf&orgFileName=%EC%98%A8%EB%9D%BC%EC%9D%B8+%EC%95%94%EB%B3%B4%ED%97%98+%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%95%BD%EA%B4%80_20260501.pdf&filePath=%2Fuploadwas%2Flife%2F%2Fhtml%2Fgongci%2Fupload%2F1%2F",
+    fileHashSha256: "8d4a162186b510c576e7333e4ae75e72b6c785a089798688d0d490e267c14378",
+    contentType: "application/pdf;charset=ISO-8859-1",
+    contentLengthBytes: 11732601,
+    retrievedAt: miraeassetLifeCancerSnapshotReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
+  {
+    id: "doc_miraeasset_online_cancer_basic_business_202602",
+    productSourceId: "src_miraeasset_online_cancer_basic_202605",
+    carrierId: "carrier_miraeasset_life",
+    sourceType: "carrier_disclosure",
+    documentType: "business_method",
+    sourceUrl:
+      "https://life.miraeasset.com/micro/cmmnFileDown.do?pathType=gongci_u1&fileName=%EC%98%A8%EB%9D%BC%EC%9D%B8+%EC%95%94%EB%B3%B4%ED%97%98+%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%82%AC%EC%97%85%EB%B0%A9%EB%B2%95%EC%84%9C_20260201.pdf&orgFileName=%EC%98%A8%EB%9D%BC%EC%9D%B8+%EC%95%94%EB%B3%B4%ED%97%98+%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%82%AC%EC%97%85%EB%B0%A9%EB%B2%95%EC%84%9C_20260201.pdf&filePath=%2Fuploadwas%2Flife%2F%2Fhtml%2Fgongci%2Fupload%2F1%2F",
+    fileHashSha256: "be8d5a3ec858875dbeb06c4b467ba4633928cb74475aa2cf159ed53ad508b71f",
+    contentType: "application/pdf;charset=ISO-8859-1",
+    contentLengthBytes: 2676313,
+    retrievedAt: miraeassetLifeCancerSnapshotReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
+  {
+    id: "doc_miraeasset_online_cancer_no_refund_summary_202604",
+    productSourceId: "src_miraeasset_online_cancer_no_refund_202605",
+    carrierId: "carrier_miraeasset_life",
+    sourceType: "carrier_disclosure",
+    documentType: "summary",
+    sourceUrl:
+      "https://life.miraeasset.com/micro/cmmnFileDown.do?pathType=gongci_u1&fileName=%EC%98%A8%EB%9D%BC%EC%9D%B8+%EC%95%94%EB%B3%B4%ED%97%98+%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%83%81%ED%92%88%EC%9A%94%EC%95%BD%EC%84%9C_20260401.pdf&orgFileName=%EC%98%A8%EB%9D%BC%EC%9D%B8+%EC%95%94%EB%B3%B4%ED%97%98+%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%83%81%ED%92%88%EC%9A%94%EC%95%BD%EC%84%9C_20260401.pdf&filePath=%2Fuploadwas%2Flife%2F%2Fhtml%2Fgongci%2Fupload%2F1%2F",
+    fileHashSha256: "133a9d91d3547e04ed25717275ce350ae0988c480ddde008346dd109255e722f",
+    contentType: "application/pdf;charset=ISO-8859-1",
+    contentLengthBytes: 3945603,
+    retrievedAt: miraeassetLifeCancerSnapshotReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
+  {
+    id: "doc_miraeasset_online_cancer_no_refund_terms_202605",
+    productSourceId: "src_miraeasset_online_cancer_no_refund_202605",
+    carrierId: "carrier_miraeasset_life",
+    sourceType: "carrier_disclosure",
+    documentType: "terms",
+    sourceUrl:
+      "https://life.miraeasset.com/micro/cmmnFileDown.do?pathType=gongci_u1&fileName=%EC%98%A8%EB%9D%BC%EC%9D%B8+%EC%95%94%EB%B3%B4%ED%97%98+%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%95%BD%EA%B4%80_20260501.pdf&orgFileName=%EC%98%A8%EB%9D%BC%EC%9D%B8+%EC%95%94%EB%B3%B4%ED%97%98+%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%95%BD%EA%B4%80_20260501.pdf&filePath=%2Fuploadwas%2Flife%2F%2Fhtml%2Fgongci%2Fupload%2F1%2F",
+    fileHashSha256: "8d4a162186b510c576e7333e4ae75e72b6c785a089798688d0d490e267c14378",
+    contentType: "application/pdf;charset=ISO-8859-1",
+    contentLengthBytes: 11732601,
+    retrievedAt: miraeassetLifeCancerSnapshotReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
+  {
+    id: "doc_miraeasset_online_cancer_no_refund_business_202602",
+    productSourceId: "src_miraeasset_online_cancer_no_refund_202605",
+    carrierId: "carrier_miraeasset_life",
+    sourceType: "carrier_disclosure",
+    documentType: "business_method",
+    sourceUrl:
+      "https://life.miraeasset.com/micro/cmmnFileDown.do?pathType=gongci_u1&fileName=%EC%98%A8%EB%9D%BC%EC%9D%B8+%EC%95%94%EB%B3%B4%ED%97%98+%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%82%AC%EC%97%85%EB%B0%A9%EB%B2%95%EC%84%9C_20260201.pdf&orgFileName=%EC%98%A8%EB%9D%BC%EC%9D%B8+%EC%95%94%EB%B3%B4%ED%97%98+%EB%AC%B4%EB%B0%B0%EB%8B%B9_%EC%82%AC%EC%97%85%EB%B0%A9%EB%B2%95%EC%84%9C_20260201.pdf&filePath=%2Fuploadwas%2Flife%2F%2Fhtml%2Fgongci%2Fupload%2F1%2F",
+    fileHashSha256: "be8d5a3ec858875dbeb06c4b467ba4633928cb74475aa2cf159ed53ad508b71f",
+    contentType: "application/pdf;charset=ISO-8859-1",
+    contentLengthBytes: 2676313,
+    retrievedAt: miraeassetLifeCancerSnapshotReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
+  {
     id: "doc_samsung_life_hospital_health_terms_202601",
     productSourceId: "src_samsung_life_hospital_health_202601",
     carrierId: "carrier_samsung_life",
@@ -1547,6 +1655,94 @@ const SHINHAN_NO_REFUND_CANCER_CAVEATS = [
   "기타피부암, 중증 이외 갑상선암, 제자리암, 경계성종양, 대장점막내암, 비침습방광암은 소액암 급부로 구분된다.",
   "해약환급금 미지급형은 보험료 납입기간 중 해지 시 해약환급금이 없다.",
   "대표 보험료는 보험다모아 age34_female 조건이며 사용자 실제 조건에 따라 달라질 수 있다.",
+];
+
+const MIRAEASSET_LIFE_CANCER_COMMON_DETAILS = {
+  coverage_category: "oncology",
+  matching_strategy: "risk_target",
+  risk_targets: ONCOLOGY_RISK_TARGETS,
+  primary_benefit_terms: [
+    "암 진단보험금",
+    "일반암",
+    "여성유방암",
+    "전립선암",
+    "기타피부암",
+    "갑상선암",
+    "대장점막내암",
+    "비침습방광암",
+    "제자리암",
+    "경계성종양",
+  ],
+  quote_review_status: "approved",
+  quote_source_type: "e_insmarket",
+  representative_condition_id: "age34_female",
+  document_evidence: {
+    carrier_match_score: 1,
+    terms_title: "온라인 암보험 무배당 [기본형/해약환급금이 없는 유형]",
+    product_codes: ["21279", "21280"],
+    shared_document_hashes: [
+      "133a9d91d3547e04ed25717275ce350ae0988c480ddde008346dd109255e722f",
+      "8d4a162186b510c576e7333e4ae75e72b6c785a089798688d0d490e267c14378",
+      "be8d5a3ec858875dbeb06c4b467ba4633928cb74475aa2cf159ed53ad508b71f",
+    ],
+  },
+  benefit_notes: {
+    general_cancer:
+      "보험가입금액 1,000만원 기준 계약일부터 2년 미만 500만원, 2년 이후 1,000만원",
+    female_breast_or_prostate_cancer:
+      "보험가입금액 1,000만원 기준 계약일부터 2년 미만 100만원, 2년 이후 200만원",
+    lower_benefit_cancers:
+      "기타피부암, 중증갑상선암 제외 갑상선암, 대장점막내암, 비침습방광암, 제자리암, 경계성종양은 각각 50만원/100만원 기준",
+  },
+  usdc_conversion: {
+    basis: "fixed_demo_rate",
+    krw_per_usdc: FIRST_SNAPSHOT_KRW_PER_USDC,
+    approved_at: "2026-06-01T00:48:00+09:00",
+  },
+};
+
+const MIRAEASSET_LIFE_CANCER_COMMON_CAVEATS = [
+  "약관은 기본형과 해약환급금이 없는 유형을 함께 다루므로 source별 문서 row ID는 분리하되 같은 hash를 공유한다.",
+  "암 보장개시일은 계약일 또는 부활일부터 90일이 지난 날의 다음 날이다.",
+  "보험가입금액 1,000만원 기준 일반암은 계약일부터 2년 미만 500만원, 2년 이후 1,000만원으로 지급금액이 다르다.",
+  "여성유방암 또는 전립선암은 일반암과 별도 급부이며 2년 미만 100만원, 2년 이후 200만원 기준이다.",
+  "기타피부암, 갑상선암(중증갑상선암 제외), 대장점막내암, 비침습방광암, 제자리암, 경계성종양은 각각 50만원/100만원 기준의 별도 급부다.",
+  "기타피부암, 갑상선암(중증갑상선암 제외), 대장점막내암, 비침습방광암, 제자리암, 경계성종양 진단은 보험료 납입면제 대상이 아니다.",
+  "대표 보험료는 보험다모아 age34_female 조건이며 사용자 실제 조건에 따라 달라질 수 있다.",
+];
+
+const MIRAEASSET_LIFE_CANCER_BASIC_DETAILS = {
+  ...MIRAEASSET_LIFE_CANCER_COMMON_DETAILS,
+  variant_terms: ["기본형", "상품코드 21279"],
+  representative_premium_krw: 4510,
+  approved_quote_condition_premiums_krw: {
+    age34_male: 5970,
+    age34_female: 4510,
+    age44_male: 13000,
+    age44_female: 7780,
+  },
+};
+
+const MIRAEASSET_LIFE_CANCER_BASIC_CAVEATS = [
+  ...MIRAEASSET_LIFE_CANCER_COMMON_CAVEATS,
+  "기본형 source는 해약환급금이 없는 유형과 보험료 및 해약환급금 조건을 분리해 표시한다.",
+];
+
+const MIRAEASSET_LIFE_CANCER_NO_REFUND_DETAILS = {
+  ...MIRAEASSET_LIFE_CANCER_COMMON_DETAILS,
+  variant_terms: ["해약환급금이 없는 유형", "상품코드 21280"],
+  representative_premium_krw: 6490,
+  approved_quote_condition_premiums_krw: {
+    age34_male: 8910,
+    age34_female: 6490,
+    age44_male: 10700,
+    age44_female: 7060,
+  },
+};
+
+const MIRAEASSET_LIFE_CANCER_NO_REFUND_CAVEATS = [
+  ...MIRAEASSET_LIFE_CANCER_COMMON_CAVEATS,
+  "해약환급금이 없는 유형은 해지 시 환급금 조건이 기본형과 다를 수 있으므로 추천 카드 caveat에 명시한다.",
 ];
 
 const KYOBOLIFEPLANET_CANCER_COMMON_DETAILS = {
@@ -1908,6 +2104,52 @@ const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = 
     },
   },
   {
+    id: "src_miraeasset_online_cancer_basic_202605",
+    values: {
+      officialProductUrl: "https://life.miraeasset.com/online/index.do?_OC_=1363#MO-DR-020000-000000",
+      saleStatus: "active",
+      saleStatusEvidence:
+        "미래에셋생명 공식 상품공시 화면의 2026-05-01 온라인 암보험 무배당 row에서 상품요약서, 약관, 사업방법서 PDF 3건의 SHA-256을 확인했고 보험다모아 조건별 quote 4건을 검수했다.",
+      monthlyPremiumKrw: 4510,
+      premiumText: "4,510원",
+      premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+      renewalType: "unknown",
+      coverageSummary:
+        "미래에셋생명 온라인 암보험 기본형. 일반암과 여성유방암/전립선암 및 소액암성 급부를 DNA 암 위험 key와 매칭한다.",
+      exclusionsSummary:
+        "90일 보장 제외, 2년 미만 감액, 여성유방암/전립선암 급부 분리, 기타피부암/갑상선암 등 별도 급부를 caveat로 표시한다.",
+      coverageDetailsJson: JSON.stringify(MIRAEASSET_LIFE_CANCER_BASIC_DETAILS),
+      coverageCaveatsJson: JSON.stringify(MIRAEASSET_LIFE_CANCER_BASIC_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: miraeassetLifeCancerSnapshotReviewedAt,
+      lastVerifiedAt: miraeassetLifeCancerSnapshotReviewedAt,
+      updatedAt: now,
+    },
+  },
+  {
+    id: "src_miraeasset_online_cancer_no_refund_202605",
+    values: {
+      officialProductUrl: "https://life.miraeasset.com/online/index.do?_OC_=1363#MO-DR-020000-000000",
+      saleStatus: "active",
+      saleStatusEvidence:
+        "미래에셋생명 공식 상품공시 화면의 2026-05-01 온라인 암보험 무배당 row에서 상품요약서, 약관, 사업방법서 PDF 3건의 SHA-256을 확인했고 보험다모아 조건별 quote 4건을 검수했다.",
+      monthlyPremiumKrw: 6490,
+      premiumText: "6,490원",
+      premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+      renewalType: "unknown",
+      coverageSummary:
+        "미래에셋생명 온라인 암보험 해약환급금이 없는 유형. 일반암과 여성유방암/전립선암 및 소액암성 급부를 DNA 암 위험 key와 매칭한다.",
+      exclusionsSummary:
+        "90일 보장 제외, 2년 미만 감액, 여성유방암/전립선암 급부 분리, 기타피부암/갑상선암 등 별도 급부와 해약환급금이 없는 유형 조건을 caveat로 표시한다.",
+      coverageDetailsJson: JSON.stringify(MIRAEASSET_LIFE_CANCER_NO_REFUND_DETAILS),
+      coverageCaveatsJson: JSON.stringify(MIRAEASSET_LIFE_CANCER_NO_REFUND_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: miraeassetLifeCancerSnapshotReviewedAt,
+      lastVerifiedAt: miraeassetLifeCancerSnapshotReviewedAt,
+      updatedAt: now,
+    },
+  },
+  {
     id: "src_hanwha_life_e_cancer_202604",
     values: {
       officialProductUrl:
@@ -2203,6 +2445,54 @@ const FIRST_RECOMMENDATION_SNAPSHOT_PRODUCTS: InsuranceProductSeed[] = [
     coverageCaveatsJson: JSON.stringify(SHINHAN_NO_REFUND_CANCER_CAVEATS),
     sourceCheckedAt: shinhanNoRefundSnapshotReviewedAt,
     primarySourceDocumentId: "doc_shinhan_life_sol_cancer_terms_202601",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
+  {
+    id: "prod_miraeasset_online_cancer_basic_202605",
+    productSourceId: "src_miraeasset_online_cancer_basic_202605",
+    name: "미래에셋생명 온라인 암보험 기본형",
+    provider: "미래에셋생명",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(4510),
+    monthlyPremiumKrw: 4510,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+    coverageCategory: "oncology" as const,
+    riskTargets: JSON.stringify(ONCOLOGY_RISK_TARGETS),
+    matchingStrategy: "risk_target" as const,
+    coverageDetailsJson: JSON.stringify(MIRAEASSET_LIFE_CANCER_BASIC_DETAILS),
+    coverageCaveatsJson: JSON.stringify(MIRAEASSET_LIFE_CANCER_BASIC_CAVEATS),
+    sourceCheckedAt: miraeassetLifeCancerSnapshotReviewedAt,
+    primarySourceDocumentId: "doc_miraeasset_online_cancer_basic_terms_202605",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
+  {
+    id: "prod_miraeasset_online_cancer_no_refund_202605",
+    productSourceId: "src_miraeasset_online_cancer_no_refund_202605",
+    name: "미래에셋생명 온라인 암보험 해약환급금이없는유형",
+    provider: "미래에셋생명",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(6490),
+    monthlyPremiumKrw: 6490,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+    coverageCategory: "oncology" as const,
+    riskTargets: JSON.stringify(ONCOLOGY_RISK_TARGETS),
+    matchingStrategy: "risk_target" as const,
+    coverageDetailsJson: JSON.stringify(MIRAEASSET_LIFE_CANCER_NO_REFUND_DETAILS),
+    coverageCaveatsJson: JSON.stringify(MIRAEASSET_LIFE_CANCER_NO_REFUND_CAVEATS),
+    sourceCheckedAt: miraeassetLifeCancerSnapshotReviewedAt,
+    primarySourceDocumentId: "doc_miraeasset_online_cancer_no_refund_terms_202605",
     catalogStatus: "approved" as const,
     discountEligible: 0,
     originalPremiumUsdc: null,
@@ -2580,6 +2870,7 @@ async function seed() {
         ...HANWHA_LIFE_CARRIER_QUOTE_IDS,
         ...MEDICAL_BASELINE_APPROVED_QUOTE_IDS,
         ...SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS,
+        ...MIRAEASSET_LIFE_CANCER_APPROVED_QUOTE_IDS,
       ])
     );
 
@@ -2597,7 +2888,7 @@ async function seed() {
       .onConflictDoNothing();
   }
   console.log(
-    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${HANWHA_LIFE_CARRIER_QUOTE_ROWS.length} Hanwha carrier quotes inserted if missing, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length + HANWHA_LIFE_CARRIER_QUOTE_IDS.length + MEDICAL_BASELINE_APPROVED_QUOTE_IDS.length + SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS.length} quote approvals, ${HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS.length} Hanwha zero quotes rejected, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
+    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${HANWHA_LIFE_CARRIER_QUOTE_ROWS.length} Hanwha carrier quotes inserted if missing, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length + HANWHA_LIFE_CARRIER_QUOTE_IDS.length + MEDICAL_BASELINE_APPROVED_QUOTE_IDS.length + SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS.length + MIRAEASSET_LIFE_CANCER_APPROVED_QUOTE_IDS.length} quote approvals, ${HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS.length} Hanwha zero quotes rejected, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
   );
 }
 
