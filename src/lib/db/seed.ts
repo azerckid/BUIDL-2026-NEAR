@@ -29,6 +29,7 @@ const samsungFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T16:42:
 const shinhanNoRefundSnapshotReviewedAt = DateTime.fromISO("2026-05-31T18:09:00+09:00").toJSDate();
 const nhFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T19:49:00+09:00").toJSDate();
 const meritzFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T21:39:00+09:00").toJSDate();
+const heungkukFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T22:34:00+09:00").toJSDate();
 
 type InsuranceCarrierSeed = typeof insuranceCarriers.$inferInsert;
 type InsuranceProductSourceSeed = typeof insuranceProductSources.$inferInsert;
@@ -122,6 +123,10 @@ const MEDICAL_BASELINE_APPROVED_QUOTE_IDS = [
   "quote_src_meritz_direct_medical_202605_age34_female_b141dc7c5700",
   "quote_src_meritz_direct_medical_202605_age44_male_26615bdcb076",
   "quote_src_meritz_direct_medical_202605_age44_female_58dcc145a6b7",
+  "quote_src_heungkuk_fire_direct_medical_202605_age34_male_60456bed3452",
+  "quote_src_heungkuk_fire_direct_medical_202605_age34_female_b141dc7c5700",
+  "quote_src_heungkuk_fire_direct_medical_202605_age44_male_26615bdcb076",
+  "quote_src_heungkuk_fire_direct_medical_202605_age44_female_58dcc145a6b7",
 ];
 
 const SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS = [
@@ -1201,6 +1206,22 @@ const SOURCE_AWARE_DOCUMENTS: InsuranceSourceDocumentSeed[] = [
     createdAt: now,
   },
   {
+    id: "doc_heungkuk_fire_direct_medical_terms_202605",
+    productSourceId: "src_heungkuk_fire_direct_medical_202605",
+    carrierId: "carrier_heungkuk_fire",
+    sourceType: "carrier_disclosure",
+    documentType: "terms",
+    sourceUrl:
+      "https://direct.heungkukfire.co.kr/CM_COMM_FileDownload_ACT.do?_SERVICE_=CM_COMM_FileDownload_ACT&_TYPE_=M&_PRODTYPE_=4&scrId=CMMOBDPRM4001&fileType=4&downFileName=eYou_mdca_term_next.pdf",
+    fileHashSha256: "956b60ab796fec97397fc087b799ed487b47a9773fb780fe7ee529c131389756",
+    contentType: "application/pdf;charset=ISO-8859-1",
+    contentLengthBytes: 5125066,
+    retrievedAt: heungkukFireMedicalSnapshotReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
+  {
     id: "doc_samsung_life_hospital_health_terms_202601",
     productSourceId: "src_samsung_life_hospital_health_202601",
     carrierId: "carrier_samsung_life",
@@ -1836,6 +1857,32 @@ const MERITZ_DIRECT_MEDICAL_CAVEATS = [
   "대표 문서는 약관이며, 사업방법서와 상품요약서 hash도 source evidence로 함께 보존한다.",
 ];
 
+const HEUNGKUK_FIRE_MEDICAL_DETAILS = {
+  ...MEDICAL_BASELINE_COMMON_DETAILS,
+  representative_premium_krw: 8939,
+  approved_quote_condition_premiums_krw: {
+    age34_male: 7995,
+    age34_female: 8939,
+    age44_male: 10497,
+    age44_female: 13029,
+  },
+  document_evidence: {
+    carrier_match_score: 1,
+    document_types: ["terms"],
+    official_product_page: "https://direct.heungkukfire.co.kr/?ccid=0606001007#/CMMOBDPRM4001",
+    pdf_endpoint: "https://direct.heungkukfire.co.kr/CM_COMM_FileDownload_ACT.do",
+    screen_id: "CMMOBDPRM4001",
+    document_hash_sha256: "956b60ab796fec97397fc087b799ed487b47a9773fb780fe7ee529c131389756",
+    document_variant: "eYou_mdca_term_next.pdf",
+  },
+};
+
+const HEUNGKUK_FIRE_MEDICAL_CAVEATS = [
+  ...MEDICAL_BASELINE_COMMON_CAVEATS,
+  "흥국화재 공식 약관 파일명은 eYou_mdca_term_next.pdf이므로 seed/apply 전 adapter 재실행으로 hash 신선도를 확인한다.",
+  "대표 문서는 약관 1건이며, 상품요약서와 사업방법서 hash는 아직 별도 row로 확보하지 않았다.",
+];
+
 const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = [
   {
     id: "src_shinhan_life_sol_cancer_202601",
@@ -2109,6 +2156,29 @@ const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = 
       reviewStatus: "approved",
       reviewedAt: meritzFireMedicalSnapshotReviewedAt,
       lastVerifiedAt: meritzFireMedicalSnapshotReviewedAt,
+      updatedAt: now,
+    },
+  },
+  {
+    id: "src_heungkuk_fire_direct_medical_202605",
+    values: {
+      officialProductUrl: "https://direct.heungkukfire.co.kr/?ccid=0606001007#/CMMOBDPRM4001",
+      saleStatus: "active",
+      saleStatusEvidence:
+        "흥국화재 다이렉트 실손 화면 CMMOBDPRM4001의 downloadFile 호출에서 약관 PDF endpoint를 추출해 SHA-256을 확인했고 보험다모아 조건별 quote 4건을 검수했다.",
+      monthlyPremiumKrw: 8939,
+      premiumText: "8,939원",
+      premiumBasis: MEDICAL_BASELINE_PREMIUM_BASIS,
+      renewalType: "renewable",
+      coverageSummary:
+        "질병과 상해 치료비를 폭넓게 보상하는 흥국화재 실손의료보험 baseline 상품.",
+      exclusionsSummary:
+        "자기부담금, 급여/비급여, 보장 한도, 갱신 조건, next suffix 약관 hash refresh caveat를 표시한다.",
+      coverageDetailsJson: JSON.stringify(HEUNGKUK_FIRE_MEDICAL_DETAILS),
+      coverageCaveatsJson: JSON.stringify(HEUNGKUK_FIRE_MEDICAL_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: heungkukFireMedicalSnapshotReviewedAt,
+      lastVerifiedAt: heungkukFireMedicalSnapshotReviewedAt,
       updatedAt: now,
     },
   },
@@ -2397,6 +2467,30 @@ const FIRST_RECOMMENDATION_SNAPSHOT_PRODUCTS: InsuranceProductSeed[] = [
     coverageCaveatsJson: JSON.stringify(MERITZ_DIRECT_MEDICAL_CAVEATS),
     sourceCheckedAt: meritzFireMedicalSnapshotReviewedAt,
     primarySourceDocumentId: "doc_meritz_direct_medical_terms_202605",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
+  {
+    id: "prod_heungkuk_fire_direct_medical_202605",
+    productSourceId: "src_heungkuk_fire_direct_medical_202605",
+    name: "흥국화재 흥Good 다이렉트 실손의료보험",
+    provider: "흥국화재",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(8939),
+    monthlyPremiumKrw: 8939,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: MEDICAL_BASELINE_PREMIUM_BASIS,
+    coverageCategory: "medical_expense" as const,
+    riskTargets: JSON.stringify([]),
+    matchingStrategy: "baseline" as const,
+    coverageDetailsJson: JSON.stringify(HEUNGKUK_FIRE_MEDICAL_DETAILS),
+    coverageCaveatsJson: JSON.stringify(HEUNGKUK_FIRE_MEDICAL_CAVEATS),
+    sourceCheckedAt: heungkukFireMedicalSnapshotReviewedAt,
+    primarySourceDocumentId: "doc_heungkuk_fire_direct_medical_terms_202605",
     catalogStatus: "approved" as const,
     discountEligible: 0,
     originalPremiumUsdc: null,

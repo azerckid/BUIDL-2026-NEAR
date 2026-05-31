@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 22:34
+> Last Updated: 2026-05-31 23:03
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.42
+- **상태**: Draft v2.43
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -381,6 +381,20 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 | 이번 단계 DB write | 0 |
 
 주의할 점은 약관 파일명이 `eYou_mdca_term_next.pdf`라는 점이다. seed PR에서는 adapter 재실행으로 hash 신선도를 확인하고, 추천 UI/상담 AI에는 실손 baseline, 개인 견적 아님, 자기부담금/급여/비급여/갱신 조건, 대표 문서 1건 caveat를 유지해야 한다. 검증 문서는 `../05_QA_Validation/70_HEUNGKUK_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md`에 둔다.
+
+### 7-14. 흥국화재 실손 baseline 추천 snapshot seed
+
+2026-05-31 23:03 KST 기준 흥국화재 실손의료비보험 baseline 추천 snapshot seed를 준비했다. `seed.ts`는 적용 시 흥국화재 source document 1건을 추가하고, source를 `approved`로 승격하며, quote 4건을 `approved`로 바꾸고, `prod_heungkuk_fire_direct_medical_202605` snapshot 1건을 추가한다.
+
+| 항목 | 적용 후 예상 |
+|---|---:|
+| source document | 27 |
+| source approved | 13 |
+| quote approved | 52 |
+| source-backed active 추천 상품 | 13 |
+| baseline active product | 7 |
+
+이번 단계는 DB write 없이 seed/data/docs만 변경한다. 검증 문서는 `../05_QA_Validation/71_HEUNGKUK_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md`에 둔다. 다음 작업은 운영 DB 백업 후 seed apply PR이다.
 
 ---
 
@@ -923,6 +937,7 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - [x] 백업 후 메리츠화재 실손의료보험 baseline 추천 snapshot DB 적용
 - [x] 흥국화재 실손의료보험 공시 adapter로 약관 PDF hash 확보
 - [x] 흥국화재 실손의료보험 baseline 매칭 키워드/caveat 정리
+- [x] 흥국화재 실손의료보험 baseline 추천 snapshot seed 준비
 - [ ] quote-only raw source 미확보 후보 carrier별 공시/API adapter 보강
 - [x] hash-backed quote-only 후보를 `insurance_source_documents` seed 후보로 정리
 - [x] 백업 후 quote-only source document 8건 DB 적용
@@ -1029,3 +1044,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Meritz Fire Baseline DB Apply](../05_QA_Validation/68_MERITZ_FIRE_BASELINE_DB_APPLY_2026_05_31.md) - 메리츠화재 실손 baseline 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [Heungkuk Fire Disclosure Adapter Probe](../05_QA_Validation/69_HEUNGKUK_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md) - 흥국화재 실손의료비보험 공식 약관 hash 검증
 - **QA_Validation**: [Heungkuk Fire Medical Matching Review](../05_QA_Validation/70_HEUNGKUK_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md) - 흥국화재 실손 baseline 매칭 키워드 검수
+- **QA_Validation**: [Heungkuk Fire Baseline Snapshot Seed](../05_QA_Validation/71_HEUNGKUK_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 흥국화재 실손 baseline 추천 snapshot seed 검증
