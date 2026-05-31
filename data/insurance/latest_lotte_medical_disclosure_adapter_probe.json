@@ -1,0 +1,80 @@
+{
+  "metadata": {
+    "generated_at": "2026-06-01T04:16:53.502+09:00",
+    "timezone": "Asia/Seoul",
+    "generator": "scripts/insurance/collect-carrier-disclosures.mjs",
+    "input_product_probe": "manual_lotte_medical_product_probe",
+    "output_version": "1.1",
+    "target_limit": 1,
+    "max_documents_per_product": 5
+  },
+  "targets": [
+    {
+      "provider": "롯데손보",
+      "product_group": "실손의료보험",
+      "raw_product_name": "무배당 let:care 실손의료보험Ⅴ(2605)",
+      "premium_text": "15,675원",
+      "e_insmarket_product_code": "N03G004000001G",
+      "official_product_url": "https://www.lotteins.co.kr/web/C/D/A/cda020.jsp?prdtseq=11"
+    }
+  ],
+  "carrier_pages": [
+    {
+      "provider": "롯데손보",
+      "source_url": "https://www.lotteins.co.kr/web/C/D/A/cda020.jsp?prdtseq=11",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://www.lotteins.co.kr/web/C/D/A/cda020.jsp?prdtseq=11",
+      "content_type": "text/html; charset=EUC-KR",
+      "charset": "euc-kr",
+      "disclosure_record_count": 22,
+      "matched_product_count": 1,
+      "notes": [
+        "공식 상품 페이지는 EUC-KR HTML이며 약관보기 버튼 onclick에서 /upload/C/let_care_sil_2605_yak.pdf를 제공한다.",
+        "상품요약서와 사업방법서는 이번 pass에서 별도 공식 다운로드 링크를 확인하지 못했다."
+      ]
+    }
+  ],
+  "product_results": [
+    {
+      "provider": "롯데손보",
+      "product_group": "실손의료보험",
+      "raw_product_name": "무배당 let:care 실손의료보험Ⅴ(2605)",
+      "premium_text": "15,675원",
+      "e_insmarket_product_code": "N03G004000001G",
+      "official_product_url": "https://www.lotteins.co.kr/web/C/D/A/cda020.jsp?prdtseq=11",
+      "carrier_disclosure_url": "https://www.lotteins.co.kr/web/C/D/A/cda020.jsp?prdtseq=11",
+      "result_status": "hashed",
+      "best_match_score": 0.65,
+      "matched_record_text": null,
+      "document_candidates": [
+        {
+          "url": "https://www.lotteins.co.kr/upload/C/let_care_sil_2605_yak.pdf",
+          "document_type": "terms",
+          "discovered_from": "https://www.lotteins.co.kr/web/C/D/A/cda020.jsp?prdtseq=11",
+          "source_context": "롯데손보 공식 상품 페이지 prdtseq=11의 약관보기 버튼에서 연결되는 let_care_sil_2605_yak.pdf",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/pdf",
+          "content_length_bytes": 3867788,
+          "sha256": "593987e051e2ec7e04292740aeda4448a6a0a60da7d2fc56287c8746322e7168",
+          "retrieved_at": "2026-06-01T04:16:53.465+09:00"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "qa": {
+    "service_db_ready": false,
+    "blockers": [
+      "Disclosure crawling can prove source documents, but product coverage mapping still requires human review.",
+      "Several carrier disclosure pages use JavaScript search forms, so HTML-only crawling may not expose all PDF URLs.",
+      "A product is seed-ready only after official document hash, sale status, premium basis, coverage_category, and risk_targets are approved."
+    ],
+    "next_actions": [
+      "Add carrier-specific disclosure adapters for quote-only products that still have no profile.",
+      "Manually verify the document variants for KDB Life, Hanwha Life, Shinhan Life, and Lifeplanet before source-document seeding.",
+      "Promote only hash-backed and matching-keyword-reviewed products into service seed candidates."
+    ]
+  }
+}

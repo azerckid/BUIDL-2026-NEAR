@@ -201,6 +201,23 @@ const CARRIER_PROFILES = {
       "CM_COMM_FileDownload_ACT.do는 같은 파일명을 GET query로 전달해도 공식 PDF를 반환한다.",
     ],
   },
+  롯데손보: {
+    provider: "롯데손보",
+    source_url: "https://www.lotteins.co.kr/web/C/D/A/cda020.jsp?prdtseq=11",
+    seed_documents: [
+      {
+        url: "https://www.lotteins.co.kr/upload/C/let_care_sil_2605_yak.pdf",
+        document_type: "terms",
+        keywords: ["let:care 실손의료보험", "실손의료보험", "2605"],
+        source_context:
+          "롯데손보 공식 상품 페이지 prdtseq=11의 약관보기 버튼에서 연결되는 let_care_sil_2605_yak.pdf",
+      },
+    ],
+    notes: [
+      "공식 상품 페이지는 EUC-KR HTML이며 약관보기 버튼 onclick에서 /upload/C/let_care_sil_2605_yak.pdf를 제공한다.",
+      "상품요약서와 사업방법서는 이번 pass에서 별도 공식 다운로드 링크를 확인하지 못했다.",
+    ],
+  },
   한화손보: {
     provider: "한화손보",
     source_url: "https://www.hanwhadirect.com/",

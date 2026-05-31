@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-06-01 04:06
+> Last Updated: 2026-06-01 04:16
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-06-01 (DB생명 암보험 DB apply)
+- **최종 수정일**: 2026-06-01 (롯데손보 실손 약관 hash)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.68
+- **상태**: Draft v3.69
 - **phase**: Phase 2
 
 ---
@@ -77,7 +77,7 @@
 | 3 | 보험료 개인화 | 사용자 나이/성별 입력값과 approved quote matrix 연결 | 대표 보험료와 사용자 조건별 보험료가 구분 표시됨 |
 | 4 | 한화생명 blocker | 한화생명 표준체형/비흡연체형 0원 quote 원인 해소 | 공식 carrier quote 숫자 KRW 8건 확보 및 DB 적용 완료 |
 | 5 | 신한라이프 blocker | 신한라이프 일반형 공식 문서 endpoint 추가 탐색 | 스크립트 기반 재탐색 완료. 일반형 endpoint 미발견으로 raw 차단 유지 |
-| 6 | 보험상품 확장 | 남은 non-approved source의 문서 hash, 매칭 키워드, caveat 정리 | DB생명 DB 적용 완료. 남은 non-approved source 5건 |
+| 6 | 보험상품 확장 | 남은 non-approved source의 문서 hash, 매칭 키워드, caveat 정리 | 롯데손보 실손 공식 약관 hash 확보. 남은 non-approved source 5건 |
 | 7 | 추천 snapshot 확대 | 새 source를 `approved`로 승격하고 `insurance_products` snapshot 발행 | DB생명 DB apply 완료. 운영 active 추천 17건 |
 | 8 | 상담 AI 상품 설명 | The Secret Keeper에 추천상품 목록, 보험료, 출처, caveat context 전달 | 구현 완료. 사용자가 KDB/교보/한화/신한/DB/KB/현대/삼성/농협 상품을 물으면 DB-selected 추천상품 기준으로 설명 |
 
@@ -174,6 +174,8 @@
 2026-06-01 03:52 KST 기준 DB생명 e로운 암보험 추천 snapshot seed 준비를 완료했다. `seed.ts`는 적용 시 source document 1건을 추가하고, DB생명 source를 `approved`로 승격하며, quote 4건을 `approved`로 바꾸고, `prod_db_life_eroun_cancer_202601` snapshot 1건을 추가한다. 이번 단계는 운영 DB write 없이 seed/data/docs만 변경하며, 검증은 `../05_QA_Validation/83_DB_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md`에 기록한다. 다음 작업은 운영 DB 백업 후 seed apply PR이다. 적용 완료 후 source-backed active 추천 상품은 16건에서 17건으로 늘어난다.
 
 2026-06-01 04:06 KST 기준 DB생명 e로운 암보험 추천 snapshot을 운영 DB에 백업 후 적용했다. 적용 후 `insurance_source_documents=35`, `insurance_products=22`, source-backed active 추천 상품은 17건이 됐고, `insurance_product_sources.review_status=approved`는 17건, `insurance_premium_quotes.review_status=approved`는 68건으로 증가했다. DB생명 source 1건, document 1건, quote 4건, product snapshot 1건이 모두 approved/active 상태다. 검증은 `../05_QA_Validation/84_DB_LIFE_CANCER_DB_APPLY_2026_06_01.md`에 기록한다. 다음 작업은 Dashboard와 상담 AI에서 DB생명 카드 설명을 수동 확인하거나, 남은 non-approved source 5건을 순차 정리하는 것이다.
+
+2026-06-01 04:16 KST 기준 롯데손보 `무배당 let:care 실손의료보험Ⅴ(2605)` 공식 상품 페이지와 약관 PDF hash를 확보했다. 공식 상품 페이지 `prdtseq=11`은 EUC-KR HTML이며 `약관보기` 버튼에서 `/upload/C/let_care_sil_2605_yak.pdf`를 제공한다. SHA-256은 `593987e051e2ec7e04292740aeda4448a6a0a60da7d2fc56287c8746322e7168`이고 PDF size는 3,867,788 bytes다. 이번 단계는 DB write 없이 crawler/data/docs만 변경했으며 롯데손보 source는 아직 `raw`라 추천 snapshot 수는 17건으로 유지된다. 검증은 `../05_QA_Validation/85_LOTTE_MEDICAL_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md`에 기록한다. 다음 작업은 롯데손보 실손 baseline 매칭 키워드/caveat를 정리하는 것이다.
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 매칭 키워드 정리 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.
@@ -1331,6 +1333,7 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 - [DB생명 암보험 매칭 검수](../05_QA_Validation/82_DB_LIFE_CANCER_MATCHING_REVIEW_2026_06_01.md)
 - [DB생명 암보험 추천 Snapshot Seed 검증](../05_QA_Validation/83_DB_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md)
 - [DB생명 암보험 추천 Snapshot DB 적용 검증](../05_QA_Validation/84_DB_LIFE_CANCER_DB_APPLY_2026_06_01.md)
+- [롯데손보 실손의료보험 공시 Adapter Probe 검증](../05_QA_Validation/85_LOTTE_MEDICAL_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md)
 - [데모 보험상품 운영 추천 제거 검증](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md)
 - [데모 보험상품 Archive DB 적용 검증](../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md)
 - [보험상품 매칭 키워드 정리 정책](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md)
