@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-06-01 02:27
+> Last Updated: 2026-06-01 02:50
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.51
+- **상태**: Draft v2.52
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -419,6 +419,8 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 2026-06-01 02:09 KST 기준 한화손보 다이렉트 내가고른 암보험의 문서 variant와 매칭 키워드/caveat를 정리했다. 공식 약관은 `한화 다이렉트 내가고른 암보험 무배당2604`, 개정일 `2026.04.01`, 파일 `LA02969001.pdf`로 source와 일치한다. 이 source는 `coverage_category=oncology`, `matching_strategy=risk_target`, 공통 5개 암 risk target 기준의 snapshot 후보이며, 숫자 KRW quote 4건이 있다. 단, 이번 단계는 data/docs만 변경하며 추천 snapshot 수는 15개로 유지한다. 검증은 `../05_QA_Validation/78_HANWHA_GENERAL_CANCER_MATCHING_REVIEW_2026_06_01.md`에 둔다. 다음 작업은 source document 1건 seed, quote 4건 approval, active product snapshot 1건을 준비하는 것이다.
 
 2026-06-01 02:27 KST 기준 한화손보 다이렉트 내가고른 암보험의 source document seed 1건, quote approval 4건, active `insurance_products` snapshot 1건을 준비했다. 이번 단계는 운영 DB write 없이 `seed.ts`/data/docs만 변경하며, 적용 시 source document는 33건에서 34건, approved source는 15건에서 16건, approved quote는 60건에서 64건, source-backed active 추천 상품은 15건에서 16건으로 늘어나야 한다. 검증은 `../05_QA_Validation/79_HANWHA_GENERAL_CANCER_SNAPSHOT_SEED_2026_06_01.md`에 둔다. 다음 작업은 운영 DB 백업 후 seed apply PR이다.
+
+2026-06-01 02:50 KST 기준 한화손보 다이렉트 내가고른 암보험 추천 snapshot을 운영 DB에 적용했다. 백업 후 `src/lib/db/seed.ts`를 실행해 source document 1건을 추가하고, source 1건을 `approved`로 승격하고, quote 4건을 `approved`로 바꾸며, product snapshot 1건을 active로 발행했다. 운영 DB 기준 source-backed active 추천 상품은 16건, oncology active 상품은 9건, approved quote는 64건이다. 검증은 `../05_QA_Validation/80_HANWHA_GENERAL_CANCER_DB_APPLY_2026_06_01.md`에 둔다. 다음 작업은 Dashboard와 상담 AI에서 한화손보 카드 설명을 수동 확인하거나, 남은 non-approved source 6건을 순차 정리하는 것이다.
 
 ---
 
@@ -1078,3 +1080,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Hanwha General Cancer Disclosure Adapter Probe](../05_QA_Validation/77_HANWHA_GENERAL_CANCER_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md) - 한화손보 암보험 공식 약관 hash 검증
 - **QA_Validation**: [Hanwha General Cancer Matching Review](../05_QA_Validation/78_HANWHA_GENERAL_CANCER_MATCHING_REVIEW_2026_06_01.md) - 한화손보 암보험 매칭 키워드와 caveat 검수
 - **QA_Validation**: [Hanwha General Cancer Snapshot Seed](../05_QA_Validation/79_HANWHA_GENERAL_CANCER_SNAPSHOT_SEED_2026_06_01.md) - 한화손보 암보험 추천 snapshot seed 준비
+- **QA_Validation**: [Hanwha General Cancer DB Apply](../05_QA_Validation/80_HANWHA_GENERAL_CANCER_DB_APPLY_2026_06_01.md) - 한화손보 암보험 추천 snapshot 운영 DB 적용 검증

@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-06-01 02:27
+> Last Updated: 2026-06-01 02:50
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.38
+- **상태**: Draft v1.39
 - **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준, 추천 snapshot 발행 기준
 - **결론**: 이 프로젝트에서 말하는 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DB에 보험상품을 넣기 전에 DNA risk target과 매칭할 수 있도록 `coverage_category`, `risk_targets`, `matching_strategy`, `coverage_caveats_json`을 정리하는 내부 데이터 정규화 작업이다.
 
@@ -259,7 +259,9 @@ DNA 분석 결과
 
 2026-06-01 02:27 KST 기준 한화손보 암보험 source document seed, quote approval, active product snapshot 준비를 완료했다. 적용 시 한화손보 source는 `approved`, quote 4건은 `approved`, product snapshot 1건은 active oncology 추천 상품이 된다. 이번 seed는 대표 보험료 `age34_female=12,204 KRW`, 고정 데모 환산율 `1 USDC = 1,350 KRW`, primary document `doc_hanwha_general_direct_cancer_terms_202604`를 사용한다. 검증은 `../05_QA_Validation/79_HANWHA_GENERAL_CANCER_SNAPSHOT_SEED_2026_06_01.md`에 둔다.
 
-다음 단계는 운영 DB 백업 후 한화손보 snapshot seed를 apply하는 것이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
+2026-06-01 02:50 KST 기준 한화손보 암보험 snapshot seed를 운영 DB에 적용했다. source document 1건, approved source 1건, approved quote 4건, active oncology product 1건이 반영되어 사용자 추천 화면에 노출 가능한 source-backed active 상품은 16건이 됐다. 검증은 `../05_QA_Validation/80_HANWHA_GENERAL_CANCER_DB_APPLY_2026_06_01.md`에 둔다.
+
+다음 단계는 남은 non-approved source 6건의 공식 URL, 문서 hash, 매칭 키워드/caveat를 순차 정리하는 것이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
 
 ---
 
@@ -338,3 +340,4 @@ DNA 분석 결과
 - **QA_Validation**: [Hanwha General Cancer Disclosure Adapter Probe](../05_QA_Validation/77_HANWHA_GENERAL_CANCER_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md) - 한화손보 암보험 공식 약관 hash 검증
 - **QA_Validation**: [Hanwha General Cancer Matching Review](../05_QA_Validation/78_HANWHA_GENERAL_CANCER_MATCHING_REVIEW_2026_06_01.md) - 한화손보 암보험 매칭 키워드와 caveat 검수
 - **QA_Validation**: [Hanwha General Cancer Snapshot Seed](../05_QA_Validation/79_HANWHA_GENERAL_CANCER_SNAPSHOT_SEED_2026_06_01.md) - 한화손보 암보험 추천 snapshot seed 준비
+- **QA_Validation**: [Hanwha General Cancer DB Apply](../05_QA_Validation/80_HANWHA_GENERAL_CANCER_DB_APPLY_2026_06_01.md) - 한화손보 암보험 추천 snapshot 운영 DB 적용 검증
