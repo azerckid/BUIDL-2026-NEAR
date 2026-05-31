@@ -1,0 +1,150 @@
+{
+  "metadata": {
+    "prepared_at": "2026-06-01T03:52:00+09:00",
+    "timezone": "Asia/Seoul",
+    "generator": "manual_seed_preparation",
+    "output_version": "1.0",
+    "input_matching_review": "data/insurance/latest_db_life_cancer_matching_review.json",
+    "input_disclosure_probe": "data/insurance/latest_db_life_cancer_disclosure_adapter_probe.json",
+    "input_seed": "src/lib/db/seed.ts",
+    "db_read_only_checked_at": "2026-06-01T03:34:00+09:00",
+    "db_write_performed": false,
+    "seed_file_changed": true,
+    "recommendation_snapshot_seed_changed": true
+  },
+  "summary": {
+    "source_documents_added": 1,
+    "source_approvals_added": 1,
+    "quote_approvals_added": 4,
+    "insurance_product_snapshots_added": 1,
+    "representative_condition_id": "age34_female",
+    "krw_per_usdc": 1350,
+    "expected_source_documents_after_apply": 35,
+    "expected_source_approvals_after_apply": 17,
+    "expected_quote_approvals_after_apply": 68,
+    "expected_oncology_active_products_after_apply": 10,
+    "expected_baseline_active_products_after_apply": 7,
+    "expected_active_source_backed_products_after_apply": 17,
+    "expected_insurance_products_after_apply": 22
+  },
+  "pre_apply_db_state": {
+    "insurance_source_documents": 34,
+    "insurance_products": 21,
+    "insurance_product_sources": 22,
+    "insurance_premium_quotes": 92,
+    "source_backed_active_products": 16,
+    "oncology_active_products": 9,
+    "baseline_active_products": 7,
+    "approved_sources": 16,
+    "approved_quotes": 64,
+    "db_life_source": [
+      {
+        "id": "src_db_life_eroun_cancer_202601",
+        "review_status": "raw",
+        "sale_status": "unknown",
+        "monthly_premium_krw": null,
+        "source_documents": 0,
+        "quote_rows": 4,
+        "approved_products": 0
+      }
+    ]
+  },
+  "oncology_policy": {
+    "coverage_category": "oncology",
+    "matching_strategy": "risk_target",
+    "risk_targets": [
+      "pancreatic_cancer",
+      "liver_cancer",
+      "lung_cancer",
+      "breast_cancer",
+      "colon_cancer"
+    ],
+    "reason": "공식 약관은 암진단자금, 특정3대암진단자금, 소액암진단자금, 유방암, 기타피부암, 특정갑상선암, 대장점막내암을 정의한다. 현재 DNA risk key dictionary에는 위 5개 암 risk target이 직접 매칭 가능하다."
+  },
+  "source_documents": [
+    {
+      "id": "doc_db_life_eroun_cancer_terms_202601",
+      "product_source_id": "src_db_life_eroun_cancer_202601",
+      "carrier_id": "carrier_db_life",
+      "document_type": "terms",
+      "source_url": "https://www.idblife.com/notice/product/prov/file?publishNo=3196&fileGb=3%20&fileSeq=65059",
+      "file_hash_sha256": "3c25a911b796fa239c45aec82afce4d24e310d76e516ad45ba86821cc58d0074",
+      "content_type": "application/octet-stream;;charset=utf-8",
+      "content_length_bytes": 4247768,
+      "usage_status": "link_only",
+      "parse_status": "not_parsed"
+    }
+  ],
+  "source_approvals": [
+    {
+      "product_source_id": "src_db_life_eroun_cancer_202601",
+      "provider": "DB생명",
+      "raw_product_name": "(무)e로운 암보험(해약환급금 미지급형)(2601)",
+      "review_status_after_seed": "approved",
+      "sale_status_after_seed": "active",
+      "representative_premium_krw": 9700,
+      "primary_source_document_id": "doc_db_life_eroun_cancer_terms_202601"
+    }
+  ],
+  "quote_approval_ids": [
+    {
+      "id": "quote_src_db_life_eroun_cancer_202601_age34_female_1015b0165c0e",
+      "condition": "age34_female",
+      "monthly_premium_krw": 9700
+    },
+    {
+      "id": "quote_src_db_life_eroun_cancer_202601_age34_male_d2e77ecf4a0c",
+      "condition": "age34_male",
+      "monthly_premium_krw": 10300
+    },
+    {
+      "id": "quote_src_db_life_eroun_cancer_202601_age44_female_9cf2588db68b",
+      "condition": "age44_female",
+      "monthly_premium_krw": 10900
+    },
+    {
+      "id": "quote_src_db_life_eroun_cancer_202601_age44_male_99a3f15d59fc",
+      "condition": "age44_male",
+      "monthly_premium_krw": 13300
+    }
+  ],
+  "insurance_product_snapshots": [
+    {
+      "id": "prod_db_life_eroun_cancer_202601",
+      "product_source_id": "src_db_life_eroun_cancer_202601",
+      "name": "DB생명 e로운 암보험",
+      "provider": "DB생명",
+      "coverage_category": "oncology",
+      "matching_strategy": "risk_target",
+      "monthly_premium_krw": 9700,
+      "monthly_premium_usdc": 7.19,
+      "primary_source_document_id": "doc_db_life_eroun_cancer_terms_202601",
+      "catalog_status": "approved",
+      "is_active": 1
+    }
+  ],
+  "caveat_policy": {
+    "key_caveats": [
+      "암 보장개시일 90일",
+      "계약일부터 1년 미만 50% 지급",
+      "유방암 180일 경과 이전 20% 지급",
+      "소액암/특정3대암 별도 급부",
+      "해약환급금 미지급형",
+      "최종 가입 전 공식 약관 확인"
+    ],
+    "ui_requirement": "추천 카드와 상담 AI 컨텍스트에는 대표 보험료와 조건별 approved quote를 분리 표시하고, caveat를 함께 전달한다."
+  },
+  "safety": {
+    "db_apply_required_in_follow_up_pr": true,
+    "operational_backup_required_before_apply": true,
+    "legacy_demo_products_remain_archived": true,
+    "raw_dna_or_unapproved_sources_excluded_from_concierge_context": true,
+    "db_url_or_token_exposed": false
+  },
+  "next_actions": [
+    "운영 DB 백업 후 src/lib/db/seed.ts를 실행한다.",
+    "적용 후 source document 35건, source approved 17건, approved quote 68건, active source-backed product 17건을 확인한다.",
+    "Dashboard에서 DB생명 암보험 카드와 조건별 보험료가 표시되는지 확인한다.",
+    "상담 AI가 DB생명 상품을 설명할 때 공식 약관 hash와 암 보장 caveat를 함께 설명하는지 확인한다."
+  ]
+}

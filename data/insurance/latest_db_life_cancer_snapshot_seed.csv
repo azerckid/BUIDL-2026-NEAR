@@ -1,0 +1,4 @@
+section,id,product_source_id,document_type,monthly_premium_krw,monthly_premium_usdc,expected_status,notes
+source_document,doc_db_life_eroun_cancer_terms_202601,src_db_life_eroun_cancer_202601,terms,,,link_only,primary source document
+source_approval,src_db_life_eroun_cancer_202601,src_db_life_eroun_cancer_202601,,9700,,approved,oncology risk_target
+product_snapshot,prod_db_life_eroun_cancer_202601,src_db_life_eroun_cancer_202601,,9700,7.19,active,representative age34_female
