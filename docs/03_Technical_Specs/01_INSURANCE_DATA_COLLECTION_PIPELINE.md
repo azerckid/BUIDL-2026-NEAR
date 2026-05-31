@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 21:52
+> Last Updated: 2026-05-31 22:01
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.39
+- **상태**: Draft v2.40
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -335,6 +335,21 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 | 이번 단계 DB write | 없음 |
 
 이번 seed PR은 운영 DB에 쓰지 않는다. 적용 PR에서는 운영 DB 백업 후 seed를 실행해 `insurance_source_documents` 23건에서 26건, approved quote 44건에서 48건, source-backed active 추천 상품 11건에서 12건이 되는지 확인한다. 검증 문서는 `../05_QA_Validation/67_MERITZ_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md`, 산출물은 `../../data/insurance/latest_meritz_fire_baseline_snapshot_seed.json`에 둔다.
+
+### 7-11. 메리츠화재 실손 baseline DB apply
+
+2026-05-31 22:01 KST 기준 메리츠화재 실손 baseline seed를 운영 DB에 백업 후 적용했다.
+
+| 항목 | 적용 전 | 적용 후 |
+|---|---:|---:|
+| `insurance_source_documents` | 23 | 26 |
+| `insurance_products` | 16 | 17 |
+| source-backed active product | 11 | 12 |
+| approved source | 11 | 12 |
+| approved quote | 44 | 48 |
+| baseline active product | 5 | 6 |
+
+적용 검증 문서는 `../05_QA_Validation/68_MERITZ_FIRE_BASELINE_DB_APPLY_2026_05_31.md`에 둔다. 다음 작업은 Dashboard와 상담 AI에서 메리츠화재 baseline 상품 설명을 확인하거나, 남은 흥국화재, 미래에셋생명, 한화손보 adapter를 순차 보강하는 것이다.
 
 ---
 
@@ -874,6 +889,7 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - [x] 메리츠화재 실손의료보험 공시 adapter로 약관/사업방법서/상품요약서 PDF hash 확보
 - [x] 메리츠화재 실손의료보험 baseline 매칭 키워드/caveat 정리
 - [x] 메리츠화재 실손의료보험 baseline 추천 snapshot seed 준비
+- [x] 백업 후 메리츠화재 실손의료보험 baseline 추천 snapshot DB 적용
 - [ ] quote-only raw source 미확보 후보 carrier별 공시/API adapter 보강
 - [x] hash-backed quote-only 후보를 `insurance_source_documents` seed 후보로 정리
 - [x] 백업 후 quote-only source document 8건 DB 적용
@@ -977,3 +993,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Meritz Fire Disclosure Adapter Probe](../05_QA_Validation/65_MERITZ_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md) - 메리츠화재 실손의료비보험 공식 문서 hash 검증
 - **QA_Validation**: [Meritz Fire Medical Matching Review](../05_QA_Validation/66_MERITZ_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md) - 메리츠화재 실손 baseline 매칭 키워드 검수
 - **QA_Validation**: [Meritz Fire Baseline Snapshot Seed](../05_QA_Validation/67_MERITZ_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 메리츠화재 실손 baseline 추천 snapshot seed 검증
+- **QA_Validation**: [Meritz Fire Baseline DB Apply](../05_QA_Validation/68_MERITZ_FIRE_BASELINE_DB_APPLY_2026_05_31.md) - 메리츠화재 실손 baseline 추천 snapshot 운영 DB 적용 검증
