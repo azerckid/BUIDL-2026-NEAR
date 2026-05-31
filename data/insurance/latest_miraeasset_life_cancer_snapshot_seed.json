@@ -1,0 +1,190 @@
+{
+  "metadata": {
+    "prepared_at": "2026-06-01T00:48:00+09:00",
+    "timezone": "Asia/Seoul",
+    "generator": "manual_seed_preparation",
+    "output_version": "1.0",
+    "input_matching_review": "data/insurance/latest_miraeasset_life_cancer_matching_review.json",
+    "input_disclosure_probe": "data/insurance/latest_miraeasset_life_disclosure_adapter_probe.json",
+    "input_seed": "src/lib/db/seed.ts",
+    "db_read_only_checked_at": "2026-06-01T00:39:00+09:00",
+    "db_write_performed": false,
+    "seed_file_changed": true,
+    "recommendation_snapshot_seed_changed": true
+  },
+  "summary": {
+    "source_documents_added": 6,
+    "source_approvals_added": 2,
+    "quote_approvals_added": 8,
+    "insurance_product_snapshots_added": 2,
+    "representative_condition_id": "age34_female",
+    "krw_per_usdc": 1350,
+    "expected_source_documents_after_apply": 33,
+    "expected_source_approvals_after_apply": 15,
+    "expected_quote_approvals_after_apply": 60,
+    "expected_oncology_active_products_after_apply": 8,
+    "expected_baseline_active_products_after_apply": 7,
+    "expected_active_source_backed_products_after_apply": 15,
+    "expected_insurance_products_after_apply": 20
+  },
+  "pre_apply_db_state": {
+    "insurance_source_documents": 27,
+    "insurance_products": 18,
+    "insurance_product_sources": 22,
+    "insurance_premium_quotes": 92,
+    "source_backed_active_products": 13,
+    "approved_quotes": 52,
+    "miraeasset_sources": [
+      {
+        "id": "src_miraeasset_online_cancer_basic_202605",
+        "review_status": "raw",
+        "sale_status": "unknown",
+        "monthly_premium_krw": null,
+        "source_documents": 0,
+        "quote_rows": 4,
+        "approved_products": 0
+      },
+      {
+        "id": "src_miraeasset_online_cancer_no_refund_202605",
+        "review_status": "raw",
+        "sale_status": "unknown",
+        "monthly_premium_krw": null,
+        "source_documents": 0,
+        "quote_rows": 4,
+        "approved_products": 0
+      }
+    ]
+  },
+  "oncology_policy": {
+    "coverage_category": "oncology",
+    "matching_strategy": "risk_target",
+    "risk_targets": [
+      "pancreatic_cancer",
+      "liver_cancer",
+      "lung_cancer",
+      "breast_cancer",
+      "colon_cancer"
+    ],
+    "reason": "공식 약관은 암 진단보험금과 여성유방암, 전립선암, 기타피부암, 갑상선암, 대장점막내암, 비침습방광암, 제자리암, 경계성종양 급부를 정의한다. 현재 DNA risk key dictionary에는 위 5개 암 risk target이 직접 매칭 가능하다."
+  },
+  "shared_document_policy": {
+    "decision": "separate_rows_same_hash",
+    "reason": "공식 약관이 기본형과 해약환급금이 없는 유형을 같은 PDF에서 함께 명시하고 상품코드 21279/21280을 포함하므로 source별 document row ID는 분리하되 같은 공식 hash 3종을 공유한다.",
+    "shared_hashes": [
+      "133a9d91d3547e04ed25717275ce350ae0988c480ddde008346dd109255e722f",
+      "8d4a162186b510c576e7333e4ae75e72b6c785a089798688d0d490e267c14378",
+      "be8d5a3ec858875dbeb06c4b467ba4633928cb74475aa2cf159ed53ad508b71f"
+    ]
+  },
+  "source_documents": [
+    {
+      "id": "doc_miraeasset_online_cancer_basic_summary_202604",
+      "product_source_id": "src_miraeasset_online_cancer_basic_202605",
+      "document_type": "summary",
+      "file_hash_sha256": "133a9d91d3547e04ed25717275ce350ae0988c480ddde008346dd109255e722f",
+      "content_length_bytes": 3945603
+    },
+    {
+      "id": "doc_miraeasset_online_cancer_basic_terms_202605",
+      "product_source_id": "src_miraeasset_online_cancer_basic_202605",
+      "document_type": "terms",
+      "file_hash_sha256": "8d4a162186b510c576e7333e4ae75e72b6c785a089798688d0d490e267c14378",
+      "content_length_bytes": 11732601
+    },
+    {
+      "id": "doc_miraeasset_online_cancer_basic_business_202602",
+      "product_source_id": "src_miraeasset_online_cancer_basic_202605",
+      "document_type": "business_method",
+      "file_hash_sha256": "be8d5a3ec858875dbeb06c4b467ba4633928cb74475aa2cf159ed53ad508b71f",
+      "content_length_bytes": 2676313
+    },
+    {
+      "id": "doc_miraeasset_online_cancer_no_refund_summary_202604",
+      "product_source_id": "src_miraeasset_online_cancer_no_refund_202605",
+      "document_type": "summary",
+      "file_hash_sha256": "133a9d91d3547e04ed25717275ce350ae0988c480ddde008346dd109255e722f",
+      "content_length_bytes": 3945603
+    },
+    {
+      "id": "doc_miraeasset_online_cancer_no_refund_terms_202605",
+      "product_source_id": "src_miraeasset_online_cancer_no_refund_202605",
+      "document_type": "terms",
+      "file_hash_sha256": "8d4a162186b510c576e7333e4ae75e72b6c785a089798688d0d490e267c14378",
+      "content_length_bytes": 11732601
+    },
+    {
+      "id": "doc_miraeasset_online_cancer_no_refund_business_202602",
+      "product_source_id": "src_miraeasset_online_cancer_no_refund_202605",
+      "document_type": "business_method",
+      "file_hash_sha256": "be8d5a3ec858875dbeb06c4b467ba4633928cb74475aa2cf159ed53ad508b71f",
+      "content_length_bytes": 2676313
+    }
+  ],
+  "source_approvals": [
+    {
+      "product_source_id": "src_miraeasset_online_cancer_basic_202605",
+      "provider": "미래에셋생명",
+      "raw_product_name": "온라인 암보험 무배당 [기본형]",
+      "review_status_after_seed": "approved",
+      "representative_premium_krw": 4510,
+      "primary_source_document_id": "doc_miraeasset_online_cancer_basic_terms_202605"
+    },
+    {
+      "product_source_id": "src_miraeasset_online_cancer_no_refund_202605",
+      "provider": "미래에셋생명",
+      "raw_product_name": "온라인 암보험 무배당 [해약환급금이없는유형]",
+      "review_status_after_seed": "approved",
+      "representative_premium_krw": 6490,
+      "primary_source_document_id": "doc_miraeasset_online_cancer_no_refund_terms_202605"
+    }
+  ],
+  "quote_approval_ids": [
+    "quote_src_miraeasset_online_cancer_basic_202605_age34_female_1015b0165c0e",
+    "quote_src_miraeasset_online_cancer_basic_202605_age34_male_d2e77ecf4a0c",
+    "quote_src_miraeasset_online_cancer_basic_202605_age44_female_9cf2588db68b",
+    "quote_src_miraeasset_online_cancer_basic_202605_age44_male_99a3f15d59fc",
+    "quote_src_miraeasset_online_cancer_no_refund_202605_age34_female_1015b0165c0e",
+    "quote_src_miraeasset_online_cancer_no_refund_202605_age34_male_d2e77ecf4a0c",
+    "quote_src_miraeasset_online_cancer_no_refund_202605_age44_female_9cf2588db68b",
+    "quote_src_miraeasset_online_cancer_no_refund_202605_age44_male_99a3f15d59fc"
+  ],
+  "insurance_product_snapshots": [
+    {
+      "id": "prod_miraeasset_online_cancer_basic_202605",
+      "product_source_id": "src_miraeasset_online_cancer_basic_202605",
+      "name": "미래에셋생명 온라인 암보험 기본형",
+      "provider": "미래에셋생명",
+      "coverage_category": "oncology",
+      "matching_strategy": "risk_target",
+      "monthly_premium_krw": 4510,
+      "monthly_premium_usdc": 3.34,
+      "catalog_status": "approved",
+      "is_active": 1
+    },
+    {
+      "id": "prod_miraeasset_online_cancer_no_refund_202605",
+      "product_source_id": "src_miraeasset_online_cancer_no_refund_202605",
+      "name": "미래에셋생명 온라인 암보험 해약환급금이없는유형",
+      "provider": "미래에셋생명",
+      "coverage_category": "oncology",
+      "matching_strategy": "risk_target",
+      "monthly_premium_krw": 6490,
+      "monthly_premium_usdc": 4.81,
+      "catalog_status": "approved",
+      "is_active": 1
+    }
+  ],
+  "safety": {
+    "db_apply_required_in_follow_up_pr": true,
+    "operational_backup_required_before_apply": true,
+    "legacy_demo_products_remain_archived": true,
+    "shared_hash_duplicate_insert_policy": "separate_document_ids_allowed_because_hash_index_is_not_unique",
+    "raw_dna_or_unapproved_sources_excluded_from_concierge_context": true
+  },
+  "next_actions": [
+    "운영 DB 백업 후 src/lib/db/seed.ts를 실행한다.",
+    "적용 후 source document 33건, source approved 15건, approved quote 60건, active source-backed product 15건을 확인한다.",
+    "Dashboard에서 미래에셋생명 2개 암보험 카드와 조건별 보험료가 표시되는지 확인한다.",
+    "상담 AI가 미래에셋생명 상품을 설명할 때 shared document hash와 암 보장 caveat를 함께 설명하는지 확인한다."
+  ]
+}
