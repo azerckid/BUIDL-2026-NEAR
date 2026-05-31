@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-06-01 03:52
+> Last Updated: 2026-06-01 04:06
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.55
+- **상태**: Draft v2.56
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -427,6 +427,8 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 2026-06-01 03:34 KST 기준 DB생명 e로운 암보험의 문서 variant와 매칭 키워드/caveat를 정리했다. 약관은 `무배당 e로운 암보험(해약환급금 미지급형)(2601)`과 `암보험` 종목을 명시하므로 source와 일치한다. 이 source는 `coverage_category=oncology`, `matching_strategy=risk_target`, 공통 5개 암 risk target 기준의 snapshot 후보이며, 숫자 KRW quote 4건이 있다. 단, 이번 단계는 data/docs만 변경하며 추천 snapshot 수는 16개로 유지한다. 검증은 `../05_QA_Validation/82_DB_LIFE_CANCER_MATCHING_REVIEW_2026_06_01.md`에 둔다. 다음 작업은 source document 1건 seed, quote 4건 approval, active product snapshot 1건을 준비하는 것이다.
 
 2026-06-01 03:52 KST 기준 DB생명 e로운 암보험 source document seed, quote approval, active product snapshot 준비를 완료했다. 적용 시 DB생명 source는 `approved`, quote 4건은 `approved`, product snapshot 1건은 active oncology 추천 상품이 된다. 이번 seed는 대표 보험료 `age34_female=9,700 KRW`, 고정 데모 환산율 `1 USDC = 1,350 KRW`, primary document `doc_db_life_eroun_cancer_terms_202601`를 사용한다. 검증은 `../05_QA_Validation/83_DB_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md`에 둔다.
+
+2026-06-01 04:06 KST 기준 DB생명 e로운 암보험 추천 snapshot을 운영 DB에 적용했다. source document 1건, approved source 1건, approved quote 4건, active oncology product 1건이 반영되어 사용자 추천 화면에 노출 가능한 source-backed active 상품은 17건이 됐다. 검증은 `../05_QA_Validation/84_DB_LIFE_CANCER_DB_APPLY_2026_06_01.md`에 둔다.
 
 ---
 
@@ -1002,6 +1004,7 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - [x] DB생명 암보험 공시 adapter로 약관 PDF hash 확보
 - [x] DB생명 암보험 매칭 키워드/caveat 정리
 - [x] DB생명 암보험 추천 snapshot seed 준비
+- [x] 백업 후 DB생명 암보험 추천 snapshot 운영 DB 적용
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
@@ -1093,3 +1096,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [DB Life Cancer Disclosure Adapter Probe](../05_QA_Validation/81_DB_LIFE_CANCER_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md) - DB생명 암보험 공식 약관 hash 검증
 - **QA_Validation**: [DB Life Cancer Matching Review](../05_QA_Validation/82_DB_LIFE_CANCER_MATCHING_REVIEW_2026_06_01.md) - DB생명 암보험 매칭 키워드와 caveat 검수
 - **QA_Validation**: [DB Life Cancer Snapshot Seed](../05_QA_Validation/83_DB_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md) - DB생명 암보험 추천 snapshot seed 검증
+- **QA_Validation**: [DB Life Cancer DB Apply](../05_QA_Validation/84_DB_LIFE_CANCER_DB_APPLY_2026_06_01.md) - DB생명 암보험 추천 snapshot 운영 DB 적용 검증
