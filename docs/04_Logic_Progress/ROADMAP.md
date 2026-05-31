@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-31 19:33
+> Last Updated: 2026-05-31 19:49
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-31 (농협손보 실손 매칭 검수)
+- **최종 수정일**: 2026-05-31 (농협손보 실손 snapshot seed 준비)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.46
+- **상태**: Draft v3.47
 - **phase**: Phase 2
 
 ---
@@ -129,7 +129,9 @@
 
 2026-05-31 19:26 KST 기준 농협손보 실손의료보험 공시 adapter를 보강했다. 상품 페이지의 `fnPdtFileDownload` 호출에서 `fileId=F004074317`, `afileSeqn=1`을 추출해 공식 약관 PDF를 다운로드했고, SHA-256 `0306fb42f84fa976ff9680aadf6a1b348e87d5c99cd503e85b1e82b9bf728048`, 3,065,859 bytes를 확인했다. 이번 단계는 DB write 없이 crawler/data/docs만 변경했으며, 검증은 `../05_QA_Validation/61_NH_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md`에 기록한다.
 
-2026-05-31 19:33 KST 기준 농협손보 실손의료보험 매칭 키워드/caveat 정리를 완료했다. 공식 약관 hash 1건과 보험다모아 조건별 숫자 quote 4건이 있으므로 `coverage_category=medical_expense`, `matching_strategy=baseline`, `risk_targets=[]` baseline snapshot 후보가 될 수 있다. 단, 공식 약관 파일명에 `전환계약용`이 포함되므로 seed PR에서 이 caveat를 유지한다. 이번 단계는 DB write 없이 data/docs만 추가했으며 추천 snapshot 수는 10개로 유지한다. 검증은 `../05_QA_Validation/62_NH_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md`에 기록한다. 다음 작업은 농협손보 source document seed 후보 추가, source/quote approval, baseline `insurance_products` snapshot seed PR이다. 적용 완료 후 source-backed active 추천 상품은 10개에서 11개로 늘어난다.
+2026-05-31 19:33 KST 기준 농협손보 실손의료보험 매칭 키워드/caveat 정리를 완료했다. 공식 약관 hash 1건과 보험다모아 조건별 숫자 quote 4건이 있으므로 `coverage_category=medical_expense`, `matching_strategy=baseline`, `risk_targets=[]` baseline snapshot 후보가 될 수 있다. 단, 공식 약관 파일명에 `전환계약용`이 포함되므로 seed PR에서 이 caveat를 유지한다. 이번 단계는 DB write 없이 data/docs만 추가했으며 추천 snapshot 수는 10개로 유지한다. 검증은 `../05_QA_Validation/62_NH_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md`에 기록한다.
+
+2026-05-31 19:49 KST 기준 농협손보 실손 baseline 추천 snapshot seed 준비를 완료했다. `seed.ts`는 적용 시 `doc_nh_fire_medical_terms_202605` source document 1건을 추가하고, 농협손보 source를 `approved`로 승격하며, quote 4건을 `approved`로 바꾸고, `prod_nh_fire_medical_202605` snapshot 1건을 추가한다. 운영 DB 읽기 전용 확인 결과 현재 농협손보 source는 `raw`, quote 4건은 `needs_review`, source document는 0건이다. 이번 단계는 DB write 없이 seed/data/docs만 변경하며, 검증은 `../05_QA_Validation/63_NH_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md`에 기록한다. 다음 작업은 운영 DB 백업 후 seed apply PR이다. 적용 완료 후 source-backed active 추천 상품은 10개에서 11개로 늘어난다.
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 매칭 키워드 정리 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.
@@ -1265,6 +1267,7 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 - [남은 Raw Source 공식 문서 Probe 검증](../05_QA_Validation/60_REMAINING_RAW_SOURCE_DOCUMENT_PROBE_2026_05_31.md)
 - [농협손보 공시 Adapter Probe 검증](../05_QA_Validation/61_NH_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md)
 - [농협손보 실손의료보험 Baseline 매칭 검수](../05_QA_Validation/62_NH_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md)
+- [농협손보 실손 Baseline 추천 Snapshot Seed 검증](../05_QA_Validation/63_NH_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md)
 - [데모 보험상품 운영 추천 제거 검증](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md)
 - [데모 보험상품 Archive DB 적용 검증](../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md)
 - [보험상품 매칭 키워드 정리 정책](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md)
