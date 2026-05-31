@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-05-31 22:01
+> Last Updated: 2026-05-31 22:22
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.27
+- **상태**: Draft v1.28
 - **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준, 추천 snapshot 발행 기준
 - **결론**: 이 프로젝트에서 말하는 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DB에 보험상품을 넣기 전에 DNA risk target과 매칭할 수 있도록 `coverage_category`, `risk_targets`, `matching_strategy`, `coverage_caveats_json`을 정리하는 내부 데이터 정규화 작업이다.
 
@@ -237,7 +237,9 @@ DNA 분석 결과
 
 2026-05-31 22:01 KST 기준 메리츠화재 실손 baseline 추천 snapshot을 운영 DB에 적용했다. source-backed active 추천 상품은 11건에서 12건, approved quote는 44건에서 48건, baseline active product는 5건에서 6건이 됐다. 검증은 `../05_QA_Validation/68_MERITZ_FIRE_BASELINE_DB_APPLY_2026_05_31.md`에 둔다.
 
-다음 단계는 흥국화재, 미래에셋생명, 한화손보 adapter를 순차 추가해 공식 문서 hash를 확보하는 것이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
+2026-05-31 22:22 KST 기준 흥국화재 실손의료비보험 공시 adapter로 공식 약관 PDF 1건을 hash했다. `src_heungkuk_fire_direct_medical_202605`는 문서 evidence gate를 통과했지만, 아직 파일명 `next` suffix variant와 `coverage_category=medical_expense`, `matching_strategy=baseline`, caveat 정리가 남아 있으므로 추천 snapshot 수는 12개로 유지한다. 검증은 `../05_QA_Validation/69_HEUNGKUK_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md`에 둔다.
+
+다음 단계는 흥국화재 실손의료비보험 문서 variant 검수와 baseline 매칭 키워드/caveat 정리, 또는 미래에셋생명, 한화손보 adapter를 순차 추가해 공식 문서 hash를 확보하는 것이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
 
 ---
 
@@ -305,3 +307,4 @@ DNA 분석 결과
 - **QA_Validation**: [Meritz Fire Medical Matching Review](../05_QA_Validation/66_MERITZ_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md) - 메리츠화재 실손 baseline 매칭 키워드 검수
 - **QA_Validation**: [Meritz Fire Baseline Snapshot Seed](../05_QA_Validation/67_MERITZ_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 메리츠화재 실손 baseline 추천 snapshot seed 검증
 - **QA_Validation**: [Meritz Fire Baseline DB Apply](../05_QA_Validation/68_MERITZ_FIRE_BASELINE_DB_APPLY_2026_05_31.md) - 메리츠화재 실손 baseline 추천 snapshot 운영 DB 적용 검증
+- **QA_Validation**: [Heungkuk Fire Disclosure Adapter Probe](../05_QA_Validation/69_HEUNGKUK_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md) - 흥국화재 실손의료비보험 공식 약관 hash 검증

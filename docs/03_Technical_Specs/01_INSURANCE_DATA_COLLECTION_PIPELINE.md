@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 22:01
+> Last Updated: 2026-05-31 22:22
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.40
+- **상태**: Draft v2.41
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -350,6 +350,23 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 | baseline active product | 5 | 6 |
 
 적용 검증 문서는 `../05_QA_Validation/68_MERITZ_FIRE_BASELINE_DB_APPLY_2026_05_31.md`에 둔다. 다음 작업은 Dashboard와 상담 AI에서 메리츠화재 baseline 상품 설명을 확인하거나, 남은 흥국화재, 미래에셋생명, 한화손보 adapter를 순차 보강하는 것이다.
+
+### 7-12. 흥국화재 공시 adapter probe
+
+2026-05-31 22:22 KST 기준 흥국화재 실손의료비보험 공식 약관 다운로드 흐름을 추적하는 `heungkuk_direct_download_file` adapter를 추가했다. 공식 SPA 화면 `CMMOBDPRM4001`의 약관 버튼은 `downloadFile(this, "4", "eYou_mdca_term_next.pdf")`를 호출하며, adapter는 `CM_COMM_FileDownload_ACT.do` endpoint를 GET query로 재현해 PDF hash를 계산한다.
+
+| 항목 | 값 |
+|---|---|
+| source | `src_heungkuk_fire_direct_medical_202605` |
+| 공식 상품 페이지 | `https://direct.heungkukfire.co.kr/?ccid=0606001007#/CMMOBDPRM4001` |
+| PDF endpoint | `https://direct.heungkukfire.co.kr/CM_COMM_FileDownload_ACT.do` |
+| terms file | `eYou_mdca_term_next.pdf` |
+| best_match_score | `1` |
+| 신규 hash 문서 | 약관 1건 |
+
+이번 단계는 DB write 없이 crawler, probe 산출물, QA 문서만 갱신한다. 산출물은 `../../data/insurance/latest_heungkuk_fire_disclosure_adapter_probe.json`, `../../data/insurance/latest_heungkuk_fire_disclosure_adapter_probe_summary.csv`, 검증 문서는 `../05_QA_Validation/69_HEUNGKUK_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md`에 둔다.
+
+주의할 점은 약관 파일명이 `next` suffix를 사용한다는 점이다. 다음 단계에서는 문서 variant와 정기 hash refresh caveat를 확인한 뒤 `medical_expense` baseline 매칭 키워드/caveat 정리와 source document seed 여부를 결정한다.
 
 ---
 
@@ -890,6 +907,7 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - [x] 메리츠화재 실손의료보험 baseline 매칭 키워드/caveat 정리
 - [x] 메리츠화재 실손의료보험 baseline 추천 snapshot seed 준비
 - [x] 백업 후 메리츠화재 실손의료보험 baseline 추천 snapshot DB 적용
+- [x] 흥국화재 실손의료보험 공시 adapter로 약관 PDF hash 확보
 - [ ] quote-only raw source 미확보 후보 carrier별 공시/API adapter 보강
 - [x] hash-backed quote-only 후보를 `insurance_source_documents` seed 후보로 정리
 - [x] 백업 후 quote-only source document 8건 DB 적용
@@ -994,3 +1012,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Meritz Fire Medical Matching Review](../05_QA_Validation/66_MERITZ_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md) - 메리츠화재 실손 baseline 매칭 키워드 검수
 - **QA_Validation**: [Meritz Fire Baseline Snapshot Seed](../05_QA_Validation/67_MERITZ_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 메리츠화재 실손 baseline 추천 snapshot seed 검증
 - **QA_Validation**: [Meritz Fire Baseline DB Apply](../05_QA_Validation/68_MERITZ_FIRE_BASELINE_DB_APPLY_2026_05_31.md) - 메리츠화재 실손 baseline 추천 snapshot 운영 DB 적용 검증
+- **QA_Validation**: [Heungkuk Fire Disclosure Adapter Probe](../05_QA_Validation/69_HEUNGKUK_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md) - 흥국화재 실손의료비보험 공식 약관 hash 검증
