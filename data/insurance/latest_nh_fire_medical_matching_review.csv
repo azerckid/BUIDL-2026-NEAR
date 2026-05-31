@@ -1,0 +1,2 @@
+provider,product_source_id,e_insmarket_product_code,raw_product_name,current_status,recommended_matching_status,coverage_category,matching_strategy,risk_targets,document_count,carrier_match_score,quote_rows,numeric_quote_rows,snapshot_readiness,next_action
+농협손보,src_nh_fire_medical_202605,N71G004000001G,(무) 헤아림실손의료비보험2605,raw,baseline_ready_snapshot_candidate,medical_expense,baseline,[],1,1,4,4,ready_for_seed_pr_after_source_document_update,"source document seed 추가, source approved, quote approved, baseline snapshot row seed PR 준비"

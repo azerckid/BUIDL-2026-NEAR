@@ -1,0 +1,127 @@
+{
+  "metadata": {
+    "reviewed_at": "2026-05-31T19:33:00+09:00",
+    "timezone": "Asia/Seoul",
+    "reviewer": "codex_nh_fire_medical_matching_review",
+    "output_version": "1.0",
+    "scope": "NH Fire medical expense baseline matching keyword and caveat review",
+    "input_seed": "src/lib/db/seed.ts",
+    "input_disclosure_adapter_probe": "data/insurance/latest_nh_fire_disclosure_adapter_probe.json",
+    "input_quote_probe": "data/insurance/latest_premium_quote_probe.json",
+    "db_write_performed": false,
+    "seed_file_changed": false,
+    "recommendation_snapshot_changed": false
+  },
+  "summary": {
+    "source_candidates_reviewed": 1,
+    "baseline_ready_sources": 1,
+    "blocked_sources": 0,
+    "source_document_seed_candidates": 1,
+    "quote_rows_reviewed": 4,
+    "numeric_quote_rows": 4,
+    "active_recommendation_snapshot_rows_added": 0,
+    "recommended_next_snapshot_sources": [
+      "src_nh_fire_medical_202605"
+    ],
+    "blocked_snapshot_sources": []
+  },
+  "baseline_policy": {
+    "coverage_category": "medical_expense",
+    "matching_strategy": "baseline",
+    "recommended_risk_targets": [],
+    "reason": "실손의료보험은 질병과 상해 치료비를 폭넓게 보상하지만 특정 DNA risk key와 직접 연결되는 상품이 아니다. 추천 엔진에서는 위험 점수 랭킹에 섞지 않고 기본 의료비 방어 baseline lane으로만 표시한다.",
+    "common_caveats": [
+      "유전자 위험 특화 추천이 아니라 기본 의료비 방어 baseline으로 표시한다.",
+      "실제 가입과 보험료는 인수 심사, 담보 선택, 자기부담금, 급여/비급여 조건에 따라 달라질 수 있다.",
+      "보험다모아 quote는 34세/44세 남녀 비교 조건의 공개 예시 보험료이며 개인 맞춤 확정 견적이 아니다.",
+      "실손의료보험은 갱신과 재가입 시점에 보험료와 보장 조건이 달라질 수 있다."
+    ]
+  },
+  "decisions": [
+    {
+      "provider": "농협손보",
+      "product_source_id": "src_nh_fire_medical_202605",
+      "carrier_id": "carrier_nh_fire",
+      "e_insmarket_product_code": "N71G004000001G",
+      "raw_product_name": "(무) 헤아림실손의료비보험2605",
+      "normalized_product_name": "농협손보 헤아림실손의료비보험",
+      "official_product_page": "https://www.nhfire.co.kr/product/retrieveProduct.nhfire?pdtCd=D711117",
+      "official_document_name": "무배당 헤아림다이렉트실손의료비보험(전환계약용)2605약관.pdf",
+      "current_source_review_status": "raw",
+      "recommended_source_review_status": "raw",
+      "recommended_matching_review_status": "baseline_ready_snapshot_candidate",
+      "recommended_coverage_category": "medical_expense",
+      "recommended_matching_strategy": "baseline",
+      "recommended_risk_targets": [],
+      "document_evidence": {
+        "carrier_match_score": 1,
+        "document_count": 1,
+        "document_types": [
+          "terms"
+        ],
+        "primary_source_document_candidate": "doc_nh_fire_medical_terms_202605",
+        "source_url": "https://www.nhfire.co.kr/imageView/downloadFile.ajax?fileId=F004074317&afileSeqn=1",
+        "sha256": [
+          "0306fb42f84fa976ff9680aadf6a1b348e87d5c99cd503e85b1e82b9bf728048"
+        ],
+        "content_length_bytes": 3065859,
+        "source_type": "carrier_disclosure",
+        "document_type": "terms"
+      },
+      "coverage_details_candidate": {
+        "coverage_category": "medical_expense",
+        "matching_strategy": "baseline",
+        "risk_targets": [],
+        "baseline_terms": [
+          "실손의료비",
+          "질병 치료비",
+          "상해 치료비",
+          "급여/비급여 의료비"
+        ],
+        "variant_notes": [
+          "보험다모아 원천명은 헤아림실손의료비보험2605이고 공식 약관 파일명은 헤아림다이렉트실손의료비보험(전환계약용)2605다.",
+          "source approval PR에서는 전환계약용 variant caveat를 유지해야 한다."
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "유전자 위험 특화 추천이 아니라 기본 의료비 방어 baseline으로 표시한다.",
+        "실손의료보험은 자기부담금, 급여/비급여, 보장 한도, 갱신 조건이 적용된다.",
+        "보험다모아 quote는 공개 비교 조건 기준 예시 보험료이며 개인별 인수 심사 견적이 아니다.",
+        "공식 약관 파일명이 전환계약용 상품임을 표시하므로 추천 카드와 상담 AI context에 이 variant caveat를 남긴다.",
+        "대표 문서는 약관 1건이며, 상품요약서/사업방법서 hash가 없다는 점을 source caveat에 남긴다."
+      ],
+      "quote_review": {
+        "quote_source": "data/insurance/latest_premium_quote_probe.json",
+        "quote_rows": 4,
+        "numeric_quote_rows": 4,
+        "condition_ids": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          5745,
+          5745,
+          7364,
+          7364
+        ],
+        "expected_quote_ids": [
+          "quote_src_nh_fire_medical_202605_age34_male_60456bed3452",
+          "quote_src_nh_fire_medical_202605_age34_female_b141dc7c5700",
+          "quote_src_nh_fire_medical_202605_age44_male_26615bdcb076",
+          "quote_src_nh_fire_medical_202605_age44_female_58dcc145a6b7"
+        ],
+        "quote_review_status": "needs_review_numeric_values_available"
+      },
+      "snapshot_readiness": "ready_for_seed_pr_after_source_document_update",
+      "next_action": "승격 PR에서 source document row 추가, source approved, quote approved, baseline insurance_products snapshot row를 함께 생성한다."
+    }
+  ],
+  "next_actions": [
+    "농협손보 약관 1건을 SOURCE_AWARE_DOCUMENTS seed 후보로 추가한다.",
+    "농협손보 source approval, quote 4건 approval, baseline insurance_products snapshot row 생성 seed PR을 준비한다.",
+    "seed PR에서 전환계약용 variant caveat와 대표 문서가 약관 1건뿐이라는 제한을 유지한다.",
+    "운영 DB 백업 후 apply PR로 source-backed active 추천 상품을 10건에서 11건으로 확대한다."
+  ]
+}

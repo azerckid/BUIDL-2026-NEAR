@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 19:26
+> Last Updated: 2026-05-31 19:33
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.33
+- **상태**: Draft v2.34
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -240,7 +240,25 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 | content_length_bytes | `3065859` |
 | best_match_score | `1` |
 
-이번 단계는 DB write 없이 crawler, probe 산출물, QA 문서만 갱신한다. 산출물은 `../../data/insurance/latest_nh_fire_disclosure_adapter_probe.json`, `../../data/insurance/latest_nh_fire_disclosure_adapter_probe_summary.csv`, 검증 문서는 `../05_QA_Validation/61_NH_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md`에 둔다. 다음 작업은 농협손보 실손의료보험 매칭 키워드/caveat 정리와 source document seed 후보 추가다.
+이번 단계는 DB write 없이 crawler, probe 산출물, QA 문서만 갱신한다. 산출물은 `../../data/insurance/latest_nh_fire_disclosure_adapter_probe.json`, `../../data/insurance/latest_nh_fire_disclosure_adapter_probe_summary.csv`, 검증 문서는 `../05_QA_Validation/61_NH_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md`에 둔다.
+
+### 7-5. 농협손보 실손 baseline 매칭 검수
+
+2026-05-31 19:33 KST 기준 농협손보 `src_nh_fire_medical_202605`는 기존 실손 baseline 정책에 맞춰 `coverage_category=medical_expense`, `matching_strategy=baseline`, `risk_targets=[]` 후보로 정리했다.
+
+| 항목 | 값 |
+|---|---|
+| source | `src_nh_fire_medical_202605` |
+| product code | `N71G004000001G` |
+| 공식 문서 후보 | `doc_nh_fire_medical_terms_202605` |
+| 공식 약관 hash | `0306fb42f84fa976ff9680aadf6a1b348e87d5c99cd503e85b1e82b9bf728048` |
+| quote row | 4건, 모두 numeric KRW |
+| 추천 전략 | `medical_expense` baseline |
+| snapshot 준비도 | source document seed 추가 후 seed PR 가능 |
+
+주의할 점은 보험다모아 원천 상품명은 `(무) 헤아림실손의료비보험2605`인데, 공식 약관 파일명은 `무배당 헤아림다이렉트실손의료비보험(전환계약용)2605약관.pdf`라는 점이다. 따라서 source approval과 상담 AI context에는 `전환계약용` variant caveat를 유지한다.
+
+이번 단계는 DB write 없이 data/docs 산출물만 추가한다. 산출물은 `../../data/insurance/latest_nh_fire_medical_matching_review.json`, `../../data/insurance/latest_nh_fire_medical_matching_review.csv`, 검증 문서는 `../05_QA_Validation/62_NH_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md`에 둔다. 다음 작업은 source document seed 추가, source/quote approval, baseline `insurance_products` snapshot seed PR이다.
 
 ---
 
@@ -872,3 +890,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Shinhan No-refund DB Apply](../05_QA_Validation/59_SHINHAN_NO_REFUND_DB_APPLY_2026_05_31.md) - 신한라이프 해약환급금 미지급형 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [Remaining Raw Source Document Probe](../05_QA_Validation/60_REMAINING_RAW_SOURCE_DOCUMENT_PROBE_2026_05_31.md) - 남은 raw source 공식 문서 probe 검증
 - **QA_Validation**: [NH Fire Disclosure Adapter Probe](../05_QA_Validation/61_NH_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md) - 농협손보 실손의료보험 공식 약관 hash 검증
+- **QA_Validation**: [NH Fire Medical Matching Review](../05_QA_Validation/62_NH_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md) - 농협손보 실손 baseline 매칭 키워드 검수
