@@ -185,6 +185,36 @@ const CARRIER_PROFILES = {
       "CM_COMM_FileDownload_ACT.do는 같은 파일명을 GET query로 전달해도 공식 PDF를 반환한다.",
     ],
   },
+  미래에셋생명: {
+    provider: "미래에셋생명",
+    source_url: "https://life.miraeasset.com/micro/disclosure/product/PC-HO-080301-000000.do",
+    api_searches: [
+      {
+        kind: "miraeasset_disclosure_product_list",
+        endpoint:
+          "https://life.miraeasset.com/micro/disclosure/selectWorkDvsnDataPaging.do",
+        download_endpoint: "https://life.miraeasset.com/micro/cmmnFileDown.do",
+        referer:
+          "https://life.miraeasset.com/micro/disclosure/product/PC-HO-080301-000000.do",
+        work_dvsn: "D",
+        sale_status: "판매중인상품",
+        category: "온라인",
+        keyword: "온라인 암보험",
+        product_name: "온라인 암보험 무배당",
+        keywords: [
+          "온라인 암보험",
+          "온라인 암보험 무배당",
+          "기본형",
+          "해약환급금이없는유형",
+          "2026-05-01",
+        ],
+      },
+    ],
+    notes: [
+      "상품공시 화면은 COMEXCEL.fn_getWorkDvsnDataPaging으로 /micro/disclosure/selectWorkDvsnDataPaging.do를 호출한다.",
+      "문서 다운로드는 /micro/cmmnFileDown.do에 pathType, fileName, orgFileName, filePath query를 전달하면 공식 PDF를 반환한다.",
+    ],
+  },
   DB손보: {
     provider: "DB손보",
     source_url: "https://www.idbins.com/FWMAIV1534.do",
@@ -519,6 +549,9 @@ async function fetchApiSearchRecords(search, options) {
   }
   if (search.kind === "heungkuk_direct_download_file") {
     return fetchHeungkukDirectDownloadFileRecords(search);
+  }
+  if (search.kind === "miraeasset_disclosure_product_list") {
+    return await fetchMiraeassetDisclosureProductListRecords(search, options);
   }
   if (search.kind === "samsunglife_policy_url") {
     return await fetchSamsungLifePolicyRecords(search, options);
@@ -880,6 +913,120 @@ function makeHeungkukDirectDownloadUrl(search) {
   url.searchParams.set("scrId", search.screen_id);
   url.searchParams.set("fileType", search.file_type);
   url.searchParams.set("downFileName", search.terms_file);
+  return url.toString();
+}
+
+async function fetchMiraeassetDisclosureProductListRecords(search, options) {
+  const body = new URLSearchParams({
+    workDvsn: search.work_dvsn,
+    text1: search.sale_status,
+    text2: search.category,
+    text3: search.keyword,
+    pageNum: "0",
+  });
+
+  const response = await fetchWithTimeout(search.endpoint, {
+    timeoutMs: options.timeoutMs,
+    method: "POST",
+    accept: "application/json, text/javascript, */*; q=0.01",
+    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+    headers: {
+      Origin: "https://life.miraeasset.com",
+      Referer: search.referer,
+      "X-Requested-With": "XMLHttpRequest",
+    },
+    body,
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const payload = await response.json();
+  const rows = (payload.list ?? [])
+    .map((record) => parseMiraeassetDisclosureRow(record, search))
+    .filter(Boolean);
+  const activeRows = rows.filter((row) => !row.cell3);
+  const targetRows = (activeRows.length > 0 ? activeRows : rows).filter((row) =>
+    normalizeText(row.cell1).includes(normalizeText(search.product_name)),
+  );
+
+  if (targetRows.length === 0) {
+    throw new Error("Missing Mirae Asset online cancer disclosure row");
+  }
+
+  return targetRows.map((row) => ({
+    text: cleanText(
+      [
+        search.product_name,
+        row.cell0,
+        row.cell1,
+        row.cell2,
+        row.cell3,
+        row.cell4,
+        row.cell5,
+        row.cell6,
+        ...(search.keywords ?? []),
+      ]
+        .filter(Boolean)
+        .join(" "),
+    ),
+    links: makeMiraeassetDocumentLinks(row, search),
+  }));
+}
+
+function parseMiraeassetDisclosureRow(record, search) {
+  try {
+    const row = JSON.parse(record.jsonData);
+    return {
+      cell0: String(row.cell0 ?? ""),
+      cell1: String(row.cell1 ?? ""),
+      cell2: String(row.cell2 ?? ""),
+      cell3: String(row.cell3 ?? ""),
+      cell4: String(row.cell4 ?? ""),
+      cell5: String(row.cell5 ?? ""),
+      cell6: String(row.cell6 ?? ""),
+      cell7: String(row.cell7 ?? ""),
+      discovered_from: search.endpoint,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function makeMiraeassetDocumentLinks(row, search) {
+  return [
+    ["summary", row.cell4, "상품요약서"],
+    ["terms", row.cell5, "보험약관"],
+    ["business_method", row.cell6, "사업방법서"],
+  ].flatMap(([documentType, fileNames, label]) =>
+    splitMiraeassetFileNames(fileNames).map((fileName) => ({
+      url: makeMiraeassetDownloadUrl(fileName, row.cell7, search.download_endpoint),
+      href: `${row.cell7}${fileName}`,
+      text: label,
+      title: `${row.cell1} ${label} ${fileName}`,
+      document_type: documentType,
+      discovered_from: search.endpoint,
+      headers: {
+        Referer: search.referer,
+      },
+    })),
+  );
+}
+
+function splitMiraeassetFileNames(value) {
+  return String(value ?? "")
+    .split(/\r?\n/g)
+    .map((fileName) => fileName.trim())
+    .filter(Boolean);
+}
+
+function makeMiraeassetDownloadUrl(fileName, filePath, downloadEndpoint) {
+  const url = new URL(downloadEndpoint);
+  url.searchParams.set("pathType", "gongci_u1");
+  url.searchParams.set("fileName", fileName);
+  url.searchParams.set("orgFileName", fileName);
+  url.searchParams.set("filePath", `/uploadwas/life/${filePath}`);
   return url.toString();
 }
 
