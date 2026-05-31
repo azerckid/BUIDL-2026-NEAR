@@ -1,0 +1,139 @@
+{
+  "metadata": {
+    "reviewed_at": "2026-06-01T03:34:00+09:00",
+    "timezone": "Asia/Seoul",
+    "reviewer": "codex_matching_keyword_review",
+    "output_version": "1.0",
+    "scope": "DB Life e로운 cancer insurance variant and matching keyword review",
+    "input_disclosure_probe": "data/insurance/latest_db_life_cancer_disclosure_adapter_probe.json",
+    "input_quote_rows": "data/insurance/latest_premium_quote_probe.json",
+    "input_seed": "src/lib/db/seed.ts",
+    "official_pdf_text_extracted": true,
+    "db_read_only_check_performed": false,
+    "db_write_performed": false,
+    "seed_file_changed": false,
+    "recommendation_snapshot_changed": false
+  },
+  "summary": {
+    "source_candidates_reviewed": 1,
+    "matching_ready_sources": 1,
+    "snapshot_price_ready_sources": 1,
+    "official_document_unique_hashes": 1,
+    "shared_document_sources": [],
+    "quote_rows_reviewed": 4,
+    "numeric_quote_rows": 4,
+    "active_recommendation_snapshot_rows_added": 0,
+    "recommended_next_snapshot_sources": [
+      "src_db_life_eroun_cancer_202601"
+    ]
+  },
+  "risk_target_policy": {
+    "coverage_category": "oncology",
+    "matching_strategy": "risk_target",
+    "recommended_risk_targets": [
+      "pancreatic_cancer",
+      "liver_cancer",
+      "lung_cancer",
+      "breast_cancer",
+      "colon_cancer"
+    ],
+    "reason": "The terms identify the product as cancer insurance and define cancer diagnosis, specific three major cancer diagnosis, small cancer diagnosis, breast cancer timing, cancer waiting period, and no-surrender-refund conditions. The current DNA risk key dictionary supports the five oncology targets above. Small cancer and benefit timing differences remain caveats rather than separate risk_targets."
+  },
+  "official_document_review": {
+    "terms_title": "무배당 e로운 암보험(해약환급금 미지급형)(2601)",
+    "product_type": "암보험",
+    "document_type": "terms",
+    "document_url": "https://www.idblife.com/notice/product/prov/file?publishNo=3196&fileGb=3%20&fileSeq=65059",
+    "source_page_url": "https://www.idblife.com/notice/product/prov/sale/9532",
+    "sha256": "3c25a911b796fa239c45aec82afce4d24e310d76e516ad45ba86821cc58d0074",
+    "content_length_bytes": 4247768,
+    "variant_decision": "The official PDF title, product name, no-surrender-refund type, 2601 version marker, and insurance product type match the quote-only source. The next seed PR should add one terms document row first and keep summary/business_method absent until official URLs are confirmed."
+  },
+  "decisions": [
+    {
+      "provider": "DB생명",
+      "product_source_id": "src_db_life_eroun_cancer_202601",
+      "carrier_id": "carrier_db_life",
+      "e_insmarket_product_code": "L71C009000006",
+      "raw_product_name": "(무)e로운 암보험(해약환급금 미지급형)(2601)",
+      "current_source_review_status": "raw",
+      "recommended_source_review_status": "needs_review",
+      "recommended_matching_review_status": "matching_ready_snapshot_candidate",
+      "recommended_coverage_category": "oncology",
+      "recommended_matching_strategy": "risk_target",
+      "recommended_risk_targets": [
+        "pancreatic_cancer",
+        "liver_cancer",
+        "lung_cancer",
+        "breast_cancer",
+        "colon_cancer"
+      ],
+      "coverage_details_candidate": {
+        "coverage_category": "oncology",
+        "matching_strategy": "risk_target",
+        "risk_targets": [
+          "pancreatic_cancer",
+          "liver_cancer",
+          "lung_cancer",
+          "breast_cancer",
+          "colon_cancer"
+        ],
+        "primary_benefit_terms": [
+          "암진단자금",
+          "특정3대암진단자금",
+          "소액암진단자금"
+        ],
+        "benefit_timing_terms": [
+          "암 보장개시일 90일",
+          "계약일부터 1년 미만 50% 지급",
+          "유방암 180일 경과 이전 20% 지급"
+        ],
+        "small_cancer_terms": [
+          "기타피부암",
+          "특정갑상선암",
+          "대장점막내암"
+        ],
+        "variant_terms": [
+          "해약환급금 미지급형",
+          "2601",
+          "무배당 e로운 암보험"
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "암 보장개시일은 계약일 또는 부활일부터 그 날을 포함하여 90일이 지난 날의 다음날이므로, 초기 90일 암 보장 제외 caveat를 표시한다.",
+        "계약일부터 1년 미만에 암, 특정3대암, 소액암 지급사유가 발생하면 지급금액의 50% 기준을 적용한다.",
+        "유방암은 보험계약일로부터 180일 경과 이전 진단확정 시 암진단자금의 20% 지급 조건이 있으므로 별도 caveat로 표시한다.",
+        "소액암과 특정3대암은 일반 암진단자금과 별도 급부로 표시하며, 기타피부암, 특정갑상선암, 대장점막내암 등 분류 차이를 설명한다.",
+        "해약환급금 미지급형은 보험료 납입기간 중 해지 시 해약환급금이 없고, 납입기간 이후 해지 시 표준형 해약환급금의 50% 기준이므로 환급금 caveat를 표시한다.",
+        "보험료 납입면제와 보장 제외 조건은 약관의 세부 조항을 따라야 하며, 추천 카드에서는 최종 가입 전 공식 약관 확인을 요구한다."
+      ],
+      "quote_review": {
+        "quote_rows": 4,
+        "numeric_quote_rows": 4,
+        "quote_source": "e_insmarket_cancer_mobile",
+        "quote_status_before_seed": "needs_review",
+        "conditions": [
+          {
+            "condition_id": "age34_female",
+            "monthly_premium_krw": 9700
+          },
+          {
+            "condition_id": "age34_male",
+            "monthly_premium_krw": 10300
+          },
+          {
+            "condition_id": "age44_female",
+            "monthly_premium_krw": 10900
+          },
+          {
+            "condition_id": "age44_male",
+            "monthly_premium_krw": 13300
+          }
+        ],
+        "representative_condition": "age34_female",
+        "representative_monthly_premium_krw": 9700
+      },
+      "next_action": "Prepare a seed PR that adds one DB Life terms source document row, approves four quote rows, promotes the source to approved, and creates one active oncology insurance_products snapshot."
+    }
+  ]
+}
