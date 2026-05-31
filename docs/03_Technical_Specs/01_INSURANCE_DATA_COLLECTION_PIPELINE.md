@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-06-01 00:15
+> Last Updated: 2026-06-01 00:31
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.45
+- **상태**: Draft v2.46
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -1062,3 +1062,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Heungkuk Fire Baseline Snapshot Seed](../05_QA_Validation/71_HEUNGKUK_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 흥국화재 실손 baseline 추천 snapshot seed 검증
 - **QA_Validation**: [Heungkuk Fire Baseline DB Apply](../05_QA_Validation/72_HEUNGKUK_FIRE_BASELINE_DB_APPLY_2026_05_31.md) - 흥국화재 실손 baseline 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [Mirae Asset Life Disclosure Adapter Probe](../05_QA_Validation/73_MIRAEASSET_LIFE_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md) - 미래에셋생명 온라인 암보험 공식 문서 hash 검증
+- **QA_Validation**: [Mirae Asset Life Cancer Matching Review](../05_QA_Validation/74_MIRAEASSET_LIFE_CANCER_MATCHING_REVIEW_2026_06_01.md) - 미래에셋생명 온라인 암보험 매칭 키워드와 caveat 검수

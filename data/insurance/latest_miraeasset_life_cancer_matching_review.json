@@ -1,0 +1,220 @@
+{
+  "metadata": {
+    "reviewed_at": "2026-06-01T00:31:00+09:00",
+    "timezone": "Asia/Seoul",
+    "reviewer": "codex_matching_keyword_review",
+    "output_version": "1.0",
+    "scope": "Mirae Asset Life online cancer insurance variant and matching keyword review",
+    "input_disclosure_probe": "data/insurance/latest_miraeasset_life_disclosure_adapter_probe.json",
+    "input_quote_rows": "data/insurance/latest_premium_quote_rows_apply.json",
+    "input_seed": "src/lib/db/seed.ts",
+    "official_pdf_text_extracted": true,
+    "db_read_only_check_performed": true,
+    "db_write_performed": false,
+    "seed_file_changed": false,
+    "recommendation_snapshot_changed": false
+  },
+  "summary": {
+    "source_candidates_reviewed": 2,
+    "matching_ready_sources": 2,
+    "snapshot_price_ready_sources": 2,
+    "official_document_unique_hashes": 3,
+    "shared_document_sources": [
+      "src_miraeasset_online_cancer_basic_202605",
+      "src_miraeasset_online_cancer_no_refund_202605"
+    ],
+    "quote_rows_reviewed": 8,
+    "numeric_quote_rows": 8,
+    "active_recommendation_snapshot_rows_added": 0,
+    "recommended_next_snapshot_sources": [
+      "src_miraeasset_online_cancer_basic_202605",
+      "src_miraeasset_online_cancer_no_refund_202605"
+    ]
+  },
+  "risk_target_policy": {
+    "coverage_category": "oncology",
+    "matching_strategy": "risk_target",
+    "recommended_risk_targets": [
+      "pancreatic_cancer",
+      "liver_cancer",
+      "lung_cancer",
+      "breast_cancer",
+      "colon_cancer"
+    ],
+    "reason": "The policy terms define cancer diagnosis benefits and the current DNA risk key dictionary supports the five oncology targets above. Thyroid, prostate, skin, in-situ, borderline tumor, bladder mucosal, and other lower-benefit classes remain caveats rather than direct risk_targets."
+  },
+  "official_document_review": {
+    "terms_title": "온라인 암보험 무배당 [기본형/해약환급금이 없는 유형]",
+    "product_codes": [
+      {
+        "code": "21279",
+        "variant": "기본형"
+      },
+      {
+        "code": "21280",
+        "variant": "해약환급금이 없는 유형"
+      }
+    ],
+    "shared_document_hashes": [
+      {
+        "document_type": "summary",
+        "file_name": "온라인 암보험 무배당_상품요약서_20260401.pdf",
+        "sha256": "133a9d91d3547e04ed25717275ce350ae0988c480ddde008346dd109255e722f"
+      },
+      {
+        "document_type": "terms",
+        "file_name": "온라인 암보험 무배당_약관_20260501.pdf",
+        "sha256": "8d4a162186b510c576e7333e4ae75e72b6c785a089798688d0d490e267c14378"
+      },
+      {
+        "document_type": "business_method",
+        "file_name": "온라인 암보험 무배당_사업방법서_20260201.pdf",
+        "sha256": "be8d5a3ec858875dbeb06c4b467ba4633928cb74475aa2cf159ed53ad508b71f"
+      }
+    ],
+    "variant_decision": "The terms PDF explicitly names both 기본형 and 해약환급금이 없는 유형 and maps them to product codes 21279 and 21280, so the three official document hashes can be reused for both source rows with separate source document IDs."
+  },
+  "decisions": [
+    {
+      "provider": "미래에셋생명",
+      "product_source_id": "src_miraeasset_online_cancer_basic_202605",
+      "carrier_id": "carrier_miraeasset_life",
+      "e_insmarket_product_code": "L34C009000021",
+      "raw_product_name": "온라인 암보험 무배당 [기본형]",
+      "current_source_review_status": "raw",
+      "recommended_source_review_status": "needs_review",
+      "recommended_matching_review_status": "matching_ready_snapshot_candidate",
+      "recommended_coverage_category": "oncology",
+      "recommended_matching_strategy": "risk_target",
+      "recommended_risk_targets": [
+        "pancreatic_cancer",
+        "liver_cancer",
+        "lung_cancer",
+        "breast_cancer",
+        "colon_cancer"
+      ],
+      "coverage_details_candidate": {
+        "coverage_category": "oncology",
+        "matching_strategy": "risk_target",
+        "risk_targets": [
+          "pancreatic_cancer",
+          "liver_cancer",
+          "lung_cancer",
+          "breast_cancer",
+          "colon_cancer"
+        ],
+        "primary_benefit_terms": [
+          "암 진단보험금",
+          "일반암",
+          "여성유방암",
+          "전립선암",
+          "기타피부암",
+          "갑상선암",
+          "대장점막내암",
+          "비침습방광암",
+          "제자리암",
+          "경계성종양"
+        ],
+        "variant_terms": [
+          "기본형",
+          "상품코드 21279"
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "약관은 기본형과 해약환급금이 없는 유형을 함께 다루므로 source별 문서 row ID는 분리하되 같은 hash를 공유한다.",
+        "암 보장개시일은 계약일 또는 부활일부터 90일이 지난 날의 다음 날이다.",
+        "보험가입금액 1,000만원 기준 일반암은 계약일로부터 2년 미만 500만원, 2년 이후 1,000만원으로 지급금액이 다르다.",
+        "여성유방암 또는 전립선암은 일반암과 별도 급부이며 2년 미만 100만원, 2년 이후 200만원 기준이다.",
+        "기타피부암, 갑상선암(중증갑상선암 제외), 대장점막내암, 비침습방광암, 제자리암, 경계성종양은 각각 50만원/100만원 기준의 별도 급부다.",
+        "기타피부암, 갑상선암(중증갑상선암 제외), 대장점막내암, 비침습방광암, 제자리암, 경계성종양 진단은 보험료 납입면제 대상이 아니다."
+      ],
+      "quote_review": {
+        "quote_rows": 4,
+        "numeric_quote_rows": 4,
+        "condition_premiums_krw": {
+          "age34_female": 4510,
+          "age34_male": 5970,
+          "age44_female": 7780,
+          "age44_male": 13000
+        },
+        "quote_review_status": "numeric_ready_needs_approval"
+      },
+      "snapshot_readiness": "candidate_after_source_document_seed_and_quote_approval_pr",
+      "next_action": "Prepare source document seed rows, quote approvals, and active insurance_products snapshot after DB read-only ID confirmation."
+    },
+    {
+      "provider": "미래에셋생명",
+      "product_source_id": "src_miraeasset_online_cancer_no_refund_202605",
+      "carrier_id": "carrier_miraeasset_life",
+      "e_insmarket_product_code": "L34C009000022",
+      "raw_product_name": "온라인 암보험 무배당 [해약환급금이없는유형]",
+      "current_source_review_status": "raw",
+      "recommended_source_review_status": "needs_review",
+      "recommended_matching_review_status": "matching_ready_snapshot_candidate",
+      "recommended_coverage_category": "oncology",
+      "recommended_matching_strategy": "risk_target",
+      "recommended_risk_targets": [
+        "pancreatic_cancer",
+        "liver_cancer",
+        "lung_cancer",
+        "breast_cancer",
+        "colon_cancer"
+      ],
+      "coverage_details_candidate": {
+        "coverage_category": "oncology",
+        "matching_strategy": "risk_target",
+        "risk_targets": [
+          "pancreatic_cancer",
+          "liver_cancer",
+          "lung_cancer",
+          "breast_cancer",
+          "colon_cancer"
+        ],
+        "primary_benefit_terms": [
+          "암 진단보험금",
+          "일반암",
+          "여성유방암",
+          "전립선암",
+          "기타피부암",
+          "갑상선암",
+          "대장점막내암",
+          "비침습방광암",
+          "제자리암",
+          "경계성종양"
+        ],
+        "variant_terms": [
+          "해약환급금이 없는 유형",
+          "상품코드 21280"
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "약관은 기본형과 해약환급금이 없는 유형을 함께 다루므로 source별 문서 row ID는 분리하되 같은 hash를 공유한다.",
+        "해약환급금이 없는 유형은 해지 시 환급금 조건이 기본형과 다를 수 있으므로 추천 카드 caveat에 명시한다.",
+        "암 보장개시일은 계약일 또는 부활일부터 90일이 지난 날의 다음 날이다.",
+        "보험가입금액 1,000만원 기준 일반암은 계약일로부터 2년 미만 500만원, 2년 이후 1,000만원으로 지급금액이 다르다.",
+        "여성유방암 또는 전립선암은 일반암과 별도 급부이며 2년 미만 100만원, 2년 이후 200만원 기준이다.",
+        "기타피부암, 갑상선암(중증갑상선암 제외), 대장점막내암, 비침습방광암, 제자리암, 경계성종양은 각각 50만원/100만원 기준의 별도 급부다.",
+        "기타피부암, 갑상선암(중증갑상선암 제외), 대장점막내암, 비침습방광암, 제자리암, 경계성종양 진단은 보험료 납입면제 대상이 아니다."
+      ],
+      "quote_review": {
+        "quote_rows": 4,
+        "numeric_quote_rows": 4,
+        "condition_premiums_krw": {
+          "age34_female": 6490,
+          "age34_male": 8910,
+          "age44_female": 7060,
+          "age44_male": 10700
+        },
+        "quote_review_status": "numeric_ready_needs_approval"
+      },
+      "snapshot_readiness": "candidate_after_source_document_seed_and_quote_approval_pr",
+      "next_action": "Prepare source document seed rows, quote approvals, and active insurance_products snapshot after DB read-only ID confirmation."
+    }
+  ],
+  "next_actions": [
+    "Add six source document seed rows for two product sources sharing three official hashes.",
+    "Approve eight numeric quote rows after confirming actual DB IDs.",
+    "Prepare two oncology insurance_products snapshots with representative age34_female KRW premiums and fixed demo USDC conversion.",
+    "Keep source review_status raw until the seed PR is applied to DB."
+  ]
+}

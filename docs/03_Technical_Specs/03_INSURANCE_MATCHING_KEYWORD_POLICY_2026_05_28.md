@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-06-01 00:15
+> Last Updated: 2026-06-01 00:31
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.32
+- **상태**: Draft v1.33
 - **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준, 추천 snapshot 발행 기준
 - **결론**: 이 프로젝트에서 말하는 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DB에 보험상품을 넣기 전에 DNA risk target과 매칭할 수 있도록 `coverage_category`, `risk_targets`, `matching_strategy`, `coverage_caveats_json`을 정리하는 내부 데이터 정규화 작업이다.
 
@@ -247,7 +247,9 @@ DNA 분석 결과
 
 2026-06-01 00:15 KST 기준 미래에셋생명 온라인 암보험 공시 adapter로 기본형과 해약환급금이없는유형 source 2건의 공식 PDF 3종을 hash했다. 두 source는 같은 2026-05-01 공시 row와 문서 hash를 공유하므로, 후속 PR에서 문서 variant 공유 가능 여부를 먼저 검수한 뒤 `coverage_category=oncology`, `matching_strategy=risk_target`, caveat를 정리한다. 이번 단계는 crawler/data/docs만 변경하며 추천 snapshot 수는 13개로 유지한다. 검증은 `../05_QA_Validation/73_MIRAEASSET_LIFE_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md`에 둔다.
 
-다음 단계는 미래에셋생명 문서 variant와 암보험 caveat를 정리하거나, 한화손보 adapter를 순차 추가해 공식 문서 hash를 확보하는 것이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
+2026-06-01 00:31 KST 기준 미래에셋생명 온라인 암보험 기본형/해약환급금이없는유형의 문서 variant와 매칭 키워드/caveat를 정리했다. 약관이 `온라인 암보험 무배당 [기본형/해약환급금이 없는 유형]`과 상품코드 21279/21280을 명시하므로 source별 문서 row는 분리하되 공식 hash 3종을 공유할 수 있다. 두 source는 `coverage_category=oncology`, `matching_strategy=risk_target`, 공통 5개 암 risk target 기준의 snapshot 후보이며, 숫자 KRW quote 8건이 있다. 이번 단계는 data/docs만 변경하며 추천 snapshot 수는 13개로 유지한다. 검증은 `../05_QA_Validation/74_MIRAEASSET_LIFE_CANCER_MATCHING_REVIEW_2026_06_01.md`에 둔다.
+
+다음 단계는 미래에셋생명 source document seed, quote approval, active snapshot 2건을 준비하거나, 한화손보 adapter를 순차 추가해 공식 문서 hash를 확보하는 것이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
 
 ---
 
@@ -320,3 +322,4 @@ DNA 분석 결과
 - **QA_Validation**: [Heungkuk Fire Baseline Snapshot Seed](../05_QA_Validation/71_HEUNGKUK_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 흥국화재 실손 baseline 추천 snapshot seed 검증
 - **QA_Validation**: [Heungkuk Fire Baseline DB Apply](../05_QA_Validation/72_HEUNGKUK_FIRE_BASELINE_DB_APPLY_2026_05_31.md) - 흥국화재 실손 baseline 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [Mirae Asset Life Disclosure Adapter Probe](../05_QA_Validation/73_MIRAEASSET_LIFE_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md) - 미래에셋생명 온라인 암보험 공식 문서 hash 검증
+- **QA_Validation**: [Mirae Asset Life Cancer Matching Review](../05_QA_Validation/74_MIRAEASSET_LIFE_CANCER_MATCHING_REVIEW_2026_06_01.md) - 미래에셋생명 온라인 암보험 매칭 키워드와 caveat 검수
