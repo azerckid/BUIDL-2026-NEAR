@@ -1,0 +1,102 @@
+{
+  "metadata": {
+    "prepared_at": "2026-05-31T23:03:00+09:00",
+    "timezone": "Asia/Seoul",
+    "generator": "manual_seed_preparation",
+    "output_version": "1.0",
+    "input_matching_review": "data/insurance/latest_heungkuk_fire_medical_matching_review.json",
+    "input_seed": "src/lib/db/seed.ts",
+    "db_read_only_checked_at": "2026-05-31T23:03:00+09:00",
+    "db_write_performed": false,
+    "seed_file_changed": true,
+    "recommendation_snapshot_seed_changed": true
+  },
+  "summary": {
+    "source_documents_added": 1,
+    "source_approvals_added": 1,
+    "quote_approvals_added": 4,
+    "insurance_product_snapshots_added": 1,
+    "representative_condition_id": "age34_female",
+    "krw_per_usdc": 1350,
+    "expected_source_documents_after_apply": 27,
+    "expected_source_approvals_after_apply": 13,
+    "expected_quote_approvals_after_apply": 52,
+    "expected_baseline_active_products_after_apply": 7,
+    "expected_active_source_backed_products_after_apply": 13,
+    "expected_insurance_products_after_apply": 18
+  },
+  "baseline_policy": {
+    "coverage_category": "medical_expense",
+    "matching_strategy": "baseline",
+    "risk_targets": [],
+    "ui_lane": "basic_medical_expense_defense",
+    "reason": "실손의료보험은 특정 DNA risk key와 직접 연결하지 않고 질병/상해 의료비를 넓게 방어하는 baseline 상품으로 표시한다."
+  },
+  "source_documents": [
+    {
+      "id": "doc_heungkuk_fire_direct_medical_terms_202605",
+      "product_source_id": "src_heungkuk_fire_direct_medical_202605",
+      "carrier_id": "carrier_heungkuk_fire",
+      "source_type": "carrier_disclosure",
+      "document_type": "terms",
+      "source_url": "https://direct.heungkukfire.co.kr/CM_COMM_FileDownload_ACT.do?_SERVICE_=CM_COMM_FileDownload_ACT&_TYPE_=M&_PRODTYPE_=4&scrId=CMMOBDPRM4001&fileType=4&downFileName=eYou_mdca_term_next.pdf",
+      "file_hash_sha256": "956b60ab796fec97397fc087b799ed487b47a9773fb780fe7ee529c131389756",
+      "content_type": "application/pdf;charset=ISO-8859-1",
+      "content_length_bytes": 5125066,
+      "usage_status": "link_only",
+      "parse_status": "not_parsed"
+    }
+  ],
+  "source_approval": {
+    "product_source_id": "src_heungkuk_fire_direct_medical_202605",
+    "provider": "흥국화재",
+    "raw_product_name": "(무)흥Good 다이렉트 실손의료보험(26.05)",
+    "official_product_url": "https://direct.heungkukfire.co.kr/?ccid=0606001007#/CMMOBDPRM4001",
+    "review_status_after_seed": "approved",
+    "representative_premium_krw": 8939,
+    "primary_source_document_id": "doc_heungkuk_fire_direct_medical_terms_202605",
+    "variant_caveat": "공식 약관 파일명이 eYou_mdca_term_next.pdf라서 seed/apply 전 adapter 재실행으로 hash 신선도를 확인한다.",
+    "document_evidence": {
+      "carrier_match_score": 1,
+      "document_types": [
+        "terms"
+      ],
+      "sha256": [
+        "956b60ab796fec97397fc087b799ed487b47a9773fb780fe7ee529c131389756"
+      ]
+    }
+  },
+  "quote_approval_ids": [
+    "quote_src_heungkuk_fire_direct_medical_202605_age34_male_60456bed3452",
+    "quote_src_heungkuk_fire_direct_medical_202605_age34_female_b141dc7c5700",
+    "quote_src_heungkuk_fire_direct_medical_202605_age44_male_26615bdcb076",
+    "quote_src_heungkuk_fire_direct_medical_202605_age44_female_58dcc145a6b7"
+  ],
+  "insurance_product_snapshot": {
+    "id": "prod_heungkuk_fire_direct_medical_202605",
+    "product_source_id": "src_heungkuk_fire_direct_medical_202605",
+    "name": "흥국화재 흥Good 다이렉트 실손의료보험",
+    "provider": "흥국화재",
+    "coverage_category": "medical_expense",
+    "matching_strategy": "baseline",
+    "risk_targets": [],
+    "monthly_premium_krw": 8939,
+    "monthly_premium_usdc": 6.62,
+    "primary_source_document_id": "doc_heungkuk_fire_direct_medical_terms_202605",
+    "catalog_status": "approved",
+    "is_active": 1
+  },
+  "safety": {
+    "legacy_demo_products_remain_archived": true,
+    "db_apply_required_in_follow_up_pr": true,
+    "operational_backup_required_before_apply": true,
+    "variant_caveat_required": true,
+    "risk_targets_empty_for_baseline": true
+  },
+  "next_actions": [
+    "운영 DB 백업 후 src/lib/db/seed.ts를 실행한다.",
+    "적용 후 source document +1, source approved +1, quote approved +4, active source-backed product +1을 검증한다.",
+    "dashboard에서 흥국화재 baseline 상품과 조건별 보험료가 표시되는지 확인한다.",
+    "상담 AI가 흥국화재 상품을 설명할 때 next suffix hash refresh caveat를 포함하는지 확인한다."
+  ]
+}
