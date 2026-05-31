@@ -1,0 +1,237 @@
+{
+  "generated_at": "2026-05-31T17:57:00+09:00",
+  "source": "operational_turso_read_only",
+  "db_write_performed": false,
+  "context": {
+    "after_pr": 59,
+    "active_source_backed_products": 9,
+    "approved_quotes": 36,
+    "insurance_products": 14,
+    "remaining_non_approved_sources": 13
+  },
+  "summary": {
+    "by_review_status": {
+      "needs_review": 2,
+      "raw": 11
+    },
+    "by_product_group": {
+      "암보험": 7,
+      "실손의료보험": 5,
+      "입원 건강보험": 1
+    },
+    "by_next_action": {
+      "matching_keyword_caveat_review": 1,
+      "source_document_probe": 10,
+      "schema_policy_decision": 1,
+      "blocked_until_standard_endpoint_found": 1
+    }
+  },
+  "next_batch_order": [
+    {
+      "order": 1,
+      "batch": "신한라이프 해약환급금 미지급형 암보험 매칭 키워드 정리",
+      "source_ids": ["src_shinhan_life_sol_cancer_202601"],
+      "reason": "공식 문서 3건과 조건별 quote 4건이 이미 운영 DB에 있으므로, variant/caveat 검수 후 추천 snapshot 후보로 판단할 수 있다."
+    },
+    {
+      "order": 2,
+      "batch": "raw source 공식 문서 probe",
+      "source_ids": [
+        "src_nh_fire_medical_202605",
+        "src_lotte_direct_medical_202605",
+        "src_meritz_direct_medical_202605",
+        "src_hanwha_general_direct_medical_202605",
+        "src_heungkuk_fire_direct_medical_202605",
+        "src_db_life_eroun_cancer_202601",
+        "src_tongyang_wooriwon_cancer_202605",
+        "src_miraeasset_online_cancer_basic_202605",
+        "src_miraeasset_online_cancer_no_refund_202605",
+        "src_hanwha_general_direct_cancer_202604"
+      ],
+      "reason": "조건별 quote는 있으나 source document가 0건이므로 추천 발행보다 공식 문서 hash 확보가 먼저다."
+    },
+    {
+      "order": 3,
+      "batch": "삼성생명 입원 건강보험 category 정책 결정",
+      "source_ids": ["src_samsung_life_hospital_health_202601"],
+      "reason": "공식 문서 1건은 있으나 현재 coverage_category enum에 맞지 않아 hospitalization/general_health 정책 결정이 필요하다."
+    },
+    {
+      "order": 4,
+      "batch": "신한라이프 표준형 blocker 유지",
+      "source_ids": ["src_shinhan_life_sol_cancer_standard_202605"],
+      "reason": "일반형 공식 문서 endpoint가 아직 발견되지 않았고, 해약환급금 미지급형 문서를 재사용하면 variant 오연결 위험이 있다."
+    }
+  ],
+  "candidates": [
+    {
+      "id": "src_shinhan_life_sol_cancer_202601",
+      "carrier": "신한라이프생명",
+      "product_group": "암보험",
+      "product_name": "신한SOL암보험(무배당, 해약환급금 미지급형)(비갱신형)",
+      "e_insmarket_product_code": "L11C009000006",
+      "review_status": "needs_review",
+      "source_document_count": 3,
+      "quote_count": 4,
+      "approved_quote_count": 0,
+      "next_action": "matching_keyword_caveat_review",
+      "recommendation_readiness": "candidate_after_variant_and_caveat_review"
+    },
+    {
+      "id": "src_samsung_life_hospital_health_202601",
+      "carrier": "삼성생명",
+      "product_group": "입원 건강보험",
+      "product_name": "삼성 인터넷 입원 건강보험(2601)(무배당,무해약환급금형)",
+      "e_insmarket_product_code": "L03C001000015",
+      "review_status": "needs_review",
+      "source_document_count": 1,
+      "quote_count": 0,
+      "approved_quote_count": 0,
+      "next_action": "schema_policy_decision",
+      "recommendation_readiness": "blocked_by_missing_coverage_category"
+    },
+    {
+      "id": "src_nh_fire_medical_202605",
+      "carrier": "농협손보",
+      "product_group": "실손의료보험",
+      "product_name": "(무) 헤아림실손의료비보험2605",
+      "e_insmarket_product_code": "N71G004000001G",
+      "review_status": "raw",
+      "source_document_count": 0,
+      "quote_count": 4,
+      "approved_quote_count": 0,
+      "next_action": "source_document_probe",
+      "recommendation_readiness": "blocked_until_official_document_hash"
+    },
+    {
+      "id": "src_lotte_direct_medical_202605",
+      "carrier": "롯데손보",
+      "product_group": "실손의료보험",
+      "product_name": "무배당 let:care 실손의료보험V(2605)",
+      "e_insmarket_product_code": "N03G004000001G",
+      "review_status": "raw",
+      "source_document_count": 0,
+      "quote_count": 4,
+      "approved_quote_count": 0,
+      "next_action": "source_document_probe",
+      "recommendation_readiness": "blocked_until_official_document_hash"
+    },
+    {
+      "id": "src_meritz_direct_medical_202605",
+      "carrier": "메리츠화재",
+      "product_group": "실손의료보험",
+      "product_name": "(무) 메리츠 다이렉트 실손의료비보험2605",
+      "e_insmarket_product_code": "N01G004000002G",
+      "review_status": "raw",
+      "source_document_count": 0,
+      "quote_count": 4,
+      "approved_quote_count": 0,
+      "next_action": "source_document_probe",
+      "recommendation_readiness": "blocked_until_official_document_hash"
+    },
+    {
+      "id": "src_hanwha_general_direct_medical_202605",
+      "carrier": "한화손보",
+      "product_group": "실손의료보험",
+      "product_name": "한화다이렉트실손의료보험(갱신형)V 무배당",
+      "e_insmarket_product_code": "N02G004000001G",
+      "review_status": "raw",
+      "source_document_count": 0,
+      "quote_count": 4,
+      "approved_quote_count": 0,
+      "next_action": "source_document_probe",
+      "recommendation_readiness": "blocked_until_official_document_hash"
+    },
+    {
+      "id": "src_heungkuk_fire_direct_medical_202605",
+      "carrier": "흥국화재",
+      "product_group": "실손의료보험",
+      "product_name": "(무)흥Good 다이렉트 실손의료보험(26.05)",
+      "e_insmarket_product_code": "N05G004000001G",
+      "review_status": "raw",
+      "source_document_count": 0,
+      "quote_count": 4,
+      "approved_quote_count": 0,
+      "next_action": "source_document_probe",
+      "recommendation_readiness": "blocked_until_official_document_hash"
+    },
+    {
+      "id": "src_db_life_eroun_cancer_202601",
+      "carrier": "DB생명",
+      "product_group": "암보험",
+      "product_name": "(무)e로운 암보험(해약환급금 미지급형)(2601)",
+      "e_insmarket_product_code": "L71C009000006",
+      "review_status": "raw",
+      "source_document_count": 0,
+      "quote_count": 4,
+      "approved_quote_count": 0,
+      "next_action": "source_document_probe",
+      "recommendation_readiness": "blocked_until_official_document_hash"
+    },
+    {
+      "id": "src_tongyang_wooriwon_cancer_202605",
+      "carrier": "동양생명",
+      "product_group": "암보험",
+      "product_name": "(무)우리WON하는실속하나로암보험",
+      "e_insmarket_product_code": "L74C009000006",
+      "review_status": "raw",
+      "source_document_count": 0,
+      "quote_count": 4,
+      "approved_quote_count": 0,
+      "next_action": "source_document_probe",
+      "recommendation_readiness": "blocked_until_official_document_hash"
+    },
+    {
+      "id": "src_miraeasset_online_cancer_basic_202605",
+      "carrier": "미래에셋생명",
+      "product_group": "암보험",
+      "product_name": "온라인 암보험 무배당 [기본형]",
+      "e_insmarket_product_code": "L34C009000021",
+      "review_status": "raw",
+      "source_document_count": 0,
+      "quote_count": 4,
+      "approved_quote_count": 0,
+      "next_action": "source_document_probe",
+      "recommendation_readiness": "blocked_until_official_document_hash"
+    },
+    {
+      "id": "src_miraeasset_online_cancer_no_refund_202605",
+      "carrier": "미래에셋생명",
+      "product_group": "암보험",
+      "product_name": "온라인 암보험 무배당 [해약환급금이없는유형]",
+      "e_insmarket_product_code": "L34C009000022",
+      "review_status": "raw",
+      "source_document_count": 0,
+      "quote_count": 4,
+      "approved_quote_count": 0,
+      "next_action": "source_document_probe",
+      "recommendation_readiness": "blocked_until_official_document_hash"
+    },
+    {
+      "id": "src_shinhan_life_sol_cancer_standard_202605",
+      "carrier": "신한라이프생명",
+      "product_group": "암보험",
+      "product_name": "신한SOL암보험(무배당)(비갱신형)",
+      "e_insmarket_product_code": "L11C009000007",
+      "review_status": "raw",
+      "source_document_count": 0,
+      "quote_count": 4,
+      "approved_quote_count": 0,
+      "next_action": "blocked_until_standard_endpoint_found",
+      "recommendation_readiness": "blocked_by_variant_endpoint"
+    },
+    {
+      "id": "src_hanwha_general_direct_cancer_202604",
+      "carrier": "한화손보",
+      "product_group": "암보험",
+      "product_name": "한화 다이렉트 내가고른 암보험 무배당2604",
+      "e_insmarket_product_code": "N02C009000016",
+      "review_status": "raw",
+      "source_document_count": 0,
+      "quote_count": 4,
+      "approved_quote_count": 0,
+      "next_action": "source_document_probe",
+      "recommendation_readiness": "blocked_until_official_document_hash"
+    }
+  ]
+}
