@@ -164,6 +164,27 @@ const CARRIER_PROFILES = {
       "PDF 목록은 /json.smart retrievePdfFileLst API로 조회하고, 다운로드는 같은 세션 쿠키와 암호화된 atcFilePthNm#[E] 값을 /hp/fileDownload.do에 전달해야 한다.",
     ],
   },
+  흥국화재: {
+    provider: "흥국화재",
+    source_url: "https://direct.heungkukfire.co.kr/?ccid=0606001007#/CMMOBDPRM4001",
+    api_searches: [
+      {
+        kind: "heungkuk_direct_download_file",
+        endpoint: "https://direct.heungkukfire.co.kr/CM_COMM_FileDownload_ACT.do",
+        referer: "https://direct.heungkukfire.co.kr/?ccid=0606001007",
+        screen_id: "CMMOBDPRM4001",
+        product_type: "4",
+        file_type: "4",
+        terms_file: "eYou_mdca_term_next.pdf",
+        product_name: "(무)흥Good 다이렉트 실손의료보험(26.05)",
+        keywords: ["흥Good 다이렉트 실손의료보험", "실손의료보험", "26.05"],
+      },
+    ],
+    notes: [
+      "다이렉트 실손 화면 CMMOBDPRM4001의 약관 버튼은 downloadFile(this, '4', 'eYou_mdca_term_next.pdf')를 호출한다.",
+      "CM_COMM_FileDownload_ACT.do는 같은 파일명을 GET query로 전달해도 공식 PDF를 반환한다.",
+    ],
+  },
   DB손보: {
     provider: "DB손보",
     source_url: "https://www.idbins.com/FWMAIV1534.do",
@@ -496,6 +517,9 @@ async function fetchApiSearchRecords(search, options) {
   if (search.kind === "meritz_direct_pdf_list") {
     return await fetchMeritzDirectPdfListRecords(search, options);
   }
+  if (search.kind === "heungkuk_direct_download_file") {
+    return fetchHeungkukDirectDownloadFileRecords(search);
+  }
   if (search.kind === "samsunglife_policy_url") {
     return await fetchSamsungLifePolicyRecords(search, options);
   }
@@ -818,6 +842,45 @@ function extractResponseCookieHeader(response) {
     .map((cookie) => cookie.split(";")[0])
     .filter(Boolean)
     .join("; ");
+}
+
+function fetchHeungkukDirectDownloadFileRecords(search) {
+  const termsUrl = makeHeungkukDirectDownloadUrl(search);
+  return [
+    {
+      text: cleanText(
+        [
+          search.product_name,
+          search.screen_id,
+          search.terms_file,
+          ...(search.keywords ?? []),
+        ]
+          .filter(Boolean)
+          .join(" "),
+      ),
+      links: [
+        {
+          url: termsUrl,
+          href: search.terms_file,
+          text: "보험약관",
+          title: `${search.product_name} 보험약관 ${search.terms_file}`,
+          document_type: "terms",
+          discovered_from: search.referer,
+        },
+      ],
+    },
+  ];
+}
+
+function makeHeungkukDirectDownloadUrl(search) {
+  const url = new URL(search.endpoint);
+  url.searchParams.set("_SERVICE_", "CM_COMM_FileDownload_ACT");
+  url.searchParams.set("_TYPE_", "M");
+  url.searchParams.set("_PRODTYPE_", search.product_type);
+  url.searchParams.set("scrId", search.screen_id);
+  url.searchParams.set("fileType", search.file_type);
+  url.searchParams.set("downFileName", search.terms_file);
+  return url.toString();
 }
 
 function fetchKbDirectTermsRecords(search) {

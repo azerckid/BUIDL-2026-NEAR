@@ -1,0 +1,317 @@
+{
+  "metadata": {
+    "generated_at": "2026-05-31T22:22:16.514+09:00",
+    "timezone": "Asia/Seoul",
+    "generator": "scripts/insurance/collect-carrier-disclosures.mjs",
+    "input_product_probe": "data/insurance/latest_remaining_raw_source_product_document_probe.json",
+    "output_version": "1.1",
+    "target_limit": 12,
+    "max_documents_per_product": 5
+  },
+  "targets": [
+    {
+      "provider": "농협손보",
+      "product_group": "실손의료보험",
+      "raw_product_name": "(무) 헤아림실손의료비보험2605",
+      "premium_text": "5,745원",
+      "e_insmarket_product_code": "N71G004000001G",
+      "official_product_url": "https://www.nhfire.co.kr/product/retrieveProduct.nhfire?pdtCd=D711117"
+    },
+    {
+      "provider": "메리츠화재",
+      "product_group": "실손의료보험",
+      "raw_product_name": "(무) 메리츠 다이렉트 실손의료비보험2605",
+      "premium_text": "6,643원",
+      "e_insmarket_product_code": "N01G004000002G",
+      "official_product_url": "https://www.meritzdirect.com/DMI1610DM000001/southeaster.do#!/"
+    },
+    {
+      "provider": "흥국화재",
+      "product_group": "실손의료보험",
+      "raw_product_name": "(무)흥Good 다이렉트 실손의료보험(26.05)",
+      "premium_text": "7,995원",
+      "e_insmarket_product_code": "N05G004000001G",
+      "official_product_url": "https://direct.heungkukfire.co.kr/?ccid=0606001007#/CMMOBDPRM4001"
+    },
+    {
+      "provider": "DB생명",
+      "product_group": "암보험",
+      "raw_product_name": "(무)e로운 암보험(해약환급금 미지급형)(2601)",
+      "premium_text": "9,700원",
+      "e_insmarket_product_code": "L71C009000006",
+      "official_product_url": "https://direct.idblife.com/"
+    },
+    {
+      "provider": "미래에셋생명",
+      "product_group": "암보험",
+      "raw_product_name": "온라인 암보험 무배당 [기본형]",
+      "premium_text": "4,510원",
+      "e_insmarket_product_code": "L34C009000021",
+      "official_product_url": "https://life.miraeasset.com/online/index.do?_OC_=1363#MO-DR-020000-000000"
+    },
+    {
+      "provider": "미래에셋생명",
+      "product_group": "암보험",
+      "raw_product_name": "온라인 암보험 무배당 [해약환급금이없는유형]",
+      "premium_text": "6,490원",
+      "e_insmarket_product_code": "L34C009000022",
+      "official_product_url": "https://life.miraeasset.com/online/index.do?_OC_=1363#MO-DR-020000-000000"
+    },
+    {
+      "provider": "한화손보",
+      "product_group": "암보험",
+      "raw_product_name": "한화 다이렉트 내가고른 암보험 무배당2604",
+      "premium_text": "12,204원",
+      "e_insmarket_product_code": "N02C009000016",
+      "official_product_url": "https://www.hanwhadirect.com/landing.do?cmpgId=1000001444"
+    }
+  ],
+  "carrier_pages": [
+    {
+      "provider": "농협손보",
+      "source_url": "https://www.nhfire.co.kr/product/retrieveProduct.nhfire?pdtCd=D711117",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://www.nhfire.co.kr/product/retrieveProduct.nhfire?pdtCd=D711117",
+      "content_type": "text/html; charset=UTF-8",
+      "charset": "utf-8",
+      "disclosure_record_count": 6,
+      "matched_product_count": 1,
+      "notes": [
+        "상품 상세 페이지의 fnPdtFileDownload(fileId, afileSeqn, afileNm) 호출에서 약관 다운로드 식별자를 조회한다.",
+        "실제 PDF는 /imageView/downloadFile.ajax?fileId=...&afileSeqn=... query로 다운로드된다.",
+        "농협손보 API search '(무) 헤아림다이렉트실손의료비보험(전환계약용)2605' returned 1 records."
+      ]
+    },
+    {
+      "provider": "메리츠화재",
+      "source_url": "https://store.meritzfire.com/health-and-kids/direct-medicalInfo.do",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://store.meritzfire.com/health-and-kids/direct-medicalInfo.do",
+      "content_type": "text/html;charset=UTF-8",
+      "charset": "utf-8",
+      "disclosure_record_count": 1,
+      "matched_product_count": 1,
+      "notes": [
+        "상품 페이지의 downPdf handler가 pdClusPdf.downPdClus('6ADGE')를 호출한다.",
+        "PDF 목록은 /json.smart retrievePdfFileLst API로 조회하고, 다운로드는 같은 세션 쿠키와 암호화된 atcFilePthNm#[E] 값을 /hp/fileDownload.do에 전달해야 한다.",
+        "메리츠화재 API search '(무) 메리츠 다이렉트 실손의료비보험2605' returned 1 records."
+      ]
+    },
+    {
+      "provider": "흥국화재",
+      "source_url": "https://direct.heungkukfire.co.kr/?ccid=0606001007#/CMMOBDPRM4001",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://direct.heungkukfire.co.kr/?ccid=0606001007",
+      "content_type": "text/html",
+      "charset": null,
+      "disclosure_record_count": 1,
+      "matched_product_count": 1,
+      "notes": [
+        "다이렉트 실손 화면 CMMOBDPRM4001의 약관 버튼은 downloadFile(this, '4', 'eYou_mdca_term_next.pdf')를 호출한다.",
+        "CM_COMM_FileDownload_ACT.do는 같은 파일명을 GET query로 전달해도 공식 PDF를 반환한다.",
+        "흥국화재 API search '(무)흥Good 다이렉트 실손의료보험(26.05)' returned 1 records."
+      ]
+    },
+    {
+      "provider": "DB생명",
+      "source_url": "https://idblife.com/notice/product/sale",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://idblife.com/notice/product/sale",
+      "content_type": "text/html;charset=UTF-8",
+      "charset": "utf-8",
+      "disclosure_record_count": 11,
+      "matched_product_count": 0,
+      "notes": [
+        "판매상품공시 표가 서버 렌더링 HTML로 노출된다."
+      ]
+    }
+  ],
+  "product_results": [
+    {
+      "provider": "농협손보",
+      "product_group": "실손의료보험",
+      "raw_product_name": "(무) 헤아림실손의료비보험2605",
+      "premium_text": "5,745원",
+      "e_insmarket_product_code": "N71G004000001G",
+      "official_product_url": "https://www.nhfire.co.kr/product/retrieveProduct.nhfire?pdtCd=D711117",
+      "carrier_disclosure_url": "https://www.nhfire.co.kr/product/retrieveProduct.nhfire?pdtCd=D711117",
+      "result_status": "hashed",
+      "best_match_score": 1,
+      "matched_record_text": "(무) 헤아림다이렉트실손의료비보험(전환계약용)2605 D711117 약관 (무) 헤아림다이렉트실손의료비보험(전환계약용)2605 약관 02. 무배당 헤아림다이렉트실손의료비보험(전환계약용)2605약관.pdf 헤아림실손의료비보험2605 헤아림다이렉트실손의료비보험 실손의료비보험 전환계약용 2605",
+      "document_candidates": [
+        {
+          "url": "https://www.nhfire.co.kr/imageView/downloadFile.ajax?fileId=F004074317&afileSeqn=1",
+          "document_type": "terms",
+          "discovered_from": "https://www.nhfire.co.kr/product/retrieveProduct.nhfire?pdtCd=D711117",
+          "source_context": "(무) 헤아림다이렉트실손의료비보험(전환계약용)2605 약관",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/octet-stream;charset=UTF-8",
+          "content_length_bytes": 3065859,
+          "sha256": "0306fb42f84fa976ff9680aadf6a1b348e87d5c99cd503e85b1e82b9bf728048",
+          "retrieved_at": "2026-05-31T22:22:13.440+09:00"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "provider": "메리츠화재",
+      "product_group": "실손의료보험",
+      "raw_product_name": "(무) 메리츠 다이렉트 실손의료비보험2605",
+      "premium_text": "6,643원",
+      "e_insmarket_product_code": "N01G004000002G",
+      "official_product_url": "https://www.meritzdirect.com/DMI1610DM000001/southeaster.do#!/",
+      "carrier_disclosure_url": "https://store.meritzfire.com/health-and-kids/direct-medicalInfo.do",
+      "result_status": "hashed",
+      "best_match_score": 1,
+      "matched_record_text": "(무) 메리츠 다이렉트 실손의료비보험2605 6ADGE 보험약관 (무) 메리츠 다이렉트 실손의료비보험2605 보험약관 6ADGE_20241002.pdf /cu/ctl/202409301426322280089U.pdf 사업방법서 (무) 메리츠 다이렉트 실손의료비보험2605 사업방법서 001_6ADGE_무배당+메리츠+다이렉트+실손의료비보험2408_사업방법서별지_v1.0.pdf /cu/ctl/202410140951007150315U.pdf 상품요약서 (무) 메리츠 다이렉트 실손의료비보험2605 상품요약서 6ADGE_20240806_y_(무)+메리츠+다이렉트+실손의료비보험2408+요약서_크로스완.pdf /cu/ctl/202410140951007190317U.pdf 메리츠 다이렉트 실손의료비보험 실손의료비보험 2605 6ADGE",
+      "document_candidates": [
+        {
+          "url": "https://store.meritzfire.com/hp/fileDownload.do?path=LJW2vNefTn5%2B0Olfq3l5SejnY4u%2FlVFYhsCT%2FIAVOoNvN4T2x7CzINGPSh3be9gm&id=LJW2vNefTn5%2B0Olfq3l5SejnY4u%2FlVFYhsCT%2FIAVOoNvN4T2x7CzINGPSh3be9gm&orgFileName=6ADGE_20241002.pdf&pdfView=Y",
+          "document_type": "terms",
+          "discovered_from": "https://store.meritzfire.com/json.smart",
+          "source_context": "(무) 메리츠 다이렉트 실손의료비보험2605 보험약관 6ADGE_20241002.pdf",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/pdf;charset=UTF-8",
+          "content_length_bytes": 2776323,
+          "sha256": "bbbb86eb265233a01b71b0cc298748267531839a39bcf8aec79d442475274c0c",
+          "retrieved_at": "2026-05-31T22:22:14.470+09:00"
+        },
+        {
+          "url": "https://store.meritzfire.com/hp/fileDownload.do?path=kAzyVEHV2UvBBuKuaqZ9vfbJKlMFpGPDBlKlGlc1McJvN4T2x7CzINGPSh3be9gm&id=kAzyVEHV2UvBBuKuaqZ9vfbJKlMFpGPDBlKlGlc1McJvN4T2x7CzINGPSh3be9gm&orgFileName=001_6ADGE_%EB%AC%B4%EB%B0%B0%EB%8B%B9%2B%EB%A9%94%EB%A6%AC%EC%B8%A0%2B%EB%8B%A4%EC%9D%B4%EB%A0%89%ED%8A%B8%2B%EC%8B%A4%EC%86%90%EC%9D%98%EB%A3%8C%EB%B9%84%EB%B3%B4%ED%97%982408_%EC%82%AC%EC%97%85%EB%B0%A9%EB%B2%95%EC%84%9C%EB%B3%84%EC%A7%80_v1.0.pdf&pdfView=Y",
+          "document_type": "business_method",
+          "discovered_from": "https://store.meritzfire.com/json.smart",
+          "source_context": "(무) 메리츠 다이렉트 실손의료비보험2605 사업방법서 001_6ADGE_무배당+메리츠+다이렉트+실손의료비보험2408_사업방법서별지_v1.0.pdf",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/pdf;charset=UTF-8",
+          "content_length_bytes": 95371,
+          "sha256": "2331cd4a07e8fabd5977e6a715a174d822a9ac495f5b956335d600b75b43d280",
+          "retrieved_at": "2026-05-31T22:22:14.534+09:00"
+        },
+        {
+          "url": "https://store.meritzfire.com/hp/fileDownload.do?path=kAzyVEHV2UvBBuKuaqZ9vU8ipOfEvSFonPIwj8TydaBvN4T2x7CzINGPSh3be9gm&id=kAzyVEHV2UvBBuKuaqZ9vU8ipOfEvSFonPIwj8TydaBvN4T2x7CzINGPSh3be9gm&orgFileName=6ADGE_20240806_y_%28%EB%AC%B4%29%2B%EB%A9%94%EB%A6%AC%EC%B8%A0%2B%EB%8B%A4%EC%9D%B4%EB%A0%89%ED%8A%B8%2B%EC%8B%A4%EC%86%90%EC%9D%98%EB%A3%8C%EB%B9%84%EB%B3%B4%ED%97%982408%2B%EC%9A%94%EC%95%BD%EC%84%9C_%ED%81%AC%EB%A1%9C%EC%8A%A4%EC%99%84.pdf&pdfView=Y",
+          "document_type": "summary",
+          "discovered_from": "https://store.meritzfire.com/json.smart",
+          "source_context": "(무) 메리츠 다이렉트 실손의료비보험2605 상품요약서 6ADGE_20240806_y_(무)+메리츠+다이렉트+실손의료비보험2408+요약서_크로스완.pdf",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/pdf;charset=UTF-8",
+          "content_length_bytes": 127920,
+          "sha256": "6b02df741bb07a565d5315c3a5ce1655bcd56bdded61e9531c1bcaad60ce661e",
+          "retrieved_at": "2026-05-31T22:22:14.574+09:00"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "provider": "흥국화재",
+      "product_group": "실손의료보험",
+      "raw_product_name": "(무)흥Good 다이렉트 실손의료보험(26.05)",
+      "premium_text": "7,995원",
+      "e_insmarket_product_code": "N05G004000001G",
+      "official_product_url": "https://direct.heungkukfire.co.kr/?ccid=0606001007#/CMMOBDPRM4001",
+      "carrier_disclosure_url": "https://direct.heungkukfire.co.kr/?ccid=0606001007#/CMMOBDPRM4001",
+      "result_status": "hashed",
+      "best_match_score": 1,
+      "matched_record_text": "(무)흥Good 다이렉트 실손의료보험(26.05) CMMOBDPRM4001 eYou_mdca_term_next.pdf 흥Good 다이렉트 실손의료보험 실손의료보험 26.05",
+      "document_candidates": [
+        {
+          "url": "https://direct.heungkukfire.co.kr/CM_COMM_FileDownload_ACT.do?_SERVICE_=CM_COMM_FileDownload_ACT&_TYPE_=M&_PRODTYPE_=4&scrId=CMMOBDPRM4001&fileType=4&downFileName=eYou_mdca_term_next.pdf",
+          "document_type": "terms",
+          "discovered_from": "https://direct.heungkukfire.co.kr/?ccid=0606001007",
+          "source_context": "(무)흥Good 다이렉트 실손의료보험(26.05) 보험약관 eYou_mdca_term_next.pdf",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/pdf;charset=ISO-8859-1",
+          "content_length_bytes": 5125066,
+          "sha256": "956b60ab796fec97397fc087b799ed487b47a9773fb780fe7ee529c131389756",
+          "retrieved_at": "2026-05-31T22:22:16.512+09:00"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "provider": "DB생명",
+      "product_group": "암보험",
+      "raw_product_name": "(무)e로운 암보험(해약환급금 미지급형)(2601)",
+      "premium_text": "9,700원",
+      "e_insmarket_product_code": "L71C009000006",
+      "official_product_url": "https://direct.idblife.com/",
+      "carrier_disclosure_url": "https://idblife.com/notice/product/sale",
+      "result_status": "no_match",
+      "best_match_score": 0.3333,
+      "matched_record_text": null,
+      "document_candidates": [],
+      "notes": [
+        "No disclosure row passed the product-name matching threshold."
+      ]
+    },
+    {
+      "provider": "미래에셋생명",
+      "product_group": "암보험",
+      "raw_product_name": "온라인 암보험 무배당 [기본형]",
+      "premium_text": "4,510원",
+      "e_insmarket_product_code": "L34C009000021",
+      "official_product_url": "https://life.miraeasset.com/online/index.do?_OC_=1363#MO-DR-020000-000000",
+      "carrier_disclosure_url": null,
+      "result_status": "no_profile",
+      "best_match_score": 0,
+      "matched_record_text": null,
+      "document_candidates": [],
+      "notes": [
+        "No carrier disclosure profile is configured for this provider."
+      ]
+    },
+    {
+      "provider": "미래에셋생명",
+      "product_group": "암보험",
+      "raw_product_name": "온라인 암보험 무배당 [해약환급금이없는유형]",
+      "premium_text": "6,490원",
+      "e_insmarket_product_code": "L34C009000022",
+      "official_product_url": "https://life.miraeasset.com/online/index.do?_OC_=1363#MO-DR-020000-000000",
+      "carrier_disclosure_url": null,
+      "result_status": "no_profile",
+      "best_match_score": 0,
+      "matched_record_text": null,
+      "document_candidates": [],
+      "notes": [
+        "No carrier disclosure profile is configured for this provider."
+      ]
+    },
+    {
+      "provider": "한화손보",
+      "product_group": "암보험",
+      "raw_product_name": "한화 다이렉트 내가고른 암보험 무배당2604",
+      "premium_text": "12,204원",
+      "e_insmarket_product_code": "N02C009000016",
+      "official_product_url": "https://www.hanwhadirect.com/landing.do?cmpgId=1000001444",
+      "carrier_disclosure_url": null,
+      "result_status": "no_profile",
+      "best_match_score": 0,
+      "matched_record_text": null,
+      "document_candidates": [],
+      "notes": [
+        "No carrier disclosure profile is configured for this provider."
+      ]
+    }
+  ],
+  "qa": {
+    "service_db_ready": false,
+    "blockers": [
+      "Disclosure crawling can prove source documents, but product coverage mapping still requires human review.",
+      "Several carrier disclosure pages use JavaScript search forms, so HTML-only crawling may not expose all PDF URLs.",
+      "A product is seed-ready only after official document hash, sale status, premium basis, coverage_category, and risk_targets are approved."
+    ],
+    "next_actions": [
+      "Add carrier-specific disclosure adapters for quote-only products that still have no profile.",
+      "Manually verify the document variants for KDB Life, Hanwha Life, Shinhan Life, and Lifeplanet before source-document seeding.",
+      "Promote only hash-backed and matching-keyword-reviewed products into service seed candidates."
+    ]
+  }
+}
