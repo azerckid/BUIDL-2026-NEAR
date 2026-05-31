@@ -31,6 +31,7 @@ const nhFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T19:49:00+09
 const meritzFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T21:39:00+09:00").toJSDate();
 const heungkukFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T22:34:00+09:00").toJSDate();
 const miraeassetLifeCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T00:48:00+09:00").toJSDate();
+const hanwhaGeneralCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T02:27:00+09:00").toJSDate();
 
 type InsuranceCarrierSeed = typeof insuranceCarriers.$inferInsert;
 type InsuranceProductSourceSeed = typeof insuranceProductSources.$inferInsert;
@@ -146,6 +147,13 @@ const MIRAEASSET_LIFE_CANCER_APPROVED_QUOTE_IDS = [
   "quote_src_miraeasset_online_cancer_no_refund_202605_age34_male_d2e77ecf4a0c",
   "quote_src_miraeasset_online_cancer_no_refund_202605_age44_female_9cf2588db68b",
   "quote_src_miraeasset_online_cancer_no_refund_202605_age44_male_99a3f15d59fc",
+];
+
+const HANWHA_GENERAL_CANCER_APPROVED_QUOTE_IDS = [
+  "quote_src_hanwha_general_direct_cancer_202604_age34_female_1015b0165c0e",
+  "quote_src_hanwha_general_direct_cancer_202604_age34_male_d2e77ecf4a0c",
+  "quote_src_hanwha_general_direct_cancer_202604_age44_female_9cf2588db68b",
+  "quote_src_hanwha_general_direct_cancer_202604_age44_male_99a3f15d59fc",
 ];
 
 function toFirstSnapshotUsdc(monthlyPremiumKrw: number) {
@@ -1234,6 +1242,21 @@ const SOURCE_AWARE_DOCUMENTS: InsuranceSourceDocumentSeed[] = [
     createdAt: now,
   },
   {
+    id: "doc_hanwha_general_direct_cancer_terms_202604",
+    productSourceId: "src_hanwha_general_direct_cancer_202604",
+    carrierId: "carrier_hanwha_general",
+    sourceType: "carrier_disclosure",
+    documentType: "terms",
+    sourceUrl: "https://www.hanwhadirect.com/clapdf/LA02969001.pdf",
+    fileHashSha256: "ca8dd26a25c1aa60cefb4c298c8df843f8a35d5bf0ff758a0624e37ddaf15ca0",
+    contentType: "application/pdf;charset=UTF-8",
+    contentLengthBytes: 2071737,
+    retrievedAt: hanwhaGeneralCancerSnapshotReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
+  {
     id: "doc_miraeasset_online_cancer_basic_summary_202604",
     productSourceId: "src_miraeasset_online_cancer_basic_202605",
     carrierId: "carrier_miraeasset_life",
@@ -1745,6 +1768,64 @@ const MIRAEASSET_LIFE_CANCER_NO_REFUND_CAVEATS = [
   "해약환급금이 없는 유형은 해지 시 환급금 조건이 기본형과 다를 수 있으므로 추천 카드 caveat에 명시한다.",
 ];
 
+const HANWHA_GENERAL_CANCER_DETAILS = {
+  coverage_category: "oncology",
+  matching_strategy: "risk_target",
+  risk_targets: ONCOLOGY_RISK_TARGETS,
+  primary_benefit_terms: [
+    "암(4대유사암제외)진단비",
+    "4대유사암진단비",
+    "10대고액치료비암진단비",
+  ],
+  optional_benefit_terms: [
+    "암(4대유사암제외)항암방사선치료비",
+    "암(4대유사암제외)항암약물치료비",
+    "암(특정유사암포함)표적항암약물허가치료비",
+    "암(특정유사암포함)항암양성자방사선치료비",
+    "암(특정유사암포함)항암세기조절방사선치료비",
+    "카티(CAR-T)항암약물허가치료비",
+    "다빈치로봇수술비",
+    "암 직접치료 입원비",
+    "암 수술비",
+  ],
+  similar_cancer_terms: [
+    "기타피부암",
+    "갑상선암",
+    "제자리암",
+    "경계성종양",
+  ],
+  quote_review_status: "approved",
+  quote_source_type: "e_insmarket",
+  representative_condition_id: "age34_female",
+  representative_premium_krw: 12204,
+  approved_quote_condition_premiums_krw: {
+    age34_male: 13721,
+    age34_female: 12204,
+    age44_male: 17151,
+    age44_female: 13018,
+  },
+  document_evidence: {
+    carrier_match_score: 1,
+    document_types: ["terms"],
+    official_product_page: "https://www.hanwhadirect.com/landing.do?cmpgId=1000001444",
+    document_url: "https://www.hanwhadirect.com/clapdf/LA02969001.pdf",
+    js_download_path: "https://www.hanwhadirect.com/resource/inspl/ltr/cncr/js/main.js?sid=20260601",
+    document_hash_sha256: "ca8dd26a25c1aa60cefb4c298c8df843f8a35d5bf0ff758a0624e37ddaf15ca0",
+    document_revision_date: "2026-04-01",
+  },
+};
+
+const HANWHA_GENERAL_CANCER_CAVEATS = [
+  "선택특약형 상품이므로 실제 가입 담보에 따라 보장 범위가 달라질 수 있다.",
+  "암(4대유사암제외)진단비는 계약일부터 90일 이하에는 지급금액이 없고, 90일 초과 1년 미만에는 보험가입금액의 50%, 1년 이상에는 보험가입금액을 기준으로 지급한다.",
+  "4대유사암은 기타피부암, 갑상선암, 제자리암, 경계성종양으로 정의되며 일반암과 별도 급부로 표시한다.",
+  "4대유사암진단비는 세부보장별로 계약일부터 1년 미만 보험가입금액 50%, 1년 이상 보험가입금액 기준이다.",
+  "특정유사암은 기타피부암과 갑상선암으로 정의되며, 표적항암, 양성자방사선, 세기조절방사선, 재활, 호스피스, 다빈치로봇수술 등은 가입 특약별 조건을 따른다.",
+  "갱신형 특별약관은 10년 갱신주기와 갱신일 현재 기초율을 적용하므로 나이 증가와 기초율 변동에 따라 보험료가 인상 또는 인하될 수 있다.",
+  "보험료 납입면제는 암 진단확정 시 적용되지만 기타피부암, 갑상선암, 제자리암, 경계성종양은 제외되고, 갱신형 특별약관은 납입면제 대상에서 제외된다.",
+  "해약환급금은 납입한 보험료보다 적거나 없을 수 있다.",
+];
+
 const KYOBOLIFEPLANET_CANCER_COMMON_DETAILS = {
   coverage_category: "oncology",
   matching_strategy: "risk_target",
@@ -2150,6 +2231,29 @@ const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = 
     },
   },
   {
+    id: "src_hanwha_general_direct_cancer_202604",
+    values: {
+      officialProductUrl: "https://www.hanwhadirect.com/landing.do?cmpgId=1000001444",
+      saleStatus: "active",
+      saleStatusEvidence:
+        "한화손보 다이렉트 화면의 main.js 약관 다운로드 경로와 공식 clapdf PDF hash를 확인했고 보험다모아 조건별 quote 4건을 검수했다.",
+      monthlyPremiumKrw: 12204,
+      premiumText: "12,204원",
+      premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+      renewalType: "unknown",
+      coverageSummary:
+        "한화손보 다이렉트 내가고른 암보험. 암(4대유사암제외)진단비, 4대유사암진단비, 항암치료, 수술, 입원 특약을 DNA 암 위험 key와 매칭한다.",
+      exclusionsSummary:
+        "선택특약형 상품, 90일 면책, 1년 미만 감액, 4대유사암 별도 급부, 갱신형 특약 보험료 변동, 납입면제 제외 조건을 caveat로 표시한다.",
+      coverageDetailsJson: JSON.stringify(HANWHA_GENERAL_CANCER_DETAILS),
+      coverageCaveatsJson: JSON.stringify(HANWHA_GENERAL_CANCER_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: hanwhaGeneralCancerSnapshotReviewedAt,
+      lastVerifiedAt: hanwhaGeneralCancerSnapshotReviewedAt,
+      updatedAt: now,
+    },
+  },
+  {
     id: "src_hanwha_life_e_cancer_202604",
     values: {
       officialProductUrl:
@@ -2493,6 +2597,30 @@ const FIRST_RECOMMENDATION_SNAPSHOT_PRODUCTS: InsuranceProductSeed[] = [
     coverageCaveatsJson: JSON.stringify(MIRAEASSET_LIFE_CANCER_NO_REFUND_CAVEATS),
     sourceCheckedAt: miraeassetLifeCancerSnapshotReviewedAt,
     primarySourceDocumentId: "doc_miraeasset_online_cancer_no_refund_terms_202605",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
+  {
+    id: "prod_hanwha_general_direct_cancer_202604",
+    productSourceId: "src_hanwha_general_direct_cancer_202604",
+    name: "한화손보 다이렉트 내가고른 암보험",
+    provider: "한화손보",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(12204),
+    monthlyPremiumKrw: 12204,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+    coverageCategory: "oncology" as const,
+    riskTargets: JSON.stringify(ONCOLOGY_RISK_TARGETS),
+    matchingStrategy: "risk_target" as const,
+    coverageDetailsJson: JSON.stringify(HANWHA_GENERAL_CANCER_DETAILS),
+    coverageCaveatsJson: JSON.stringify(HANWHA_GENERAL_CANCER_CAVEATS),
+    sourceCheckedAt: hanwhaGeneralCancerSnapshotReviewedAt,
+    primarySourceDocumentId: "doc_hanwha_general_direct_cancer_terms_202604",
     catalogStatus: "approved" as const,
     discountEligible: 0,
     originalPremiumUsdc: null,
@@ -2871,6 +2999,7 @@ async function seed() {
         ...MEDICAL_BASELINE_APPROVED_QUOTE_IDS,
         ...SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS,
         ...MIRAEASSET_LIFE_CANCER_APPROVED_QUOTE_IDS,
+        ...HANWHA_GENERAL_CANCER_APPROVED_QUOTE_IDS,
       ])
     );
 
@@ -2888,7 +3017,7 @@ async function seed() {
       .onConflictDoNothing();
   }
   console.log(
-    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${HANWHA_LIFE_CARRIER_QUOTE_ROWS.length} Hanwha carrier quotes inserted if missing, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length + HANWHA_LIFE_CARRIER_QUOTE_IDS.length + MEDICAL_BASELINE_APPROVED_QUOTE_IDS.length + SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS.length + MIRAEASSET_LIFE_CANCER_APPROVED_QUOTE_IDS.length} quote approvals, ${HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS.length} Hanwha zero quotes rejected, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
+    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${HANWHA_LIFE_CARRIER_QUOTE_ROWS.length} Hanwha carrier quotes inserted if missing, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length + HANWHA_LIFE_CARRIER_QUOTE_IDS.length + MEDICAL_BASELINE_APPROVED_QUOTE_IDS.length + SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS.length + MIRAEASSET_LIFE_CANCER_APPROVED_QUOTE_IDS.length + HANWHA_GENERAL_CANCER_APPROVED_QUOTE_IDS.length} quote approvals, ${HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS.length} Hanwha zero quotes rejected, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
   );
 }
 

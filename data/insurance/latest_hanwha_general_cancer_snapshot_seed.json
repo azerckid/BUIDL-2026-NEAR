@@ -1,0 +1,152 @@
+{
+  "metadata": {
+    "prepared_at": "2026-06-01T02:27:00+09:00",
+    "timezone": "Asia/Seoul",
+    "generator": "manual_seed_preparation",
+    "output_version": "1.0",
+    "input_matching_review": "data/insurance/latest_hanwha_general_cancer_matching_review.json",
+    "input_disclosure_probe": "data/insurance/latest_hanwha_general_cancer_disclosure_adapter_probe.json",
+    "input_seed": "src/lib/db/seed.ts",
+    "db_read_only_checked_at": "2026-06-01T02:24:00+09:00",
+    "db_write_performed": false,
+    "seed_file_changed": true,
+    "recommendation_snapshot_seed_changed": true
+  },
+  "summary": {
+    "source_documents_added": 1,
+    "source_approvals_added": 1,
+    "quote_approvals_added": 4,
+    "insurance_product_snapshots_added": 1,
+    "representative_condition_id": "age34_female",
+    "krw_per_usdc": 1350,
+    "expected_source_documents_after_apply": 34,
+    "expected_source_approvals_after_apply": 16,
+    "expected_quote_approvals_after_apply": 64,
+    "expected_oncology_active_products_after_apply": 9,
+    "expected_baseline_active_products_after_apply": 7,
+    "expected_active_source_backed_products_after_apply": 16,
+    "expected_insurance_products_after_apply": 21
+  },
+  "pre_apply_db_state": {
+    "insurance_source_documents": 33,
+    "insurance_products": 20,
+    "insurance_product_sources": 22,
+    "insurance_premium_quotes": 92,
+    "source_backed_active_products": 15,
+    "oncology_active_products": 8,
+    "baseline_active_products": 7,
+    "approved_sources": 15,
+    "approved_quotes": 60,
+    "hanwha_general_source": [
+      {
+        "id": "src_hanwha_general_direct_cancer_202604",
+        "review_status": "raw",
+        "sale_status": "unknown",
+        "monthly_premium_krw": null,
+        "source_documents": 0,
+        "quote_rows": 4,
+        "approved_products": 0
+      }
+    ]
+  },
+  "oncology_policy": {
+    "coverage_category": "oncology",
+    "matching_strategy": "risk_target",
+    "risk_targets": [
+      "pancreatic_cancer",
+      "liver_cancer",
+      "lung_cancer",
+      "breast_cancer",
+      "colon_cancer"
+    ],
+    "reason": "공식 약관은 암 진단, 4대유사암, 특정유사암, 항암치료, 수술, 입원 담보를 정의한다. 현재 DNA risk key dictionary에는 위 5개 암 risk target이 직접 매칭 가능하다."
+  },
+  "source_documents": [
+    {
+      "id": "doc_hanwha_general_direct_cancer_terms_202604",
+      "product_source_id": "src_hanwha_general_direct_cancer_202604",
+      "carrier_id": "carrier_hanwha_general",
+      "document_type": "terms",
+      "source_url": "https://www.hanwhadirect.com/clapdf/LA02969001.pdf",
+      "file_hash_sha256": "ca8dd26a25c1aa60cefb4c298c8df843f8a35d5bf0ff758a0624e37ddaf15ca0",
+      "content_type": "application/pdf;charset=UTF-8",
+      "content_length_bytes": 2071737,
+      "usage_status": "link_only",
+      "parse_status": "not_parsed"
+    }
+  ],
+  "source_approvals": [
+    {
+      "product_source_id": "src_hanwha_general_direct_cancer_202604",
+      "provider": "한화손보",
+      "raw_product_name": "한화 다이렉트 내가고른 암보험 무배당2604",
+      "review_status_after_seed": "approved",
+      "sale_status_after_seed": "active",
+      "representative_premium_krw": 12204,
+      "primary_source_document_id": "doc_hanwha_general_direct_cancer_terms_202604"
+    }
+  ],
+  "quote_approval_ids": [
+    {
+      "id": "quote_src_hanwha_general_direct_cancer_202604_age34_female_1015b0165c0e",
+      "condition": "age34_female",
+      "monthly_premium_krw": 12204
+    },
+    {
+      "id": "quote_src_hanwha_general_direct_cancer_202604_age34_male_d2e77ecf4a0c",
+      "condition": "age34_male",
+      "monthly_premium_krw": 13721
+    },
+    {
+      "id": "quote_src_hanwha_general_direct_cancer_202604_age44_female_9cf2588db68b",
+      "condition": "age44_female",
+      "monthly_premium_krw": 13018
+    },
+    {
+      "id": "quote_src_hanwha_general_direct_cancer_202604_age44_male_99a3f15d59fc",
+      "condition": "age44_male",
+      "monthly_premium_krw": 17151
+    }
+  ],
+  "insurance_product_snapshots": [
+    {
+      "id": "prod_hanwha_general_direct_cancer_202604",
+      "product_source_id": "src_hanwha_general_direct_cancer_202604",
+      "name": "한화손보 다이렉트 내가고른 암보험",
+      "provider": "한화손보",
+      "coverage_category": "oncology",
+      "matching_strategy": "risk_target",
+      "monthly_premium_krw": 12204,
+      "monthly_premium_usdc": 9.04,
+      "primary_source_document_id": "doc_hanwha_general_direct_cancer_terms_202604",
+      "catalog_status": "approved",
+      "is_active": 1
+    }
+  ],
+  "caveat_policy": {
+    "key_caveats": [
+      "선택특약형 상품",
+      "암 90일 면책",
+      "1년 미만 감액",
+      "4대유사암 별도 급부",
+      "특정유사암 특약 조건",
+      "갱신형 특약 보험료 변동",
+      "납입면제 제외 조건",
+      "해약환급금 caveat"
+    ],
+    "ui_requirement": "추천 카드와 상담 AI 컨텍스트에는 대표 보험료와 조건별 approved quote를 분리 표시하고, caveat를 함께 전달한다."
+  },
+  "safety": {
+    "db_apply_required_in_follow_up_pr": true,
+    "operational_backup_required_before_apply": true,
+    "legacy_demo_products_remain_archived": true,
+    "raw_dna_or_unapproved_sources_excluded_from_concierge_context": true,
+    "db_url_or_token_exposed": false
+  },
+  "next_actions": [
+    "운영 DB 백업 후 src/lib/db/seed.ts를 실행한다.",
+    "적용 후 source document 34건, source approved 16건, approved quote 64건, active source-backed product 16건을 확인한다.",
+    "Dashboard에서 한화손보 암보험 카드와 조건별 보험료가 표시되는지 확인한다.",
+    "상담 AI가 한화손보 상품을 설명할 때 공식 약관 hash와 암 보장 caveat를 함께 설명하는지 확인한다."
+  ]
+}
