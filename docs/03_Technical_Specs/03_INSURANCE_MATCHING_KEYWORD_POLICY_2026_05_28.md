@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-05-31 18:09
+> Last Updated: 2026-05-31 18:23
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.16
+- **상태**: Draft v1.17
 - **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준, 추천 snapshot 발행 기준
 - **결론**: 이 프로젝트에서 말하는 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DB에 보험상품을 넣기 전에 DNA risk target과 매칭할 수 있도록 `coverage_category`, `risk_targets`, `matching_strategy`, `coverage_caveats_json`을 정리하는 내부 데이터 정규화 작업이다.
 
@@ -215,7 +215,9 @@ DNA 분석 결과
 
 2026-05-31 18:09 KST 기준 신한라이프 해약환급금 미지급형 암보험의 매칭 키워드와 caveat 정리를 완료했다. 공식 문서 3건의 SHA-256을 재다운로드 기준으로 확인했고, 주계약 암진단급여금 구조를 근거로 `coverage_category=oncology`, `matching_strategy=risk_target`, 암 관련 5개 `risk_targets`로 분류한다. 여성유방암/전립선암 급부 차이, 소액암 분류, 90일 면책, 1년 미만 감액, 해약환급금 미지급형 caveat를 추천 카드와 상담 AI context에 포함해야 한다. 검증은 `../05_QA_Validation/57_SHINHAN_NO_REFUND_MATCHING_REVIEW_2026_05_31.md`에 둔다.
 
-다음 단계는 신한라이프 해약환급금 미지급형 source approval, quote 4건 approval, active product snapshot 1건을 준비하는 seed PR이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
+2026-05-31 18:23 KST 기준 신한라이프 해약환급금 미지급형 source approval, quote 4건 approval, active product snapshot 1건을 `seed.ts`에 준비했다. 이번 단계는 DB write 없이 seed만 준비하며, 운영 DB apply 후 source-backed active 추천 상품은 10개가 된다. 검증은 `../05_QA_Validation/58_SHINHAN_NO_REFUND_SNAPSHOT_SEED_2026_05_31.md`에 둔다.
+
+다음 단계는 운영 DB 백업 후 seed 적용과 적용 결과 검증이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
 
 ---
 
@@ -272,3 +274,4 @@ DNA 분석 결과
 - **QA_Validation**: [Samsung Fire Baseline DB Apply](../05_QA_Validation/55_SAMSUNG_FIRE_BASELINE_DB_APPLY_2026_05_31.md) - 삼성화재 실손 baseline 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [Remaining Source Candidate Triage](../05_QA_Validation/56_REMAINING_SOURCE_CANDIDATE_TRIAGE_2026_05_31.md) - 남은 source 후보 처리 순서 검증
 - **QA_Validation**: [Shinhan No-refund Matching Review](../05_QA_Validation/57_SHINHAN_NO_REFUND_MATCHING_REVIEW_2026_05_31.md) - 신한라이프 해약환급금 미지급형 암보험 매칭 키워드 검증
+- **QA_Validation**: [Shinhan No-refund Snapshot Seed](../05_QA_Validation/58_SHINHAN_NO_REFUND_SNAPSHOT_SEED_2026_05_31.md) - 신한라이프 해약환급금 미지급형 추천 snapshot seed 검증
