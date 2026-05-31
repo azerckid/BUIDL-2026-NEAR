@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 18:51
+> Last Updated: 2026-05-31 19:10
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.31
+- **상태**: Draft v2.32
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -208,6 +208,24 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 2026-05-31 18:23 KST 기준 위 검수 결과를 `seed.ts`에 반영할 준비를 완료했다. 다음 apply PR에서 source-backed active 추천 상품은 9건에서 10건으로 증가해야 하며, approved quote는 36건에서 40건으로 증가해야 한다. seed 준비 검증 문서는 `../05_QA_Validation/58_SHINHAN_NO_REFUND_SNAPSHOT_SEED_2026_05_31.md`에 둔다.
 
 2026-05-31 18:51 KST 기준 신한라이프 해약환급금 미지급형 추천 snapshot을 운영 DB에 적용했다. 적용 후 `insurance_products=15`, source-backed active 추천 상품 10건, approved quote 40건을 확인했다. 적용 검증 문서는 `../05_QA_Validation/59_SHINHAN_NO_REFUND_DB_APPLY_2026_05_31.md`에 둔다.
+
+### 7-3. 남은 raw source 공식 문서 probe
+
+2026-05-31 19:10 KST 기준 남은 raw source 10개에 대해 공식 상품 페이지 probe와 carrier disclosure crawler를 실행했다. 이번 실행은 DB write 없이 산출물만 생성했으며, seed 가능한 공식 문서 hash는 0건이다.
+
+| 항목 | 결과 |
+|---|---:|
+| 대상 raw source | 10 |
+| 공식 상품 페이지 접근 가능 | 7 |
+| 공식 상품 URL 없음 | 3 |
+| product page PDF 후보 | 2 |
+| hash 확보 PDF | 0 |
+| carrier disclosure profile 있음 | 1 |
+| carrier disclosure hash 확보 | 0 |
+
+농협손보 실손의료보험 상품 페이지에서는 PDF처럼 보이는 URL 2개가 발견됐지만 응답 content type이 `text/html`이라 hash를 만들 수 없었다. DB생명은 기존 공시 profile을 통해 11개 record를 조회했지만 target 상품 match score가 0.3333으로 threshold에 미달했다. 롯데손보 실손, 한화손보 실손, 동양생명 암보험은 공식 상품 URL이 없어 product page probe에서 제외됐다.
+
+다음 작업은 농협손보 실손의료보험 공시 adapter를 우선 보강하고, 메리츠화재, 흥국화재, 미래에셋생명, 한화손보 adapter를 추가한 뒤 공식 URL이 없는 3개 source를 재탐색하는 것이다. 산출물은 `../../data/insurance/latest_remaining_raw_source_product_document_probe.json`, `../../data/insurance/latest_remaining_raw_source_carrier_disclosure_probe.json`, `../../data/insurance/latest_remaining_raw_source_document_probe_summary.csv`, 검증 문서는 `../05_QA_Validation/60_REMAINING_RAW_SOURCE_DOCUMENT_PROBE_2026_05_31.md`에 둔다.
 
 ---
 
@@ -742,6 +760,7 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - [x] source catalog 미등록 quote 60건을 연결할 quote-only raw source 후보 15개 seed 반영
 - [x] 백업 후 quote-only source 후보 DB 적용 및 quote row 60건 추가 적재
 - [x] quote-only raw source 15개 공식 상품 페이지/PDF 1차 probe
+- [x] 남은 raw source 10개 공식 상품 페이지/carrier disclosure probe
 - [ ] quote-only raw source 미확보 후보 carrier별 공시/API adapter 보강
 - [x] hash-backed quote-only 후보를 `insurance_source_documents` seed 후보로 정리
 - [x] 백업 후 quote-only source document 8건 DB 적용
@@ -835,3 +854,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Shinhan No-refund Matching Review](../05_QA_Validation/57_SHINHAN_NO_REFUND_MATCHING_REVIEW_2026_05_31.md) - 신한라이프 해약환급금 미지급형 암보험 매칭 키워드 검증
 - **QA_Validation**: [Shinhan No-refund Snapshot Seed](../05_QA_Validation/58_SHINHAN_NO_REFUND_SNAPSHOT_SEED_2026_05_31.md) - 신한라이프 해약환급금 미지급형 추천 snapshot seed 검증
 - **QA_Validation**: [Shinhan No-refund DB Apply](../05_QA_Validation/59_SHINHAN_NO_REFUND_DB_APPLY_2026_05_31.md) - 신한라이프 해약환급금 미지급형 추천 snapshot 운영 DB 적용 검증
+- **QA_Validation**: [Remaining Raw Source Document Probe](../05_QA_Validation/60_REMAINING_RAW_SOURCE_DOCUMENT_PROBE_2026_05_31.md) - 남은 raw source 공식 문서 probe 검증
