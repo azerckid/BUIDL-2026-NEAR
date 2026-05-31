@@ -1,0 +1,104 @@
+{
+  "generated_at": "2026-05-31T18:09:00+09:00",
+  "source": "official_pdf_hash_recheck_and_operational_db_read_only",
+  "db_write_performed": false,
+  "candidate": {
+    "product_source_id": "src_shinhan_life_sol_cancer_202601",
+    "carrier": "신한라이프생명",
+    "raw_product_name": "신한SOL암보험(무배당, 해약환급금 미지급형)(비갱신형)",
+    "normalized_product_name": "신한SOL암보험 해약환급금 미지급형",
+    "e_insmarket_product_code": "L11C009000006",
+    "current_review_status": "needs_review",
+    "recommendation_readiness": "ready_for_snapshot_seed_pr"
+  },
+  "document_verification": [
+    {
+      "id": "doc_shinhan_life_sol_cancer_summary_202601",
+      "document_type": "summary",
+      "sha256": "d557ed911adc877976863155e45fec5217ebfe485aed8f0c685797d0d7314c03",
+      "download_hash_match": true,
+      "bytes": 153356
+    },
+    {
+      "id": "doc_shinhan_life_sol_cancer_business_202601",
+      "document_type": "business_method",
+      "sha256": "9aa1ed61e51a9c67a339430266f8551cd6739bcb48d725bf298e3742fe3797ea",
+      "download_hash_match": true,
+      "bytes": 95659
+    },
+    {
+      "id": "doc_shinhan_life_sol_cancer_terms_202601",
+      "document_type": "terms",
+      "sha256": "fcd915ee2e5440cf9542711dabd1c3014a1f5f3efef9c0a1f8fc88ed7ca40ffa",
+      "download_hash_match": true,
+      "bytes": 2940426
+    }
+  ],
+  "matching": {
+    "coverage_category": "oncology",
+    "matching_strategy": "risk_target",
+    "risk_targets": [
+      "pancreatic_cancer",
+      "liver_cancer",
+      "lung_cancer",
+      "breast_cancer",
+      "colon_cancer"
+    ],
+    "primary_source_document_id": "doc_shinhan_life_sol_cancer_terms_202601",
+    "coverage_summary": "비갱신형 인터넷 암보험으로 암진단급여금, 여성유방암 진단급여금, 전립선암 진단급여금, 소액암 진단급여금을 구분한다.",
+    "coverage_details": {
+      "general_cancer_or_severe_thyroid_cancer": "보험가입금액의 100%, 계약일부터 1년 미만 지급사유 발생 시 50%",
+      "female_breast_cancer": "보험가입금액의 30%, 계약일부터 1년 미만 지급사유 발생 시 15%",
+      "prostate_cancer": "보험가입금액의 30%, 계약일부터 1년 미만 지급사유 발생 시 15%",
+      "minor_cancer": "기타피부암, 중증 이외 갑상선암, 제자리암, 경계성종양, 대장점막내암, 비침습방광암은 보험가입금액의 10%, 계약일부터 1년 미만 지급사유 발생 시 5%"
+    },
+    "coverage_caveats": [
+      "암 및 중증 갑상선암은 계약일을 포함해 90일이 지난 날의 다음 날부터 보장한다.",
+      "계약일부터 1년 미만에 지급사유가 발생하면 암진단급여금, 여성유방암/전립선암 진단급여금, 소액암 진단급여금이 감액 지급된다.",
+      "여성유방암과 전립선암은 일반 암진단급여금보다 낮은 별도 급부로 구분된다.",
+      "기타피부암, 중증 이외 갑상선암, 제자리암, 경계성종양, 대장점막내암, 비침습방광암은 소액암 급부로 구분된다.",
+      "해약환급금 미지급형은 보험료 납입기간 중 해지 시 해약환급금이 없다.",
+      "보험다모아 조건별 보험료는 대표 비교 기준이며 실제 보험료는 가입금액, 납입기간, 인수심사 결과에 따라 달라질 수 있다."
+    ]
+  },
+  "quotes": [
+    {
+      "id": "quote_src_shinhan_life_sol_cancer_202601_age34_female_2589f537c6fc",
+      "age": 34,
+      "sex": "female",
+      "monthly_premium_krw": 6750,
+      "review_status": "needs_review",
+      "next_status": "approved_in_snapshot_seed_pr"
+    },
+    {
+      "id": "quote_src_shinhan_life_sol_cancer_202601_age34_male_0d807392cd7d",
+      "age": 34,
+      "sex": "male",
+      "monthly_premium_krw": 8530,
+      "review_status": "needs_review",
+      "next_status": "approved_in_snapshot_seed_pr"
+    },
+    {
+      "id": "quote_src_shinhan_life_sol_cancer_202601_age44_female_88d1cf1a2fad",
+      "age": 44,
+      "sex": "female",
+      "monthly_premium_krw": 7320,
+      "review_status": "needs_review",
+      "next_status": "approved_in_snapshot_seed_pr"
+    },
+    {
+      "id": "quote_src_shinhan_life_sol_cancer_202601_age44_male_dbd72b264aa2",
+      "age": 44,
+      "sex": "male",
+      "monthly_premium_krw": 10030,
+      "review_status": "needs_review",
+      "next_status": "approved_in_snapshot_seed_pr"
+    }
+  ],
+  "next_actions": [
+    "Add source approval for src_shinhan_life_sol_cancer_202601.",
+    "Approve the 4 quote rows listed above.",
+    "Add prod_shinhan_life_sol_cancer_no_refund_202601 insurance_products snapshot with representative premium 6,750 KRW and fixed demo conversion rate 1 USDC = 1,350 KRW.",
+    "Apply seed after production DB backup in a separate PR."
+  ]
+}

@@ -1,0 +1,2 @@
+product_source_id,carrier,product_name,e_insmarket_product_code,coverage_category,matching_strategy,risk_targets,document_count,quote_count,representative_premium_krw,recommendation_readiness,next_action
+src_shinhan_life_sol_cancer_202601,신한라이프생명,"신한SOL암보험(무배당, 해약환급금 미지급형)(비갱신형)",L11C009000006,oncology,risk_target,"pancreatic_cancer|liver_cancer|lung_cancer|breast_cancer|colon_cancer",3,4,6750,ready_for_snapshot_seed_pr,"source approval, quote approval, product snapshot seed"
