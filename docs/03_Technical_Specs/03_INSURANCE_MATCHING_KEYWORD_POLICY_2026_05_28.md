@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-05-31 21:27
+> Last Updated: 2026-05-31 21:39
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.24
+- **상태**: Draft v1.25
 - **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준, 추천 snapshot 발행 기준
 - **결론**: 이 프로젝트에서 말하는 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DB에 보험상품을 넣기 전에 DNA risk target과 매칭할 수 있도록 `coverage_category`, `risk_targets`, `matching_strategy`, `coverage_caveats_json`을 정리하는 내부 데이터 정규화 작업이다.
 
@@ -196,12 +196,12 @@ DNA 분석 결과
 | seed source 후보 총계 | 22개 | 7개 hash-backed + 15개 quote-only raw |
 | 공식 문서 row | 23개 | 약관/요약서/사업방법서 hash 확인 후 source별 연결 |
 | quote matrix row | 92개 | 나이/성별 조건별 보험료. 현재 KDB/교보/한화/신한 24건 + 실손 baseline 20건, 총 44건 `approved` |
-| 매칭 키워드/caveat 정리 완료 source | 11개 | KDB/한화/교보/신한 암보험 6개 + DB/KB/현대/삼성/농협 실손 baseline 5개 |
+| 매칭 키워드/caveat 정리 완료 source | 12개 | KDB/한화/교보/신한 암보험 6개 + DB/KB/현대/삼성/농협 실손 baseline 5개 + 메리츠화재 실손 baseline 1개 |
 | source-backed 추천 매칭 가능 상품 | 11개 | 운영 DB에 적용된 실제 source-backed active 상품 |
 | baseline active 상품 | 5개 | DB손보, KB손보, 삼성화재, 현대해상, 농협손보 실손의료보험 |
 | 실손 남성 quote approval ID 적용 완료 | 6개 | 운영 DB actual row를 approved로 승격 완료 |
 | 문서 특이성 blocker | 0개 | 삼성화재 실손의료보험은 직접 상품 상세 페이지와 PDF 텍스트 근거로 blocker 해소 |
-| 미적용 baseline seed 후보 | 0개 | 삼성화재 실손의료보험까지 운영 DB apply 완료 |
+| 미적용 baseline seed 후보 | 1개 | 메리츠화재 실손의료보험 baseline seed/apply 대기 |
 
 2026-05-31 11:50 KST 기준 로컬 Dashboard에서 사용자 조건별 보험료 UI가 실손 baseline 남성 quote를 정상 표시하는지 검증했다. 남성 34세와 44세 모두 DB손보, KB손보, 현대해상 3개 카드가 approved quote를 `내 조건 예상 보험료`로 표시했고, 승인 보험료 없음 fallback은 표시되지 않았다. 검증은 `../05_QA_Validation/51_MEDICAL_BASELINE_QUOTE_UI_VERIFICATION_2026_05_31.md`에 둔다.
 
@@ -231,7 +231,9 @@ DNA 분석 결과
 
 2026-05-31 21:27 KST 기준 메리츠화재 실손의료비보험 공시 adapter로 공식 PDF 3건을 hash했다. `src_meritz_direct_medical_202605`는 문서 evidence gate를 통과했지만, 아직 파일명 `2408` variant와 session-bound encrypted download URL의 citation 저장 방식, `coverage_category=medical_expense`, `matching_strategy=baseline`, caveat 정리가 남아 있으므로 추천 snapshot 수는 11개로 유지한다. 검증은 `../05_QA_Validation/65_MERITZ_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md`에 둔다.
 
-다음 단계는 메리츠화재 실손의료비보험 문서 variant 검수와 baseline 매칭 키워드/caveat 정리, 또는 흥국화재, 미래에셋생명, 한화손보 adapter를 순차 추가해 공식 문서 hash를 확보하는 것이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
+2026-05-31 21:39 KST 기준 메리츠화재 실손의료비보험 매칭 키워드/caveat 정리를 완료했다. 이 source는 `coverage_category=medical_expense`, `matching_strategy=baseline`, `risk_targets=[]`를 사용한다. 사업방법서와 상품요약서 파일명에는 `2408`이 포함되지만, 2026-05-31 기준 공식 상품 페이지의 `6ADGE` PDF 목록 API가 같은 상품명으로 제공한 문서다. session-bound encrypted download URL은 장기 citation으로 저장하지 않고 공식 상품 페이지와 adapter 재검증 절차를 caveat로 남긴다. 이번 단계는 DB write 없이 data/docs 산출물만 추가하며, 검증은 `../05_QA_Validation/66_MERITZ_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md`에 둔다.
+
+다음 단계는 메리츠화재 source document 3건 seed 추가, source/quote approval, baseline `insurance_products` snapshot seed PR이거나, 흥국화재, 미래에셋생명, 한화손보 adapter를 순차 추가해 공식 문서 hash를 확보하는 것이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
 
 ---
 
@@ -296,3 +298,4 @@ DNA 분석 결과
 - **QA_Validation**: [NH Fire Baseline Snapshot Seed](../05_QA_Validation/63_NH_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 농협손보 실손 baseline 추천 snapshot seed 검증
 - **QA_Validation**: [NH Fire Baseline DB Apply](../05_QA_Validation/64_NH_FIRE_BASELINE_DB_APPLY_2026_05_31.md) - 농협손보 실손 baseline 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [Meritz Fire Disclosure Adapter Probe](../05_QA_Validation/65_MERITZ_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md) - 메리츠화재 실손의료비보험 공식 문서 hash 검증
+- **QA_Validation**: [Meritz Fire Medical Matching Review](../05_QA_Validation/66_MERITZ_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md) - 메리츠화재 실손 baseline 매칭 키워드 검수

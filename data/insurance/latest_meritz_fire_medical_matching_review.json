@@ -1,0 +1,158 @@
+{
+  "metadata": {
+    "reviewed_at": "2026-05-31T21:39:00+09:00",
+    "timezone": "Asia/Seoul",
+    "reviewer": "codex_meritz_fire_medical_matching_review",
+    "output_version": "1.0",
+    "scope": "Meritz Fire medical expense baseline matching keyword, caveat, and citation policy review",
+    "input_seed": "src/lib/db/seed.ts",
+    "input_disclosure_adapter_probe": "data/insurance/latest_meritz_fire_disclosure_adapter_probe.json",
+    "input_quote_probe": "data/insurance/latest_premium_quote_probe.json",
+    "db_write_performed": false,
+    "seed_file_changed": false,
+    "recommendation_snapshot_changed": false
+  },
+  "summary": {
+    "source_candidates_reviewed": 1,
+    "baseline_ready_sources": 1,
+    "blocked_sources": 0,
+    "source_document_seed_candidates": 3,
+    "quote_rows_reviewed": 4,
+    "numeric_quote_rows": 4,
+    "active_recommendation_snapshot_rows_added": 0,
+    "recommended_next_snapshot_sources": [
+      "src_meritz_direct_medical_202605"
+    ],
+    "blocked_snapshot_sources": []
+  },
+  "baseline_policy": {
+    "coverage_category": "medical_expense",
+    "matching_strategy": "baseline",
+    "recommended_risk_targets": [],
+    "reason": "실손의료보험은 특정 DNA risk key와 직접 연결하지 않고 기본 의료비 방어 baseline lane으로 표시한다.",
+    "common_caveats": [
+      "유전자 위험 특화 추천이 아니라 기본 의료비 방어 baseline으로 표시한다.",
+      "실제 가입과 보험료는 인수 심사, 담보 선택, 자기부담금, 급여/비급여 조건에 따라 달라질 수 있다.",
+      "보험다모아 quote는 34세/44세 남녀 비교 조건의 공개 예시 보험료이며 개인 맞춤 확정 견적이 아니다.",
+      "실손의료보험은 갱신과 재가입 시점에 보험료와 보장 조건이 달라질 수 있다."
+    ]
+  },
+  "decisions": [
+    {
+      "provider": "메리츠화재",
+      "product_source_id": "src_meritz_direct_medical_202605",
+      "carrier_id": "carrier_meritz_fire",
+      "e_insmarket_product_code": "N01G004000002G",
+      "raw_product_name": "(무) 메리츠 다이렉트 실손의료비보험2605",
+      "normalized_product_name": "메리츠 다이렉트 실손의료비보험",
+      "official_product_page": "https://store.meritzfire.com/health-and-kids/direct-medicalInfo.do",
+      "official_marketing_page": "https://www.meritzdirect.com/DMI1610DM000001/southeaster.do#!/",
+      "current_source_review_status": "raw",
+      "recommended_source_review_status": "raw",
+      "recommended_matching_review_status": "baseline_ready_snapshot_candidate",
+      "recommended_coverage_category": "medical_expense",
+      "recommended_matching_strategy": "baseline",
+      "recommended_risk_targets": [],
+      "document_evidence": {
+        "carrier_match_score": 1,
+        "document_count": 3,
+        "document_types": [
+          "terms",
+          "business_method",
+          "summary"
+        ],
+        "source_type": "carrier_disclosure",
+        "carrier_disclosure_url": "https://store.meritzfire.com/health-and-kids/direct-medicalInfo.do",
+        "pdf_list_api": "https://store.meritzfire.com/json.smart",
+        "pdf_list_service_id": "f.cg.he.ct.tm.o.bc.CtrCnfBc.retrievePdfFileLst",
+        "product_code": "6ADGE",
+        "source_url_storage_strategy": "session-bound encrypted fileDownload URL은 장기 citation으로 저장하지 않고, source_url은 공식 상품 페이지를 사용하며 adapter 재실행으로 hash를 재검증한다.",
+        "documents": [
+          {
+            "document_id_candidate": "doc_meritz_direct_medical_terms_202605",
+            "document_type": "terms",
+            "source_context": "(무) 메리츠 다이렉트 실손의료비보험2605 보험약관 6ADGE_20241002.pdf",
+            "source_url_candidate": "https://store.meritzfire.com/health-and-kids/direct-medicalInfo.do",
+            "sha256": "bbbb86eb265233a01b71b0cc298748267531839a39bcf8aec79d442475274c0c",
+            "content_length_bytes": 2776323,
+            "content_type": "application/pdf;charset=UTF-8"
+          },
+          {
+            "document_id_candidate": "doc_meritz_direct_medical_business_method_202605",
+            "document_type": "business_method",
+            "source_context": "(무) 메리츠 다이렉트 실손의료비보험2605 사업방법서 001_6ADGE_무배당+메리츠+다이렉트+실손의료비보험2408_사업방법서별지_v1.0.pdf",
+            "source_url_candidate": "https://store.meritzfire.com/health-and-kids/direct-medicalInfo.do",
+            "sha256": "2331cd4a07e8fabd5977e6a715a174d822a9ac495f5b956335d600b75b43d280",
+            "content_length_bytes": 95371,
+            "content_type": "application/pdf;charset=UTF-8"
+          },
+          {
+            "document_id_candidate": "doc_meritz_direct_medical_summary_202605",
+            "document_type": "summary",
+            "source_context": "(무) 메리츠 다이렉트 실손의료비보험2605 상품요약서 6ADGE_20240806_y_(무)+메리츠+다이렉트+실손의료비보험2408+요약서_크로스완.pdf",
+            "source_url_candidate": "https://store.meritzfire.com/health-and-kids/direct-medicalInfo.do",
+            "sha256": "6b02df741bb07a565d5315c3a5ce1655bcd56bdded61e9531c1bcaad60ce661e",
+            "content_length_bytes": 127920,
+            "content_type": "application/pdf;charset=UTF-8"
+          }
+        ]
+      },
+      "coverage_details_candidate": {
+        "coverage_category": "medical_expense",
+        "matching_strategy": "baseline",
+        "risk_targets": [],
+        "baseline_terms": [
+          "실손의료비",
+          "질병 치료비",
+          "상해 치료비",
+          "급여/비급여 의료비"
+        ],
+        "variant_notes": [
+          "보험다모아 원천명과 약관명은 2605로 일치한다.",
+          "사업방법서와 상품요약서 파일명에는 2408이 포함되지만, 2026-05-31 기준 공식 상품 페이지의 6ADGE PDF 목록 API가 같은 상품명으로 제공한 문서다.",
+          "source document seed PR에서는 2408 파일명 caveat와 session-bound citation caveat를 유지해야 한다."
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "유전자 위험 특화 추천이 아니라 기본 의료비 방어 baseline으로 표시한다.",
+        "실손의료보험은 자기부담금, 급여/비급여, 보장 한도, 갱신 조건이 적용된다.",
+        "보험다모아 quote는 공개 비교 조건 기준 예시 보험료이며 개인별 인수 심사 견적이 아니다.",
+        "사업방법서와 상품요약서 파일명에 2408이 포함되므로 공식 상품 페이지의 6ADGE 문서 목록에서 확인한 variant라는 설명을 남긴다.",
+        "메리츠화재 PDF 다운로드는 session-bound encrypted URL이므로 장기 출처는 공식 상품 페이지와 adapter 재검증 절차로 표시한다."
+      ],
+      "quote_review": {
+        "quote_source": "data/insurance/latest_premium_quote_probe.json",
+        "quote_rows": 4,
+        "numeric_quote_rows": 4,
+        "condition_ids": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          6643,
+          7103,
+          8635,
+          10519
+        ],
+        "expected_quote_ids": [
+          "quote_src_meritz_direct_medical_202605_age34_male_60456bed3452",
+          "quote_src_meritz_direct_medical_202605_age34_female_b141dc7c5700",
+          "quote_src_meritz_direct_medical_202605_age44_male_26615bdcb076",
+          "quote_src_meritz_direct_medical_202605_age44_female_58dcc145a6b7"
+        ],
+        "quote_review_status": "needs_review_numeric_values_available"
+      },
+      "snapshot_readiness": "ready_for_seed_pr_after_source_document_update",
+      "next_action": "승격 PR에서 source document row 3건 추가, source approved, quote approved, baseline insurance_products snapshot row를 함께 생성한다."
+    }
+  ],
+  "next_actions": [
+    "메리츠화재 공식 문서 3건을 SOURCE_AWARE_DOCUMENTS seed 후보로 추가한다.",
+    "source_url은 session-bound fileDownload URL이 아니라 공식 상품 페이지로 저장하고, adapter 재실행으로 hash를 검증하는 caveat를 남긴다.",
+    "메리츠화재 source approval, quote 4건 approval, baseline insurance_products snapshot row 생성 seed PR을 준비한다.",
+    "seed PR에서 2408 파일명 variant caveat와 session-bound citation caveat를 유지한다.",
+    "운영 DB 백업 후 apply PR로 source-backed active 추천 상품을 11건에서 12건으로 확대한다."
+  ]
+}
