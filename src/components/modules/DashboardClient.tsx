@@ -15,11 +15,13 @@ import { ConciergeChat } from "./ConciergeChat";
 import { createCart } from "@/actions/createCart";
 import type {
   DashboardData,
+  DashboardPremiumQuote,
   DashboardProduct,
   DashboardQuoteCondition,
   PriorityOrder,
 } from "@/actions/getDashboardData";
 import type { RiskProfile, RiskLevel } from "@/lib/db/schema";
+import type { ConciergeProductContext } from "@/lib/tee/concierge-product-context";
 import { isTestPilotClientEnabled, isTestPilotGuestIdentity } from "@/lib/test-pilot";
 
 const LEVEL_ORDER: Record<RiskLevel, number> = { high: 0, moderate: 1, normal: 2 };
@@ -86,6 +88,110 @@ function getQuoteSexLabelKey(sex: DashboardQuoteCondition["sex"]) {
   if (sex === "male") return "quoteCondition.sexMale";
   if (sex === "female") return "quoteCondition.sexFemale";
   return "quoteCondition.sexUnknown";
+}
+
+function truncateContextText(value: string, maxLength: number) {
+  return value.length > maxLength ? `${value.slice(0, maxLength - 3)}...` : value;
+}
+
+function parseContextStringList(rawValue: string | null, maxItems: number, maxLength: number) {
+  if (!rawValue) return [];
+
+  try {
+    const parsed: unknown = JSON.parse(rawValue);
+    if (Array.isArray(parsed)) {
+      return parsed
+        .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+        .slice(0, maxItems)
+        .map((item) => truncateContextText(item.trim(), maxLength));
+    }
+    if (typeof parsed === "string" && parsed.trim().length > 0) {
+      return [truncateContextText(parsed.trim(), maxLength)];
+    }
+    if (parsed && typeof parsed === "object") {
+      return Object.values(parsed)
+        .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+        .slice(0, maxItems)
+        .map((item) => truncateContextText(item.trim(), maxLength));
+    }
+  } catch {
+    return [truncateContextText(rawValue.trim(), maxLength)];
+  }
+
+  return [];
+}
+
+function toSafeUrl(value: string | null) {
+  if (!value) return null;
+  try {
+    return new URL(value).toString();
+  } catch {
+    return null;
+  }
+}
+
+function findSelectedQuote(
+  quotes: DashboardPremiumQuote[],
+  selectedQuoteCondition: DashboardQuoteCondition | null
+) {
+  if (!selectedQuoteCondition) return null;
+
+  return (
+    quotes.find(
+      (quote) => quote.age === selectedQuoteCondition.age && quote.sex === selectedQuoteCondition.sex
+    ) ?? null
+  );
+}
+
+function toConciergeQuote(quote: DashboardPremiumQuote) {
+  return {
+    age: quote.age,
+    sex: quote.sex,
+    monthlyKrw: quote.monthlyPremiumKrw,
+    premiumText: quote.premiumText,
+    sourceType: quote.quoteSourceType,
+    retrievedAtIso: quote.retrievedAtIso,
+  };
+}
+
+function buildConciergeProductContext(
+  products: DashboardProduct[],
+  selectedQuoteCondition: DashboardQuoteCondition | null
+): ConciergeProductContext {
+  return {
+    selectedQuoteCondition,
+    products: products.slice(0, 12).map((product) => {
+      const selectedQuote = findSelectedQuote(product.approvedQuotes, selectedQuoteCondition);
+
+      return {
+        id: truncateContextText(product.id, 120),
+        name: truncateContextText(product.name, 120),
+        provider: truncateContextText(product.provider, 80),
+        coverageCategory: product.coverageCategory,
+        matchingStrategy: product.matchingStrategy,
+        riskTargets: parseContextStringList(product.riskTargets, 12, 80),
+        representativePremium: {
+          monthlyKrw: product.monthlyPremiumKrw,
+          monthlyUsdc: product.monthlyPremiumUsdc,
+          basis: product.premiumBasis ? truncateContextText(product.premiumBasis, 500) : null,
+        },
+        selectedQuote: selectedQuote ? toConciergeQuote(selectedQuote) : null,
+        approvedQuoteSummary: product.approvedQuotes.slice(0, 4).map((quote) => ({
+          age: quote.age,
+          sex: quote.sex,
+          monthlyKrw: quote.monthlyPremiumKrw,
+          premiumText: quote.premiumText,
+        })),
+        source: {
+          officialProductUrl: toSafeUrl(product.officialProductUrl),
+          sourceUrl: toSafeUrl(product.sourceUrl),
+          documentType: product.sourceDocumentType,
+          checkedAtIso: product.sourceCheckedAtIso,
+        },
+        caveats: parseContextStringList(product.coverageCaveatsJson, 4, 250),
+      };
+    }),
+  };
 }
 
 interface QuoteConditionSelectorProps {
@@ -565,6 +671,10 @@ export function DashboardClient({ data }: DashboardClientProps) {
   )
     ? userQuoteCondition
     : defaultQuoteCondition;
+  const conciergeProductContext = useMemo(
+    () => buildConciergeProductContext(data.products, selectedQuoteCondition),
+    [data.products, selectedQuoteCondition]
+  );
 
   const hasAiData = !!(advisoryMessages && reasoning && coverageGapSummary);
   const isTestPilotSession = isTestPilotClientEnabled() && isTestPilotGuestIdentity(walletAddress);
@@ -641,7 +751,7 @@ export function DashboardClient({ data }: DashboardClientProps) {
         />
       )}
 
-      <ConciergeChat riskProfile={data.riskProfile} />
+      <ConciergeChat riskProfile={data.riskProfile} productContext={conciergeProductContext} />
     </div>
   );
 }

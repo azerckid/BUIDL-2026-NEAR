@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { chatWithConcierge } from "@/actions/chatWithConcierge";
 import type { RiskProfile } from "@/lib/db/schema";
+import type { ConciergeProductContext } from "@/lib/tee/concierge-product-context";
 
 interface Message {
   role: "user" | "assistant";
@@ -16,9 +17,10 @@ interface Message {
 
 interface ConciergeChatProps {
   riskProfile: RiskProfile;
+  productContext: ConciergeProductContext;
 }
 
-export function ConciergeChat({ riskProfile }: ConciergeChatProps) {
+export function ConciergeChat({ riskProfile, productContext }: ConciergeChatProps) {
   const t = useTranslations("pitch.concierge");
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -47,6 +49,7 @@ export function ConciergeChat({ riskProfile }: ConciergeChatProps) {
         message: trimmed,
         history: messages,
         riskProfile: riskProfile as Record<string, { level: string; flags: string[] }>,
+        productContext,
       });
 
       if ("error" in result) {

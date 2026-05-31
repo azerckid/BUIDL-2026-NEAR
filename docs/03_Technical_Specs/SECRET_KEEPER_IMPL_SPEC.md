@@ -1,11 +1,11 @@
 # [기술 명세] The Secret Keeper — AI 상담 레이어 구현 명세
 > Created: 2026-04-14 00:00
-> Last Updated: 2026-05-31 13:46
+> Last Updated: 2026-05-31 14:12
 
 - **작성일**: 2026-04-14
-- **최종 수정일**: 2026-05-31 (추천상품 컨텍스트 주입 설계 추가)
+- **최종 수정일**: 2026-05-31 (추천상품 컨텍스트 주입 구현)
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.1 (추천상품 컨텍스트 주입 설계 추가)
+- **상태**: Implemented v1.2 (추천상품 컨텍스트 주입 구현)
 
 ---
 
@@ -17,7 +17,7 @@ TEE 분석 완료 후 대시보드에 노출되는 **부가 편의 기능**. 사
 - 원본 DNA 시퀀스는 컨텍스트에 포함하지 않음
 - 세션 종료 시 대화 맥락 소각 (Stateless)
 
-2026-05-31 기준으로 상담 AI는 `riskProfile`만 전달받고 있어 실제 DB 추천상품을 설명하지 못한다. 다음 구현 단계에서는 `DashboardData.products`의 추천상품 목록, 보험료, 공식 출처, caveat를 짧은 컨텍스트로 주입한다. 단, AI가 상품을 새로 추천하거나 생성하지 않고 DB-selected 상품만 설명하는 원칙은 유지한다. 상세 설계는 `./05_CONCIERGE_PRODUCT_CONTEXT_SPEC_2026_05_31.md`에 둔다.
+2026-05-31 14:12 KST 기준으로 상담 AI는 `riskProfile`과 `DashboardData.products` 기반 `productContext`를 함께 전달받는다. 따라서 현재 추천 카드에 노출된 DB-selected source-backed 상품의 대표 보험료, 선택 조건별 approved quote, 공식 출처, caveat를 설명할 수 있다. 단, AI가 상품을 새로 추천하거나 생성하지 않고 현재 세션 추천 결과만 설명하는 원칙은 유지한다. 상세 설계는 `./05_CONCIERGE_PRODUCT_CONTEXT_SPEC_2026_05_31.md`에 둔다.
 
 ---
 
@@ -83,6 +83,7 @@ ${riskProfileContext}
 
 | 파일 | 역할 |
 |---|---|
+| `src/lib/tee/concierge-product-context.ts` | 상담 AI에 전달할 추천상품 context Zod schema와 타입 |
 | `src/actions/chatWithConcierge.ts` | Server Action — NEAR AI Cloud 호출, riskProfile 컨텍스트 주입 |
 | `src/components/modules/ConciergeChat.tsx` | 채팅 UI 컴포넌트 (대시보드 하단 삽입) |
 
@@ -90,7 +91,7 @@ ${riskProfileContext}
 
 | 파일 | 변경 내용 |
 |---|---|
-| `src/app/[locale]/dashboard/page.tsx` | `<ConciergeChat sessionId={sid} />` 추가 |
+| `src/components/modules/DashboardClient.tsx` | `DashboardData.products`를 상담용 `productContext`로 축약해 전달 |
 
 ---
 
@@ -101,6 +102,7 @@ ${riskProfileContext}
 
 import OpenAI from 'openai';
 import { z } from 'zod';
+import { conciergeProductContextSchema } from '@/lib/tee/concierge-product-context';
 import { buildSystemPrompt } from '@/lib/tee/concierge-system-prompt';
 
 // 기존 NEAR AI Cloud 설정 재사용 (ironclaw-tee.ts와 동일한 엔드포인트)
@@ -132,12 +134,16 @@ const inputSchema = z.object({
     level: z.string(),
     flags: z.array(z.string()),
   })),
+  productContext: conciergeProductContextSchema.optional(),
 });
 
 export async function chatWithConcierge(input: z.infer<typeof inputSchema>) {
   const parsed = inputSchema.parse(input);
   const riskContext = formatRiskContext(parsed.riskProfile);
-  const systemPrompt = buildSystemPrompt(riskContext);
+  const systemPrompt = buildSystemPrompt(
+    riskContext,
+    parsed.productContext ?? { selectedQuoteCondition: null, products: [] }
+  );
 
   const messages: OpenAI.ChatCompletionMessageParam[] = [
     { role: 'system', content: systemPrompt },
@@ -167,6 +173,8 @@ export async function chatWithConcierge(input: z.infer<typeof inputSchema>) {
 | 원본 DNA 시퀀스 노출 금지 | 시스템 프롬프트 규칙 1 | riskProfile에서 flags(레이블)만 추출, 수치 미포함 |
 | 확정 진단 금지 | 시스템 프롬프트 규칙 2 | — |
 | 전문의 상담 권고 | 시스템 프롬프트 규칙 3 | — |
+| 추천상품 생성 금지 | 현재 `productContext.products` 목록 밖 상품명, 가격, 출처 생성 금지 | `getDashboardData`가 반환한 active source-backed 상품만 전달 |
+| 보험료 기준 구분 | 대표 보험료와 선택 조건 approved quote 구분 | `selectedQuote`와 `approvedQuoteSummary` 분리 |
 | 입력 길이 제한 | — | `message.max(500)` Zod 검증 |
 | 과도한 이력 누적 방지 | — | `history.max(20)` Zod 검증 |
 
@@ -189,7 +197,7 @@ export async function chatWithConcierge(input: z.infer<typeof inputSchema>) {
 | 항목 | 현재 (Phase 2 초기) | 이후 확장 |
 |---|---|---|
 | 의학 지식 소스 | LLM 내장 지식 | RAG — 보험 약관 Vector DB 연동 |
-| 상품 추천 설명 | riskProfile만 설명 | DB-selected 추천상품 context 설명 |
+| 상품 추천 설명 | DB-selected 추천상품 context 설명 | 약관/RAG 기반 세부 보장 비교 |
 | 대화 이력 | 클라이언트 메모리 (세션 내) | 선택적 암호화 DB 저장 |
 | 스트리밍 | 없음 (단발 응답) | `stream: true` 전환 |
 
@@ -201,4 +209,5 @@ export async function chatWithConcierge(input: z.infer<typeof inputSchema>) {
 - **Technical_Specs**: [The Secret Keeper 추천상품 컨텍스트 주입 설계](./05_CONCIERGE_PRODUCT_CONTEXT_SPEC_2026_05_31.md)
 - **Technical_Specs**: [IronClaw TEE 연동](./LATEST_NEAR_TECH_STACK.md)
 - **QA_Validation**: [The Secret Keeper 검증 시나리오](../05_QA_Validation/SECRET_KEEPER_VALIDATION.md)
+- **QA_Validation**: [The Secret Keeper Product Context QA](../05_QA_Validation/52_CONCIERGE_PRODUCT_CONTEXT_QA_2026_05_31.md)
 - **Logic_Progress**: [마일스톤 로드맵](../04_Logic_Progress/ROADMAP.md)
