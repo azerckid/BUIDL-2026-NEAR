@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 03:58
+> Last Updated: 2026-05-31 04:49
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.23
+- **상태**: Draft v2.24
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -659,6 +659,8 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 
 2026-05-31 03:58 KST 기준 후속 읽기 전용 확인에서 위 남성 조건 6개 quote는 운영 DB에 없던 것이 아니라 다른 `quote_hash_sha256` suffix ID로 존재함을 확인했다. `apply-premium-quotes.mjs` dry-run은 84/84 semantic duplicate, insert candidate 0을 반환했다. 따라서 재적재가 아니라 `MEDICAL_BASELINE_APPROVED_QUOTE_IDS`를 운영 DB 실제 row ID로 교정한다. 이번 교정은 DB write 없이 seed/data/docs만 변경하며, 후속 apply PR에서 quote approved를 26건에서 32건으로 올린다. 검증 문서는 `../05_QA_Validation/49_MEDICAL_BASELINE_MALE_QUOTE_ID_CORRECTION_2026_05_31.md`에 둔다.
 
+2026-05-31 04:49 KST 기준 운영 DB 백업 후 교정된 seed를 재실행했다. 실손 baseline target quote 12건은 모두 운영 DB에 존재하며, 여성 6건과 남성 6건이 모두 `approved` 상태다. 전체 `insurance_premium_quotes.review_status=approved`는 26건에서 32건으로 증가했고, `needs_review`는 62건에서 56건으로 감소했다. `insurance_products=13`, source-backed active 추천 상품 8건은 변하지 않았다. 검증 문서는 `../05_QA_Validation/50_MEDICAL_BASELINE_MALE_QUOTE_DB_APPLY_2026_05_31.md`에 둔다.
+
 ---
 
 ## 10. 법무·신뢰 고지
@@ -723,6 +725,7 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - [x] DB손보/KB손보/현대해상 baseline 추천 snapshot seed 준비
 - [x] 백업 후 DB손보/KB손보/현대해상 baseline 추천 snapshot 운영 DB 적용
 - [x] DB손보/KB손보/현대해상 남성 quote approval ID 교정 준비
+- [x] 백업 후 DB손보/KB손보/현대해상 남성 quote approval ID 운영 DB 적용
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
@@ -781,3 +784,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Medical Baseline Snapshot Seed](../05_QA_Validation/47_MEDICAL_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 실손 baseline 추천 snapshot seed 준비 검증
 - **QA_Validation**: [Medical Baseline Snapshot DB Apply](../05_QA_Validation/48_MEDICAL_BASELINE_SNAPSHOT_DB_APPLY_2026_05_31.md) - 실손 baseline 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [Medical Baseline Male Quote ID Correction](../05_QA_Validation/49_MEDICAL_BASELINE_MALE_QUOTE_ID_CORRECTION_2026_05_31.md) - 실손 남성 quote approval ID 교정 검증
+- **QA_Validation**: [Medical Baseline Male Quote DB Apply](../05_QA_Validation/50_MEDICAL_BASELINE_MALE_QUOTE_DB_APPLY_2026_05_31.md) - 실손 남성 quote approval 운영 DB 적용 검증
