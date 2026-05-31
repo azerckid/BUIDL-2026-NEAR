@@ -26,6 +26,7 @@ const firstRecommendationSnapshotReviewedAt = DateTime.fromISO("2026-05-30T16:30
 const hanwhaLifeQuoteReviewedAt = DateTime.fromISO("2026-05-31T00:49:37.412+09:00").toJSDate();
 const medicalBaselineSnapshotReviewedAt = DateTime.fromISO("2026-05-31T02:49:00+09:00").toJSDate();
 const samsungFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T16:42:00+09:00").toJSDate();
+const shinhanNoRefundSnapshotReviewedAt = DateTime.fromISO("2026-05-31T18:09:00+09:00").toJSDate();
 
 type InsuranceCarrierSeed = typeof insuranceCarriers.$inferInsert;
 type InsuranceProductSourceSeed = typeof insuranceProductSources.$inferInsert;
@@ -111,6 +112,13 @@ const MEDICAL_BASELINE_APPROVED_QUOTE_IDS = [
   "quote_src_hyundai_direct_medical_202605_age34_female_b141dc7c5700",
   "quote_src_hyundai_direct_medical_202605_age44_male_2a491b5a1fab",
   "quote_src_hyundai_direct_medical_202605_age44_female_58dcc145a6b7",
+];
+
+const SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS = [
+  "quote_src_shinhan_life_sol_cancer_202601_age34_female_2589f537c6fc",
+  "quote_src_shinhan_life_sol_cancer_202601_age34_male_0d807392cd7d",
+  "quote_src_shinhan_life_sol_cancer_202601_age44_female_88d1cf1a2fad",
+  "quote_src_shinhan_life_sol_cancer_202601_age44_male_dbd72b264aa2",
 ];
 
 function toFirstSnapshotUsdc(monthlyPremiumKrw: number) {
@@ -1403,6 +1411,53 @@ const KDB_DIRECT_CANCER_CAVEATS = [
   "대표 보험료는 보험다모아 age34_female 조건이며 사용자 실제 조건에 따라 달라질 수 있다.",
 ];
 
+const SHINHAN_NO_REFUND_CANCER_DETAILS = {
+  coverage_category: "oncology",
+  matching_strategy: "risk_target",
+  risk_targets: ONCOLOGY_RISK_TARGETS,
+  primary_benefit_terms: [
+    "암진단급여금",
+    "여성유방암 진단급여금",
+    "전립선암 진단급여금",
+    "소액암 진단급여금",
+  ],
+  variant_terms: ["비갱신형", "해약환급금 미지급형"],
+  quote_review_status: "approved",
+  quote_source_type: "e_insmarket",
+  representative_condition_id: "age34_female",
+  representative_premium_krw: 6750,
+  approved_quote_condition_premiums_krw: {
+    age34_male: 8530,
+    age34_female: 6750,
+    age44_male: 10030,
+    age44_female: 7320,
+  },
+  benefit_notes: {
+    general_cancer_or_severe_thyroid_cancer:
+      "보험가입금액의 100%, 계약일부터 1년 미만 지급사유 발생 시 50%",
+    female_breast_cancer:
+      "보험가입금액의 30%, 계약일부터 1년 미만 지급사유 발생 시 15%",
+    prostate_cancer:
+      "보험가입금액의 30%, 계약일부터 1년 미만 지급사유 발생 시 15%",
+    minor_cancer:
+      "기타피부암, 중증 이외 갑상선암, 제자리암, 경계성종양, 대장점막내암, 비침습방광암은 보험가입금액의 10%, 계약일부터 1년 미만 지급사유 발생 시 5%",
+  },
+  usdc_conversion: {
+    basis: "fixed_demo_rate",
+    krw_per_usdc: FIRST_SNAPSHOT_KRW_PER_USDC,
+    approved_at: "2026-05-31T18:09:00+09:00",
+  },
+};
+
+const SHINHAN_NO_REFUND_CANCER_CAVEATS = [
+  "암 및 중증 갑상선암은 계약일을 포함해 90일이 지난 날의 다음 날부터 보장한다.",
+  "계약일부터 1년 미만에 지급사유가 발생하면 암진단급여금, 여성유방암/전립선암 진단급여금, 소액암 진단급여금이 감액 지급된다.",
+  "여성유방암과 전립선암은 일반 암진단급여금보다 낮은 별도 급부로 구분된다.",
+  "기타피부암, 중증 이외 갑상선암, 제자리암, 경계성종양, 대장점막내암, 비침습방광암은 소액암 급부로 구분된다.",
+  "해약환급금 미지급형은 보험료 납입기간 중 해지 시 해약환급금이 없다.",
+  "대표 보험료는 보험다모아 age34_female 조건이며 사용자 실제 조건에 따라 달라질 수 있다.",
+];
+
 const KYOBOLIFEPLANET_CANCER_COMMON_DETAILS = {
   coverage_category: "oncology",
   matching_strategy: "risk_target",
@@ -1657,6 +1712,29 @@ const HYUNDAI_DIRECT_MEDICAL_CAVEATS = [
 
 const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = [
   {
+    id: "src_shinhan_life_sol_cancer_202601",
+    values: {
+      officialProductUrl: "https://s.shinhanlife.co.kr/sht/6Nf1STxRv62YxH2X1wZxjQYN2qx3K.cs",
+      saleStatus: "active",
+      saleStatusEvidence:
+        "신한라이프 공식 상품요약서, 사업방법서, 판매약관 PDF 3건의 SHA-256을 재다운로드 기준으로 확인했고 보험다모아 조건별 quote 4건을 검수했다.",
+      monthlyPremiumKrw: 6750,
+      premiumText: "6,750원",
+      premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+      renewalType: "non_renewable",
+      coverageSummary:
+        "신한라이프 해약환급금 미지급형 비갱신 암보험. 암진단급여금과 여성유방암/전립선암/소액암 급부를 DNA 암 위험 key와 매칭한다.",
+      exclusionsSummary:
+        "90일 보장 제외, 1년 미만 감액, 여성유방암/전립선암 급부 분리, 소액암 분리, 해약환급금 미지급형 조건을 caveat로 표시한다.",
+      coverageDetailsJson: JSON.stringify(SHINHAN_NO_REFUND_CANCER_DETAILS),
+      coverageCaveatsJson: JSON.stringify(SHINHAN_NO_REFUND_CANCER_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: shinhanNoRefundSnapshotReviewedAt,
+      lastVerifiedAt: shinhanNoRefundSnapshotReviewedAt,
+      updatedAt: now,
+    },
+  },
+  {
     id: "src_hanwha_life_e_cancer_202604",
     values: {
       officialProductUrl:
@@ -1865,6 +1943,30 @@ const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = 
 ];
 
 const FIRST_RECOMMENDATION_SNAPSHOT_PRODUCTS: InsuranceProductSeed[] = [
+  {
+    id: "prod_shinhan_life_sol_cancer_no_refund_202601",
+    productSourceId: "src_shinhan_life_sol_cancer_202601",
+    name: "신한SOL암보험 해약환급금 미지급형",
+    provider: "신한라이프생명",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(6750),
+    monthlyPremiumKrw: 6750,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+    coverageCategory: "oncology" as const,
+    riskTargets: JSON.stringify(ONCOLOGY_RISK_TARGETS),
+    matchingStrategy: "risk_target" as const,
+    coverageDetailsJson: JSON.stringify(SHINHAN_NO_REFUND_CANCER_DETAILS),
+    coverageCaveatsJson: JSON.stringify(SHINHAN_NO_REFUND_CANCER_CAVEATS),
+    sourceCheckedAt: shinhanNoRefundSnapshotReviewedAt,
+    primarySourceDocumentId: "doc_shinhan_life_sol_cancer_terms_202601",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
   {
     id: "prod_hanwha_life_e_cancer_202604",
     productSourceId: "src_hanwha_life_e_cancer_202604",
@@ -2163,6 +2265,7 @@ async function seed() {
         ...FIRST_SNAPSHOT_APPROVED_QUOTE_IDS,
         ...HANWHA_LIFE_CARRIER_QUOTE_IDS,
         ...MEDICAL_BASELINE_APPROVED_QUOTE_IDS,
+        ...SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS,
       ])
     );
 
@@ -2180,7 +2283,7 @@ async function seed() {
       .onConflictDoNothing();
   }
   console.log(
-    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${HANWHA_LIFE_CARRIER_QUOTE_ROWS.length} Hanwha carrier quotes inserted if missing, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length + HANWHA_LIFE_CARRIER_QUOTE_IDS.length + MEDICAL_BASELINE_APPROVED_QUOTE_IDS.length} quote approvals, ${HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS.length} Hanwha zero quotes rejected, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
+    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${HANWHA_LIFE_CARRIER_QUOTE_ROWS.length} Hanwha carrier quotes inserted if missing, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length + HANWHA_LIFE_CARRIER_QUOTE_IDS.length + MEDICAL_BASELINE_APPROVED_QUOTE_IDS.length + SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS.length} quote approvals, ${HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS.length} Hanwha zero quotes rejected, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
   );
 }
 

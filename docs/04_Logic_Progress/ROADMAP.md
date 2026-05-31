@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-31 18:09
+> Last Updated: 2026-05-31 18:23
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-31 (신한라이프 해약환급금 미지급형 매칭 검수)
+- **최종 수정일**: 2026-05-31 (신한라이프 해약환급금 미지급형 추천 snapshot seed 준비)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.41
+- **상태**: Draft v3.42
 - **phase**: Phase 2
 
 ---
@@ -78,7 +78,7 @@
 | 4 | 한화생명 blocker | 한화생명 표준체형/비흡연체형 0원 quote 원인 해소 | 공식 carrier quote 숫자 KRW 8건 확보 및 DB 적용 완료 |
 | 5 | 신한라이프 blocker | 신한라이프 일반형 공식 문서 endpoint 추가 탐색 | 스크립트 기반 재탐색 완료. 일반형 endpoint 미발견으로 raw 차단 유지 |
 | 6 | 보험상품 확장 | 남은 `needs_review=2`, `raw=11` source의 문서 hash, 매칭 키워드, caveat 정리 | 신한라이프 해약환급금 미지급형 매칭 검수 완료. raw 10개 문서 probe 대기 |
-| 7 | 추천 snapshot 확대 | 새 source를 `approved`로 승격하고 `insurance_products` snapshot 발행 | 실손 baseline 4건 DB apply 완료. 운영 active 추천 9건 |
+| 7 | 추천 snapshot 확대 | 새 source를 `approved`로 승격하고 `insurance_products` snapshot 발행 | 신한라이프 1건 seed 준비 완료. apply 후 운영 active 추천 10건 |
 | 8 | 상담 AI 상품 설명 | The Secret Keeper에 추천상품 목록, 보험료, 출처, caveat context 전달 | 구현 완료. 사용자가 KDB/교보/한화/DB/KB/현대해상 상품을 물으면 DB-selected 추천상품 기준으로 설명 |
 
 2026-05-30 23:42 KST 기준 1번 Test Pilot UX 항목을 코드에 반영했다. guest session dashboard 상품 버튼은 `테스트 신청하기`를 표시하고, 일반 지갑 세션은 기존 `결제하기` 문구를 유지한다. 다음 작업은 flag off 상태의 운영 지갑/결제 회귀 검증이다.
@@ -120,6 +120,8 @@
 2026-05-31 17:57 KST 기준 운영 DB를 읽기 전용으로 확인해 남은 non-approved source 13개의 처리 순서를 정리했다. `needs_review` 2개 중 신한라이프 해약환급금 미지급형은 공식 문서 3건과 quote 4건이 있어 다음 매칭 키워드/caveat 검수 후보이고, 삼성생명 입원 건강보험은 현재 enum에 맞는 `coverage_category` 정책 결정이 먼저다. `raw` 11개 중 10개는 공식 문서 hash가 없어 보험사별 probe가 먼저이며, 신한라이프 표준형은 일반형 문서 endpoint가 발견될 때까지 차단한다. 산출물은 `../../data/insurance/latest_remaining_source_candidate_triage.json`, `../../data/insurance/latest_remaining_source_candidate_triage.csv`, 검증은 `../05_QA_Validation/56_REMAINING_SOURCE_CANDIDATE_TRIAGE_2026_05_31.md`에 기록한다. 다음 작업은 신한라이프 해약환급금 미지급형 암보험 매칭 검수 또는 raw source 공식 문서 probe 묶음이다.
 
 2026-05-31 18:09 KST 기준 신한라이프 `src_shinhan_life_sol_cancer_202601` 해약환급금 미지급형 암보험의 공식 PDF 3건을 재다운로드해 SHA-256 일치를 확인하고, 매칭 키워드와 caveat를 정리했다. 이 source는 `coverage_category=oncology`, `matching_strategy=risk_target`, `risk_targets=[pancreatic_cancer,liver_cancer,lung_cancer,breast_cancer,colon_cancer]`로 다음 추천 snapshot seed 후보가 된다. 단, 아직 DB write는 없고 source/quote/product snapshot 승격은 별도 seed PR에서 진행한다. 산출물은 `../../data/insurance/latest_shinhan_no_refund_matching_review.json`, `../../data/insurance/latest_shinhan_no_refund_matching_review.csv`, 검증은 `../05_QA_Validation/57_SHINHAN_NO_REFUND_MATCHING_REVIEW_2026_05_31.md`에 기록한다. 다음 작업은 신한라이프 source approval, quote 4건 approval, active product snapshot 1건을 준비하는 seed PR이다.
+
+2026-05-31 18:23 KST 기준 신한라이프 해약환급금 미지급형 source approval, quote 4건 approval, `prod_shinhan_life_sol_cancer_no_refund_202601` active product snapshot 1건을 `seed.ts`에 준비했다. 이번 단계는 DB write 없이 seed/data/docs만 변경하며, 적용 후 운영 DB 기준 source-backed active 추천 상품은 9건에서 10건, approved quote는 36건에서 40건으로 늘어야 한다. 산출물은 `../../data/insurance/latest_shinhan_no_refund_snapshot_seed.json`, 검증은 `../05_QA_Validation/58_SHINHAN_NO_REFUND_SNAPSHOT_SEED_2026_05_31.md`에 기록한다. 다음 작업은 운영 DB 백업 후 seed 적용과 적용 결과 검증이다.
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 매칭 키워드 정리 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.
@@ -1250,6 +1252,7 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 - [삼성화재 실손 Baseline 추천 Snapshot DB 적용 검증](../05_QA_Validation/55_SAMSUNG_FIRE_BASELINE_DB_APPLY_2026_05_31.md)
 - [남은 Source 후보 처리 순서 검증](../05_QA_Validation/56_REMAINING_SOURCE_CANDIDATE_TRIAGE_2026_05_31.md)
 - [신한라이프 해약환급금 미지급형 암보험 매칭 키워드 검증](../05_QA_Validation/57_SHINHAN_NO_REFUND_MATCHING_REVIEW_2026_05_31.md)
+- [신한라이프 해약환급금 미지급형 추천 Snapshot Seed 검증](../05_QA_Validation/58_SHINHAN_NO_REFUND_SNAPSHOT_SEED_2026_05_31.md)
 - [데모 보험상품 운영 추천 제거 검증](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md)
 - [데모 보험상품 Archive DB 적용 검증](../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md)
 - [보험상품 매칭 키워드 정리 정책](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md)
