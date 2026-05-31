@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-06-01 04:06
+> Last Updated: 2026-06-01 04:16
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.56
+- **상태**: Draft v2.57
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -429,6 +429,8 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 2026-06-01 03:52 KST 기준 DB생명 e로운 암보험 source document seed, quote approval, active product snapshot 준비를 완료했다. 적용 시 DB생명 source는 `approved`, quote 4건은 `approved`, product snapshot 1건은 active oncology 추천 상품이 된다. 이번 seed는 대표 보험료 `age34_female=9,700 KRW`, 고정 데모 환산율 `1 USDC = 1,350 KRW`, primary document `doc_db_life_eroun_cancer_terms_202601`를 사용한다. 검증은 `../05_QA_Validation/83_DB_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md`에 둔다.
 
 2026-06-01 04:06 KST 기준 DB생명 e로운 암보험 추천 snapshot을 운영 DB에 적용했다. source document 1건, approved source 1건, approved quote 4건, active oncology product 1건이 반영되어 사용자 추천 화면에 노출 가능한 source-backed active 상품은 17건이 됐다. 검증은 `../05_QA_Validation/84_DB_LIFE_CANCER_DB_APPLY_2026_06_01.md`에 둔다.
+
+2026-06-01 04:16 KST 기준 롯데손보 `무배당 let:care 실손의료보험Ⅴ(2605)` 공식 상품 페이지와 약관 PDF hash를 확보했다. `scripts/insurance/collect-carrier-disclosures.mjs`에 롯데손보 profile을 추가했고, 공식 상품 페이지 `https://www.lotteins.co.kr/web/C/D/A/cda020.jsp?prdtseq=11`의 `약관보기` 버튼에서 `https://www.lotteins.co.kr/upload/C/let_care_sil_2605_yak.pdf`를 hash했다. 검증은 `../05_QA_Validation/85_LOTTE_MEDICAL_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md`에 둔다. 다음 작업은 롯데손보 실손의료보험 문서 variant와 baseline 매칭 키워드/caveat 검수다.
 
 ---
 
@@ -1005,6 +1007,7 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - [x] DB생명 암보험 매칭 키워드/caveat 정리
 - [x] DB생명 암보험 추천 snapshot seed 준비
 - [x] 백업 후 DB생명 암보험 추천 snapshot 운영 DB 적용
+- [x] 롯데손보 실손의료보험 공식 상품 페이지와 약관 PDF hash 확보
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
@@ -1097,3 +1100,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [DB Life Cancer Matching Review](../05_QA_Validation/82_DB_LIFE_CANCER_MATCHING_REVIEW_2026_06_01.md) - DB생명 암보험 매칭 키워드와 caveat 검수
 - **QA_Validation**: [DB Life Cancer Snapshot Seed](../05_QA_Validation/83_DB_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md) - DB생명 암보험 추천 snapshot seed 검증
 - **QA_Validation**: [DB Life Cancer DB Apply](../05_QA_Validation/84_DB_LIFE_CANCER_DB_APPLY_2026_06_01.md) - DB생명 암보험 추천 snapshot 운영 DB 적용 검증
+- **QA_Validation**: [Lotte Medical Disclosure Adapter Probe](../05_QA_Validation/85_LOTTE_MEDICAL_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md) - 롯데손보 실손의료보험 공식 약관 hash 검증

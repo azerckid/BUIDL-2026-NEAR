@@ -1,0 +1,2 @@
+source_id,carrier,product_group,product_name,official_product_url,document_type,document_url,sha256,bytes,status,next_action
+src_lotte_direct_medical_202605,롯데손보,실손의료보험,"무배당 let:care 실손의료보험V(2605)",https://www.lotteins.co.kr/web/C/D/A/cda020.jsp?prdtseq=11,terms,https://www.lotteins.co.kr/upload/C/let_care_sil_2605_yak.pdf,593987e051e2ec7e04292740aeda4448a6a0a60da7d2fc56287c8746322e7168,3867788,hashed,matching_review
