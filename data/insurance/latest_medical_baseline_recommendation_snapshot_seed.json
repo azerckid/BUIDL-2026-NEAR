@@ -2,25 +2,27 @@
   "metadata": {
     "prepared_at": "2026-05-31T02:49:00+09:00",
     "corrected_at": "2026-05-31T03:58:00+09:00",
+    "expanded_at": "2026-05-31T16:42:00+09:00",
     "timezone": "Asia/Seoul",
     "generator": "manual_seed_preparation",
-    "output_version": "1.1",
+    "output_version": "1.2",
     "input_matching_review": "data/insurance/latest_medical_baseline_matching_review.json",
+    "input_samsung_fire_reprobe": "data/insurance/latest_samsung_fire_medical_document_reprobe.json",
     "input_seed": "src/lib/db/seed.ts",
     "db_write_performed": false,
     "seed_file_changed": true,
     "recommendation_snapshot_seed_changed": true
   },
   "summary": {
-    "source_approvals_added": 3,
-    "quote_approvals_added": 12,
+    "source_approvals_added": 4,
+    "quote_approvals_added": 16,
     "quote_approval_ids_corrected": true,
-    "insurance_product_snapshots_added": 3,
+    "samsung_fire_document_specificity_resolved": true,
+    "insurance_product_snapshots_added": 4,
     "representative_condition_id": "age34_female",
     "krw_per_usdc": 1350,
-    "expected_active_source_backed_products_after_apply": 8,
+    "expected_active_source_backed_products_after_apply": 9,
     "blocked_sources_kept_out": [
-      "src_samsung_fire_direct_medical_202605",
       "src_shinhan_life_sol_cancer_standard_202605"
     ]
   },
@@ -63,6 +65,26 @@
       }
     },
     {
+      "product_source_id": "src_samsung_fire_direct_medical_202605",
+      "provider": "삼성화재",
+      "raw_product_name": "무배당 삼성화재 다이렉트 실손의료비보험(2605.1)",
+      "review_status_after_seed": "approved",
+      "representative_premium_krw": 7503,
+      "primary_source_document_id": "doc_samsung_fire_direct_medical_terms_202605",
+      "document_evidence": {
+        "carrier_match_score": 1,
+        "document_types": [
+          "terms"
+        ],
+        "product_specific_reprobe": {
+          "direct_product_page_url": "https://direct.samsungfire.com/mall/PP030404_001.html?pcMode=true",
+          "document_url": "https://direct.samsungfire.com/docs/realloss.pdf",
+          "sha256": "db0ed9738c9f59fbb28b678b910e0bdd3ef4bf08bdac52643c2e2dd167003415",
+          "status": "resolved"
+        }
+      }
+    },
+    {
       "product_source_id": "src_hyundai_direct_medical_202605",
       "provider": "현대해상",
       "raw_product_name": "(무)현대해상다이렉트실손의료비보장보험(갱신형)(Hi2605)",
@@ -86,6 +108,10 @@
     "quote_src_kb_direct_medical_202605_age34_female_b141dc7c5700",
     "quote_src_kb_direct_medical_202605_age44_male_2a491b5a1fab",
     "quote_src_kb_direct_medical_202605_age44_female_58dcc145a6b7",
+    "quote_src_samsung_fire_direct_medical_202605_age34_male_f20570f4817b",
+    "quote_src_samsung_fire_direct_medical_202605_age34_female_b141dc7c5700",
+    "quote_src_samsung_fire_direct_medical_202605_age44_male_2a491b5a1fab",
+    "quote_src_samsung_fire_direct_medical_202605_age44_female_58dcc145a6b7",
     "quote_src_hyundai_direct_medical_202605_age34_male_f20570f4817b",
     "quote_src_hyundai_direct_medical_202605_age34_female_b141dc7c5700",
     "quote_src_hyundai_direct_medical_202605_age44_male_2a491b5a1fab",
@@ -123,6 +149,20 @@
         "old_seed_id": "quote_src_kb_direct_medical_202605_age44_male_26615bdcb076",
         "actual_db_id": "quote_src_kb_direct_medical_202605_age44_male_2a491b5a1fab",
         "monthly_premium_krw": 9074
+      },
+      {
+        "condition_id": "age34_male",
+        "product_source_id": "src_samsung_fire_direct_medical_202605",
+        "old_seed_id": "quote_src_samsung_fire_direct_medical_202605_age34_male_60456bed3452",
+        "actual_db_id": "quote_src_samsung_fire_direct_medical_202605_age34_male_f20570f4817b",
+        "monthly_premium_krw": 6575
+      },
+      {
+        "condition_id": "age44_male",
+        "product_source_id": "src_samsung_fire_direct_medical_202605",
+        "old_seed_id": "quote_src_samsung_fire_direct_medical_202605_age44_male_26615bdcb076",
+        "actual_db_id": "quote_src_samsung_fire_direct_medical_202605_age44_male_2a491b5a1fab",
+        "monthly_premium_krw": 9546
       },
       {
         "condition_id": "age34_male",
@@ -166,6 +206,18 @@
       "primary_source_document_id": "doc_kb_direct_medical_terms_202605"
     },
     {
+      "id": "prod_samsung_fire_direct_medical_202605",
+      "product_source_id": "src_samsung_fire_direct_medical_202605",
+      "name": "삼성화재 다이렉트 실손의료비보험",
+      "provider": "삼성화재",
+      "coverage_category": "medical_expense",
+      "matching_strategy": "baseline",
+      "risk_targets": [],
+      "monthly_premium_krw": 7503,
+      "monthly_premium_usdc": 5.56,
+      "primary_source_document_id": "doc_samsung_fire_direct_medical_terms_202605"
+    },
+    {
       "id": "prod_hyundai_direct_medical_202605",
       "product_source_id": "src_hyundai_direct_medical_202605",
       "name": "현대해상다이렉트실손의료비보장보험",
@@ -180,13 +232,13 @@
   ],
   "safety": {
     "legacy_demo_products_remain_archived": true,
-    "samsung_fire_kept_blocked_until_product_specific_document": true,
+    "samsung_fire_document_specificity_resolved": true,
     "db_apply_required_in_follow_up_pr": true,
     "operational_backup_required_before_apply": true
   },
   "next_actions": [
     "운영 DB 백업 후 src/lib/db/seed.ts를 실행한다.",
-    "적용 후 source approved +3, quote approved +12, active source-backed product +3을 검증한다.",
+    "적용 후 source approved +1, quote approved +4, active source-backed product +1을 검증한다.",
     "dashboard에서 baseline 상품이 risk_target 상품과 구분되어 표시되는지 확인한다."
   ]
 }
