@@ -33,6 +33,7 @@ const heungkukFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T22:34
 const miraeassetLifeCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T00:48:00+09:00").toJSDate();
 const hanwhaGeneralCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T02:27:00+09:00").toJSDate();
 const dbLifeCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T03:34:00+09:00").toJSDate();
+const lotteMedicalSnapshotReviewedAt = DateTime.fromISO("2026-06-01T04:30:00+09:00").toJSDate();
 
 type InsuranceCarrierSeed = typeof insuranceCarriers.$inferInsert;
 type InsuranceProductSourceSeed = typeof insuranceProductSources.$inferInsert;
@@ -130,6 +131,10 @@ const MEDICAL_BASELINE_APPROVED_QUOTE_IDS = [
   "quote_src_heungkuk_fire_direct_medical_202605_age34_female_b141dc7c5700",
   "quote_src_heungkuk_fire_direct_medical_202605_age44_male_26615bdcb076",
   "quote_src_heungkuk_fire_direct_medical_202605_age44_female_58dcc145a6b7",
+  "quote_src_lotte_direct_medical_202605_age34_male_60456bed3452",
+  "quote_src_lotte_direct_medical_202605_age34_female_b141dc7c5700",
+  "quote_src_lotte_direct_medical_202605_age44_male_26615bdcb076",
+  "quote_src_lotte_direct_medical_202605_age44_female_58dcc145a6b7",
 ];
 
 const SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS = [
@@ -1392,6 +1397,21 @@ const SOURCE_AWARE_DOCUMENTS: InsuranceSourceDocumentSeed[] = [
     parseStatus: "not_parsed",
     createdAt: now,
   },
+  {
+    id: "doc_lotte_direct_medical_terms_202605",
+    productSourceId: "src_lotte_direct_medical_202605",
+    carrierId: "carrier_lotte_insurance",
+    sourceType: "carrier_disclosure",
+    documentType: "terms",
+    sourceUrl: "https://www.lotteins.co.kr/upload/C/let_care_sil_2605_yak.pdf",
+    fileHashSha256: "593987e051e2ec7e04292740aeda4448a6a0a60da7d2fc56287c8746322e7168",
+    contentType: "application/pdf",
+    contentLengthBytes: 3867788,
+    retrievedAt: lotteMedicalSnapshotReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
 ];
 
 type HanwhaLifeCarrierQuoteInput = {
@@ -2238,6 +2258,33 @@ const HEUNGKUK_FIRE_MEDICAL_CAVEATS = [
   "대표 문서는 약관 1건이며, 상품요약서와 사업방법서 hash는 아직 별도 row로 확보하지 않았다.",
 ];
 
+const LOTTE_DIRECT_MEDICAL_DETAILS = {
+  ...MEDICAL_BASELINE_COMMON_DETAILS,
+  representative_premium_krw: 15675,
+  approved_quote_condition_premiums_krw: {
+    age34_male: 12183,
+    age34_female: 15675,
+    age44_male: 17565,
+    age44_female: 21254,
+  },
+  document_evidence: {
+    carrier_match_score: 0.65,
+    document_types: ["terms"],
+    official_product_page: "https://www.lotteins.co.kr/web/C/D/A/cda020.jsp?prdtseq=11",
+    official_pdf_url: "https://www.lotteins.co.kr/upload/C/let_care_sil_2605_yak.pdf",
+    page_charset: "EUC-KR",
+    document_hash_sha256: "593987e051e2ec7e04292740aeda4448a6a0a60da7d2fc56287c8746322e7168",
+    document_variant: "let_care_sil_2605_yak.pdf",
+  },
+};
+
+const LOTTE_DIRECT_MEDICAL_CAVEATS = [
+  ...MEDICAL_BASELINE_COMMON_CAVEATS,
+  "롯데손보 공식 상품 페이지는 EUC-KR HTML이고 약관보기 버튼으로 let_care_sil_2605_yak.pdf를 제공하므로 adapter 실행 시 charset 처리와 PDF URL 신선도를 확인한다.",
+  "대표 문서는 약관 1건이며, 상품요약서와 사업방법서 hash는 아직 별도 row로 확보하지 않았다.",
+  "실손의료보험은 통원 한도, 자기부담금, 급여/비급여, 갱신/재가입 조건이 적용된다.",
+];
+
 const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = [
   {
     id: "src_shinhan_life_sol_cancer_202601",
@@ -2626,6 +2673,29 @@ const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = 
       reviewStatus: "approved",
       reviewedAt: heungkukFireMedicalSnapshotReviewedAt,
       lastVerifiedAt: heungkukFireMedicalSnapshotReviewedAt,
+      updatedAt: now,
+    },
+  },
+  {
+    id: "src_lotte_direct_medical_202605",
+    values: {
+      officialProductUrl: "https://www.lotteins.co.kr/web/C/D/A/cda020.jsp?prdtseq=11",
+      saleStatus: "active",
+      saleStatusEvidence:
+        "롯데손보 공식 상품 페이지 prdtseq=11의 약관보기 버튼에서 let_care_sil_2605_yak.pdf를 확인해 SHA-256을 hash했고 보험다모아 조건별 quote 4건을 검수했다.",
+      monthlyPremiumKrw: 15675,
+      premiumText: "15,675원",
+      premiumBasis: MEDICAL_BASELINE_PREMIUM_BASIS,
+      renewalType: "renewable",
+      coverageSummary:
+        "질병과 상해 치료비를 폭넓게 보상하는 롯데손보 let:care 실손의료보험 baseline 상품.",
+      exclusionsSummary:
+        "자기부담금, 급여/비급여, 보장 한도, 통원 한도, 갱신/재가입 조건, 상품요약서/사업방법서 hash 미확보 caveat를 표시한다.",
+      coverageDetailsJson: JSON.stringify(LOTTE_DIRECT_MEDICAL_DETAILS),
+      coverageCaveatsJson: JSON.stringify(LOTTE_DIRECT_MEDICAL_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: lotteMedicalSnapshotReviewedAt,
+      lastVerifiedAt: lotteMedicalSnapshotReviewedAt,
       updatedAt: now,
     },
   },
@@ -3034,6 +3104,30 @@ const FIRST_RECOMMENDATION_SNAPSHOT_PRODUCTS: InsuranceProductSeed[] = [
     coverageCaveatsJson: JSON.stringify(HEUNGKUK_FIRE_MEDICAL_CAVEATS),
     sourceCheckedAt: heungkukFireMedicalSnapshotReviewedAt,
     primarySourceDocumentId: "doc_heungkuk_fire_direct_medical_terms_202605",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
+  {
+    id: "prod_lotte_direct_medical_202605",
+    productSourceId: "src_lotte_direct_medical_202605",
+    name: "롯데손보 let:care 실손의료보험",
+    provider: "롯데손보",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(15675),
+    monthlyPremiumKrw: 15675,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: MEDICAL_BASELINE_PREMIUM_BASIS,
+    coverageCategory: "medical_expense" as const,
+    riskTargets: JSON.stringify([]),
+    matchingStrategy: "baseline" as const,
+    coverageDetailsJson: JSON.stringify(LOTTE_DIRECT_MEDICAL_DETAILS),
+    coverageCaveatsJson: JSON.stringify(LOTTE_DIRECT_MEDICAL_CAVEATS),
+    sourceCheckedAt: lotteMedicalSnapshotReviewedAt,
+    primarySourceDocumentId: "doc_lotte_direct_medical_terms_202605",
     catalogStatus: "approved" as const,
     discountEligible: 0,
     originalPremiumUsdc: null,
