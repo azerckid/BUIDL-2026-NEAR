@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 16:42
+> Last Updated: 2026-05-31 17:26
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.26
+- **상태**: Draft v2.27
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -667,6 +667,8 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 
 2026-05-31 16:42 KST 기준 삼성화재 실손 baseline 추천 snapshot seed 준비를 완료했다. `seed.ts`는 적용 시 `src_samsung_fire_direct_medical_202605`를 `approved`로 승격하고, 운영 DB 읽기 전용 확인으로 확정한 quote 4건을 `approved`로 바꾸며, `prod_samsung_fire_direct_medical_202605` snapshot 1건을 추가한다. 대표 보험료는 `age34_female` 조건 7,503 KRW이고, `monthly_premium_usdc`는 고정 데모 환산율 `1 USDC = 1,350 KRW`로 계산한다. 이번 단계는 DB write 없이 seed/data/docs만 변경하며, 운영 반영은 백업 후 apply PR로 분리한다. 검증 문서는 `../05_QA_Validation/54_SAMSUNG_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md`에 둔다. 적용 후 source-backed active 추천 상품은 8건에서 9건으로 늘어난다.
 
+2026-05-31 17:26 KST 기준 운영 DB 백업 후 위 seed를 적용했다. 적용 후 `insurance_products=14`, source-backed active 추천 상품은 9건, baseline active 상품은 4건, approved quote는 36건이다. 삼성화재 source는 `approved`, quote 4건은 모두 `approved`, `prod_samsung_fire_direct_medical_202605`는 `catalog_status=approved`, `is_active=1`, `matching_strategy=baseline`으로 확인했다. 검증 문서는 `../05_QA_Validation/55_SAMSUNG_FIRE_BASELINE_DB_APPLY_2026_05_31.md`에 둔다.
+
 ---
 
 ## 10. 법무·신뢰 고지
@@ -734,6 +736,7 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - [x] DB손보/KB손보/현대해상 남성 quote approval ID 교정 준비
 - [x] 백업 후 DB손보/KB손보/현대해상 남성 quote approval ID 운영 DB 적용
 - [x] 삼성화재 baseline 추천 snapshot seed 준비
+- [x] 백업 후 삼성화재 baseline 추천 snapshot 운영 DB 적용
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
@@ -796,3 +799,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Medical Baseline Quote UI Verification](../05_QA_Validation/51_MEDICAL_BASELINE_QUOTE_UI_VERIFICATION_2026_05_31.md) - 실손 baseline 남성 조건 quote UI 표시 검증
 - **QA_Validation**: [Samsung Fire Medical Document Reprobe](../05_QA_Validation/53_SAMSUNG_FIRE_MEDICAL_DOCUMENT_REPROBE_2026_05_31.md) - 삼성화재 실손 상품 전용 문서 재탐색 검증
 - **QA_Validation**: [Samsung Fire Baseline Snapshot Seed](../05_QA_Validation/54_SAMSUNG_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 삼성화재 실손 baseline 추천 snapshot seed 검증
+- **QA_Validation**: [Samsung Fire Baseline DB Apply](../05_QA_Validation/55_SAMSUNG_FIRE_BASELINE_DB_APPLY_2026_05_31.md) - 삼성화재 실손 baseline 추천 snapshot 운영 DB 적용 검증
