@@ -25,6 +25,7 @@ const kdbShinhanVariantReviewedAt = DateTime.fromISO("2026-05-29T23:11:00+09:00"
 const firstRecommendationSnapshotReviewedAt = DateTime.fromISO("2026-05-30T16:30:00+09:00").toJSDate();
 const hanwhaLifeQuoteReviewedAt = DateTime.fromISO("2026-05-31T00:49:37.412+09:00").toJSDate();
 const medicalBaselineSnapshotReviewedAt = DateTime.fromISO("2026-05-31T02:49:00+09:00").toJSDate();
+const samsungFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T16:42:00+09:00").toJSDate();
 
 type InsuranceCarrierSeed = typeof insuranceCarriers.$inferInsert;
 type InsuranceProductSourceSeed = typeof insuranceProductSources.$inferInsert;
@@ -102,6 +103,10 @@ const MEDICAL_BASELINE_APPROVED_QUOTE_IDS = [
   "quote_src_kb_direct_medical_202605_age34_female_b141dc7c5700",
   "quote_src_kb_direct_medical_202605_age44_male_2a491b5a1fab",
   "quote_src_kb_direct_medical_202605_age44_female_58dcc145a6b7",
+  "quote_src_samsung_fire_direct_medical_202605_age34_male_f20570f4817b",
+  "quote_src_samsung_fire_direct_medical_202605_age34_female_b141dc7c5700",
+  "quote_src_samsung_fire_direct_medical_202605_age44_male_2a491b5a1fab",
+  "quote_src_samsung_fire_direct_medical_202605_age44_female_58dcc145a6b7",
   "quote_src_hyundai_direct_medical_202605_age34_male_f20570f4817b",
   "quote_src_hyundai_direct_medical_202605_age34_female_b141dc7c5700",
   "quote_src_hyundai_direct_medical_202605_age44_male_2a491b5a1fab",
@@ -1096,8 +1101,8 @@ const SOURCE_AWARE_DOCUMENTS: InsuranceSourceDocumentSeed[] = [
     sourceUrl: "https://direct.samsungfire.com/docs/realloss.pdf",
     fileHashSha256: "db0ed9738c9f59fbb28b678b910e0bdd3ef4bf08bdac52643c2e2dd167003415",
     contentType: "application/pdf",
-    contentLengthBytes: null,
-    retrievedAt: reviewedAt,
+    contentLengthBytes: 2519879,
+    retrievedAt: samsungFireMedicalSnapshotReviewedAt,
     usageStatus: "link_only",
     parseStatus: "not_parsed",
     createdAt: now,
@@ -1602,6 +1607,33 @@ const KB_DIRECT_MEDICAL_CAVEATS = [
   "고정 PDF URL은 정기 refresh 시 hash 변경 여부를 재확인한다.",
 ];
 
+const SAMSUNG_FIRE_DIRECT_MEDICAL_DETAILS = {
+  ...MEDICAL_BASELINE_COMMON_DETAILS,
+  representative_premium_krw: 7503,
+  approved_quote_condition_premiums_krw: {
+    age34_male: 6575,
+    age34_female: 7503,
+    age44_male: 9546,
+    age44_female: 11938,
+  },
+  document_evidence: {
+    carrier_match_score: 1,
+    document_types: ["terms"],
+    product_specific_reprobe: {
+      direct_product_page_url: "https://direct.samsungfire.com/mall/PP030404_001.html?pcMode=true",
+      document_url: "https://direct.samsungfire.com/docs/realloss.pdf",
+      document_hash_sha256: "db0ed9738c9f59fbb28b678b910e0bdd3ef4bf08bdac52643c2e2dd167003415",
+      product_version: "2605.1",
+    },
+  },
+};
+
+const SAMSUNG_FIRE_DIRECT_MEDICAL_CAVEATS = [
+  ...MEDICAL_BASELINE_COMMON_CAVEATS,
+  "직접 상품 상세 페이지와 PDF 텍스트 근거로 realloss.pdf가 삼성화재 다이렉트 실손의료비보험(2605.1) 약관임을 확인했다.",
+  "대표 문서는 약관 1건이며, 상품요약서와 사업방법서 hash는 아직 별도 row로 확보하지 않았다.",
+];
+
 const HYUNDAI_DIRECT_MEDICAL_DETAILS = {
   ...MEDICAL_BASELINE_COMMON_DETAILS,
   representative_premium_krw: 6545,
@@ -1782,6 +1814,29 @@ const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = 
       reviewStatus: "approved",
       reviewedAt: medicalBaselineSnapshotReviewedAt,
       lastVerifiedAt: medicalBaselineSnapshotReviewedAt,
+      updatedAt: now,
+    },
+  },
+  {
+    id: "src_samsung_fire_direct_medical_202605",
+    values: {
+      officialProductUrl: "https://direct.samsungfire.com/mall/PP030404_001.html?pcMode=true",
+      saleStatus: "active",
+      saleStatusEvidence:
+        "삼성화재 다이렉트 상품 상세 페이지가 상품명, 상품약관 링크, 2026년 5월 5세대 실손 출시 근거를 제공하고 realloss.pdf 텍스트에서 2605.1 일반형 조항을 확인했다. 보험다모아 조건별 quote 4건도 검수했다.",
+      monthlyPremiumKrw: 7503,
+      premiumText: "7,503원",
+      premiumBasis: MEDICAL_BASELINE_PREMIUM_BASIS,
+      renewalType: "renewable",
+      coverageSummary:
+        "질병과 상해 치료비를 폭넓게 보상하는 삼성화재 실손의료보험 baseline 상품.",
+      exclusionsSummary:
+        "자기부담금, 급여/비급여, 보장 한도, 갱신 조건을 caveat로 표시한다.",
+      coverageDetailsJson: JSON.stringify(SAMSUNG_FIRE_DIRECT_MEDICAL_DETAILS),
+      coverageCaveatsJson: JSON.stringify(SAMSUNG_FIRE_DIRECT_MEDICAL_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: samsungFireMedicalSnapshotReviewedAt,
+      lastVerifiedAt: samsungFireMedicalSnapshotReviewedAt,
       updatedAt: now,
     },
   },
@@ -1972,6 +2027,30 @@ const FIRST_RECOMMENDATION_SNAPSHOT_PRODUCTS: InsuranceProductSeed[] = [
     coverageCaveatsJson: JSON.stringify(KB_DIRECT_MEDICAL_CAVEATS),
     sourceCheckedAt: medicalBaselineSnapshotReviewedAt,
     primarySourceDocumentId: "doc_kb_direct_medical_terms_202605",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
+  {
+    id: "prod_samsung_fire_direct_medical_202605",
+    productSourceId: "src_samsung_fire_direct_medical_202605",
+    name: "삼성화재 다이렉트 실손의료비보험",
+    provider: "삼성화재",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(7503),
+    monthlyPremiumKrw: 7503,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: MEDICAL_BASELINE_PREMIUM_BASIS,
+    coverageCategory: "medical_expense" as const,
+    riskTargets: JSON.stringify([]),
+    matchingStrategy: "baseline" as const,
+    coverageDetailsJson: JSON.stringify(SAMSUNG_FIRE_DIRECT_MEDICAL_DETAILS),
+    coverageCaveatsJson: JSON.stringify(SAMSUNG_FIRE_DIRECT_MEDICAL_CAVEATS),
+    sourceCheckedAt: samsungFireMedicalSnapshotReviewedAt,
+    primarySourceDocumentId: "doc_samsung_fire_direct_medical_terms_202605",
     catalogStatus: "approved" as const,
     discountEligible: 0,
     originalPremiumUsdc: null,
