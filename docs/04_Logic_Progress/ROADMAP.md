@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-06-01 00:15
+> Last Updated: 2026-06-01 00:31
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-06-01 (미래에셋생명 공시 adapter)
+- **최종 수정일**: 2026-06-01 (미래에셋생명 매칭 검수)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.57
+- **상태**: Draft v3.58
 - **phase**: Phase 2
 
 ---
@@ -152,6 +152,8 @@
 2026-05-31 23:25 KST 기준 운영 DB 백업 후 흥국화재 실손 baseline 추천 snapshot을 적용했다. 적용 후 `insurance_source_documents=27`, `insurance_products=18`, source-backed active 추천 상품은 13건이 됐고, `insurance_product_sources.review_status=approved`는 13건, `insurance_premium_quotes.review_status=approved`는 52건으로 증가했다. 흥국화재 source 1건, document 1건, quote 4건, product snapshot 1건이 모두 approved/active 상태다. 검증은 `../05_QA_Validation/72_HEUNGKUK_FIRE_BASELINE_DB_APPLY_2026_05_31.md`에 기록한다. 다음 작업은 Dashboard와 상담 AI에서 흥국화재 카드 설명을 수동 확인하거나, 미래에셋생명/한화손보 adapter를 순차 보강하는 것이다.
 
 2026-06-01 00:15 KST 기준 미래에셋생명 온라인 암보험 공시 adapter를 보강했다. 공식 상품공시 화면의 `selectWorkDvsnDataPaging.do` Ajax와 `cmmnFileDown.do` 다운로드를 재현해 기본형/해약환급금이없는유형 source 2건이 공유하는 상품요약서, 보험약관, 사업방법서 PDF 3종을 hash했다. 신규 SHA-256은 `133a9d91d3547e04ed25717275ce350ae0988c480ddde008346dd109255e722f`, `8d4a162186b510c576e7333e4ae75e72b6c785a089798688d0d490e267c14378`, `be8d5a3ec858875dbeb06c4b467ba4633928cb74475aa2cf159ed53ad508b71f`다. 이번 단계는 DB write 없이 crawler/data/docs만 변경했으며, 미래에셋생명 source는 아직 `raw`라 추천 snapshot 수는 13개로 유지한다. 검증은 `../05_QA_Validation/73_MIRAEASSET_LIFE_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md`에 기록한다. 다음 작업은 미래에셋생명 문서 variant와 암보험 매칭 키워드/caveat를 정리하거나, 한화손보 adapter를 이어서 보강하는 것이다.
+
+2026-06-01 00:31 KST 기준 미래에셋생명 온라인 암보험 2건의 문서 variant와 매칭 키워드/caveat 정리를 완료했다. 약관에서 기본형/해약환급금이 없는 유형과 상품코드 21279/21280을 확인했고, 두 source 모두 `coverage_category=oncology`, `matching_strategy=risk_target`, 5개 암 risk target 기준의 snapshot 후보로 정리했다. quote 8건은 모두 숫자 KRW이며 현재 운영 DB에서는 source 2건 `raw`, document 0건, quote 8건 `needs_review`, product 0건 상태다. 이번 단계는 DB write와 `seed.ts` 변경 없이 data/docs만 추가했으며 추천 snapshot 수는 13개로 유지한다. 검증은 `../05_QA_Validation/74_MIRAEASSET_LIFE_CANCER_MATCHING_REVIEW_2026_06_01.md`에 기록한다. 다음 작업은 미래에셋생명 source document seed, quote approval, active product snapshot 2건을 준비하는 것이다.
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 매칭 키워드 정리 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.
