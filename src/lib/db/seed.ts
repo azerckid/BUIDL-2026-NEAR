@@ -32,6 +32,7 @@ const meritzFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T21:39:0
 const heungkukFireMedicalSnapshotReviewedAt = DateTime.fromISO("2026-05-31T22:34:00+09:00").toJSDate();
 const miraeassetLifeCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T00:48:00+09:00").toJSDate();
 const hanwhaGeneralCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T02:27:00+09:00").toJSDate();
+const dbLifeCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T03:34:00+09:00").toJSDate();
 
 type InsuranceCarrierSeed = typeof insuranceCarriers.$inferInsert;
 type InsuranceProductSourceSeed = typeof insuranceProductSources.$inferInsert;
@@ -154,6 +155,13 @@ const HANWHA_GENERAL_CANCER_APPROVED_QUOTE_IDS = [
   "quote_src_hanwha_general_direct_cancer_202604_age34_male_d2e77ecf4a0c",
   "quote_src_hanwha_general_direct_cancer_202604_age44_female_9cf2588db68b",
   "quote_src_hanwha_general_direct_cancer_202604_age44_male_99a3f15d59fc",
+];
+
+const DB_LIFE_CANCER_APPROVED_QUOTE_IDS = [
+  "quote_src_db_life_eroun_cancer_202601_age34_female_1015b0165c0e",
+  "quote_src_db_life_eroun_cancer_202601_age34_male_d2e77ecf4a0c",
+  "quote_src_db_life_eroun_cancer_202601_age44_female_9cf2588db68b",
+  "quote_src_db_life_eroun_cancer_202601_age44_male_99a3f15d59fc",
 ];
 
 function toFirstSnapshotUsdc(monthlyPremiumKrw: number) {
@@ -1257,6 +1265,22 @@ const SOURCE_AWARE_DOCUMENTS: InsuranceSourceDocumentSeed[] = [
     createdAt: now,
   },
   {
+    id: "doc_db_life_eroun_cancer_terms_202601",
+    productSourceId: "src_db_life_eroun_cancer_202601",
+    carrierId: "carrier_db_life",
+    sourceType: "carrier_disclosure",
+    documentType: "terms",
+    sourceUrl:
+      "https://www.idblife.com/notice/product/prov/file?publishNo=3196&fileGb=3%20&fileSeq=65059",
+    fileHashSha256: "3c25a911b796fa239c45aec82afce4d24e310d76e516ad45ba86821cc58d0074",
+    contentType: "application/octet-stream;;charset=utf-8",
+    contentLengthBytes: 4247768,
+    retrievedAt: dbLifeCancerSnapshotReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
+  {
     id: "doc_miraeasset_online_cancer_basic_summary_202604",
     productSourceId: "src_miraeasset_online_cancer_basic_202605",
     carrierId: "carrier_miraeasset_life",
@@ -1826,6 +1850,60 @@ const HANWHA_GENERAL_CANCER_CAVEATS = [
   "해약환급금은 납입한 보험료보다 적거나 없을 수 있다.",
 ];
 
+const DB_LIFE_CANCER_DETAILS = {
+  coverage_category: "oncology",
+  matching_strategy: "risk_target",
+  risk_targets: ONCOLOGY_RISK_TARGETS,
+  primary_benefit_terms: [
+    "암진단자금",
+    "특정3대암진단자금",
+    "소액암진단자금",
+  ],
+  benefit_timing_terms: [
+    "암 보장개시일 90일",
+    "계약일부터 1년 미만 50% 지급",
+    "유방암 180일 경과 이전 20% 지급",
+  ],
+  small_cancer_terms: [
+    "기타피부암",
+    "특정갑상선암",
+    "대장점막내암",
+  ],
+  variant_terms: ["해약환급금 미지급형", "2601", "무배당 e로운 암보험"],
+  quote_review_status: "approved",
+  quote_source_type: "e_insmarket",
+  representative_condition_id: "age34_female",
+  representative_premium_krw: 9700,
+  approved_quote_condition_premiums_krw: {
+    age34_female: 9700,
+    age34_male: 10300,
+    age44_female: 10900,
+    age44_male: 13300,
+  },
+  document_evidence: {
+    carrier_match_score: 1,
+    terms_title: "무배당 e로운 암보험(해약환급금 미지급형)(2601)",
+    product_type: "암보험",
+    document_url:
+      "https://www.idblife.com/notice/product/prov/file?publishNo=3196&fileGb=3%20&fileSeq=65059",
+    terms_sha256: "3c25a911b796fa239c45aec82afce4d24e310d76e516ad45ba86821cc58d0074",
+  },
+  usdc_conversion: {
+    basis: "fixed_demo_rate",
+    krw_per_usdc: FIRST_SNAPSHOT_KRW_PER_USDC,
+    approved_at: "2026-06-01T03:34:00+09:00",
+  },
+};
+
+const DB_LIFE_CANCER_CAVEATS = [
+  "암 보장개시일은 계약일 또는 부활일부터 그 날을 포함하여 90일이 지난 날의 다음날이므로 초기 90일 보장 제외 조건이 있다.",
+  "계약일부터 1년 미만에 암, 특정3대암, 소액암 지급사유가 발생하면 지급금액의 50% 기준을 적용한다.",
+  "유방암은 보험계약일로부터 180일 경과 이전 진단확정 시 암진단자금의 20% 지급 조건이 있다.",
+  "소액암과 특정3대암은 일반 암진단자금과 별도 급부로 표시하며, 기타피부암, 특정갑상선암, 대장점막내암 등 분류 차이를 설명한다.",
+  "해약환급금 미지급형은 보험료 납입기간 중 해지 시 해약환급금이 없고, 납입기간 이후 해지 시 표준형 해약환급금의 50% 기준이다.",
+  "대표 보험료는 보험다모아 age34_female 조건이며 사용자 실제 조건에 따라 달라질 수 있다.",
+];
+
 const KYOBOLIFEPLANET_CANCER_COMMON_DETAILS = {
   coverage_category: "oncology",
   matching_strategy: "risk_target",
@@ -2254,6 +2332,29 @@ const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = 
     },
   },
   {
+    id: "src_db_life_eroun_cancer_202601",
+    values: {
+      officialProductUrl: "https://direct.idblife.com/",
+      saleStatus: "active",
+      saleStatusEvidence:
+        "DB생명 상품공시 판매상품 페이지 publishNo=3196에서 공식 약관 PDF hash를 확인했고 보험다모아 조건별 quote 4건을 검수했다.",
+      monthlyPremiumKrw: 9700,
+      premiumText: "9,700원",
+      premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+      renewalType: "unknown",
+      coverageSummary:
+        "DB생명 e로운 암보험 해약환급금 미지급형. 암진단자금, 특정3대암진단자금, 소액암진단자금을 DNA 암 위험 key와 매칭한다.",
+      exclusionsSummary:
+        "90일 보장 제외, 1년 미만 감액, 유방암 180일 이전 20% 지급, 소액암/특정3대암 분리, 해약환급금 미지급형 조건을 caveat로 표시한다.",
+      coverageDetailsJson: JSON.stringify(DB_LIFE_CANCER_DETAILS),
+      coverageCaveatsJson: JSON.stringify(DB_LIFE_CANCER_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: dbLifeCancerSnapshotReviewedAt,
+      lastVerifiedAt: dbLifeCancerSnapshotReviewedAt,
+      updatedAt: now,
+    },
+  },
+  {
     id: "src_hanwha_life_e_cancer_202604",
     values: {
       officialProductUrl:
@@ -2621,6 +2722,30 @@ const FIRST_RECOMMENDATION_SNAPSHOT_PRODUCTS: InsuranceProductSeed[] = [
     coverageCaveatsJson: JSON.stringify(HANWHA_GENERAL_CANCER_CAVEATS),
     sourceCheckedAt: hanwhaGeneralCancerSnapshotReviewedAt,
     primarySourceDocumentId: "doc_hanwha_general_direct_cancer_terms_202604",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
+  {
+    id: "prod_db_life_eroun_cancer_202601",
+    productSourceId: "src_db_life_eroun_cancer_202601",
+    name: "DB생명 e로운 암보험",
+    provider: "DB생명",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(9700),
+    monthlyPremiumKrw: 9700,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+    coverageCategory: "oncology" as const,
+    riskTargets: JSON.stringify(ONCOLOGY_RISK_TARGETS),
+    matchingStrategy: "risk_target" as const,
+    coverageDetailsJson: JSON.stringify(DB_LIFE_CANCER_DETAILS),
+    coverageCaveatsJson: JSON.stringify(DB_LIFE_CANCER_CAVEATS),
+    sourceCheckedAt: dbLifeCancerSnapshotReviewedAt,
+    primarySourceDocumentId: "doc_db_life_eroun_cancer_terms_202601",
     catalogStatus: "approved" as const,
     discountEligible: 0,
     originalPremiumUsdc: null,
@@ -3000,6 +3125,7 @@ async function seed() {
         ...SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS,
         ...MIRAEASSET_LIFE_CANCER_APPROVED_QUOTE_IDS,
         ...HANWHA_GENERAL_CANCER_APPROVED_QUOTE_IDS,
+        ...DB_LIFE_CANCER_APPROVED_QUOTE_IDS,
       ])
     );
 
@@ -3017,7 +3143,7 @@ async function seed() {
       .onConflictDoNothing();
   }
   console.log(
-    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${HANWHA_LIFE_CARRIER_QUOTE_ROWS.length} Hanwha carrier quotes inserted if missing, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length + HANWHA_LIFE_CARRIER_QUOTE_IDS.length + MEDICAL_BASELINE_APPROVED_QUOTE_IDS.length + SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS.length + MIRAEASSET_LIFE_CANCER_APPROVED_QUOTE_IDS.length + HANWHA_GENERAL_CANCER_APPROVED_QUOTE_IDS.length} quote approvals, ${HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS.length} Hanwha zero quotes rejected, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
+    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${HANWHA_LIFE_CARRIER_QUOTE_ROWS.length} Hanwha carrier quotes inserted if missing, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length + HANWHA_LIFE_CARRIER_QUOTE_IDS.length + MEDICAL_BASELINE_APPROVED_QUOTE_IDS.length + SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS.length + MIRAEASSET_LIFE_CANCER_APPROVED_QUOTE_IDS.length + HANWHA_GENERAL_CANCER_APPROVED_QUOTE_IDS.length + DB_LIFE_CANCER_APPROVED_QUOTE_IDS.length} quote approvals, ${HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS.length} Hanwha zero quotes rejected, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
   );
 }
 

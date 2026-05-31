@@ -1,6 +1,6 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-06-01 03:34
+> Last Updated: 2026-06-01 03:52
 
 - **레이어**: 03_Technical_Specs
 - **상태**: Draft v1.40
@@ -263,6 +263,8 @@ DNA 분석 결과
 
 2026-06-01 03:34 KST 기준 DB생명 e로운 암보험을 `coverage_category=oncology`, `matching_strategy=risk_target`, 공통 5개 암 risk target 기준의 snapshot 후보로 정리했다. 약관은 90일 암 보장개시일, 1년 미만 50% 감액, 유방암 180일 이전 20% 지급, 소액암/특정3대암 별도 급부, 해약환급금 미지급형 caveat를 명시한다. 숫자 KRW quote 4건이 있으므로 다음 seed PR에서 source document 1건, quote approval 4건, active `insurance_products` snapshot 1건을 준비할 수 있다. 검증은 `../05_QA_Validation/82_DB_LIFE_CANCER_MATCHING_REVIEW_2026_06_01.md`에 둔다.
 
+2026-06-01 03:52 KST 기준 DB생명 e로운 암보험의 source document seed, quote 4건 approval, active product snapshot 1건을 준비했다. 대표 보험료는 `age34_female=9,700 KRW`, `monthly_premium_usdc=7.19`, primary source document는 `doc_db_life_eroun_cancer_terms_202601`이다. 운영 DB apply 후 source-backed active 추천 상품은 17개, oncology active 상품은 10개가 되어야 한다. 검증은 `../05_QA_Validation/83_DB_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md`에 둔다.
+
 다음 단계는 남은 non-approved source 6건의 공식 URL, 문서 hash, 매칭 키워드/caveat를 순차 정리하는 것이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
 
 ---
@@ -345,3 +347,4 @@ DNA 분석 결과
 - **QA_Validation**: [Hanwha General Cancer DB Apply](../05_QA_Validation/80_HANWHA_GENERAL_CANCER_DB_APPLY_2026_06_01.md) - 한화손보 암보험 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [DB Life Cancer Disclosure Adapter Probe](../05_QA_Validation/81_DB_LIFE_CANCER_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md) - DB생명 암보험 공식 약관 hash 검증
 - **QA_Validation**: [DB Life Cancer Matching Review](../05_QA_Validation/82_DB_LIFE_CANCER_MATCHING_REVIEW_2026_06_01.md) - DB생명 암보험 매칭 키워드와 caveat 검수
+- **QA_Validation**: [DB Life Cancer Snapshot Seed](../05_QA_Validation/83_DB_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md) - DB생명 암보험 추천 snapshot seed 검증
