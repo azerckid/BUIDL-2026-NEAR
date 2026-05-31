@@ -1,0 +1,81 @@
+{
+  "metadata": {
+    "generated_at": "2026-06-01T03:08:28.739+09:00",
+    "timezone": "Asia/Seoul",
+    "generator": "scripts/insurance/collect-carrier-disclosures.mjs",
+    "input_product_probe": "data/insurance/latest_remaining_raw_source_product_document_probe.json (filtered to DB Life target)",
+    "output_version": "1.1",
+    "target_limit": 1,
+    "max_documents_per_product": 3
+  },
+  "targets": [
+    {
+      "provider": "DB생명",
+      "product_group": "암보험",
+      "raw_product_name": "(무)e로운 암보험(해약환급금 미지급형)(2601)",
+      "premium_text": "9,700원",
+      "e_insmarket_product_code": "L71C009000006",
+      "official_product_url": "https://direct.idblife.com/"
+    }
+  ],
+  "carrier_pages": [
+    {
+      "provider": "DB생명",
+      "source_url": "https://www.idblife.com/notice/product/prov/sale/9532",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://www.idblife.com/notice/product/prov/sale/9532",
+      "content_type": "text/html;charset=UTF-8",
+      "charset": "utf-8",
+      "disclosure_record_count": 15,
+      "matched_product_count": 1,
+      "notes": [
+        "주계약 및 특약 약관 페이지는 서버 렌더링 HTML로 문서 링크를 제공한다.",
+        "공식 파일 다운로드는 브라우저 User-Agent와 공시 페이지 Referer를 포함해야 PDF를 반환한다.",
+        "DB생명 API search '(무)e로운 암보험(해약환급금 미지급형)(2601)' returned 1 records."
+      ]
+    }
+  ],
+  "product_results": [
+    {
+      "provider": "DB생명",
+      "product_group": "암보험",
+      "raw_product_name": "(무)e로운 암보험(해약환급금 미지급형)(2601)",
+      "premium_text": "9,700원",
+      "e_insmarket_product_code": "L71C009000006",
+      "official_product_url": "https://direct.idblife.com/",
+      "carrier_disclosure_url": "https://www.idblife.com/notice/product/prov/sale/9532",
+      "result_status": "hashed",
+      "best_match_score": 1,
+      "matched_record_text": "(무)e로운 암보험(해약환급금 미지급형)(2601)_약관 (무)e로운 암보험(해약환급금 미지급형)(2601)_약관 pdf파일이 다운로드됩니다 /notice/product/prov/file?publishNo=3196&fileGb=3 &fileSeq=65059",
+      "document_candidates": [
+        {
+          "url": "https://www.idblife.com/notice/product/prov/file?publishNo=3196&fileGb=3%20&fileSeq=65059",
+          "document_type": "terms",
+          "discovered_from": "https://www.idblife.com/notice/product/prov/sale/9532",
+          "source_context": "(무)e로운 암보험(해약환급금 미지급형)(2601)_약관 pdf파일이 다운로드됩니다",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/octet-stream;;charset=utf-8",
+          "content_length_bytes": 4247768,
+          "sha256": "3c25a911b796fa239c45aec82afce4d24e310d76e516ad45ba86821cc58d0074",
+          "retrieved_at": "2026-06-01T03:08:28.694+09:00"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "qa": {
+    "service_db_ready": false,
+    "blockers": [
+      "Disclosure crawling can prove source documents, but product coverage mapping still requires human review.",
+      "Several carrier disclosure pages use JavaScript search forms, so HTML-only crawling may not expose all PDF URLs.",
+      "A product is seed-ready only after official document hash, sale status, premium basis, coverage_category, and risk_targets are approved."
+    ],
+    "next_actions": [
+      "Manually verify the DB Life document variant and cancer coverage caveats before source-document seeding.",
+      "Confirm quote row IDs and premium basis for src_db_life_eroun_cancer_202601.",
+      "Promote only hash-backed and matching-keyword-reviewed products into service seed candidates."
+    ]
+  }
+}

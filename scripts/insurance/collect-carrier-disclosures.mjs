@@ -38,8 +38,24 @@ const COMMON_TOKENS = new Set([
 const CARRIER_PROFILES = {
   "DB생명": {
     provider: "DB생명",
-    source_url: "https://idblife.com/notice/product/sale",
-    notes: ["판매상품공시 표가 서버 렌더링 HTML로 노출된다."],
+    source_url: "https://www.idblife.com/notice/product/prov/sale/9532",
+    api_searches: [
+      {
+        kind: "dblife_prov_sale_terms",
+        endpoint: "https://www.idblife.com/notice/product/prov/sale/9532",
+        referer: "https://www.idblife.com/notice/product/sale",
+        publish_no: "3196",
+        file_gb: "3 ",
+        file_seq: "65059",
+        product_name: "(무)e로운 암보험(해약환급금 미지급형)(2601)",
+        terms_file: "(무)e로운 암보험(해약환급금 미지급형)(2601)_약관",
+        keywords: ["e로운 암보험", "해약환급금 미지급형", "2601", "암보험"],
+      },
+    ],
+    notes: [
+      "주계약 및 특약 약관 페이지는 서버 렌더링 HTML로 문서 링크를 제공한다.",
+      "공식 파일 다운로드는 브라우저 User-Agent와 공시 페이지 Referer를 포함해야 PDF를 반환한다.",
+    ],
   },
   농협손보: {
     provider: "농협손보",
@@ -557,6 +573,9 @@ async function fetchApiSearchRecords(search, options) {
   if (search.kind === "dbins_product_search") {
     return await fetchDbInsuranceProductRecords(search, options);
   }
+  if (search.kind === "dblife_prov_sale_terms") {
+    return await fetchDbLifeProvSaleTermsRecords(search, options);
+  }
   if (search.kind === "nhfire_product_page_downloads") {
     return await fetchNhFireProductPageDownloadRecords(search, options);
   }
@@ -661,6 +680,72 @@ function makeDbInsuranceDocumentLinks(record, discoveredFrom) {
       document_type: documentType,
       discovered_from: discoveredFrom,
     }));
+}
+
+async function fetchDbLifeProvSaleTermsRecords(search, options) {
+  const browserUserAgent =
+    search.user_agent ??
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
+  const response = await fetchWithTimeout(search.endpoint, {
+    timeoutMs: options.timeoutMs,
+    accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    headers: {
+      "User-Agent": browserUserAgent,
+      Referer: search.referer,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  const html = decodeHtml(buffer, parseCharset(response.headers.get("content-type")));
+  const links = extractLinks(html, response.url);
+  const targetLink = links.find((link) => link.href.includes(`fileSeq=${search.file_seq}`));
+
+  if (!targetLink) {
+    throw new Error(`Missing DB Life terms link fileSeq=${search.file_seq}`);
+  }
+
+  return [
+    {
+      text: cleanText(
+        [
+          search.product_name,
+          search.terms_file,
+          targetLink.text,
+          targetLink.title,
+          targetLink.href,
+          ...(search.keywords ?? []),
+        ]
+          .filter(Boolean)
+          .join(" "),
+      ),
+      links: [
+        {
+          url: makeDbLifeProvFileUrl(search),
+          href: targetLink.href,
+          text: "보험약관",
+          title: targetLink.title || `${search.product_name} 보험약관`,
+          document_type: "terms",
+          discovered_from: search.endpoint,
+          headers: {
+            "User-Agent": browserUserAgent,
+            Referer: search.endpoint,
+          },
+        },
+      ],
+    },
+  ];
+}
+
+function makeDbLifeProvFileUrl(search) {
+  const url = new URL("https://www.idblife.com/notice/product/prov/file");
+  url.searchParams.set("publishNo", search.publish_no);
+  url.searchParams.set("fileGb", search.file_gb);
+  url.searchParams.set("fileSeq", search.file_seq);
+  return url.toString();
 }
 
 async function fetchNhFireProductPageDownloadRecords(search, options) {

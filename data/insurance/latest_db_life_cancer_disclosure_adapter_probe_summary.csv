@@ -1,0 +1,2 @@
+provider,product_source_id,e_insmarket_product_code,result_status,best_match_score,document_type,status,content_length_bytes,sha256,url
+DB생명,src_db_life_eroun_cancer_202601,L71C009000006,hashed,1,terms,hashed,4247768,3c25a911b796fa239c45aec82afce4d24e310d76e516ad45ba86821cc58d0074,https://www.idblife.com/notice/product/prov/file?publishNo=3196&fileGb=3%20&fileSeq=65059

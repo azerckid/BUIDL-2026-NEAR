@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-06-01 02:50
+> Last Updated: 2026-06-01 03:08
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.52
+- **상태**: Draft v2.53
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -421,6 +421,8 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 2026-06-01 02:27 KST 기준 한화손보 다이렉트 내가고른 암보험의 source document seed 1건, quote approval 4건, active `insurance_products` snapshot 1건을 준비했다. 이번 단계는 운영 DB write 없이 `seed.ts`/data/docs만 변경하며, 적용 시 source document는 33건에서 34건, approved source는 15건에서 16건, approved quote는 60건에서 64건, source-backed active 추천 상품은 15건에서 16건으로 늘어나야 한다. 검증은 `../05_QA_Validation/79_HANWHA_GENERAL_CANCER_SNAPSHOT_SEED_2026_06_01.md`에 둔다. 다음 작업은 운영 DB 백업 후 seed apply PR이다.
 
 2026-06-01 02:50 KST 기준 한화손보 다이렉트 내가고른 암보험 추천 snapshot을 운영 DB에 적용했다. 백업 후 `src/lib/db/seed.ts`를 실행해 source document 1건을 추가하고, source 1건을 `approved`로 승격하고, quote 4건을 `approved`로 바꾸며, product snapshot 1건을 active로 발행했다. 운영 DB 기준 source-backed active 추천 상품은 16건, oncology active 상품은 9건, approved quote는 64건이다. 검증은 `../05_QA_Validation/80_HANWHA_GENERAL_CANCER_DB_APPLY_2026_06_01.md`에 둔다. 다음 작업은 Dashboard와 상담 AI에서 한화손보 카드 설명을 수동 확인하거나, 남은 non-approved source 6건을 순차 정리하는 것이다.
+
+2026-06-01 03:08 KST 기준 DB생명 `(무)e로운 암보험(해약환급금 미지급형)(2601)` 공시 adapter를 보강했다. 공식 상품공시 판매상품 페이지 `publishNo=3196`에서 약관 PDF 링크를 확인하고, 브라우저 User-Agent와 Referer를 포함해 `fileGb=3`, `fileSeq=65059` 공식 약관 PDF를 hash했다. 신규 SHA-256은 `3c25a911b796fa239c45aec82afce4d24e310d76e516ad45ba86821cc58d0074`이고 PDF size는 4,247,768 bytes다. 이번 단계는 DB write 없이 crawler/data/docs만 변경했으며, DB생명 source는 아직 `raw`라 추천 snapshot 수는 16개로 유지한다. 검증은 `../05_QA_Validation/81_DB_LIFE_CANCER_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md`에 둔다. 다음 작업은 DB생명 암보험 문서 variant와 매칭 키워드/caveat를 정리하는 것이다.
 
 ---
 
@@ -993,6 +995,7 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - [x] 백업 후 삼성화재 baseline 추천 snapshot 운영 DB 적용
 - [x] 농협손보 공시 adapter 보강 및 baseline 추천 snapshot 운영 DB 적용
 - [x] 메리츠화재 공시 adapter 보강 및 공식 문서 hash 3건 확보
+- [x] DB생명 암보험 공시 adapter로 약관 PDF hash 확보
 - [ ] PDF 원문 저장 정책 결정
 - [ ] 보험사별 JavaScript/API 검색 어댑터로 공시실 crawler 보강
 - [x] `insurance_carriers`, `insurance_source_documents`, `insurance_product_sources` 스키마 확정
@@ -1081,3 +1084,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Hanwha General Cancer Matching Review](../05_QA_Validation/78_HANWHA_GENERAL_CANCER_MATCHING_REVIEW_2026_06_01.md) - 한화손보 암보험 매칭 키워드와 caveat 검수
 - **QA_Validation**: [Hanwha General Cancer Snapshot Seed](../05_QA_Validation/79_HANWHA_GENERAL_CANCER_SNAPSHOT_SEED_2026_06_01.md) - 한화손보 암보험 추천 snapshot seed 준비
 - **QA_Validation**: [Hanwha General Cancer DB Apply](../05_QA_Validation/80_HANWHA_GENERAL_CANCER_DB_APPLY_2026_06_01.md) - 한화손보 암보험 추천 snapshot 운영 DB 적용 검증
+- **QA_Validation**: [DB Life Cancer Disclosure Adapter Probe](../05_QA_Validation/81_DB_LIFE_CANCER_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md) - DB생명 암보험 공식 약관 hash 검증
