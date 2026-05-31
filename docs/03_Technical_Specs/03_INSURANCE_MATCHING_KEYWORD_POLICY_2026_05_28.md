@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-06-01 04:30
+> Last Updated: 2026-06-01 04:59
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.41
+- **상태**: Draft v1.42
 - **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준, 추천 snapshot 발행 기준
 - **결론**: 이 프로젝트에서 말하는 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DB에 보험상품을 넣기 전에 DNA risk target과 매칭할 수 있도록 `coverage_category`, `risk_targets`, `matching_strategy`, `coverage_caveats_json`을 정리하는 내부 데이터 정규화 작업이다.
 
@@ -269,7 +269,9 @@ DNA 분석 결과
 
 2026-06-01 04:30 KST 기준 롯데손보 실손의료보험을 `coverage_category=medical_expense`, `matching_strategy=baseline`, `risk_targets=[]` 기준의 baseline-ready 후보로 정리했다. 약관은 공식 상품 페이지의 `약관보기` 버튼에서 제공되는 `let_care_sil_2605_yak.pdf`이며, 보험다모아 숫자 quote 4건도 확인됐다. 다만 상품요약서와 사업방법서 hash는 아직 확보하지 않았으므로 후속 seed PR에서 문서 범위 caveat를 유지한다. 검증은 `../05_QA_Validation/86_LOTTE_MEDICAL_MATCHING_REVIEW_2026_06_01.md`에 둔다.
 
-다음 단계는 롯데손보 source document seed, quote approval, active baseline product snapshot을 준비하고, 남은 non-approved source 4건의 공식 URL, 문서 hash, 매칭 키워드/caveat를 순차 정리하는 것이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
+2026-06-01 04:59 KST 기준 롯데손보 실손의 source document seed 1건, quote approval 4건, active baseline product snapshot 1건을 준비했다. 대표 보험료는 `age34_female=15,675 KRW`, `monthly_premium_usdc=11.61`, primary source document는 `doc_lotte_direct_medical_terms_202605`다. 운영 DB apply 후 source-backed active 추천 상품은 18개, baseline active 상품은 8개가 되어야 한다. 검증은 `../05_QA_Validation/87_LOTTE_MEDICAL_BASELINE_SNAPSHOT_SEED_2026_06_01.md`에 둔다.
+
+다음 단계는 운영 DB 백업 후 롯데손보 seed apply를 진행하고, 남은 non-approved source 4건의 공식 URL, 문서 hash, 매칭 키워드/caveat를 순차 정리하는 것이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
 
 ---
 
@@ -354,3 +356,4 @@ DNA 분석 결과
 - **QA_Validation**: [DB Life Cancer Snapshot Seed](../05_QA_Validation/83_DB_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md) - DB생명 암보험 추천 snapshot seed 검증
 - **QA_Validation**: [DB Life Cancer DB Apply](../05_QA_Validation/84_DB_LIFE_CANCER_DB_APPLY_2026_06_01.md) - DB생명 암보험 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [Lotte Medical Matching Review](../05_QA_Validation/86_LOTTE_MEDICAL_MATCHING_REVIEW_2026_06_01.md) - 롯데손보 실손 baseline 매칭 키워드 검수
+- **QA_Validation**: [Lotte Medical Baseline Snapshot Seed](../05_QA_Validation/87_LOTTE_MEDICAL_BASELINE_SNAPSHOT_SEED_2026_06_01.md) - 롯데손보 실손 baseline 추천 snapshot seed 검증

@@ -1,0 +1,4 @@
+section,id,product_source_id,document_type,monthly_premium_krw,monthly_premium_usdc,expected_status,notes
+source_document,doc_lotte_direct_medical_terms_202605,src_lotte_direct_medical_202605,terms,,,link_only,primary source document
+source_approval,src_lotte_direct_medical_202605,src_lotte_direct_medical_202605,,15675,,approved,medical_expense baseline
+product_snapshot,prod_lotte_direct_medical_202605,src_lotte_direct_medical_202605,,15675,11.61,active,representative age34_female
