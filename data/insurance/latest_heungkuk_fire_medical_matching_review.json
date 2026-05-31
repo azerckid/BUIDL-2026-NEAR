@@ -1,0 +1,137 @@
+{
+  "metadata": {
+    "reviewed_at": "2026-05-31T22:34:00+09:00",
+    "timezone": "Asia/Seoul",
+    "reviewer": "codex_heungkuk_fire_medical_matching_review",
+    "output_version": "1.0",
+    "scope": "Heungkuk Fire medical expense baseline matching keyword, caveat, and citation policy review",
+    "input_seed": "src/lib/db/seed.ts",
+    "input_disclosure_adapter_probe": "data/insurance/latest_heungkuk_fire_disclosure_adapter_probe.json",
+    "input_quote_probe": "data/insurance/latest_premium_quote_probe.json",
+    "db_write_performed": false,
+    "seed_file_changed": false,
+    "recommendation_snapshot_changed": false
+  },
+  "summary": {
+    "source_candidates_reviewed": 1,
+    "baseline_ready_sources": 1,
+    "blocked_sources": 0,
+    "source_document_seed_candidates": 1,
+    "quote_rows_reviewed": 4,
+    "numeric_quote_rows": 4,
+    "active_recommendation_snapshot_rows_added": 0,
+    "recommended_next_snapshot_sources": [
+      "src_heungkuk_fire_direct_medical_202605"
+    ],
+    "blocked_snapshot_sources": []
+  },
+  "baseline_policy": {
+    "coverage_category": "medical_expense",
+    "matching_strategy": "baseline",
+    "recommended_risk_targets": [],
+    "reason": "실손의료보험은 특정 DNA risk key와 직접 연결하지 않고 기본 의료비 방어 baseline lane으로 표시한다.",
+    "common_caveats": [
+      "유전자 위험 특화 추천이 아니라 기본 의료비 방어 baseline으로 표시한다.",
+      "실제 가입과 보험료는 인수 심사, 담보 선택, 자기부담금, 급여/비급여 조건에 따라 달라질 수 있다.",
+      "보험다모아 quote는 34세/44세 남녀 비교 조건의 공개 예시 보험료이며 개인 맞춤 확정 견적이 아니다.",
+      "실손의료보험은 갱신과 재가입 시점에 보험료와 보장 조건이 달라질 수 있다."
+    ]
+  },
+  "decisions": [
+    {
+      "provider": "흥국화재",
+      "product_source_id": "src_heungkuk_fire_direct_medical_202605",
+      "carrier_id": "carrier_heungkuk_fire",
+      "e_insmarket_product_code": "N05G004000001G",
+      "raw_product_name": "(무)흥Good 다이렉트 실손의료보험(26.05)",
+      "normalized_product_name": "흥국화재 흥Good 다이렉트 실손의료보험",
+      "official_product_page": "https://direct.heungkukfire.co.kr/?ccid=0606001007#/CMMOBDPRM4001",
+      "current_source_review_status": "raw",
+      "recommended_source_review_status": "raw",
+      "recommended_matching_review_status": "baseline_ready_snapshot_candidate",
+      "recommended_coverage_category": "medical_expense",
+      "recommended_matching_strategy": "baseline",
+      "recommended_risk_targets": [],
+      "document_evidence": {
+        "carrier_match_score": 1,
+        "document_count": 1,
+        "document_types": [
+          "terms"
+        ],
+        "source_type": "carrier_disclosure",
+        "carrier_disclosure_url": "https://direct.heungkukfire.co.kr/?ccid=0606001007#/CMMOBDPRM4001",
+        "pdf_endpoint": "https://direct.heungkukfire.co.kr/CM_COMM_FileDownload_ACT.do",
+        "screen_id": "CMMOBDPRM4001",
+        "terms_file": "eYou_mdca_term_next.pdf",
+        "source_url_storage_strategy": "직접 PDF endpoint는 공식 다이렉트 화면의 downloadFile 호출을 재현한 URL이다. seed에서는 PDF URL을 source document URL로 저장할 수 있으나, 파일명 next suffix로 인해 adapter 재실행 hash refresh caveat를 유지한다.",
+        "documents": [
+          {
+            "document_id_candidate": "doc_heungkuk_fire_direct_medical_terms_202605",
+            "document_type": "terms",
+            "source_context": "(무)흥Good 다이렉트 실손의료보험(26.05) 보험약관 eYou_mdca_term_next.pdf",
+            "source_url_candidate": "https://direct.heungkukfire.co.kr/CM_COMM_FileDownload_ACT.do?_SERVICE_=CM_COMM_FileDownload_ACT&_TYPE_=M&_PRODTYPE_=4&scrId=CMMOBDPRM4001&fileType=4&downFileName=eYou_mdca_term_next.pdf",
+            "sha256": "956b60ab796fec97397fc087b799ed487b47a9773fb780fe7ee529c131389756",
+            "content_length_bytes": 5125066,
+            "content_type": "application/pdf;charset=ISO-8859-1"
+          }
+        ]
+      },
+      "coverage_details_candidate": {
+        "coverage_category": "medical_expense",
+        "matching_strategy": "baseline",
+        "risk_targets": [],
+        "baseline_terms": [
+          "실손의료비",
+          "질병 치료비",
+          "상해 치료비",
+          "급여/비급여 의료비"
+        ],
+        "variant_notes": [
+          "보험다모아 원천명은 26.05이고 공식 상품 페이지도 같은 상품명을 노출한다.",
+          "공식 PDF 파일명은 eYou_mdca_term_next.pdf로 next suffix를 포함한다.",
+          "source document seed PR에서는 next suffix caveat와 정기 hash refresh 절차를 유지해야 한다.",
+          "대표 문서는 약관 1건이며 상품요약서와 사업방법서 hash는 아직 확보하지 않았다."
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "유전자 위험 특화 추천이 아니라 기본 의료비 방어 baseline으로 표시한다.",
+        "실손의료보험은 자기부담금, 급여/비급여, 보장 한도, 갱신 조건이 적용된다.",
+        "보험다모아 quote는 공개 비교 조건 기준 예시 보험료이며 개인별 인수 심사 견적이 아니다.",
+        "공식 약관 파일명이 eYou_mdca_term_next.pdf라서 후속 seed/apply 전 adapter 재실행으로 hash 신선도를 확인해야 한다.",
+        "대표 문서는 약관 1건이며 상품요약서와 사업방법서 hash는 아직 없다."
+      ],
+      "quote_review": {
+        "quote_source": "data/insurance/latest_premium_quote_probe.json",
+        "quote_rows": 4,
+        "numeric_quote_rows": 4,
+        "condition_ids": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          7995,
+          8939,
+          10497,
+          13029
+        ],
+        "expected_quote_ids": [
+          "quote_src_heungkuk_fire_direct_medical_202605_age34_male_60456bed3452",
+          "quote_src_heungkuk_fire_direct_medical_202605_age34_female_b141dc7c5700",
+          "quote_src_heungkuk_fire_direct_medical_202605_age44_male_26615bdcb076",
+          "quote_src_heungkuk_fire_direct_medical_202605_age44_female_58dcc145a6b7"
+        ],
+        "quote_review_status": "needs_review_numeric_values_available"
+      },
+      "snapshot_readiness": "ready_for_seed_pr_after_source_document_update",
+      "next_action": "승격 PR에서 source document row 1건 추가, source approved, quote approved, baseline insurance_products snapshot row를 함께 생성한다."
+    }
+  ],
+  "next_actions": [
+    "흥국화재 공식 약관 1건을 SOURCE_AWARE_DOCUMENTS seed 후보로 추가한다.",
+    "source document seed PR에서 next suffix caveat와 adapter hash refresh 절차를 유지한다.",
+    "흥국화재 source approval, quote 4건 approval, baseline insurance_products snapshot row 생성 seed PR을 준비한다.",
+    "운영 DB 백업 후 apply PR로 source-backed active 추천 상품을 12건에서 13건으로 확대한다."
+  ]
+}
