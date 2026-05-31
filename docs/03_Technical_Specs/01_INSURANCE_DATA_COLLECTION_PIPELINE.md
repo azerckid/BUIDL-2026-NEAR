@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-06-01 00:48
+> Last Updated: 2026-06-01 01:08
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.47
+- **상태**: Draft v2.48
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -411,6 +411,8 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 적용 검증 문서는 `../05_QA_Validation/72_HEUNGKUK_FIRE_BASELINE_DB_APPLY_2026_05_31.md`에 둔다. 다음 작업은 Dashboard와 상담 AI에서 흥국화재 카드 설명을 수동 확인하거나, 미래에셋생명/한화손보 adapter를 순차 보강하는 것이다.
 
 2026-06-01 00:48 KST 기준 미래에셋생명 온라인 암보험 기본형/해약환급금이없는유형의 source document seed, quote approval, active product snapshot 2건을 준비했다. 적용 시 source document는 27건에서 33건, approved source는 13건에서 15건, approved quote는 52건에서 60건, source-backed active 추천 상품은 13건에서 15건으로 늘어나야 한다. 이번 단계는 DB write 없이 `seed.ts`/data/docs만 변경하고 운영 반영은 백업 후 apply PR에서 진행한다. 검증은 `../05_QA_Validation/75_MIRAEASSET_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md`에 둔다. 다음 작업은 운영 DB 백업 후 seed apply PR이거나 한화손보 adapter 추가다.
+
+2026-06-01 01:08 KST 기준 미래에셋생명 온라인 암보험 추천 snapshot을 운영 DB에 적용했다. source document는 27건에서 33건, approved source는 13건에서 15건, approved quote는 52건에서 60건, source-backed active 추천 상품은 13건에서 15건으로 늘었다. oncology active product는 6건에서 8건이 됐다. 검증은 `../05_QA_Validation/76_MIRAEASSET_LIFE_CANCER_DB_APPLY_2026_06_01.md`에 둔다. 다음 작업은 Dashboard와 상담 AI에서 미래에셋생명 카드 설명을 수동 확인하거나, 한화손보 adapter를 순차 보강하는 것이다.
 
 ---
 
@@ -1066,3 +1068,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Mirae Asset Life Disclosure Adapter Probe](../05_QA_Validation/73_MIRAEASSET_LIFE_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md) - 미래에셋생명 온라인 암보험 공식 문서 hash 검증
 - **QA_Validation**: [Mirae Asset Life Cancer Matching Review](../05_QA_Validation/74_MIRAEASSET_LIFE_CANCER_MATCHING_REVIEW_2026_06_01.md) - 미래에셋생명 온라인 암보험 매칭 키워드와 caveat 검수
 - **QA_Validation**: [Mirae Asset Life Cancer Snapshot Seed](../05_QA_Validation/75_MIRAEASSET_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md) - 미래에셋생명 온라인 암보험 추천 snapshot seed 검증
+- **QA_Validation**: [Mirae Asset Life Cancer DB Apply](../05_QA_Validation/76_MIRAEASSET_LIFE_CANCER_DB_APPLY_2026_06_01.md) - 미래에셋생명 온라인 암보험 추천 snapshot 운영 DB 적용 검증
