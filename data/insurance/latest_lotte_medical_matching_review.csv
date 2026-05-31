@@ -1,0 +1,2 @@
+provider,product_source_id,e_insmarket_product_code,raw_product_name,current_status,recommended_matching_status,coverage_category,matching_strategy,risk_targets,document_count,carrier_match_score,quote_rows,numeric_quote_rows,snapshot_readiness,next_action
+롯데손보,src_lotte_direct_medical_202605,N03G004000001G,"무배당 let:care 실손의료보험Ⅴ(2605)",raw,baseline_ready_snapshot_candidate,medical_expense,baseline,[],1,0.65,4,4,ready_for_seed_pr_after_source_document_update,"source document seed 1건 추가, source approved, quote approved, baseline snapshot row seed PR 준비"

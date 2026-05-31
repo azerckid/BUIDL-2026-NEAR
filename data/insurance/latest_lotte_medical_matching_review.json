@@ -1,0 +1,136 @@
+{
+  "metadata": {
+    "reviewed_at": "2026-06-01T04:30:00+09:00",
+    "timezone": "Asia/Seoul",
+    "reviewer": "codex_lotte_medical_matching_review",
+    "output_version": "1.0",
+    "scope": "Lotte Insurance medical expense baseline matching keyword, caveat, and citation policy review",
+    "input_seed": "src/lib/db/seed.ts",
+    "input_disclosure_adapter_probe": "data/insurance/latest_lotte_medical_disclosure_adapter_probe.json",
+    "input_quote_probe": "data/insurance/latest_premium_quote_probe.json",
+    "db_write_performed": false,
+    "seed_file_changed": false,
+    "recommendation_snapshot_changed": false
+  },
+  "summary": {
+    "source_candidates_reviewed": 1,
+    "baseline_ready_sources": 1,
+    "blocked_sources": 0,
+    "source_document_seed_candidates": 1,
+    "quote_rows_reviewed": 4,
+    "numeric_quote_rows": 4,
+    "active_recommendation_snapshot_rows_added": 0,
+    "recommended_next_snapshot_sources": [
+      "src_lotte_direct_medical_202605"
+    ],
+    "blocked_snapshot_sources": []
+  },
+  "baseline_policy": {
+    "coverage_category": "medical_expense",
+    "matching_strategy": "baseline",
+    "recommended_risk_targets": [],
+    "reason": "실손의료보험은 특정 DNA risk key와 직접 연결하지 않고 기본 의료비 방어 baseline lane으로 표시한다.",
+    "common_caveats": [
+      "유전자 위험 특화 추천이 아니라 기본 의료비 방어 baseline으로 표시한다.",
+      "실제 가입과 보험료는 인수 심사, 담보 선택, 자기부담금, 급여/비급여 조건에 따라 달라질 수 있다.",
+      "보험다모아 quote는 34세/44세 남녀 비교 조건의 공개 예시 보험료이며 개인 맞춤 확정 견적이 아니다.",
+      "실손의료보험은 갱신과 재가입 시점에 보험료와 보장 조건이 달라질 수 있다."
+    ]
+  },
+  "decisions": [
+    {
+      "provider": "롯데손보",
+      "product_source_id": "src_lotte_direct_medical_202605",
+      "carrier_id": "carrier_lotte_insurance",
+      "e_insmarket_product_code": "N03G004000001G",
+      "raw_product_name": "무배당 let:care 실손의료보험Ⅴ(2605)",
+      "normalized_product_name": "롯데손보 let:care 실손의료보험Ⅴ",
+      "official_product_page": "https://www.lotteins.co.kr/web/C/D/A/cda020.jsp?prdtseq=11",
+      "current_source_review_status": "raw",
+      "recommended_source_review_status": "raw",
+      "recommended_matching_review_status": "baseline_ready_snapshot_candidate",
+      "recommended_coverage_category": "medical_expense",
+      "recommended_matching_strategy": "baseline",
+      "recommended_risk_targets": [],
+      "document_evidence": {
+        "carrier_match_score": 0.65,
+        "document_count": 1,
+        "document_types": [
+          "terms"
+        ],
+        "source_type": "carrier_disclosure",
+        "carrier_disclosure_url": "https://www.lotteins.co.kr/web/C/D/A/cda020.jsp?prdtseq=11",
+        "official_pdf_url": "https://www.lotteins.co.kr/upload/C/let_care_sil_2605_yak.pdf",
+        "page_charset": "EUC-KR",
+        "source_url_storage_strategy": "공식 상품 페이지의 약관보기 버튼에서 제공하는 정적 PDF URL이다. seed에서는 PDF URL을 source document URL로 저장하고, 공식 상품 페이지 URL도 source official_product_url로 함께 유지한다.",
+        "documents": [
+          {
+            "document_id_candidate": "doc_lotte_direct_medical_terms_202605",
+            "document_type": "terms",
+            "source_context": "롯데손보 공식 상품 페이지 prdtseq=11의 약관보기 버튼에서 연결되는 let_care_sil_2605_yak.pdf",
+            "source_url_candidate": "https://www.lotteins.co.kr/upload/C/let_care_sil_2605_yak.pdf",
+            "sha256": "593987e051e2ec7e04292740aeda4448a6a0a60da7d2fc56287c8746322e7168",
+            "content_length_bytes": 3867788,
+            "content_type": "application/pdf"
+          }
+        ]
+      },
+      "coverage_details_candidate": {
+        "coverage_category": "medical_expense",
+        "matching_strategy": "baseline",
+        "risk_targets": [],
+        "baseline_terms": [
+          "실손의료비",
+          "질병급여 실손의료비",
+          "상해급여 실손의료비",
+          "급여/비급여 의료비"
+        ],
+        "variant_notes": [
+          "공식 약관 첫 페이지가 무배당 let:care 실손의료보험Ⅴ(2605) 약관임을 명시한다.",
+          "약관 본문에 질병급여 실손의료비, 상해급여 실손의료비, 3대중증비급여 실손의료비 등 실손 담보명이 확인된다.",
+          "공식 상품 페이지는 EUC-KR HTML이며 약관보기 버튼으로 PDF를 제공한다.",
+          "이번 pass에서 상품요약서와 사업방법서 공식 다운로드 링크는 별도 확보하지 못했다."
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "유전자 위험 특화 추천이 아니라 기본 의료비 방어 baseline으로 표시한다.",
+        "실손의료보험은 자기부담금, 급여/비급여, 보장 한도, 통원 한도, 갱신/재가입 조건이 적용된다.",
+        "보험다모아 quote는 공개 비교 조건 기준 예시 보험료이며 개인별 인수 심사 견적이 아니다.",
+        "공식 상품 페이지와 약관 PDF는 확인됐지만 상품요약서와 사업방법서 hash는 아직 확보하지 않았다.",
+        "공식 상품 페이지가 EUC-KR HTML이므로 후속 adapter 실행 시 charset 처리와 PDF URL 신선도를 함께 확인한다."
+      ],
+      "quote_review": {
+        "quote_source": "data/insurance/latest_premium_quote_probe.json",
+        "quote_rows": 4,
+        "numeric_quote_rows": 4,
+        "condition_ids": [
+          "age34_male",
+          "age34_female",
+          "age44_male",
+          "age44_female"
+        ],
+        "premiums_krw": [
+          12183,
+          15675,
+          17565,
+          21254
+        ],
+        "expected_quote_ids": [
+          "quote_src_lotte_direct_medical_202605_age34_male_60456bed3452",
+          "quote_src_lotte_direct_medical_202605_age34_female_b141dc7c5700",
+          "quote_src_lotte_direct_medical_202605_age44_male_26615bdcb076",
+          "quote_src_lotte_direct_medical_202605_age44_female_58dcc145a6b7"
+        ],
+        "quote_review_status": "needs_review_numeric_values_available"
+      },
+      "snapshot_readiness": "ready_for_seed_pr_after_source_document_update",
+      "next_action": "승격 PR에서 source document row 1건 추가, source approved, quote approved, baseline insurance_products snapshot row를 함께 생성한다."
+    }
+  ],
+  "next_actions": [
+    "롯데손보 공식 약관 1건을 SOURCE_AWARE_DOCUMENTS seed 후보로 추가한다.",
+    "seed PR에서 official_product_url을 공식 상품 페이지로 저장하고 source document URL은 공식 약관 PDF로 저장한다.",
+    "롯데손보 source approval, quote 4건 approval, baseline insurance_products snapshot row 생성 seed PR을 준비한다.",
+    "운영 DB 백업 후 apply PR로 source-backed active 추천 상품을 17건에서 18건으로 확대한다."
+  ]
+}
