@@ -1,11 +1,11 @@
 # [QA] 실손의료보험 Baseline 매칭 키워드와 Caveat 검수
 > Created: 2026-05-31 02:20
-> Last Updated: 2026-05-31 02:20
+> Last Updated: 2026-05-31 16:14
 
 - **레이어**: 05_QA_Validation
-- **상태**: Passed with Follow-up
+- **상태**: Passed
 - **범위**: 공식 문서 hash와 조건별 quote row가 있는 실손의료보험 source 4개의 `coverage_category`, `matching_strategy`, `risk_targets`, caveat, snapshot 준비도 검수
-- **결론**: DB손보, KB손보, 현대해상 3개 실손의료보험 source는 `coverage_category=medical_expense`, `matching_strategy=baseline`, `risk_targets=[]`로 정리할 수 있고, 조건별 숫자 KRW quote 4건씩이 있어 다음 baseline 추천 snapshot seed 후보로 둔다. 삼성화재는 quote는 있으나 공식 문서 match score가 0.65이고 generic `realloss.pdf`라 2605.1 상품 전용 문서 여부를 재확인하기 전까지 snapshot에서 제외한다. DB write와 `seed.ts` 변경은 하지 않았다.
+- **결론**: DB손보, KB손보, 현대해상, 삼성화재 4개 실손의료보험 source는 모두 `coverage_category=medical_expense`, `matching_strategy=baseline`, `risk_targets=[]`로 정리할 수 있다. 삼성화재는 2026-05-31 16:14 KST 재탐색으로 직접 상품 상세 페이지와 PDF 텍스트 근거가 확인되어 문서 특이성 blocker가 해소됐다. DB write와 `seed.ts` 변경은 하지 않았다.
 
 ---
 
@@ -16,6 +16,7 @@
 | 입력 seed | `src/lib/db/seed.ts` |
 | 입력 공시 probe | `data/insurance/latest_carrier_disclosure_probe.json` |
 | 입력 quote apply | `data/insurance/latest_premium_quote_rows_apply.json` |
+| 입력 삼성화재 재탐색 | `data/insurance/latest_samsung_fire_medical_document_reprobe.json` |
 | 신규 검수 JSON | `data/insurance/latest_medical_baseline_matching_review.json` |
 | 신규 검수 CSV | `data/insurance/latest_medical_baseline_matching_review.csv` |
 | DB write | 0 |
@@ -29,8 +30,8 @@
 | 항목 | 결과 |
 |---|---:|
 | 검수 source | 4 |
-| baseline ready source | 3 |
-| 문서 특이성 blocker | 1 |
+| baseline ready source | 4 |
+| 문서 특이성 blocker | 0 |
 | quote row 확인 | 16 |
 | 숫자 KRW quote row | 16 |
 | 이번 PR 추천 노출 변경 | 0 |
@@ -57,9 +58,9 @@
 | DB손보 | `src_db_direct_medical_202605` | `N11G004000001G` | 약관/사업방법서/상품요약서, match 1.0 | 4/4 numeric | 다음 seed 후보 |
 | KB손보 | `src_kb_direct_medical_202605` | `N10G004000002G` | 약관, match 1.0 | 4/4 numeric | 다음 seed 후보 |
 | 현대해상 | `src_hyundai_direct_medical_202605` | `N09G004000001G` | 약관, match 1.0 | 4/4 numeric | 다음 seed 후보 |
-| 삼성화재 | `src_samsung_fire_direct_medical_202605` | `N08G004000002G` | generic 약관, match 0.65 | 4/4 numeric | 보류 |
+| 삼성화재 | `src_samsung_fire_direct_medical_202605` | `N08G004000002G` | 직접 상품 상세 페이지 + 약관 PDF 텍스트, match 1.0 | 4/4 numeric | 다음 seed 후보 |
 
-삼성화재는 quote가 충분하더라도 문서가 product-specific이라고 보기 어렵다. 따라서 삼성화재 전용 공시 endpoint를 다시 확인하기 전까지 source approved와 snapshot 발행 대상에서 제외한다.
+삼성화재는 기존 carrier disclosure probe만으로는 generic `realloss.pdf`처럼 보였으나, 후속 재탐색에서 직접 상품 상세 페이지가 상품약관 PDF를 링크하고 PDF 텍스트가 `2605.1` 및 일반형 조항을 포함함을 확인했다.
 
 ---
 
@@ -81,7 +82,7 @@
 | `src_db_direct_medical_202605` | 약관, 사업방법서, 상품요약서 hash가 모두 있어 대표 문서 선택 가능 |
 | `src_kb_direct_medical_202605` | 대표 문서는 약관 1건이며 고정 PDF URL은 refresh 시 hash 변경 여부 확인 필요 |
 | `src_hyundai_direct_medical_202605` | 갱신형 상품이므로 갱신 보험료 변동과 재가입 조건 표시 필요 |
-| `src_samsung_fire_direct_medical_202605` | 현재 문서 URL이 generic `realloss.pdf`라 상품 전용 문서 여부 확인 전까지 차단 |
+| `src_samsung_fire_direct_medical_202605` | 직접 상품 상세 페이지와 PDF 텍스트 근거로 상품 전용성을 확인했으며, 고정 PDF URL은 refresh 시 hash 변경 여부 확인 필요 |
 
 ---
 
@@ -94,7 +95,7 @@
 | `src_hyundai_direct_medical_202605` | 4 | 4 | 6,545~9,949 KRW |
 | `src_samsung_fire_direct_medical_202605` | 4 | 4 | 6,575~11,938 KRW |
 
-이번 PR은 quote row를 승인하지 않는다. 다음 seed PR에서 DB손보, KB손보, 현대해상 12개 quote row를 `approved`로 승격할지 판단한다.
+이번 PR은 quote row를 승인하지 않는다. 다음 seed PR에서 삼성화재 4개 quote row를 `approved`로 승격할지 판단한다.
 
 ---
 
@@ -102,10 +103,10 @@
 
 | 우선순위 | 대상 | 조건 |
 |---|---|---|
-| 1 | DB손보 실손 | source status 승격, quote 승인, baseline snapshot row 생성 |
-| 1 | KB손보 실손 | source status 승격, quote 승인, baseline snapshot row 생성 |
-| 1 | 현대해상 실손 | source status 승격, quote 승인, baseline snapshot row 생성 |
-| 보류 | 삼성화재 실손 | product-specific 공식 문서 endpoint 재탐색 |
+| 완료 | DB손보 실손 | source status 승격, quote 승인, baseline snapshot row 생성 |
+| 완료 | KB손보 실손 | source status 승격, quote 승인, baseline snapshot row 생성 |
+| 완료 | 현대해상 실손 | source status 승격, quote 승인, baseline snapshot row 생성 |
+| 1 | 삼성화재 실손 | source status 승격, quote 승인, baseline snapshot row 생성 |
 
 실손 baseline snapshot은 암보험처럼 DNA risk target 점수와 직접 경쟁하지 않는다. 다음 seed PR은 `matching_strategy=baseline`, `risk_targets=[]`, `coverage_category=medical_expense`가 유지되는지 반드시 확인해야 한다.
 
@@ -117,15 +118,15 @@
 - `seed.ts`, Drizzle schema, Turso DB, `.env.local`은 수정하지 않았다.
 - active `insurance_products` 추천 snapshot은 변경하지 않았다.
 - 실손 baseline 상품은 위험 점수 랭킹에 섞지 않는다.
-- 삼성화재는 문서 특이성 blocker가 해소되기 전까지 추천 snapshot에서 제외한다.
+- 삼성화재는 문서 특이성 blocker가 해소됐지만, seed/apply 전까지 추천 snapshot에는 노출하지 않는다.
 
 ---
 
 ## 9. 다음 작업
 
-1. DB손보, KB손보, 현대해상 3개 source를 대상으로 source status 승격, quote row 승인, baseline `insurance_products` snapshot row 생성을 묶은 seed PR을 만든다.
+1. 삼성화재 source를 대상으로 source status 승격, quote row 승인, baseline `insurance_products` snapshot row 생성을 묶은 seed PR을 만든다.
 2. seed PR에서 `primary_source_document_id`, `coverage_details_json`, `coverage_caveats_json`, `monthly_premium_krw`, `premium_basis`, `monthly_premium_usdc` 환산 기준을 함께 기록한다.
-3. 삼성화재는 product-specific 공식 약관 endpoint를 별도 probe로 재탐색한다.
+3. 운영 DB 백업 후 seed apply PR로 source-backed active 추천 상품을 8건에서 9건으로 확대한다.
 4. 실손 baseline 상품이 dashboard에서 위험 추천과 구분되어 보이는지 UI 회귀 검증한다.
 
 ---
@@ -151,5 +152,6 @@
 - **QA_Validation**: [Insurance Review Queue](./07_INSURANCE_REVIEW_QUEUE_2026_05_27.md) - 실손의료보험 hash-backed 후보의 초기 review queue
 - **QA_Validation**: [Premium Quote Rows DB Apply](./15_PREMIUM_QUOTE_ROWS_DB_APPLY_2026_05_28.md) - 실손 조건별 quote row 적용 근거
 - **QA_Validation**: [Premium Quote Matrix UI](./35_PREMIUM_QUOTE_MATRIX_UI_2026_05_30.md) - 대표 보험료와 조건별 quote 표시 UI
+- **QA_Validation**: [Samsung Fire Medical Document Reprobe](./53_SAMSUNG_FIRE_MEDICAL_DOCUMENT_REPROBE_2026_05_31.md) - 삼성화재 문서 특이성 blocker 해소 근거
 - **Data**: [Medical Baseline Matching Review JSON](../../data/insurance/latest_medical_baseline_matching_review.json) - 구조화 검수 결과
 - **Data**: [Medical Baseline Matching Review CSV](../../data/insurance/latest_medical_baseline_matching_review.csv) - 검수 요약

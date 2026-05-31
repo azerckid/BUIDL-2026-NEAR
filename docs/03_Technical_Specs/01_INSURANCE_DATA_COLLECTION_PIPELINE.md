@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 04:49
+> Last Updated: 2026-05-31 16:14
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.24
+- **상태**: Draft v2.25
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -663,6 +663,8 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 
 2026-05-31 11:50 KST 기준 로컬 임시 DB와 로컬 Dashboard에서 위 approved quote 12건이 UI에 정상 표시되는지 검증했다. 남성 34세 선택 시 DB손보 6,219 KRW, KB손보 6,400 KRW, 현대해상 6,740 KRW가 표시됐고, 남성 44세 선택 시 DB손보 9,320 KRW, KB손보 9,074 KRW, 현대해상 9,190 KRW가 표시됐다. 검증 문서는 `../05_QA_Validation/51_MEDICAL_BASELINE_QUOTE_UI_VERIFICATION_2026_05_31.md`에 둔다.
 
+2026-05-31 16:14 KST 기준 삼성화재 실손의료보험 문서 특이성 blocker를 전용 probe로 재검증했다. `scripts/insurance/probe-samsung-fire-medical-documents.mjs`는 삼성화재 다이렉트 상품 상세 페이지 `https://direct.samsungfire.com/mall/PP030404_001.html?pcMode=true`와 상품약관 PDF `https://direct.samsungfire.com/docs/realloss.pdf`를 조회한다. 직접 상품 상세 페이지는 상품명, 상품약관 링크, 2026년 5월 요율 개정, 2026년 5월 5세대 실손의료비보험 출시를 노출했고, PDF hash는 기존 `db0ed9738c9f59fbb28b678b910e0bdd3ef4bf08bdac52643c2e2dd167003415`와 일치했다. `pdftotext` 기반 앞부분 텍스트 확인에서도 `무배당 삼성화재 다이렉트 실손의료비보험(2605.1)` 및 일반형 조항이 확인됐다. 산출물은 `data/insurance/latest_samsung_fire_medical_document_reprobe.json`, `data/insurance/latest_samsung_fire_medical_document_reprobe.csv`, 검증 문서는 `../05_QA_Validation/53_SAMSUNG_FIRE_MEDICAL_DOCUMENT_REPROBE_2026_05_31.md`에 둔다. 이번 단계는 DB write 없이 blocker만 해소하며, 다음 작업은 삼성화재 source/quote/snapshot seed PR이다.
+
 ---
 
 ## 10. 법무·신뢰 고지
@@ -692,6 +694,7 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - [x] 대표 상품 중 한화생명 상품요약서/약관 PDF hash 확보
 - [x] `scripts/insurance/collect-carrier-disclosures.mjs` Carrier Disclosure Crawler v1 작성
 - [x] 삼성화재 다이렉트 실손의료비보험(2605.1) 공식 약관 PDF hash 확보
+- [x] 삼성화재 다이렉트 실손의료비보험(2605.1) 상품 상세 페이지 -> 약관 PDF 연결과 PDF 텍스트 근거 재확인
 - [x] DB손보 공시실 JavaScript/API adapter로 약관/사업방법서/상품요약서 PDF hash 확보
 - [x] `scripts/insurance/build-review-queue.mjs` Review Queue CSV v1 작성
 - [x] `data/insurance/latest_insurance_review_queue.csv` 생성
@@ -788,3 +791,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Medical Baseline Male Quote ID Correction](../05_QA_Validation/49_MEDICAL_BASELINE_MALE_QUOTE_ID_CORRECTION_2026_05_31.md) - 실손 남성 quote approval ID 교정 검증
 - **QA_Validation**: [Medical Baseline Male Quote DB Apply](../05_QA_Validation/50_MEDICAL_BASELINE_MALE_QUOTE_DB_APPLY_2026_05_31.md) - 실손 남성 quote approval 운영 DB 적용 검증
 - **QA_Validation**: [Medical Baseline Quote UI Verification](../05_QA_Validation/51_MEDICAL_BASELINE_QUOTE_UI_VERIFICATION_2026_05_31.md) - 실손 baseline 남성 조건 quote UI 표시 검증
+- **QA_Validation**: [Samsung Fire Medical Document Reprobe](../05_QA_Validation/53_SAMSUNG_FIRE_MEDICAL_DOCUMENT_REPROBE_2026_05_31.md) - 삼성화재 실손 상품 전용 문서 재탐색 검증

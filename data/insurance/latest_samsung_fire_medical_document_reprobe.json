@@ -1,0 +1,143 @@
+{
+  "metadata": {
+    "generated_at": "2026-05-31T16:12:58.955+09:00",
+    "timezone": "Asia/Seoul",
+    "generator": "scripts/insurance/probe-samsung-fire-medical-documents.mjs",
+    "output_version": "1.0",
+    "db_write_performed": false,
+    "seed_file_changed": false
+  },
+  "target": {
+    "provider": "삼성화재",
+    "carrier_id": "carrier_samsung_fire",
+    "product_source_id": "src_samsung_fire_direct_medical_202605",
+    "e_insmarket_product_code": "N08G004000002G",
+    "raw_product_name": "무배당 삼성화재 다이렉트 실손의료비보험(2605.1)",
+    "official_product_url": "http://direct.samsungfire.com/CR_MyAnycarWeb/overture_index.jsp?OTK=Q1510OB0001"
+  },
+  "page_probes": [
+    {
+      "label": "e_insmarket_redirect",
+      "url": "http://direct.samsungfire.com/CR_MyAnycarWeb/overture_index.jsp?OTK=Q1510OB0001",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://direct.samsungfire.com/ria/mobile/product/realLoss/?state=Front",
+      "content_type": "text/html",
+      "pdf_links": [],
+      "evidence": {
+        "product_name_mentioned": false,
+        "product_version_mentioned": false,
+        "terms_label_mentioned": false,
+        "rate_revision_2026_05_mentioned": false,
+        "fifth_generation_mentioned": false,
+        "snippets": []
+      }
+    },
+    {
+      "label": "direct_product_page",
+      "url": "https://direct.samsungfire.com/mall/PP030404_001.html?pcMode=true",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://direct.samsungfire.com/mall/PP030404_001.html?pcMode=true",
+      "content_type": "text/html",
+      "pdf_links": [
+        "https://direct.samsungfire.com/docs/realloss.pdf"
+      ],
+      "evidence": {
+        "product_name_mentioned": true,
+        "product_version_mentioned": false,
+        "terms_label_mentioned": true,
+        "rate_revision_2026_05_mentioned": true,
+        "fifth_generation_mentioned": true,
+        "snippets": [
+          "각각 지급됩니다. // 2025-11-08 삭제 --> 보험금 지급제한사항 가입 시 유의사항 상품약관 꼭 확인하세요 열기 해당 상품의 상품명은 무배당 삼성화재 다이렉트 실손의료비보험입니다. 의료급여수급권자(실손의료비 담보 가입 시 영업보험료 5% 할인)로 실손의료비보험을 가입하고자 하시는 경우에는 의료급여증명서를 제출해 주셔야 합니다. 2025년 9월 예금자 보호법이 개정되었습니다. 2026년",
+          "하고 암이 발병했다면, 2개의 보험에서 암진단비가 각각 지급됩니다. // 2025-11-08 삭제 --> 보험금 지급제한사항 가입 시 유의사항 상품약관 꼭 확인하세요 열기 해당 상품의 상품명은 무배당 삼성화재 다이렉트 실손의료비보험입니다. 의료급여수급권자(실손의료비 담보 가입 시 영업보험료 5% 할인)로 실손의료비보험을 가입하고자 하시는 경우에는 의료급여증명서를",
+          "% 할인)로 실손의료비보험을 가입하고자 하시는 경우에는 의료급여증명서를 제출해 주셔야 합니다. 2025년 9월 예금자 보호법이 개정되었습니다. 2026년 5월 요율이 개정되었습니다. 2026년 5월 5세대 실손의료비보험이 출시되었습니다. 보험계약 전 상품설명서 및 약관을 참고해 주세요. 준법감시인확인필 제26-1-2994호 (5959,'26.05.11~'27.05.10) 보험",
+          "하시는 경우에는 의료급여증명서를 제출해 주셔야 합니다. 2025년 9월 예금자 보호법이 개정되었습니다. 2026년 5월 요율이 개정되었습니다. 2026년 5월 5세대 실손의료비보험이 출시되었습니다. 보험계약 전 상품설명서 및 약관을 참고해 주세요. 준법감시인확인필 제26-1-2994호 (5959,'26.05.11~'27.05.10) 보험료 계산"
+        ]
+      }
+    },
+    {
+      "label": "mobile_product_page",
+      "url": "https://direct.samsungfire.com/m/mall/realloss.html",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://direct.samsungfire.com/m/mall/realloss.html",
+      "content_type": "text/html",
+      "pdf_links": [],
+      "evidence": {
+        "product_name_mentioned": false,
+        "product_version_mentioned": false,
+        "terms_label_mentioned": false,
+        "rate_revision_2026_05_mentioned": false,
+        "fifth_generation_mentioned": false,
+        "snippets": []
+      }
+    },
+    {
+      "label": "public_product_page",
+      "url": "https://www.samsungfire.com/product/P_P02_12_03_000.html",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://www.samsungfire.com/product/P_P02_12_03_000.html",
+      "content_type": "text/html",
+      "pdf_links": [],
+      "evidence": {
+        "product_name_mentioned": false,
+        "product_version_mentioned": false,
+        "terms_label_mentioned": false,
+        "rate_revision_2026_05_mentioned": false,
+        "fifth_generation_mentioned": false,
+        "snippets": []
+      }
+    }
+  ],
+  "document_candidate": {
+    "url": "https://direct.samsungfire.com/docs/realloss.pdf",
+    "document_type": "terms",
+    "status": "hashed",
+    "http_status": 200,
+    "content_type": "application/pdf",
+    "content_length_bytes": 2519879,
+    "sha256": "db0ed9738c9f59fbb28b678b910e0bdd3ef4bf08bdac52643c2e2dd167003415",
+    "retrieved_at": "2026-05-31T16:12:58.931+09:00",
+    "linked_from_product_page": true,
+    "linked_from_pages": [
+      "direct_product_page"
+    ],
+    "evidence_summary": [
+      "직접 상품 상세 페이지가 상품명을 명시한다.",
+      "직접 상품 상세 페이지가 상품약관 항목을 노출한다.",
+      "직접 상품 상세 페이지에서 realloss.pdf 약관 링크가 발견됐다.",
+      "직접 상품 상세 페이지가 2026년 5월 요율 개정을 명시한다.",
+      "직접 상품 상세 페이지가 2026년 5월 5세대 실손의료비보험 출시를 명시한다.",
+      "약관 PDF 텍스트가 삼성화재 다이렉트 실손의료비보험 상품명을 명시한다.",
+      "약관 PDF 텍스트가 2605.1 버전을 명시한다.",
+      "약관 PDF 텍스트가 일반형 적용 조항을 포함한다."
+    ],
+    "pdf_text_evidence": {
+      "extractor_status": "parsed",
+      "product_title_mentioned": true,
+      "product_version_mentioned": true,
+      "general_form_mentioned": true,
+      "contract_conversion_form_mentioned": true,
+      "snippets": [
+        "발생한 의료비는 보장되지 않습니다 - 중증 비급여(상해) - 중증 비급여(질병) 상품명으로 상품의 특징 이해하기 - 중증 비급여(3대) 무배당 삼성화재 다이렉트 실손의료비보험(2605.1) 외 1종 무배당 계약자에게 배당을 하지 않는 상품입니다. 자기부담금 차감금액 입원치료 : 보장대상의료비의 20% 통원치료 : 병원급별 공제금액(1~2만원)과 보장대상 의료비의 20% , 보장대상의료비",
+        "- 중증 비급여(상해) - 중증 비급여(질병) 상품명으로 상품의 특징 이해하기 - 중증 비급여(3대) 무배당 삼성화재 다이렉트 실손의료비보험(2605.1) 외 1종 무배당 계약자에게 배당을 하지 않는 상품입니다. 자기부담금 차감금액 입원치료 : 보장대상의료비의 20% 통원치료 : 병원급별 공제금액(1~2만원)과 보장대상 의료비의 20% , 보장대상의료비 × 건강보험",
+        "한 경우 또는 계약자가 요청하는 경우는 재개시점에 판 매 또는 보유하고 있는 상품으로 계약재개가 가능합니다. 태아출생 [다이렉트 실손의료비보험(일반형)에 한함] 통지/정산 태아 가입시 자녀 출생후 출생통지를 하셔야 하며 보험료를 정산합니다. 태아가 복수로 출생한 경우에는 계약자가 지정한 자녀를 피보험자로 합 니다. 10 / 155 보험계약의 일반사항 보험계약을",
+        "삼성화재 무배당 삼성화재 다이렉트 2 6 0 5 .1 실손의료비보험 [계약전환용] 보험약관 이 약관은 금융소비자보호법 및 소비자보호 내부통제기준에 따른 절차를 거쳐 제공됩니다. [목차] 제16조 (알릴 의무 위반의 효과) 32 약관이용 Guide Book 4 제17조 (사기에 의한 계약) 33"
+      ]
+    }
+  },
+  "decision": {
+    "product_specific_endpoint_found": true,
+    "blocker_resolved": true,
+    "recommended_matching_review_status": "baseline_ready_snapshot_candidate",
+    "snapshot_readiness": "ready_for_seed_pr_after_source_document_update",
+    "next_actions": [
+      "seed.ts에서 삼성화재 source를 approved로 승격하고 baseline insurance_products snapshot row를 추가한다.",
+      "삼성화재 quote 4건을 approved로 승격한다.",
+      "운영 DB 백업 후 seed apply PR로 source-backed active 추천 상품을 8건에서 9건으로 확대한다."
+    ]
+  }
+}

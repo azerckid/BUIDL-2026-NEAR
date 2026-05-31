@@ -14,6 +14,7 @@
     "collect:insurance:quotes": "node scripts/insurance/probe-premium-quotes.mjs",
     "collect:insurance:hanwha-quotes": "node scripts/insurance/probe-hanwha-life-quotes.mjs",
     "collect:insurance:shinhan-standard-docs": "node scripts/insurance/probe-shinhan-standard-documents.mjs",
+    "collect:insurance:samsung-fire-medical-docs": "node scripts/insurance/probe-samsung-fire-medical-documents.mjs",
     "apply:insurance:quotes": "node scripts/insurance/apply-premium-quotes.mjs",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
