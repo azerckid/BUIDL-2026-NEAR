@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-05-31 21:27
+> Last Updated: 2026-05-31 21:39
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-05-31 (메리츠화재 공시 adapter probe)
+- **최종 수정일**: 2026-05-31 (메리츠화재 실손 매칭 검수)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.49
+- **상태**: Draft v3.50
 - **phase**: Phase 2
 
 ---
@@ -136,6 +136,8 @@
 2026-05-31 20:13 KST 기준 농협손보 실손 baseline 추천 snapshot을 운영 DB에 백업 후 적용했다. 적용 후 `insurance_source_documents=23`, `insurance_products=16`, source-backed active 추천 상품은 10건에서 11건으로 늘었고, `insurance_product_sources.review_status=approved`는 11건, `insurance_premium_quotes.review_status=approved`는 40건에서 44건으로 증가했다. 농협손보 source 1건, document 1건, quote 4건, product snapshot 1건이 모두 approved/active 상태다. 검증은 `../05_QA_Validation/64_NH_FIRE_BASELINE_DB_APPLY_2026_05_31.md`에 기록한다. 다음 작업은 Dashboard에서 농협손보 카드와 상담 AI 설명을 수동 확인하거나, 메리츠화재/흥국화재/미래에셋생명/한화손보 adapter를 순차 보강하는 것이다.
 
 2026-05-31 21:27 KST 기준 메리츠화재 실손의료비보험 공시 adapter를 보강했다. 공식 상품 페이지의 `pdClusPdf.downPdClus('6ADGE')` 호출과 `/json.smart` PDF 목록 API를 재현하고, 같은 세션 cookie와 암호화된 `atcFilePthNm#[E]` 값으로 `/hp/fileDownload.do`에서 약관, 사업방법서, 상품요약서 3건을 hash했다. 신규 SHA-256은 `bbbb86eb265233a01b71b0cc298748267531839a39bcf8aec79d442475274c0c`, `2331cd4a07e8fabd5977e6a715a174d822a9ac495f5b956335d600b75b43d280`, `6b02df741bb07a565d5315c3a5ce1655bcd56bdded61e9531c1bcaad60ce661e`다. 이번 단계는 DB write 없이 crawler/data/docs만 변경했으며, 메리츠화재 source는 아직 `raw`라 추천 snapshot 수는 11개로 유지한다. 검증은 `../05_QA_Validation/65_MERITZ_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md`에 기록한다. 다음 작업은 메리츠화재 문서 variant와 baseline caveat를 정리하거나, 흥국화재/미래에셋생명/한화손보 adapter를 이어서 보강하는 것이다.
+
+2026-05-31 21:39 KST 기준 메리츠화재 실손의료비보험 매칭 키워드/caveat 정리를 완료했다. 공식 문서 hash 3건과 보험다모아 조건별 숫자 quote 4건이 있으므로 `coverage_category=medical_expense`, `matching_strategy=baseline`, `risk_targets=[]` baseline snapshot 후보가 될 수 있다. 단, 메리츠화재 PDF 직접 다운로드는 session-bound encrypted URL이므로 seed PR에서는 `source_url`을 공식 상품 페이지로 저장하고 adapter 재검증 caveat를 유지한다. 이번 단계는 DB write 없이 data/docs만 추가했으며 추천 snapshot 수는 11개로 유지한다. 검증은 `../05_QA_Validation/66_MERITZ_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md`에 기록한다. 다음 작업은 메리츠화재 source document 3건, quote 4건, baseline snapshot 1건을 seed에 추가하는 것이다.
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 매칭 키워드 정리 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.
@@ -1274,6 +1276,7 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 - [농협손보 실손 Baseline 추천 Snapshot Seed 검증](../05_QA_Validation/63_NH_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md)
 - [농협손보 실손 Baseline 추천 Snapshot DB 적용 검증](../05_QA_Validation/64_NH_FIRE_BASELINE_DB_APPLY_2026_05_31.md)
 - [메리츠화재 공시 Adapter Probe 검증](../05_QA_Validation/65_MERITZ_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md)
+- [메리츠화재 실손의료보험 Baseline 매칭 검수](../05_QA_Validation/66_MERITZ_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md)
 - [데모 보험상품 운영 추천 제거 검증](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md)
 - [데모 보험상품 Archive DB 적용 검증](../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md)
 - [보험상품 매칭 키워드 정리 정책](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md)

@@ -1,0 +1,2 @@
+provider,product_source_id,e_insmarket_product_code,raw_product_name,current_status,recommended_matching_status,coverage_category,matching_strategy,risk_targets,document_count,carrier_match_score,quote_rows,numeric_quote_rows,snapshot_readiness,next_action
+메리츠화재,src_meritz_direct_medical_202605,N01G004000002G,"(무) 메리츠 다이렉트 실손의료비보험2605",raw,baseline_ready_snapshot_candidate,medical_expense,baseline,[],3,1,4,4,ready_for_seed_pr_after_source_document_update,"source document seed 3건 추가, source approved, quote approved, baseline snapshot row seed PR 준비"
