@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 19:49
+> Last Updated: 2026-05-31 20:13
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.35
+- **상태**: Draft v2.36
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -274,6 +274,20 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 | 적용 후 예상 active source-backed product | 11건 |
 
 이번 단계는 DB write 없이 `seed.ts`, data/docs 산출물만 변경한다. 산출물은 `../../data/insurance/latest_nh_fire_baseline_snapshot_seed.json`, 검증 문서는 `../05_QA_Validation/63_NH_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md`에 둔다. 다음 작업은 운영 DB 백업 후 seed apply PR이다.
+
+### 7-7. 농협손보 실손 baseline DB apply
+
+2026-05-31 20:13 KST 기준 농협손보 실손 baseline seed를 운영 DB에 백업 후 적용했다.
+
+| 항목 | 적용 전 | 적용 후 |
+|---|---:|---:|
+| source document | 22 | 23 |
+| active source-backed 추천 상품 | 10 | 11 |
+| approved source | 10 | 11 |
+| approved quote | 40 | 44 |
+| baseline active product | 4 | 5 |
+
+적용 검증 문서는 `../05_QA_Validation/64_NH_FIRE_BASELINE_DB_APPLY_2026_05_31.md`에 둔다. 다음 작업은 Dashboard와 상담 AI에서 농협손보 baseline 상품 설명을 확인하거나, 남은 raw source adapter를 순차 보강하는 것이다.
 
 ---
 
@@ -907,3 +921,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [NH Fire Disclosure Adapter Probe](../05_QA_Validation/61_NH_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md) - 농협손보 실손의료보험 공식 약관 hash 검증
 - **QA_Validation**: [NH Fire Medical Matching Review](../05_QA_Validation/62_NH_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md) - 농협손보 실손 baseline 매칭 키워드 검수
 - **QA_Validation**: [NH Fire Baseline Snapshot Seed](../05_QA_Validation/63_NH_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 농협손보 실손 baseline 추천 snapshot seed 검증
+- **QA_Validation**: [NH Fire Baseline DB Apply](../05_QA_Validation/64_NH_FIRE_BASELINE_DB_APPLY_2026_05_31.md) - 농협손보 실손 baseline 추천 snapshot 운영 DB 적용 검증

@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-05-31 19:49
+> Last Updated: 2026-05-31 20:13
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.22
+- **상태**: Draft v1.23
 - **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준, 추천 snapshot 발행 기준
 - **결론**: 이 프로젝트에서 말하는 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DB에 보험상품을 넣기 전에 DNA risk target과 매칭할 수 있도록 `coverage_category`, `risk_targets`, `matching_strategy`, `coverage_caveats_json`을 정리하는 내부 데이터 정규화 작업이다.
 
@@ -227,7 +227,9 @@ DNA 분석 결과
 
 2026-05-31 19:49 KST 기준 농협손보 source document seed 후보 추가, source/quote approval, baseline `insurance_products` snapshot seed 준비를 완료했다. 적용 전 운영 DB 읽기 전용 확인에서 농협손보 source는 `raw`, quote 4건은 `needs_review`, source document는 0건이었다. 이번 seed 적용 후에는 source-backed active 추천 상품이 10건에서 11건으로 늘어나야 한다. 검증은 `../05_QA_Validation/63_NH_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md`에 둔다.
 
-다음 단계는 운영 DB 백업 후 농협손보 seed apply PR이다. 이어서 메리츠화재, 흥국화재, 미래에셋생명, 한화손보 adapter를 순차 추가해 공식 문서 hash를 확보한다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
+2026-05-31 20:13 KST 기준 농협손보 실손 baseline 추천 snapshot을 운영 DB에 적용했다. source-backed active 추천 상품은 10건에서 11건, approved quote는 40건에서 44건, baseline active product는 4건에서 5건이 됐다. 검증은 `../05_QA_Validation/64_NH_FIRE_BASELINE_DB_APPLY_2026_05_31.md`에 둔다.
+
+다음 단계는 Dashboard와 상담 AI에서 농협손보 baseline 상품 설명을 확인하거나, 메리츠화재, 흥국화재, 미래에셋생명, 한화손보 adapter를 순차 추가해 공식 문서 hash를 확보하는 것이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
 
 ---
 
@@ -290,3 +292,4 @@ DNA 분석 결과
 - **QA_Validation**: [NH Fire Disclosure Adapter Probe](../05_QA_Validation/61_NH_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md) - 농협손보 실손의료보험 공식 약관 hash 검증
 - **QA_Validation**: [NH Fire Medical Matching Review](../05_QA_Validation/62_NH_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md) - 농협손보 실손 baseline 매칭 키워드 검수
 - **QA_Validation**: [NH Fire Baseline Snapshot Seed](../05_QA_Validation/63_NH_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 농협손보 실손 baseline 추천 snapshot seed 검증
+- **QA_Validation**: [NH Fire Baseline DB Apply](../05_QA_Validation/64_NH_FIRE_BASELINE_DB_APPLY_2026_05_31.md) - 농협손보 실손 baseline 추천 snapshot 운영 DB 적용 검증
