@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-05-31 21:39
+> Last Updated: 2026-05-31 21:52
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.38
+- **상태**: Draft v2.39
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -321,6 +321,20 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 메리츠화재는 session-bound encrypted `fileDownload` URL을 사용하므로 장기 citation에는 해당 직접 URL을 저장하지 않는다. 후속 seed PR에서는 `source_url`을 공식 상품 페이지로 두고, hash 재검증은 `meritz_direct_pdf_list` adapter로 반복한다. 산출물은 `../../data/insurance/latest_meritz_fire_medical_matching_review.json`, `../../data/insurance/latest_meritz_fire_medical_matching_review.csv`, 검증 문서는 `../05_QA_Validation/66_MERITZ_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md`에 둔다.
 
 다음 작업은 source document 3건 seed 추가, source/quote approval, baseline `insurance_products` snapshot seed PR이다. 적용 전까지 source-backed active 추천 상품 수는 11개로 유지한다.
+
+### 7-10. 메리츠화재 실손 baseline snapshot seed
+
+2026-05-31 21:52 KST 기준 메리츠화재 실손 baseline source를 추천 snapshot으로 발행할 seed 준비를 완료했다. 운영 DB 읽기 전용 확인 결과, 메리츠화재 source는 `raw`, quote 4건은 `needs_review`, source document는 아직 0건이다.
+
+| 항목 | 값 |
+|---|---|
+| source document 추가 | 약관, 사업방법서, 상품요약서 3건 |
+| source approval | `src_meritz_direct_medical_202605` 1건 |
+| quote approval | 34세/44세 남녀 4건 |
+| product snapshot | `prod_meritz_direct_medical_202605` 1건 |
+| 이번 단계 DB write | 없음 |
+
+이번 seed PR은 운영 DB에 쓰지 않는다. 적용 PR에서는 운영 DB 백업 후 seed를 실행해 `insurance_source_documents` 23건에서 26건, approved quote 44건에서 48건, source-backed active 추천 상품 11건에서 12건이 되는지 확인한다. 검증 문서는 `../05_QA_Validation/67_MERITZ_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md`, 산출물은 `../../data/insurance/latest_meritz_fire_baseline_snapshot_seed.json`에 둔다.
 
 ---
 
@@ -859,6 +873,7 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - [x] 농협손보 실손의료보험 공시 adapter로 약관 PDF hash 확보
 - [x] 메리츠화재 실손의료보험 공시 adapter로 약관/사업방법서/상품요약서 PDF hash 확보
 - [x] 메리츠화재 실손의료보험 baseline 매칭 키워드/caveat 정리
+- [x] 메리츠화재 실손의료보험 baseline 추천 snapshot seed 준비
 - [ ] quote-only raw source 미확보 후보 carrier별 공시/API adapter 보강
 - [x] hash-backed quote-only 후보를 `insurance_source_documents` seed 후보로 정리
 - [x] 백업 후 quote-only source document 8건 DB 적용
@@ -961,3 +976,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [NH Fire Baseline DB Apply](../05_QA_Validation/64_NH_FIRE_BASELINE_DB_APPLY_2026_05_31.md) - 농협손보 실손 baseline 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [Meritz Fire Disclosure Adapter Probe](../05_QA_Validation/65_MERITZ_FIRE_DISCLOSURE_ADAPTER_PROBE_2026_05_31.md) - 메리츠화재 실손의료비보험 공식 문서 hash 검증
 - **QA_Validation**: [Meritz Fire Medical Matching Review](../05_QA_Validation/66_MERITZ_FIRE_MEDICAL_MATCHING_REVIEW_2026_05_31.md) - 메리츠화재 실손 baseline 매칭 키워드 검수
+- **QA_Validation**: [Meritz Fire Baseline Snapshot Seed](../05_QA_Validation/67_MERITZ_FIRE_BASELINE_SNAPSHOT_SEED_2026_05_31.md) - 메리츠화재 실손 baseline 추천 snapshot seed 검증
