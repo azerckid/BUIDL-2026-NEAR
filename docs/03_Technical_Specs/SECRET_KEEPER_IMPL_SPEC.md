@@ -1,9 +1,11 @@
 # [기술 명세] The Secret Keeper — AI 상담 레이어 구현 명세
+> Created: 2026-04-14 00:00
+> Last Updated: 2026-05-31 13:46
 
 - **작성일**: 2026-04-14
-- **최종 수정일**: 2026-04-14
+- **최종 수정일**: 2026-05-31 (추천상품 컨텍스트 주입 설계 추가)
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.0 (Phase 2 착수 전 사전 설계)
+- **상태**: Draft v1.1 (추천상품 컨텍스트 주입 설계 추가)
 
 ---
 
@@ -14,6 +16,8 @@ TEE 분석 완료 후 대시보드에 노출되는 **부가 편의 기능**. 사
 - 질병 의학 지식은 **LLM 내장 지식에 의존** (RAG 없음, Phase 2 초기 기준)
 - 원본 DNA 시퀀스는 컨텍스트에 포함하지 않음
 - 세션 종료 시 대화 맥락 소각 (Stateless)
+
+2026-05-31 기준으로 상담 AI는 `riskProfile`만 전달받고 있어 실제 DB 추천상품을 설명하지 못한다. 다음 구현 단계에서는 `DashboardData.products`의 추천상품 목록, 보험료, 공식 출처, caveat를 짧은 컨텍스트로 주입한다. 단, AI가 상품을 새로 추천하거나 생성하지 않고 DB-selected 상품만 설명하는 원칙은 유지한다. 상세 설계는 `./05_CONCIERGE_PRODUCT_CONTEXT_SPEC_2026_05_31.md`에 둔다.
 
 ---
 
@@ -185,14 +189,16 @@ export async function chatWithConcierge(input: z.infer<typeof inputSchema>) {
 | 항목 | 현재 (Phase 2 초기) | 이후 확장 |
 |---|---|---|
 | 의학 지식 소스 | LLM 내장 지식 | RAG — 보험 약관 Vector DB 연동 |
+| 상품 추천 설명 | riskProfile만 설명 | DB-selected 추천상품 context 설명 |
 | 대화 이력 | 클라이언트 메모리 (세션 내) | 선택적 암호화 DB 저장 |
 | 스트리밍 | 없음 (단발 응답) | `stream: true` 전환 |
 
 ---
 
-## 9. 관련 문서
+## 9. Related Documents
 
 - **Technical_Specs**: [AI 상담 레이어 아키텍처](./AI_CONCIERGE_ARCH.md)
+- **Technical_Specs**: [The Secret Keeper 추천상품 컨텍스트 주입 설계](./05_CONCIERGE_PRODUCT_CONTEXT_SPEC_2026_05_31.md)
 - **Technical_Specs**: [IronClaw TEE 연동](./LATEST_NEAR_TECH_STACK.md)
 - **QA_Validation**: [The Secret Keeper 검증 시나리오](../05_QA_Validation/SECRET_KEEPER_VALIDATION.md)
 - **Logic_Progress**: [마일스톤 로드맵](../04_Logic_Progress/ROADMAP.md)

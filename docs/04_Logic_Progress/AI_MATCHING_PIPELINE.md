@@ -1,9 +1,11 @@
 # [로직 설계] AI 에이전트 매칭 알고리즘 및 프롬프트 파이프라인
+> Created: 2026-04-01 00:00
+> Last Updated: 2026-05-31 13:46
 
 - **작성일**: 2026-04-01
-- **최종 수정일**: 2026-05-30
+- **최종 수정일**: 2026-05-31 (상담 AI 추천상품 컨텍스트 설계)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v1.0
+- **상태**: Draft v1.1
 
 ---
 
@@ -12,6 +14,7 @@
 1. **프롬프트에 수치를 넣지 않는다.** 유전자 원본 수치(SNP 빈도, Risk Score 등)는 프롬프트에 포함하지 않는다. 파싱 단계에서 카테고리 레벨(`high / moderate / normal`)로 변환 후 프롬프트에 주입한다.
 2. **Mock TEE와 Real TEE는 동일한 인터페이스를 사용한다.** Phase 0에서는 Mock 함수가 고정 JSON을 반환하지만, 함수 시그니처와 Output Schema는 Real TEE와 100% 동일하게 유지한다. Phase 2에서 구현체만 교체한다.
 3. **보험 상품 추천은 DB 조회로 결정한다.** AI 에이전트는 위험 프로파일을 생성하는 역할만 한다. 프로파일에서 상품을 매칭하는 로직은 결정론적인 DB 쿼리로 처리한다. AI가 상품명을 직접 생성하지 않는다.
+4. **상담 AI는 DB-selected 상품만 설명한다.** The Secret Keeper는 새 상품을 추천하거나 생성하지 않는다. 다만 현재 Dashboard에 노출된 `insurance_products` 추천 결과와 approved quote context를 전달받아, 왜 그 상품이 추천됐는지 설명할 수 있다.
 
 ---
 
@@ -575,7 +578,24 @@ export async function runAnalysis(sessionId: string, fileBuffer: ArrayBuffer): P
 
 ---
 
-## 관련 문서
+## 9. 상담 AI 상품 컨텍스트 연결
+
+2026-05-31 기준 The Secret Keeper는 `riskProfile`만 전달받기 때문에, 새로 승인된 source-backed 추천상품을 DB 근거로 설명하지 못한다. 다음 구현 단계에서는 상담 AI에 현재 Dashboard 추천상품의 요약 컨텍스트를 함께 넘긴다.
+
+핵심 경계는 다음과 같다.
+
+| 항목 | 결정 주체 | 상담 AI 역할 |
+|---|---|---|
+| 추천상품 선정 | `matchProducts`, `getDashboardData`, DB filter | 선정하지 않음 |
+| 상품명/보험사/가격 | `insurance_products`, `insurance_premium_quotes` | 전달받은 값만 설명 |
+| 출처/확인일/caveat | `insurance_source_documents`, source-backed snapshot | 전달받은 근거를 요약 |
+| 목록 밖 상품 | 없음 | 추측하지 않고 현재 추천 결과에 없다고 답변 |
+
+구현 명세는 `../03_Technical_Specs/05_CONCIERGE_PRODUCT_CONTEXT_SPEC_2026_05_31.md`에 둔다. 이 기능은 "AI가 상품명을 생성하지 않는다"는 원칙을 유지하면서, DB가 이미 결정한 추천상품을 상담 화면에서도 설명 가능하게 만드는 보강이다.
+
+---
+
+## Related Documents
 
 - [DB 스키마 명세](../03_Technical_Specs/DB_SCHEMA.md)
 - [NEAR 프라이버시 아키텍처](../03_Technical_Specs/NEAR_PRIVACY_STACK_ARCH.md)
@@ -583,3 +603,4 @@ export async function runAnalysis(sessionId: string, fileBuffer: ArrayBuffer): P
 - [로드맵](./ROADMAP.md)
 - [비즈니스 모델](../01_Concept_Design/B2B_BROKER_CONCEPT.md)
 - [데모 보험상품 운영 추천 제거 검증](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md)
+- [The Secret Keeper 추천상품 컨텍스트 주입 설계](../03_Technical_Specs/05_CONCIERGE_PRODUCT_CONTEXT_SPEC_2026_05_31.md)
