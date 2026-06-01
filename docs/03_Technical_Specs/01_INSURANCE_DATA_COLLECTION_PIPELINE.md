@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-06-01 05:17
+> Last Updated: 2026-06-01 12:14
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.60
+- **상태**: Draft v2.61
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -437,6 +437,8 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 2026-06-01 04:59 KST 기준 롯데손보 실손 baseline 추천 snapshot seed 준비를 완료했다. `seed.ts`는 적용 시 source document 1건을 추가하고, 롯데손보 source를 `approved`로 승격하며, 보험다모아 실손 quote 4건을 `approved`로 바꾸고, `prod_lotte_direct_medical_202605` snapshot 1건을 추가한다. 이번 단계는 운영 DB write 없이 seed/data/docs만 변경하며, 검증은 `../05_QA_Validation/87_LOTTE_MEDICAL_BASELINE_SNAPSHOT_SEED_2026_06_01.md`에 둔다. 다음 작업은 운영 DB 백업 후 seed apply PR이다.
 
 2026-06-01 05:17 KST 기준 운영 DB 백업 후 위 seed를 적용했다. 적용 후 `insurance_source_documents=36`, `insurance_products=23`, source-backed active 추천 상품은 18건, baseline active 상품은 8건, approved quote는 72건이다. 롯데손보 source는 `approved`, quote 4건은 모두 `approved`, `prod_lotte_direct_medical_202605`는 `catalog_status=approved`, `is_active=1`, `matching_strategy=baseline`으로 확인했다. 검증 문서는 `../05_QA_Validation/88_LOTTE_MEDICAL_BASELINE_DB_APPLY_2026_06_01.md`에 둔다.
+
+2026-06-01 12:14 KST 기준 한화손보 실손의료보험 source의 공식 상품 URL을 재탐색했다. `https://mall.hwgeneralins.com/ins/ltr/meditm_features_01.do`는 접근 가능하고 `bizCommon.mobileDown('LA02039001.pdf')`가 `/upload/product/LA02039001.pdf`를 제공한다. PDF SHA-256은 `10ee12c4218099f34df16f195ad0d5eb968750ab2b35fa56b6f93aaeb24f497a`다. 그러나 페이지와 PDF가 `한화실손의료보험갱신형Ⅲ_TM`/`무배당 한화실손의료보험(갱신형)Ⅲ`로 식별되어 target source `한화다이렉트실손의료보험(갱신형)Ⅴ 무배당`과 variant가 다르다. 따라서 이 hash는 seed하지 않고, source는 `raw`로 유지한다. 검증은 `../05_QA_Validation/89_HANWHA_GENERAL_MEDICAL_DISCLOSURE_PROBE_2026_06_01.md`에 둔다.
 
 ---
 
@@ -1110,3 +1112,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Lotte Medical Matching Review](../05_QA_Validation/86_LOTTE_MEDICAL_MATCHING_REVIEW_2026_06_01.md) - 롯데손보 실손 baseline 매칭 키워드 검수
 - **QA_Validation**: [Lotte Medical Baseline Snapshot Seed](../05_QA_Validation/87_LOTTE_MEDICAL_BASELINE_SNAPSHOT_SEED_2026_06_01.md) - 롯데손보 실손 baseline 추천 snapshot seed 검증
 - **QA_Validation**: [Lotte Medical Baseline DB Apply](../05_QA_Validation/88_LOTTE_MEDICAL_BASELINE_DB_APPLY_2026_06_01.md) - 롯데손보 실손 baseline 추천 snapshot 운영 DB 적용 검증
+- **QA_Validation**: [Hanwha General Medical Disclosure Probe](../05_QA_Validation/89_HANWHA_GENERAL_MEDICAL_DISCLOSURE_PROBE_2026_06_01.md) - 한화손보 실손 공식 페이지/PDF variant mismatch 차단 검증

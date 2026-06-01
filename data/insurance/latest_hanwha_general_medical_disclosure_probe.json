@@ -1,0 +1,63 @@
+{
+  "metadata": {
+    "generated_at": "2026-06-01T12:14:00+09:00",
+    "probe_name": "hanwha_general_medical_disclosure_probe",
+    "db_write_performed": false,
+    "decision": "blocked_outdated_variant",
+    "summary": "Official Hanwha General medical page and PDF were reachable, but the page/PDF identify Hanwha medical insurance renewal type III, while the target source is Hanwha Direct medical insurance renewal type V. The PDF hash is retained as evidence but is not seed-ready for the target source."
+  },
+  "target_source": {
+    "id": "src_hanwha_general_direct_medical_202605",
+    "carrier_id": "carrier_hanwha_general",
+    "carrier_name": "한화손보",
+    "raw_product_name": "한화다이렉트실손의료보험(갱신형)Ⅴ 무배당",
+    "product_code": "N02G004000001G",
+    "coverage_category": "실손의료보험",
+    "current_review_status": "raw",
+    "current_quote_rows": 4
+  },
+  "official_page_probe": {
+    "url": "https://mall.hwgeneralins.com/ins/ltr/meditm_features_01.do",
+    "http_status": 200,
+    "content_type": "text/html; charset=UTF-8",
+    "page_size_bytes": 185048,
+    "hidden_fields": {
+      "gdCsfcd": "LA02039001",
+      "listId": "33600",
+      "taskId": "362",
+      "productNm": "한화실손의료보험갱신형Ⅲ_TM"
+    },
+    "visible_product_name": "(무)한화실손의료보험(갱신형)III_TM",
+    "download_call": "bizCommon.mobileDown('LA02039001.pdf')",
+    "download_function": "/common/bizCommon.js mobileDown -> /upload/product/{value}",
+    "new_product_notice_found": true
+  },
+  "downloaded_pdf": {
+    "url": "https://mall.hwgeneralins.com/upload/product/LA02039001.pdf",
+    "redirected_url": "http://www.hanwhadirect.com/upload/product/LA02039001.pdf",
+    "http_status": 200,
+    "content_type": "application/pdf;charset=UTF-8",
+    "last_modified": "Tue, 28 Sep 2021 09:02:28 GMT",
+    "file_size_bytes": 2826626,
+    "sha256": "10ee12c4218099f34df16f195ad0d5eb968750ab2b35fa56b6f93aaeb24f497a",
+    "pdf_pages": 203,
+    "pdf_created_at": "2021-06-28T14:09:45+09:00",
+    "pdf_modified_at": "2021-09-27T14:49:25+09:00",
+    "text_evidence": [
+      "무배당 한화실손의료보험(갱신형)Ⅲ",
+      "실손의료보험"
+    ]
+  },
+  "variant_assessment": {
+    "target_product_name": "한화다이렉트실손의료보험(갱신형)Ⅴ 무배당",
+    "official_page_product_name": "한화실손의료보험갱신형Ⅲ_TM",
+    "pdf_product_name": "무배당 한화실손의료보험(갱신형)Ⅲ",
+    "mismatch_reasons": [
+      "The target source is renewal type V, but the official page and PDF identify type III/TM.",
+      "The PDF metadata and Last-Modified header are 2021-era, while the target source is a 2026-05 quote-only candidate.",
+      "The page includes a new product preparation notice, so using the old PDF for the type V source can mislead recommendation evidence."
+    ],
+    "seed_ready": false,
+    "recommended_action": "Keep src_hanwha_general_direct_medical_202605 raw. Search for the current renewal type V official document endpoint or treat the source as blocked until the carrier publishes a matching document."
+  }
+}
