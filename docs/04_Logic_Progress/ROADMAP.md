@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-06-01 05:17
+> Last Updated: 2026-06-01 12:14
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-06-01 (롯데손보 실손 baseline DB 적용)
+- **최종 수정일**: 2026-06-01 (한화손보 실손 공식 문서 variant 차단)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.72
+- **상태**: Draft v3.73
 - **phase**: Phase 2
 
 ---
@@ -68,7 +68,7 @@
 
 현재 의미는 “실제 보험상품 데이터 기반 추천”과 “무로그인·무결제 테스트 완주”를 동시에 검증하는 것이다. Test Pilot happy-path는 완료됐고, 다음 작업은 아래 순서로 진행한다.
 
-여기서 현재 추천 상품 18개는 “수집한 전체 데이터 수”가 아니라 “사용자 추천 화면에 노출 가능한 최종 snapshot 수”다. 현재까지 확보한 기반 데이터는 보험다모아 P0 샘플 56개, source catalog 후보 22개, 공식 문서 row 36개, 조건별 보험료 quote row 92개이며, 이 중 원천 근거, 매칭 키워드, caveat, approved quote를 통과해 active 추천으로 발행된 상품이 18개다. 롯데손보까지 적용된 조건별 보험료 approved row는 72건이다. 구조화된 source 후보 22개 중 approved는 18개, 아직 남은 non-approved source는 4개다.
+여기서 현재 추천 상품 18개는 “수집한 전체 데이터 수”가 아니라 “사용자 추천 화면에 노출 가능한 최종 snapshot 수”다. 현재까지 확보한 기반 데이터는 보험다모아 P0 샘플 56개, source catalog 후보 22개, 공식 문서 row 36개, 조건별 보험료 quote row 92개이며, 이 중 원천 근거, 매칭 키워드, caveat, approved quote를 통과해 active 추천으로 발행된 상품이 18개다. 롯데손보까지 적용된 조건별 보험료 approved row는 72건이다. 구조화된 source 후보 22개 중 approved는 18개, 아직 남은 non-approved source는 4개다. 한화손보 실손 source는 공식 페이지/PDF를 찾았지만 `갱신형 III` 문서라 target `갱신형 V`와 맞지 않아 blocker로 둔다.
 
 | 순서 | 트랙 | 작업 | 완료 기준 |
 |---:|---|---|---|
@@ -182,6 +182,8 @@
 2026-06-01 04:59 KST 기준 롯데손보 실손 baseline 추천 snapshot seed 준비를 완료했다. `seed.ts`는 적용 시 `doc_lotte_direct_medical_terms_202605` source document 1건을 추가하고, 롯데손보 source를 `approved`로 승격하며, quote 4건을 `approved`로 바꾸고, `prod_lotte_direct_medical_202605` snapshot 1건을 추가한다. 이번 단계는 운영 DB write 없이 seed/data/docs만 변경하며, 검증은 `../05_QA_Validation/87_LOTTE_MEDICAL_BASELINE_SNAPSHOT_SEED_2026_06_01.md`에 기록한다. 다음 작업은 운영 DB 백업 후 seed apply PR이다. 적용 완료 후 source-backed active 추천 상품은 17건에서 18건으로 늘어난다.
 
 2026-06-01 05:17 KST 기준 롯데손보 실손 baseline 추천 snapshot을 운영 DB에 백업 후 적용했다. 적용 후 `insurance_source_documents=36`, `insurance_products=23`, source-backed active 추천 상품은 18건, baseline active 상품은 8건, approved quote는 72건이다. 롯데손보 source 1건, quote 4건, product snapshot 1건이 모두 approved/active 상태다. 검증은 `../05_QA_Validation/88_LOTTE_MEDICAL_BASELINE_DB_APPLY_2026_06_01.md`에 기록한다. 다음 작업은 남은 non-approved source 4건의 공식 URL, 문서 hash, 매칭 키워드/caveat 정리다.
+
+2026-06-01 12:14 KST 기준 한화손보 실손의료보험 source의 공식 페이지와 PDF를 검증했다. `meditm_features_01.do` 페이지와 `LA02039001.pdf`는 접근 가능하고 PDF SHA-256도 확보했지만, 페이지/PDF가 `한화실손의료보험갱신형Ⅲ_TM`/`무배당 한화실손의료보험(갱신형)Ⅲ`로 식별되어 target `한화다이렉트실손의료보험(갱신형)Ⅴ 무배당`에 seed하지 않는다. 운영 DB write는 없고 active 추천 상품은 18건으로 유지된다. 검증은 `../05_QA_Validation/89_HANWHA_GENERAL_MEDICAL_DISCLOSURE_PROBE_2026_06_01.md`에 기록한다. 다음 작업은 동양생명 암보험 공식 URL 재탐색 또는 삼성생명 입원 건강보험 category 정책 결정이다.
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 매칭 키워드 정리 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.
@@ -1343,6 +1345,7 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 - [롯데손보 실손의료보험 매칭 검수](../05_QA_Validation/86_LOTTE_MEDICAL_MATCHING_REVIEW_2026_06_01.md)
 - [롯데손보 실손 Baseline 추천 Snapshot Seed 검증](../05_QA_Validation/87_LOTTE_MEDICAL_BASELINE_SNAPSHOT_SEED_2026_06_01.md)
 - [롯데손보 실손 Baseline 추천 Snapshot DB 적용 검증](../05_QA_Validation/88_LOTTE_MEDICAL_BASELINE_DB_APPLY_2026_06_01.md)
+- [한화손보 실손의료보험 공식 문서 Probe 검증](../05_QA_Validation/89_HANWHA_GENERAL_MEDICAL_DISCLOSURE_PROBE_2026_06_01.md)
 - [데모 보험상품 운영 추천 제거 검증](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md)
 - [데모 보험상품 Archive DB 적용 검증](../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md)
 - [보험상품 매칭 키워드 정리 정책](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md)

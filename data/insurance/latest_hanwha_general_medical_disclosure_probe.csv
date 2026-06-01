@@ -1,0 +1,2 @@
+generated_at,source_id,carrier,raw_product_name,official_page_url,official_page_product,pdf_url,pdf_sha256,pdf_size_bytes,decision,next_action
+2026-06-01T12:14:00+09:00,src_hanwha_general_direct_medical_202605,한화손보,한화다이렉트실손의료보험(갱신형)Ⅴ 무배당,https://mall.hwgeneralins.com/ins/ltr/meditm_features_01.do,한화실손의료보험갱신형Ⅲ_TM,https://mall.hwgeneralins.com/upload/product/LA02039001.pdf,10ee12c4218099f34df16f195ad0d5eb968750ab2b35fa56b6f93aaeb24f497a,2826626,blocked_outdated_variant,갱신형 V 공식 문서 endpoint 발견 전까지 raw 유지
