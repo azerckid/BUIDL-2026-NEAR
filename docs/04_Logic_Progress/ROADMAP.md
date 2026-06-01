@@ -64,11 +64,11 @@
 | NEAR 프라이버시 기술 | IronClaw v0.28.2까지의 업데이트가 블로커 2~3을 해소하는가 | WIT-compatible WASM runtime, `tool_install`, WASM 실행 결과 반환 경로 실측 |
 | 매칭 브리지 | AI 해석과 DB 상품 추천의 경계를 어떻게 유지할 것인가 | `riskProfile.flags` -> `insurance_products.risk_targets` 결정론적 매칭 유지 |
 
-### 2026-05-30 현재 남은 구현 순서
+### 2026-06-01 현재 남은 구현 순서
 
 현재 의미는 “실제 보험상품 데이터 기반 추천”과 “무로그인·무결제 테스트 완주”를 동시에 검증하는 것이다. Test Pilot happy-path는 완료됐고, 다음 작업은 아래 순서로 진행한다.
 
-여기서 현재 추천 상품 19개는 “수집한 전체 데이터 수”가 아니라 “사용자 추천 화면에 노출 가능한 최종 snapshot 수”다. 현재까지 확보한 기반 데이터는 보험다모아 P0 샘플 56개, source catalog 후보 22개, 공식 문서 row 39개, 조건별 보험료 quote row 92개이며, 이 중 원천 근거, 매칭 키워드, caveat, approved quote를 통과해 active 추천으로 발행된 상품이 19개다. 동양생명까지 적용된 조건별 보험료 approved row는 76건이다. 구조화된 source 후보 22개는 `approved=19`, `rejected=3`, `raw=0`, `needs_review=0`으로 닫혔다. 한화생명 e-insmarket NULL quote 4건은 actual ID 보정 seed가 준비됐고, 후속 apply 후 전체 `needs_review` quote는 0건이어야 한다.
+여기서 현재 추천 상품 19개는 “수집한 전체 데이터 수”가 아니라 “사용자 추천 화면에 노출 가능한 최종 snapshot 수”다. 현재까지 확보한 기반 데이터는 보험다모아 P0 샘플 56개, source catalog 후보 22개, 공식 문서 row 39개, 조건별 보험료 quote row 92개이며, 이 중 원천 근거, 매칭 키워드, caveat, approved quote를 통과해 active 추천으로 발행된 상품이 19개다. 조건별 보험료 approved row는 76건이고, 구조화된 source 후보 22개는 `approved=19`, `rejected=3`, `raw=0`, `needs_review=0`으로 닫혔다. 한화생명 e-insmarket NULL quote hygiene 적용까지 끝나 전체 quote queue도 `approved=76`, `rejected=16`, `needs_review=0` 상태다.
 
 | 순서 | 트랙 | 작업 | 완료 기준 |
 |---:|---|---|---|
