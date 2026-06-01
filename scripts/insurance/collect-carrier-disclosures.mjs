@@ -57,6 +57,24 @@ const CARRIER_PROFILES = {
       "공식 파일 다운로드는 브라우저 User-Agent와 공시 페이지 Referer를 포함해야 PDF를 반환한다.",
     ],
   },
+  동양생명: {
+    provider: "동양생명",
+    source_url: "https://pbano.myangel.co.kr/paging/WE_AC_WEPAAP020100L",
+    api_searches: [
+      {
+        kind: "tongyang_disclosure_sale_products",
+        endpoint: "https://pbano.myangel.co.kr/paging/WE_AC_WEPAAP020100L",
+        download_endpoint: "https://pbano.myangel.co.kr/process/CO_ComDownload",
+        product_name: "무배당우리WON하는실속하나로암보험",
+        effective_date: "2026.03.01",
+        keywords: ["우리WON하는실속하나로암보험", "하나로암보험", "암보험", "2026.03.01"],
+      },
+    ],
+    notes: [
+      "공시실 판매상품 페이지의 MasFiledownload 호출에서 FILE_GRP_ID를 추출한다.",
+      "공식 문서는 /process/CO_ComDownload POST 요청에 _biz_op_code=FDL과 FILE_GRP_ID를 전달해야 다운로드된다.",
+    ],
+  },
   농협손보: {
     provider: "농협손보",
     source_url: "https://www.nhfire.co.kr/product/retrieveProduct.nhfire?pdtCd=D711117",
@@ -490,8 +508,15 @@ function selectTargets(productProbe, limit) {
     const hasHash = (product.pdf_candidates ?? []).some(
       (candidate) => candidate.status === "hashed",
     );
-    if (hasHash || !product.official_product_url) {
+    if (hasHash) {
       continue;
+    }
+
+    if (!product.official_product_url) {
+      const profile = CARRIER_PROFILES[product.provider];
+      if (!profile?.source_url) {
+        continue;
+      }
     }
 
     const key = `${product.provider}|${product.raw_product_name}`;
@@ -505,7 +530,8 @@ function selectTargets(productProbe, limit) {
       raw_product_name: product.raw_product_name,
       premium_text: product.premium_text,
       e_insmarket_product_code: product.e_insmarket_product_code ?? null,
-      official_product_url: product.official_product_url,
+      official_product_url:
+        product.official_product_url ?? CARRIER_PROFILES[product.provider]?.source_url,
     });
 
     if (targets.length >= limit) {
@@ -592,6 +618,9 @@ async function fetchApiSearchRecords(search, options) {
   }
   if (search.kind === "dblife_prov_sale_terms") {
     return await fetchDbLifeProvSaleTermsRecords(search, options);
+  }
+  if (search.kind === "tongyang_disclosure_sale_products") {
+    return await fetchTongyangDisclosureSaleProductRecords(search, options);
   }
   if (search.kind === "nhfire_product_page_downloads") {
     return await fetchNhFireProductPageDownloadRecords(search, options);
@@ -763,6 +792,121 @@ function makeDbLifeProvFileUrl(search) {
   url.searchParams.set("fileGb", search.file_gb);
   url.searchParams.set("fileSeq", search.file_seq);
   return url.toString();
+}
+
+async function fetchTongyangDisclosureSaleProductRecords(search, options) {
+  const response = await fetchWithTimeout(search.endpoint, {
+    timeoutMs: options.timeoutMs,
+    accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  const html = decodeHtml(buffer, parseCharset(response.headers.get("content-type")));
+  const row = findTongyangDisclosureRow(html, search.product_name);
+  if (!row) {
+    throw new Error(`Missing Tongyang disclosure row for ${search.product_name}`);
+  }
+
+  const links = extractTongyangDisclosureLinks(row, search);
+  if (links.length === 0) {
+    throw new Error("Missing Tongyang MasFiledownload document links");
+  }
+
+  return [
+    {
+      text: cleanText(
+        [
+          search.product_name,
+          search.effective_date,
+          cleanText(row),
+          ...links.map((link) => `${link.text} ${link.title} ${link.href}`),
+          ...(search.keywords ?? []),
+        ]
+          .filter(Boolean)
+          .join(" "),
+      ),
+      links,
+    },
+  ];
+}
+
+function findTongyangDisclosureRow(html, productName) {
+  const target = compactName(productName);
+  const rowPattern = /<tr\b[^>]*>([\s\S]*?)<\/tr>/gi;
+
+  for (const match of html.matchAll(rowPattern)) {
+    const rowHtml = match[1];
+    if (compactName(cleanText(rowHtml)).includes(target)) {
+      return rowHtml;
+    }
+  }
+
+  return null;
+}
+
+function extractTongyangDisclosureLinks(rowHtml, search) {
+  const links = [];
+  const downloadPattern =
+    /MasFiledownload\(\s*["']([^"']*)["']\s*,\s*["']([^"']+)["']\s*\)/g;
+
+  for (const match of rowHtml.matchAll(downloadPattern)) {
+    const fileGroupId = htmlDecode(match[2]).trim();
+    const contextHtml = extractContainingAnchorHtml(rowHtml, match.index ?? 0);
+    const altText = readAttr(contextHtml, "alt") ?? "";
+    const context = cleanText(`${altText} ${contextHtml}`);
+    const documentType = inferDocumentType(context);
+    const label = tongyangDocumentLabel(documentType, context);
+    const body = new URLSearchParams({
+      _biz_op_code: "FDL",
+      FILE_GRP_ID: fileGroupId,
+    });
+
+    links.push({
+      url: search.download_endpoint,
+      href: fileGroupId,
+      text: label,
+      title: `${search.product_name} ${label} ${search.effective_date} FILE_GRP_ID=${fileGroupId}`,
+      document_type: documentType,
+      discovered_from: search.endpoint,
+      method: "POST",
+      body,
+      contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+      headers: {
+        Origin: "https://pbano.myangel.co.kr",
+        Referer: search.endpoint,
+      },
+    });
+  }
+
+  return uniqueBy(links, (link) => `${link.document_type}|${link.href}`);
+}
+
+function extractContainingAnchorHtml(rowHtml, matchIndex) {
+  const anchorStart = rowHtml.lastIndexOf("<a", matchIndex);
+  const anchorEnd = rowHtml.indexOf("</a>", matchIndex);
+
+  if (anchorStart >= 0 && anchorEnd >= 0) {
+    return rowHtml.slice(anchorStart, anchorEnd + 4);
+  }
+
+  return rowHtml.slice(Math.max(0, matchIndex - 220), matchIndex + 220);
+}
+
+function tongyangDocumentLabel(documentType, context) {
+  if (documentType === "summary" || context.includes("상품요약서")) {
+    return "상품요약서";
+  }
+  if (documentType === "business_method" || context.includes("사업방법서")) {
+    return "사업방법서";
+  }
+  if (documentType === "terms" || context.includes("약관")) {
+    return "보험약관";
+  }
+  return "공시문서";
 }
 
 async function fetchNhFireProductPageDownloadRecords(search, options) {
@@ -1823,6 +1967,9 @@ async function probeProductDisclosure(product, carrierPage, profile, options) {
         document_type: link.document_type,
         discovered_from: link.discovered_from ?? profile.source_url,
         source_context: link.title || link.text || acceptedRecord.text,
+        method: link.method,
+        body: link.body,
+        contentType: link.contentType,
         headers: link.headers,
       });
     }
@@ -1841,10 +1988,10 @@ async function probeProductDisclosure(product, carrierPage, profile, options) {
     }
   }
 
-  const uniqueCandidates = uniqueBy(candidateLinks, (candidate) => candidate.url).slice(
-    0,
-    options.maxDocumentsPerProduct,
-  );
+  const uniqueCandidates = uniqueBy(
+    candidateLinks,
+    (candidate) => `${candidate.url}|${candidate.method ?? "GET"}|${candidate.body ?? ""}`,
+  ).slice(0, options.maxDocumentsPerProduct);
 
   if (uniqueCandidates.length === 0) {
     result.result_status = acceptedRecord ? "matched_without_document_links" : "no_match";
@@ -1883,6 +2030,9 @@ async function probeDocumentCandidate(candidate, options) {
   try {
     const response = await fetchWithTimeout(candidate.url, {
       timeoutMs: options.timeoutMs,
+      method: candidate.method,
+      body: candidate.body,
+      contentType: candidate.contentType,
       accept: "application/pdf,text/html,application/xhtml+xml,*/*;q=0.8",
       headers: candidate.headers,
     });
