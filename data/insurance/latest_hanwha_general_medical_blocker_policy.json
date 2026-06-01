@@ -1,0 +1,68 @@
+{
+  "metadata": {
+    "reviewed_at": "2026-06-01T15:40:00+09:00",
+    "timezone": "Asia/Seoul",
+    "reviewer": "codex_policy_review",
+    "output_version": "1.0",
+    "scope": "Hanwha General direct medical insurance renewal type V blocker policy decision",
+    "input_seed": "src/lib/db/seed.ts",
+    "db_read_only_check_performed": true,
+    "db_write_performed": false,
+    "seed_file_changed": true,
+    "recommendation_snapshot_changed": false
+  },
+  "source": {
+    "id": "src_hanwha_general_direct_medical_202605",
+    "carrier_id": "carrier_hanwha_general",
+    "provider": "한화손보",
+    "raw_product_name": "한화다이렉트실손의료보험(갱신형)Ⅴ 무배당",
+    "normalized_product_name": "한화다이렉트실손의료보험",
+    "product_group": "실손의료보험",
+    "e_insmarket_product_code": "N02G004000001G",
+    "current_review_status": "raw",
+    "document_count": 0,
+    "quote_count": 4,
+    "approved_quote_count": 0,
+    "product_count": 0
+  },
+  "official_document_probe": {
+    "probe_source": "data/insurance/latest_hanwha_general_medical_disclosure_probe.json",
+    "candidate_page_url": "https://mall.hwgeneralins.com/ins/ltr/meditm_features_01.do",
+    "candidate_pdf_url": "https://mall.hwgeneralins.com/upload/product/LA02039001.pdf",
+    "candidate_pdf_sha256": "10ee12c4218099f34df16f195ad0d5eb968750ab2b35fa56b6f93aaeb24f497a",
+    "candidate_page_product_name": "한화실손의료보험갱신형Ⅲ_TM",
+    "candidate_pdf_product_name": "무배당 한화실손의료보험(갱신형)Ⅲ",
+    "target_product_name": "한화다이렉트실손의료보험(갱신형)Ⅴ 무배당",
+    "variant_match": false
+  },
+  "decision": {
+    "recommended_review_status": "rejected",
+    "service_treatment": "source_catalog_only",
+    "recommendation_snapshot_action": "do_not_publish",
+    "source_document_action": "do_not_seed_mismatched_document",
+    "quote_action": "reject_existing_needs_review_quotes",
+    "reason": "The official candidate page/PDF identifies renewal type III/TM and 2021-era medical insurance, while the target source is renewal type V. Medical insurance generation/version mismatch can change coverage and caveats, so the source cannot be approved as a medical_expense baseline.",
+    "active_product_count_change": 0,
+    "approved_quote_count_change": 0,
+    "rejected_quote_count_change": 4
+  },
+  "seed_changes": {
+    "source_catalog_exclusion_updates_added": 1,
+    "source_id": "src_hanwha_general_direct_medical_202605",
+    "review_status_after_apply": "rejected",
+    "source_documents_added": 0,
+    "quote_rejections_added": 4,
+    "insurance_product_snapshots_added": 0
+  },
+  "quote_ids_to_reject": [
+    "quote_src_hanwha_general_direct_medical_202605_age34_female_b141dc7c5700",
+    "quote_src_hanwha_general_direct_medical_202605_age34_male_60456bed3452",
+    "quote_src_hanwha_general_direct_medical_202605_age44_female_58dcc145a6b7",
+    "quote_src_hanwha_general_direct_medical_202605_age44_male_26615bdcb076"
+  ],
+  "next_actions": [
+    "Merge the source catalog blocker seed change.",
+    "After merge, run production DB backup and seed apply in a separate PR.",
+    "Keep this product out of Dashboard recommendations and Concierge product context unless a matching renewal type V official document endpoint is discovered."
+  ]
+}

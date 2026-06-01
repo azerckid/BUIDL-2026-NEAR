@@ -1,0 +1,2 @@
+source_id,provider,product_name,decision,variant_match,source_documents_added,quote_rejections_added,product_snapshots_added,next_status
+src_hanwha_general_direct_medical_202605,한화손보,한화다이렉트실손의료보험(갱신형)Ⅴ 무배당,rejected_due_to_official_document_variant_mismatch,false,0,4,0,rejected
