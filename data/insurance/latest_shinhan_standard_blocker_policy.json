@@ -1,0 +1,71 @@
+{
+  "metadata": {
+    "reviewed_at": "2026-06-01T19:26:00+09:00",
+    "timezone": "Asia/Seoul",
+    "reviewer": "codex_policy_review",
+    "output_version": "1.0",
+    "scope": "Shinhan Life SOL cancer standard variant blocker policy decision",
+    "input_seed": "src/lib/db/seed.ts",
+    "endpoint_probe_refreshed_at": "2026-06-01T19:25:16.436+09:00",
+    "db_read_only_check_performed": true,
+    "db_write_performed": false,
+    "seed_file_changed": true,
+    "recommendation_snapshot_changed": false
+  },
+  "source": {
+    "id": "src_shinhan_life_sol_cancer_standard_202605",
+    "carrier_id": "carrier_shinhan_life",
+    "provider": "신한라이프생명",
+    "raw_product_name": "신한SOL암보험(무배당)(비갱신형)",
+    "normalized_product_name": "신한SOL암보험 비갱신형",
+    "product_group": "암보험",
+    "e_insmarket_product_code": "L11C009000007",
+    "current_review_status": "raw",
+    "document_count": 0,
+    "quote_count": 4,
+    "approved_quote_count": 0,
+    "product_count": 0
+  },
+  "official_document_probe": {
+    "probe_source": "data/insurance/latest_shinhan_standard_document_endpoint_probe.json",
+    "decision_status": "standard_endpoint_not_found",
+    "active_rows_scanned": 134,
+    "historical_rows_scanned": 1775,
+    "standard_variant_hits": 0,
+    "no_refund_variant_hits": 1,
+    "downloaded_blocked_no_refund_documents": 3,
+    "returned_product_name": "신한SOL암보험(무배당, 해약환급금 미지급형)",
+    "returned_documents_belong_to": "src_shinhan_life_sol_cancer_202601",
+    "variant_match": false
+  },
+  "decision": {
+    "recommended_review_status": "rejected",
+    "service_treatment": "source_catalog_only",
+    "recommendation_snapshot_action": "do_not_publish",
+    "source_document_action": "do_not_seed_no_refund_documents",
+    "quote_action": "reject_existing_needs_review_quotes",
+    "reason": "The official Shinhan Life endpoint still returns no standard/general document row for the Insurance Damoa standard source. The only returned Shinhan SOL cancer row is the no-refund variant, so reusing its documents would mislink the source.",
+    "active_product_count_change": 0,
+    "approved_quote_count_change": 0,
+    "rejected_quote_count_change": 4
+  },
+  "seed_changes": {
+    "source_catalog_exclusion_updates_added": 1,
+    "source_id": "src_shinhan_life_sol_cancer_standard_202605",
+    "review_status_after_apply": "rejected",
+    "source_documents_added": 0,
+    "quote_rejections_added": 4,
+    "insurance_product_snapshots_added": 0
+  },
+  "quote_ids_to_reject": [
+    "quote_src_shinhan_life_sol_cancer_standard_202605_age34_female_1015b0165c0e",
+    "quote_src_shinhan_life_sol_cancer_standard_202605_age34_male_d2e77ecf4a0c",
+    "quote_src_shinhan_life_sol_cancer_standard_202605_age44_female_9cf2588db68b",
+    "quote_src_shinhan_life_sol_cancer_standard_202605_age44_male_99a3f15d59fc"
+  ],
+  "next_actions": [
+    "Merge the source catalog blocker seed change.",
+    "After merge, run production DB backup and seed apply in a separate PR.",
+    "Keep this product out of Dashboard recommendations and Concierge product context unless a matching standard/general official document endpoint is discovered."
+  ]
+}

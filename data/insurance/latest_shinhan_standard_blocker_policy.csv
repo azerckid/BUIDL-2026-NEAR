@@ -1,0 +1,2 @@
+source_id,provider,product_name,decision,standard_variant_hits,no_refund_variant_hits,source_documents_added,quote_rejections_added,product_snapshots_added,next_status
+src_shinhan_life_sol_cancer_standard_202605,신한라이프생명,신한SOL암보험(무배당)(비갱신형),rejected_due_to_standard_endpoint_not_found,0,1,0,4,0,rejected
