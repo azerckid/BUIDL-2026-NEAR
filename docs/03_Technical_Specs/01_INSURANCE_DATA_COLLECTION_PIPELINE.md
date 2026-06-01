@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-06-01 13:42
+> Last Updated: 2026-06-01 15:05
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.65
+- **상태**: Draft v2.66
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -447,6 +447,8 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 2026-06-01 13:20 KST 기준 동양생명 암보험의 source document seed 3건, quote approval 4건, active oncology snapshot 1건을 준비했다. 운영 DB 읽기 전용 확인 결과 현재 source는 `raw`, document 0건, product 0건, quote 4건은 `needs_review`였고, `seed.ts` 적용 후 source-backed active 추천 상품은 18건에서 19건, approved quote는 72건에서 76건으로 늘어야 한다. 이번 단계는 DB write 없이 seed/data/docs만 변경하며, 검증은 `../05_QA_Validation/92_TONGYANG_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md`에 둔다. 다음 작업은 운영 DB 백업 후 seed apply PR이다.
 
 2026-06-01 13:42 KST 기준 운영 DB 백업 후 동양생명 암보험 추천 snapshot seed를 적용했다. 적용 후 source document는 36건에서 39건, approved source는 18건에서 19건, approved quote는 72건에서 76건, source-backed active 추천 상품은 18건에서 19건으로 증가했다. 검증은 `../05_QA_Validation/93_TONGYANG_LIFE_CANCER_DB_APPLY_2026_06_01.md`에 둔다. 다음 작업은 남은 non-approved source 3건 처리다.
+
+2026-06-01 15:05 KST 기준 삼성생명 인터넷 입원 건강보험은 source catalog에는 보존하되 현재 추천 snapshot에서는 제외하기로 결정했다. 현재 `coverage_category` enum과 추천 엔진은 `hospitalization`/`general_health`를 지원하지 않으며, 이 상품은 조건별 quote matrix도 없어 사용자 조건별 보험료를 표시할 수 없다. `seed.ts`에는 source catalog exclusion update를 추가했고, 적용 후 `review_status=rejected`가 되어야 한다. DB write는 별도 apply PR로 분리한다. 검증은 `../05_QA_Validation/94_SAMSUNG_LIFE_HOSPITAL_HEALTH_POLICY_2026_06_01.md`에 둔다.
 
 ---
 
@@ -1127,3 +1129,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Tongyang Life Cancer Matching Review](../05_QA_Validation/91_TONGYANG_LIFE_CANCER_MATCHING_REVIEW_2026_06_01.md) - 동양생명 암보험 매칭 키워드와 caveat 검수
 - **QA_Validation**: [Tongyang Life Cancer Snapshot Seed](../05_QA_Validation/92_TONGYANG_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md) - 동양생명 암보험 추천 snapshot seed 검증
 - **QA_Validation**: [Tongyang Life Cancer DB Apply](../05_QA_Validation/93_TONGYANG_LIFE_CANCER_DB_APPLY_2026_06_01.md) - 동양생명 암보험 추천 snapshot 운영 DB 적용 검증
+- **QA_Validation**: [Samsung Life Hospital Health Policy](../05_QA_Validation/94_SAMSUNG_LIFE_HOSPITAL_HEALTH_POLICY_2026_06_01.md) - 삼성생명 입원 건강보험 category 정책과 추천 제외 검증

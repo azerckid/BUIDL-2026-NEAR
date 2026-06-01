@@ -1,0 +1,53 @@
+{
+  "metadata": {
+    "reviewed_at": "2026-06-01T15:05:00+09:00",
+    "timezone": "Asia/Seoul",
+    "reviewer": "codex_policy_review",
+    "output_version": "1.0",
+    "scope": "Samsung Life hospital health insurance category policy decision",
+    "input_seed": "src/lib/db/seed.ts",
+    "db_read_only_check_performed": true,
+    "db_write_performed": false,
+    "seed_file_changed": true,
+    "recommendation_snapshot_changed": false
+  },
+  "source": {
+    "id": "src_samsung_life_hospital_health_202601",
+    "carrier_id": "carrier_samsung_life",
+    "provider": "삼성생명",
+    "raw_product_name": "삼성 인터넷 입원 건강보험(2601)(무배당,무해약환급금형)",
+    "normalized_product_name": "삼성 인터넷 입원 건강보험",
+    "product_group": "입원 건강보험",
+    "e_insmarket_product_code": "L03C001000015",
+    "official_product_url": "https://direct.samsunglife.com/damoa.eds?cid=di:insmarket:damoa:insmarket:240513",
+    "current_review_status": "needs_review",
+    "document_count": 1,
+    "quote_count": 0,
+    "approved_quote_count": 0,
+    "product_count": 0,
+    "representative_premium_krw": 8650
+  },
+  "decision": {
+    "recommended_review_status": "rejected",
+    "service_treatment": "source_catalog_only",
+    "recommendation_snapshot_action": "do_not_publish",
+    "schema_action_now": "do_not_extend_schema",
+    "future_schema_candidate": ["hospitalization", "general_health"],
+    "reason": "The current recommendation engine and insurance_products coverage_category enum support oncology, cardiovascular, metabolic, neurological, and medical_expense. Samsung Life hospital health insurance is an inpatient/hospitalization-style health product, not a DNA risk_target product and not a medical_expense baseline product. Publishing it under an existing category would overstate matching precision.",
+    "active_product_count_change": 0,
+    "approved_quote_count_change": 0
+  },
+  "seed_changes": {
+    "source_catalog_exclusion_updates_added": 1,
+    "source_id": "src_samsung_life_hospital_health_202601",
+    "review_status_after_apply": "rejected",
+    "source_documents_added": 0,
+    "quote_approvals_added": 0,
+    "insurance_product_snapshots_added": 0
+  },
+  "next_actions": [
+    "Merge the source catalog exclusion seed change.",
+    "After merge, run production DB backup and seed apply in a separate PR.",
+    "Keep this product out of Dashboard recommendations and Concierge product context until hospitalization/general_health category policy is explicitly added."
+  ]
+}
