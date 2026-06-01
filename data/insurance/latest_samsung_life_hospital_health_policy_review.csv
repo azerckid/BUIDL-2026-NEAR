@@ -1,0 +1,2 @@
+source_id,provider,product_group,current_status,recommended_status,document_count,quote_count,product_count,decision,next_action
+src_samsung_life_hospital_health_202601,삼성생명,입원 건강보험,needs_review,rejected,1,0,0,source_catalog_only,apply source catalog exclusion after backup

@@ -35,6 +35,7 @@ const hanwhaGeneralCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T02:27
 const dbLifeCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T03:34:00+09:00").toJSDate();
 const lotteMedicalSnapshotReviewedAt = DateTime.fromISO("2026-06-01T04:30:00+09:00").toJSDate();
 const tongyangLifeCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T13:20:00+09:00").toJSDate();
+const samsungLifeHospitalPolicyReviewedAt = DateTime.fromISO("2026-06-01T15:05:00+09:00").toJSDate();
 
 type InsuranceCarrierSeed = typeof insuranceCarriers.$inferInsert;
 type InsuranceProductSourceSeed = typeof insuranceProductSources.$inferInsert;
@@ -2858,6 +2859,37 @@ const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = 
   },
 ];
 
+const SOURCE_CATALOG_EXCLUSION_UPDATES: InsuranceProductSourceApproval[] = [
+  {
+    id: "src_samsung_life_hospital_health_202601",
+    values: {
+      saleStatusEvidence:
+        "공식 통합약관 hash와 보험다모아 대표 보험료는 source catalog에 보존한다. 다만 현재 추천 엔진은 oncology/cardiovascular/metabolic/neurological risk_target과 medical_expense baseline만 지원하며, 이 상품은 입원 건강보험이라 현 coverage_category enum에 맞지 않는다. hospitalization 또는 general_health 카테고리 확장 전까지 추천 snapshot에서 제외한다.",
+      coverageSummary:
+        "삼성생명 인터넷 입원 건강보험 source catalog 보존 상품. 현재 DNA risk target 또는 medical_expense baseline 추천으로 노출하지 않는다.",
+      exclusionsSummary:
+        "입원 일당형/건강보험형 보장은 현재 추천 카테고리 밖이다. hospitalization/general_health 정책과 schema/i18n/UI 확장 전까지 상담 AI와 추천 카드에 표시하지 않는다.",
+      coverageDetailsJson: JSON.stringify({
+        coverage_category: "hospitalization_or_general_health_future_candidate",
+        matching_strategy: "manual_future_policy",
+        risk_targets: [],
+        source_catalog_only: true,
+        rejection_reason:
+          "current_schema_does_not_support_hospitalization_or_general_health_category",
+      }),
+      coverageCaveatsJson: JSON.stringify([
+        "현재 insurance_products coverage_category enum에 맞지 않아 active 추천 snapshot을 발행하지 않는다.",
+        "입원 건강보험은 DNA 질병 risk target과 직접 매칭하지 않고, 향후 hospitalization 또는 general_health baseline 정책이 추가될 때 재검토한다.",
+        "조건별 quote matrix가 없어 사용자 나이/성별별 approved quote를 표시할 수 없다.",
+      ]),
+      reviewStatus: "rejected",
+      reviewedAt: samsungLifeHospitalPolicyReviewedAt,
+      lastVerifiedAt: samsungLifeHospitalPolicyReviewedAt,
+      updatedAt: now,
+    },
+  },
+];
+
 const FIRST_RECOMMENDATION_SNAPSHOT_PRODUCTS: InsuranceProductSeed[] = [
   {
     id: "prod_shinhan_life_sol_cancer_no_refund_202601",
@@ -3366,6 +3398,14 @@ async function seed() {
       .where(eq(insuranceProductSources.id, sourceApproval.id));
   }
 
+  console.log("Marking source catalog exclusions...");
+  for (const sourceExclusion of SOURCE_CATALOG_EXCLUSION_UPDATES) {
+    await db
+      .update(insuranceProductSources)
+      .set(sourceExclusion.values)
+      .where(eq(insuranceProductSources.id, sourceExclusion.id));
+  }
+
   console.log("Seeding source-aware insurance documents...");
   for (const document of SOURCE_AWARE_DOCUMENTS) {
     await db
@@ -3419,7 +3459,7 @@ async function seed() {
       .onConflictDoNothing();
   }
   console.log(
-    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${HANWHA_LIFE_CARRIER_QUOTE_ROWS.length} Hanwha carrier quotes inserted if missing, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length + HANWHA_LIFE_CARRIER_QUOTE_IDS.length + MEDICAL_BASELINE_APPROVED_QUOTE_IDS.length + SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS.length + MIRAEASSET_LIFE_CANCER_APPROVED_QUOTE_IDS.length + HANWHA_GENERAL_CANCER_APPROVED_QUOTE_IDS.length + DB_LIFE_CANCER_APPROVED_QUOTE_IDS.length + TONGYANG_LIFE_CANCER_APPROVED_QUOTE_IDS.length} quote approvals, ${HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS.length} Hanwha zero quotes rejected, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
+    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${SOURCE_CATALOG_EXCLUSION_UPDATES.length} source catalog exclusions, ${HANWHA_LIFE_CARRIER_QUOTE_ROWS.length} Hanwha carrier quotes inserted if missing, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length + HANWHA_LIFE_CARRIER_QUOTE_IDS.length + MEDICAL_BASELINE_APPROVED_QUOTE_IDS.length + SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS.length + MIRAEASSET_LIFE_CANCER_APPROVED_QUOTE_IDS.length + HANWHA_GENERAL_CANCER_APPROVED_QUOTE_IDS.length + DB_LIFE_CANCER_APPROVED_QUOTE_IDS.length + TONGYANG_LIFE_CANCER_APPROVED_QUOTE_IDS.length} quote approvals, ${HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS.length} Hanwha zero quotes rejected, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
   );
 }
 
