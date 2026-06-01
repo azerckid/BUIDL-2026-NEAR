@@ -34,6 +34,7 @@ const miraeassetLifeCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T00:4
 const hanwhaGeneralCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T02:27:00+09:00").toJSDate();
 const dbLifeCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T03:34:00+09:00").toJSDate();
 const lotteMedicalSnapshotReviewedAt = DateTime.fromISO("2026-06-01T04:30:00+09:00").toJSDate();
+const tongyangLifeCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T13:20:00+09:00").toJSDate();
 
 type InsuranceCarrierSeed = typeof insuranceCarriers.$inferInsert;
 type InsuranceProductSourceSeed = typeof insuranceProductSources.$inferInsert;
@@ -167,6 +168,13 @@ const DB_LIFE_CANCER_APPROVED_QUOTE_IDS = [
   "quote_src_db_life_eroun_cancer_202601_age34_male_d2e77ecf4a0c",
   "quote_src_db_life_eroun_cancer_202601_age44_female_9cf2588db68b",
   "quote_src_db_life_eroun_cancer_202601_age44_male_99a3f15d59fc",
+];
+
+const TONGYANG_LIFE_CANCER_APPROVED_QUOTE_IDS = [
+  "quote_src_tongyang_wooriwon_cancer_202605_age34_female_1015b0165c0e",
+  "quote_src_tongyang_wooriwon_cancer_202605_age34_male_d2e77ecf4a0c",
+  "quote_src_tongyang_wooriwon_cancer_202605_age44_female_9cf2588db68b",
+  "quote_src_tongyang_wooriwon_cancer_202605_age44_male_99a3f15d59fc",
 ];
 
 function toFirstSnapshotUsdc(monthlyPremiumKrw: number) {
@@ -1286,6 +1294,54 @@ const SOURCE_AWARE_DOCUMENTS: InsuranceSourceDocumentSeed[] = [
     createdAt: now,
   },
   {
+    id: "doc_tongyang_life_wooriwon_cancer_summary_202603",
+    productSourceId: "src_tongyang_wooriwon_cancer_202605",
+    carrierId: "carrier_tongyang_life",
+    sourceType: "carrier_disclosure",
+    documentType: "summary",
+    sourceUrl:
+      "https://pbano.myangel.co.kr/process/CO_ComDownload?FILE_GRP_ID=34D0mcpfsYQVpsLLoUEpB3x1Cudfk83B",
+    fileHashSha256: "960aae81795907c539b11667d3804534dc2b3b04c1da2df4f2b4e6d4381097b5",
+    contentType: "application/octet-stream;charset=UTF-8",
+    contentLengthBytes: 355923,
+    retrievedAt: tongyangLifeCancerSnapshotReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
+  {
+    id: "doc_tongyang_life_wooriwon_cancer_business_202603",
+    productSourceId: "src_tongyang_wooriwon_cancer_202605",
+    carrierId: "carrier_tongyang_life",
+    sourceType: "carrier_disclosure",
+    documentType: "business_method",
+    sourceUrl:
+      "https://pbano.myangel.co.kr/process/CO_ComDownload?FILE_GRP_ID=34D0mcpfsYQVpsLLoUEpBzxfPnWb7yTo",
+    fileHashSha256: "4d67901f7df9d4bc631b6cd8d4c371cdb68e4a4b15a01f952f43a3ebf751b18f",
+    contentType: "application/octet-stream;charset=UTF-8",
+    contentLengthBytes: 99967,
+    retrievedAt: tongyangLifeCancerSnapshotReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
+  {
+    id: "doc_tongyang_life_wooriwon_cancer_terms_202603",
+    productSourceId: "src_tongyang_wooriwon_cancer_202605",
+    carrierId: "carrier_tongyang_life",
+    sourceType: "carrier_disclosure",
+    documentType: "terms",
+    sourceUrl:
+      "https://pbano.myangel.co.kr/process/CO_ComDownload?FILE_GRP_ID=34D0mcpfsYQVpsLLoUEpBwjPN9vaY11S",
+    fileHashSha256: "882cb3784644e040027c16c984ae8c8c84bd3a12507949063967c618fdc81cb2",
+    contentType: "application/octet-stream;charset=UTF-8",
+    contentLengthBytes: 6512683,
+    retrievedAt: tongyangLifeCancerSnapshotReviewedAt,
+    usageStatus: "link_only",
+    parseStatus: "not_parsed",
+    createdAt: now,
+  },
+  {
     id: "doc_miraeasset_online_cancer_basic_summary_202604",
     productSourceId: "src_miraeasset_online_cancer_basic_202605",
     carrierId: "carrier_miraeasset_life",
@@ -1924,6 +1980,84 @@ const DB_LIFE_CANCER_CAVEATS = [
   "대표 보험료는 보험다모아 age34_female 조건이며 사용자 실제 조건에 따라 달라질 수 있다.",
 ];
 
+const TONGYANG_LIFE_CANCER_DETAILS = {
+  coverage_category: "oncology",
+  matching_strategy: "risk_target",
+  risk_targets: ONCOLOGY_RISK_TARGETS,
+  primary_benefit_terms: [
+    "고액치료비관련 암진단비",
+    "고액치료비관련 암이외의 암진단비",
+    "기타피부암진단비",
+    "갑상선암진단비",
+    "제자리암진단비",
+    "경계성종양진단비",
+  ],
+  optional_benefit_terms: [
+    "암(소액암제외)진단비특약",
+    "암통원특약",
+    "특정면역항암약물허가치료특약(갱신형)",
+    "표적항암약물허가치료특약(갱신형)",
+    "항암방사선·약물치료특약",
+  ],
+  benefit_timing_terms: [
+    "암 보장개시일 90일",
+    "계약일부터 1년 미만 50% 지급",
+    "유방암 180일 이전 진단 시 고액치료비관련 암이외의 암진단비 10% 지급",
+  ],
+  small_cancer_terms: [
+    "기타피부암",
+    "갑상선암",
+    "제자리암",
+    "경계성종양",
+    "대장점막내암",
+  ],
+  variant_terms: [
+    "무배당우리WON하는실속하나로암보험",
+    "2026.03.01",
+    "월납",
+    "20년만기/30년만기/100세만기 선택 가능",
+  ],
+  quote_review_status: "approved",
+  quote_source_type: "e_insmarket",
+  representative_condition_id: "age34_female",
+  representative_premium_krw: 11000,
+  approved_quote_condition_premiums_krw: {
+    age34_male: 9700,
+    age34_female: 11000,
+    age44_male: 17100,
+    age44_female: 14100,
+  },
+  document_evidence: {
+    carrier_match_score: 1,
+    source_page_url: "https://pbano.myangel.co.kr/paging/WE_AC_WEPAAP020100L",
+    download_endpoint: "https://pbano.myangel.co.kr/process/CO_ComDownload",
+    document_types: ["summary", "business_method", "terms"],
+    effective_date: "2026.03.01",
+    document_hashes: [
+      "960aae81795907c539b11667d3804534dc2b3b04c1da2df4f2b4e6d4381097b5",
+      "4d67901f7df9d4bc631b6cd8d4c371cdb68e4a4b15a01f952f43a3ebf751b18f",
+      "882cb3784644e040027c16c984ae8c8c84bd3a12507949063967c618fdc81cb2",
+    ],
+  },
+  usdc_conversion: {
+    basis: "fixed_demo_rate",
+    krw_per_usdc: FIRST_SNAPSHOT_KRW_PER_USDC,
+    approved_at: "2026-06-01T13:20:00+09:00",
+  },
+};
+
+const TONGYANG_LIFE_CANCER_CAVEATS = [
+  "암 보장개시일은 계약일 또는 부활일부터 그 날을 포함하여 90일이 지난 날의 다음날이므로 초기 90일 암 보장 제외 조건이 있다.",
+  "고액치료비관련 암, 고액치료비관련 암이외의 암, 기타피부암, 갑상선암, 제자리암, 경계성종양은 계약일부터 1년 미만 진단확정 시 50% 지급 조건이 있다.",
+  "유방암은 계약일로부터 180일 경과 이전 진단확정 시 고액치료비관련 암이외의 암진단비의 10% 지급 조건이 있다.",
+  "기타피부암과 갑상선암은 암의 정의에서 제외되며, 중증 갑상선암은 암의 정의에 포함되는 분류 차이가 있다.",
+  "제자리암, 경계성종양, 기타피부암, 갑상선암은 보험료 납입면제 대상에서 제외되며 중증 갑상선암은 예외로 납입면제 가능성이 있다.",
+  "표적항암약물허가치료특약과 특정면역항암약물허가치료특약은 갱신형 특약이므로 갱신 시 연령 증가와 위험률 변동에 따라 보험료가 변동될 수 있다.",
+  "보험기간, 납입기간, 가입나이, 가입금액은 선택 조건에 따라 달라지고 피보험자의 기존 보험가입상황, 나이, 계약 전 알릴 의무사항에 따라 건강진단 및 인수심사가 필요할 수 있다.",
+  "해약환급금은 납입한 보험료보다 적거나 없을 수 있으며, 최종 가입 전 공식 약관과 상품요약서를 확인해야 한다.",
+  "대표 보험료는 보험다모아 age34_female 조건이며 사용자 실제 조건에 따라 달라질 수 있다.",
+];
+
 const KYOBOLIFEPLANET_CANCER_COMMON_DETAILS = {
   coverage_category: "oncology",
   matching_strategy: "risk_target",
@@ -2402,6 +2536,29 @@ const FIRST_RECOMMENDATION_SOURCE_APPROVALS: InsuranceProductSourceApproval[] = 
     },
   },
   {
+    id: "src_tongyang_wooriwon_cancer_202605",
+    values: {
+      officialProductUrl: "https://pbano.myangel.co.kr/paging/WE_AC_WEPAAP020100L",
+      saleStatus: "active",
+      saleStatusEvidence:
+        "동양생명 공식 판매상품 공시 페이지의 2026-03-01 무배당우리WON하는실속하나로암보험 row에서 상품요약서, 사업방법서, 보험약관 FILE_GRP_ID와 SHA-256 hash 3건을 확인했고 보험다모아 조건별 quote 4건을 검수했다.",
+      monthlyPremiumKrw: 11000,
+      premiumText: "11,000원",
+      premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+      renewalType: "unknown",
+      coverageSummary:
+        "동양생명 우리WON하는실속하나로암보험. 고액치료비관련 암, 일반암성 급부, 소액암성 급부, 암 치료 특약을 DNA 암 위험 key와 매칭한다.",
+      exclusionsSummary:
+        "90일 보장 제외, 1년 미만 감액, 유방암 180일 이전 10% 지급, 소액암/갑상선/피부암 분리, 갱신형 특약 보험료 변동 조건을 caveat로 표시한다.",
+      coverageDetailsJson: JSON.stringify(TONGYANG_LIFE_CANCER_DETAILS),
+      coverageCaveatsJson: JSON.stringify(TONGYANG_LIFE_CANCER_CAVEATS),
+      reviewStatus: "approved",
+      reviewedAt: tongyangLifeCancerSnapshotReviewedAt,
+      lastVerifiedAt: tongyangLifeCancerSnapshotReviewedAt,
+      updatedAt: now,
+    },
+  },
+  {
     id: "src_hanwha_life_e_cancer_202604",
     values: {
       officialProductUrl:
@@ -2823,6 +2980,30 @@ const FIRST_RECOMMENDATION_SNAPSHOT_PRODUCTS: InsuranceProductSeed[] = [
     createdAt: now,
   },
   {
+    id: "prod_tongyang_wooriwon_cancer_202605",
+    productSourceId: "src_tongyang_wooriwon_cancer_202605",
+    name: "동양생명 우리WON하는실속하나로암보험",
+    provider: "동양생명",
+    chainNetwork: "near" as const,
+    contractAddress: null,
+    monthlyPremiumUsdc: toFirstSnapshotUsdc(11000),
+    monthlyPremiumKrw: 11000,
+    premiumCurrency: "KRW" as const,
+    premiumBasis: FIRST_SNAPSHOT_PREMIUM_BASIS,
+    coverageCategory: "oncology" as const,
+    riskTargets: JSON.stringify(ONCOLOGY_RISK_TARGETS),
+    matchingStrategy: "risk_target" as const,
+    coverageDetailsJson: JSON.stringify(TONGYANG_LIFE_CANCER_DETAILS),
+    coverageCaveatsJson: JSON.stringify(TONGYANG_LIFE_CANCER_CAVEATS),
+    sourceCheckedAt: tongyangLifeCancerSnapshotReviewedAt,
+    primarySourceDocumentId: "doc_tongyang_life_wooriwon_cancer_terms_202603",
+    catalogStatus: "approved" as const,
+    discountEligible: 0,
+    originalPremiumUsdc: null,
+    isActive: 1,
+    createdAt: now,
+  },
+  {
     id: "prod_hanwha_life_e_cancer_202604",
     productSourceId: "src_hanwha_life_e_cancer_202604",
     name: "한화생명 e암보험 표준체형",
@@ -3220,6 +3401,7 @@ async function seed() {
         ...MIRAEASSET_LIFE_CANCER_APPROVED_QUOTE_IDS,
         ...HANWHA_GENERAL_CANCER_APPROVED_QUOTE_IDS,
         ...DB_LIFE_CANCER_APPROVED_QUOTE_IDS,
+        ...TONGYANG_LIFE_CANCER_APPROVED_QUOTE_IDS,
       ])
     );
 
@@ -3237,7 +3419,7 @@ async function seed() {
       .onConflictDoNothing();
   }
   console.log(
-    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${HANWHA_LIFE_CARRIER_QUOTE_ROWS.length} Hanwha carrier quotes inserted if missing, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length + HANWHA_LIFE_CARRIER_QUOTE_IDS.length + MEDICAL_BASELINE_APPROVED_QUOTE_IDS.length + SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS.length + MIRAEASSET_LIFE_CANCER_APPROVED_QUOTE_IDS.length + HANWHA_GENERAL_CANCER_APPROVED_QUOTE_IDS.length + DB_LIFE_CANCER_APPROVED_QUOTE_IDS.length} quote approvals, ${HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS.length} Hanwha zero quotes rejected, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
+    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${HANWHA_LIFE_CARRIER_QUOTE_ROWS.length} Hanwha carrier quotes inserted if missing, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length + HANWHA_LIFE_CARRIER_QUOTE_IDS.length + MEDICAL_BASELINE_APPROVED_QUOTE_IDS.length + SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS.length + MIRAEASSET_LIFE_CANCER_APPROVED_QUOTE_IDS.length + HANWHA_GENERAL_CANCER_APPROVED_QUOTE_IDS.length + DB_LIFE_CANCER_APPROVED_QUOTE_IDS.length + TONGYANG_LIFE_CANCER_APPROVED_QUOTE_IDS.length} quote approvals, ${HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS.length} Hanwha zero quotes rejected, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
   );
 }
 

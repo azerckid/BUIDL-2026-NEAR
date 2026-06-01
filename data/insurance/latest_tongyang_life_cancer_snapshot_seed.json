@@ -1,0 +1,134 @@
+{
+  "metadata": {
+    "prepared_at": "2026-06-01T13:20:00+09:00",
+    "timezone": "Asia/Seoul",
+    "preparer": "codex_snapshot_seed",
+    "output_version": "1.0",
+    "scope": "Tongyang Life WooriWON cancer source-backed recommendation snapshot seed preparation",
+    "input_disclosure_probe": "data/insurance/latest_tongyang_life_cancer_disclosure_adapter_probe.json",
+    "input_matching_review": "data/insurance/latest_tongyang_life_cancer_matching_review.json",
+    "input_seed": "src/lib/db/seed.ts",
+    "db_read_only_check_performed": true,
+    "db_write_performed": false,
+    "seed_file_changed": true,
+    "recommendation_snapshot_changed": true
+  },
+  "summary": {
+    "source_approvals_added": 1,
+    "source_documents_added": 3,
+    "quote_approvals_added": 4,
+    "active_recommendation_snapshot_rows_added": 1,
+    "expected_active_source_backed_products_after_apply": 19,
+    "expected_approved_quote_rows_after_apply": 76
+  },
+  "db_read_only_before_seed": {
+    "counts": {
+      "insurance_source_documents": 36,
+      "insurance_products": 23,
+      "insurance_product_sources": 22,
+      "insurance_premium_quotes": 92
+    },
+    "source": {
+      "id": "src_tongyang_wooriwon_cancer_202605",
+      "review_status": "raw",
+      "sale_status": "unknown",
+      "monthly_premium_krw": null
+    },
+    "existing_documents": 0,
+    "existing_products": 0,
+    "existing_quotes": [
+      {
+        "id": "quote_src_tongyang_wooriwon_cancer_202605_age34_female_1015b0165c0e",
+        "age": 34,
+        "sex": "female",
+        "monthly_premium_krw": 11000,
+        "review_status": "needs_review"
+      },
+      {
+        "id": "quote_src_tongyang_wooriwon_cancer_202605_age34_male_d2e77ecf4a0c",
+        "age": 34,
+        "sex": "male",
+        "monthly_premium_krw": 9700,
+        "review_status": "needs_review"
+      },
+      {
+        "id": "quote_src_tongyang_wooriwon_cancer_202605_age44_female_9cf2588db68b",
+        "age": 44,
+        "sex": "female",
+        "monthly_premium_krw": 14100,
+        "review_status": "needs_review"
+      },
+      {
+        "id": "quote_src_tongyang_wooriwon_cancer_202605_age44_male_99a3f15d59fc",
+        "age": 44,
+        "sex": "male",
+        "monthly_premium_krw": 17100,
+        "review_status": "needs_review"
+      }
+    ]
+  },
+  "seed_changes": {
+    "source_approval": {
+      "id": "src_tongyang_wooriwon_cancer_202605",
+      "review_status": "approved",
+      "sale_status": "active",
+      "official_product_url": "https://pbano.myangel.co.kr/paging/WE_AC_WEPAAP020100L",
+      "representative_monthly_premium_krw": 11000,
+      "coverage_category": "oncology",
+      "matching_strategy": "risk_target",
+      "risk_targets": [
+        "pancreatic_cancer",
+        "liver_cancer",
+        "lung_cancer",
+        "breast_cancer",
+        "colon_cancer"
+      ]
+    },
+    "source_documents": [
+      {
+        "id": "doc_tongyang_life_wooriwon_cancer_summary_202603",
+        "document_type": "summary",
+        "file_group_id": "34D0mcpfsYQVpsLLoUEpB3x1Cudfk83B",
+        "sha256": "960aae81795907c539b11667d3804534dc2b3b04c1da2df4f2b4e6d4381097b5",
+        "content_length_bytes": 355923
+      },
+      {
+        "id": "doc_tongyang_life_wooriwon_cancer_business_202603",
+        "document_type": "business_method",
+        "file_group_id": "34D0mcpfsYQVpsLLoUEpBzxfPnWb7yTo",
+        "sha256": "4d67901f7df9d4bc631b6cd8d4c371cdb68e4a4b15a01f952f43a3ebf751b18f",
+        "content_length_bytes": 99967
+      },
+      {
+        "id": "doc_tongyang_life_wooriwon_cancer_terms_202603",
+        "document_type": "terms",
+        "file_group_id": "34D0mcpfsYQVpsLLoUEpBwjPN9vaY11S",
+        "sha256": "882cb3784644e040027c16c984ae8c8c84bd3a12507949063967c618fdc81cb2",
+        "content_length_bytes": 6512683
+      }
+    ],
+    "quote_approvals": [
+      "quote_src_tongyang_wooriwon_cancer_202605_age34_female_1015b0165c0e",
+      "quote_src_tongyang_wooriwon_cancer_202605_age34_male_d2e77ecf4a0c",
+      "quote_src_tongyang_wooriwon_cancer_202605_age44_female_9cf2588db68b",
+      "quote_src_tongyang_wooriwon_cancer_202605_age44_male_99a3f15d59fc"
+    ],
+    "insurance_product_snapshot": {
+      "id": "prod_tongyang_wooriwon_cancer_202605",
+      "product_source_id": "src_tongyang_wooriwon_cancer_202605",
+      "name": "동양생명 우리WON하는실속하나로암보험",
+      "provider": "동양생명",
+      "coverage_category": "oncology",
+      "matching_strategy": "risk_target",
+      "catalog_status": "approved",
+      "is_active": 1,
+      "primary_source_document_id": "doc_tongyang_life_wooriwon_cancer_terms_202603"
+    }
+  },
+  "next_actions": [
+    "Open a PR with the seed/data/docs changes only.",
+    "After merge, perform a production DB backup.",
+    "Run src/lib/db/seed.ts against the target Turso DB.",
+    "Verify source approved, three documents inserted, four quotes approved, and one active insurance_products snapshot exists."
+  ]
+}
