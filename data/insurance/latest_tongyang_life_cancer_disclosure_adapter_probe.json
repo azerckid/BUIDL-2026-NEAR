@@ -1,0 +1,105 @@
+{
+  "metadata": {
+    "generated_at": "2026-06-01T13:00:03.902+09:00",
+    "timezone": "Asia/Seoul",
+    "generator": "scripts/insurance/collect-carrier-disclosures.mjs",
+    "input_product_probe": "data/insurance/latest_remaining_raw_source_product_document_probe.json (skipped_products filtered to Tongyang Life target with rediscovered official URL)",
+    "output_version": "1.1",
+    "target_limit": 1,
+    "max_documents_per_product": 3
+  },
+  "targets": [
+    {
+      "provider": "동양생명",
+      "product_group": "암보험",
+      "raw_product_name": "(무)우리WON하는실속하나로암보험",
+      "premium_text": "11,000원",
+      "e_insmarket_product_code": "L74C009000006",
+      "official_product_url": "https://pbano.myangel.co.kr/paging/WE_AC_WEPAAP020100L"
+    }
+  ],
+  "carrier_pages": [
+    {
+      "provider": "동양생명",
+      "source_url": "https://pbano.myangel.co.kr/paging/WE_AC_WEPAAP020100L",
+      "page_status": "accessible",
+      "http_status": 200,
+      "final_url": "https://pbano.myangel.co.kr/paging/WE_AC_WEPAAP020100L",
+      "content_type": "text/html; charset=UTF-8",
+      "charset": "utf-8",
+      "disclosure_record_count": 12,
+      "matched_product_count": 1,
+      "notes": [
+        "공시실 판매상품 페이지의 MasFiledownload 호출에서 FILE_GRP_ID를 추출한다.",
+        "공식 문서는 /process/CO_ComDownload POST 요청에 _biz_op_code=FDL과 FILE_GRP_ID를 전달해야 다운로드된다.",
+        "동양생명 API search '무배당우리WON하는실속하나로암보험' returned 1 records."
+      ]
+    }
+  ],
+  "product_results": [
+    {
+      "provider": "동양생명",
+      "product_group": "암보험",
+      "raw_product_name": "(무)우리WON하는실속하나로암보험",
+      "premium_text": "11,000원",
+      "e_insmarket_product_code": "L74C009000006",
+      "official_product_url": "https://pbano.myangel.co.kr/paging/WE_AC_WEPAAP020100L",
+      "carrier_disclosure_url": "https://pbano.myangel.co.kr/paging/WE_AC_WEPAAP020100L",
+      "result_status": "hashed",
+      "best_match_score": 1,
+      "matched_record_text": "무배당우리WON하는실속하나로암보험 2026.03.01 42 일반보험 보장성 무배당우리WON하는실속하나로암보험 2026.03.01 - 상품요약서 무배당우리WON하는실속하나로암보험 상품요약서 2026.03.01 FILE_GRP_ID=34D0mcpfsYQVpsLLoUEpB3x1Cudfk83B 34D0mcpfsYQVpsLLoUEpB3x1Cudfk83B 사업방법서 무배당우리WON하는실속하나로암보험 사업방법서 2026.03.01 FILE_GRP_ID=34D0mcpfsYQVpsLLoUEpBzxfPnWb7yTo 34D0mcpfsYQVpsLLoUEpBzxfPnWb7yTo 보험약관 무배당우리WON하는실속하나로암보험 보험약관 2026.03.01 FILE_GRP_ID=34D0mcpfsYQVpsLLoUEpBwjPN9vaY11S 34D0mcpfsYQVpsLLoUEpBwjPN9vaY11S 우리WON하는실속하나로암보험 하나로암보험 암보험 2026.03.01",
+      "document_candidates": [
+        {
+          "url": "https://pbano.myangel.co.kr/process/CO_ComDownload",
+          "document_type": "summary",
+          "discovered_from": "https://pbano.myangel.co.kr/paging/WE_AC_WEPAAP020100L",
+          "source_context": "무배당우리WON하는실속하나로암보험 상품요약서 2026.03.01 FILE_GRP_ID=34D0mcpfsYQVpsLLoUEpB3x1Cudfk83B",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/octet-stream;charset=UTF-8",
+          "content_length_bytes": 355923,
+          "sha256": "960aae81795907c539b11667d3804534dc2b3b04c1da2df4f2b4e6d4381097b5",
+          "retrieved_at": "2026-06-01T13:00:01.476+09:00"
+        },
+        {
+          "url": "https://pbano.myangel.co.kr/process/CO_ComDownload",
+          "document_type": "business_method",
+          "discovered_from": "https://pbano.myangel.co.kr/paging/WE_AC_WEPAAP020100L",
+          "source_context": "무배당우리WON하는실속하나로암보험 사업방법서 2026.03.01 FILE_GRP_ID=34D0mcpfsYQVpsLLoUEpBzxfPnWb7yTo",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/octet-stream;charset=UTF-8",
+          "content_length_bytes": 99967,
+          "sha256": "4d67901f7df9d4bc631b6cd8d4c371cdb68e4a4b15a01f952f43a3ebf751b18f",
+          "retrieved_at": "2026-06-01T13:00:01.645+09:00"
+        },
+        {
+          "url": "https://pbano.myangel.co.kr/process/CO_ComDownload",
+          "document_type": "terms",
+          "discovered_from": "https://pbano.myangel.co.kr/paging/WE_AC_WEPAAP020100L",
+          "source_context": "무배당우리WON하는실속하나로암보험 보험약관 2026.03.01 FILE_GRP_ID=34D0mcpfsYQVpsLLoUEpBwjPN9vaY11S",
+          "status": "hashed",
+          "http_status": 200,
+          "content_type": "application/octet-stream;charset=UTF-8",
+          "content_length_bytes": 6512683,
+          "sha256": "882cb3784644e040027c16c984ae8c8c84bd3a12507949063967c618fdc81cb2",
+          "retrieved_at": "2026-06-01T13:00:03.902+09:00"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "qa": {
+    "service_db_ready": false,
+    "blockers": [
+      "Disclosure crawling can prove source documents, but product coverage mapping still requires human review.",
+      "Several carrier disclosure pages use JavaScript search forms, so HTML-only crawling may not expose all PDF URLs.",
+      "A product is seed-ready only after official document hash, sale status, premium basis, coverage_category, and risk_targets are approved."
+    ],
+    "next_actions": [
+      "Verify coverage keywords and caveats from the summary, business method, and terms PDFs before source-document seeding.",
+      "Prepare source document seed rows only after matching_strategy, risk_targets, premium_basis, and quote row IDs are reviewed.",
+      "Keep src_tongyang_wooriwon_cancer_202605 raw until the matching review and seed/apply PRs are complete."
+    ]
+  }
+}
