@@ -1,0 +1,179 @@
+{
+  "metadata": {
+    "reviewed_at": "2026-06-01T13:06:00+09:00",
+    "timezone": "Asia/Seoul",
+    "reviewer": "codex_matching_keyword_review",
+    "output_version": "1.0",
+    "scope": "Tongyang Life WooriWON practical one cancer insurance variant and matching keyword review",
+    "input_disclosure_probe": "data/insurance/latest_tongyang_life_cancer_disclosure_adapter_probe.json",
+    "input_quote_rows": "data/insurance/latest_premium_quote_probe.json",
+    "input_seed": "src/lib/db/seed.ts",
+    "official_pdf_text_extracted": true,
+    "db_read_only_check_performed": false,
+    "db_write_performed": false,
+    "seed_file_changed": false,
+    "recommendation_snapshot_changed": false
+  },
+  "summary": {
+    "source_candidates_reviewed": 1,
+    "matching_ready_sources": 1,
+    "snapshot_price_ready_sources": 1,
+    "official_document_unique_hashes": 3,
+    "shared_document_sources": [],
+    "quote_rows_reviewed": 4,
+    "numeric_quote_rows": 4,
+    "active_recommendation_snapshot_rows_added": 0,
+    "recommended_next_snapshot_sources": [
+      "src_tongyang_wooriwon_cancer_202605"
+    ]
+  },
+  "risk_target_policy": {
+    "coverage_category": "oncology",
+    "matching_strategy": "risk_target",
+    "recommended_risk_targets": [
+      "pancreatic_cancer",
+      "liver_cancer",
+      "lung_cancer",
+      "breast_cancer",
+      "colon_cancer"
+    ],
+    "reason": "The summary and terms identify the product as cancer insurance covering high-treatment-cost cancer, other cancer, small cancer, cancer diagnosis, selected cancer treatment riders, and diagnosis/payment timing restrictions. The current DNA risk key dictionary supports the five oncology targets above. Small cancer, thyroid cancer, skin cancer, in-situ neoplasm, borderline tumor, and optional treatment riders remain coverage details or caveats rather than separate risk_targets."
+  },
+  "official_document_review": {
+    "summary_title": "무배당우리 WON 하는실속하나로암보험 상품요약서",
+    "business_method_title": "무배당우리 WON 하는실속하나로암보험 사업방법서",
+    "terms_title": "무배당우리WON하는실속하나로암보험 약관",
+    "effective_date": "2026.03.01",
+    "source_page_url": "https://pbano.myangel.co.kr/paging/WE_AC_WEPAAP020100L",
+    "download_endpoint": "https://pbano.myangel.co.kr/process/CO_ComDownload",
+    "documents": [
+      {
+        "document_type": "summary",
+        "file_group_id": "34D0mcpfsYQVpsLLoUEpB3x1Cudfk83B",
+        "sha256": "960aae81795907c539b11667d3804534dc2b3b04c1da2df4f2b4e6d4381097b5",
+        "content_length_bytes": 355923
+      },
+      {
+        "document_type": "business_method",
+        "file_group_id": "34D0mcpfsYQVpsLLoUEpBzxfPnWb7yTo",
+        "sha256": "4d67901f7df9d4bc631b6cd8d4c371cdb68e4a4b15a01f952f43a3ebf751b18f",
+        "content_length_bytes": 99967
+      },
+      {
+        "document_type": "terms",
+        "file_group_id": "34D0mcpfsYQVpsLLoUEpBwjPN9vaY11S",
+        "sha256": "882cb3784644e040027c16c984ae8c8c84bd3a12507949063967c618fdc81cb2",
+        "content_length_bytes": 6512683
+      }
+    ],
+    "variant_decision": "The official sale-products row, summary title, business method title, terms title, and 2026.03.01 effective date match the quote-only source. The next seed PR can add three source document rows first, then approve quote rows and create one active oncology insurance_products snapshot after DB ID confirmation."
+  },
+  "decisions": [
+    {
+      "provider": "동양생명",
+      "product_source_id": "src_tongyang_wooriwon_cancer_202605",
+      "carrier_id": "carrier_tongyang_life",
+      "e_insmarket_product_code": "L74C009000006",
+      "raw_product_name": "(무)우리WON하는실속하나로암보험",
+      "current_source_review_status": "raw",
+      "recommended_source_review_status": "needs_review",
+      "recommended_matching_review_status": "matching_ready_snapshot_candidate",
+      "recommended_coverage_category": "oncology",
+      "recommended_matching_strategy": "risk_target",
+      "recommended_risk_targets": [
+        "pancreatic_cancer",
+        "liver_cancer",
+        "lung_cancer",
+        "breast_cancer",
+        "colon_cancer"
+      ],
+      "coverage_details_candidate": {
+        "coverage_category": "oncology",
+        "matching_strategy": "risk_target",
+        "risk_targets": [
+          "pancreatic_cancer",
+          "liver_cancer",
+          "lung_cancer",
+          "breast_cancer",
+          "colon_cancer"
+        ],
+        "primary_benefit_terms": [
+          "고액치료비관련 암진단비",
+          "고액치료비관련 암이외의 암진단비",
+          "기타피부암진단비",
+          "갑상선암진단비",
+          "제자리암진단비",
+          "경계성종양진단비"
+        ],
+        "optional_benefit_terms": [
+          "암(소액암제외)진단비특약",
+          "암통원특약",
+          "특정면역항암약물허가치료특약(갱신형)",
+          "표적항암약물허가치료특약(갱신형)",
+          "항암방사선·약물치료특약"
+        ],
+        "benefit_timing_terms": [
+          "암 보장개시일 90일",
+          "계약일부터 1년 미만 50% 지급",
+          "유방암 180일 이전 진단 시 고액치료비관련 암이외의 암진단비 10% 지급"
+        ],
+        "small_cancer_terms": [
+          "기타피부암",
+          "갑상선암",
+          "제자리암",
+          "경계성종양",
+          "대장점막내암"
+        ],
+        "variant_terms": [
+          "무배당우리WON하는실속하나로암보험",
+          "2026.03.01",
+          "월납",
+          "20년만기/30년만기/100세만기 선택 가능"
+        ]
+      },
+      "coverage_caveats_candidate": [
+        "암 보장개시일은 계약일 또는 부활일부터 그 날을 포함하여 90일이 지난 날의 다음날이므로 초기 90일 암 보장 제외 caveat를 표시한다.",
+        "고액치료비관련 암, 고액치료비관련 암이외의 암, 기타피부암, 갑상선암, 제자리암, 경계성종양은 계약일부터 1년 미만 진단확정 시 50% 지급 조건을 표시한다.",
+        "유방암은 계약일로부터 180일 경과 이전 진단확정 시 고액치료비관련 암이외의 암진단비의 10% 지급 조건을 별도 caveat로 표시한다.",
+        "기타피부암과 갑상선암은 암의 정의에서 제외되며, 중증 갑상선암은 암의 정의에 포함되는 분류 차이를 설명한다.",
+        "제자리암, 경계성종양, 기타피부암, 갑상선암은 보험료 납입면제 대상에서 제외되며 중증 갑상선암은 예외로 납입면제 가능성을 표시한다.",
+        "표적항암약물허가치료특약과 특정면역항암약물허가치료특약은 갱신형 특약이므로 갱신 시 연령 증가와 위험률 변동에 따라 보험료가 변동될 수 있다.",
+        "보험기간, 납입기간, 가입나이, 가입금액은 선택 조건에 따라 달라지고 피보험자의 기존 보험가입상황, 나이, 계약 전 알릴 의무사항에 따라 건강진단 및 인수심사가 필요할 수 있다.",
+        "해약환급금은 납입한 보험료보다 적거나 없을 수 있으며, 추천 카드에서는 최종 가입 전 공식 약관과 상품요약서 확인을 요구한다."
+      ],
+      "quote_review": {
+        "quote_rows": 4,
+        "numeric_quote_rows": 4,
+        "quote_source": "e_insmarket_cancer_mobile",
+        "quote_status_before_seed": "needs_review",
+        "conditions": [
+          {
+            "condition_id": "age34_male",
+            "monthly_premium_krw": 9700
+          },
+          {
+            "condition_id": "age34_female",
+            "monthly_premium_krw": 11000
+          },
+          {
+            "condition_id": "age44_male",
+            "monthly_premium_krw": 17100
+          },
+          {
+            "condition_id": "age44_female",
+            "monthly_premium_krw": 14100
+          }
+        ],
+        "representative_condition": "age34_female",
+        "representative_monthly_premium_krw": 11000
+      },
+      "next_action": "Prepare a seed PR that adds three Tongyang Life source document rows, approves four quote rows, promotes the source to approved, and creates one active oncology insurance_products snapshot."
+    }
+  ],
+  "next_actions": [
+    "Add three source document seed rows for summary, business_method, and terms.",
+    "Approve four numeric quote rows after confirming actual DB IDs.",
+    "Prepare one oncology insurance_products snapshot with representative age34_female KRW premium and fixed demo USDC conversion.",
+    "Keep source review_status raw until the seed PR is applied to DB."
+  ]
+}

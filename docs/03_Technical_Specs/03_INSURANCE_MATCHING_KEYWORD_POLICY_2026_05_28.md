@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-06-01 12:51
+> Last Updated: 2026-06-01 13:06
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.45
+- **상태**: Draft v1.46
 - **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준, 추천 snapshot 발행 기준
 - **결론**: 이 프로젝트에서 말하는 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DB에 보험상품을 넣기 전에 DNA risk target과 매칭할 수 있도록 `coverage_category`, `risk_targets`, `matching_strategy`, `coverage_caveats_json`을 정리하는 내부 데이터 정규화 작업이다.
 
@@ -277,7 +277,9 @@ DNA 분석 결과
 
 2026-06-01 12:51 KST 기준 동양생명 `무배당우리WON하는실속하나로암보험`의 공식 문서 hash 3건을 확보했다. 상품요약서, 사업방법서, 보험약관 모두 공시실 `2026.03.01` row의 `MasFiledownload` POST endpoint에서 계산했다. 아직 `coverage_category`, `risk_targets`, `coverage_caveats_json`, quote approval을 정리하지 않았으므로 source는 `raw`로 유지한다. 검증은 `../05_QA_Validation/90_TONGYANG_LIFE_CANCER_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md`에 둔다.
 
-다음 단계는 동양생명 암보험 매칭 키워드/caveat 정리, 삼성생명 입원 건강보험 category 정책 결정, 신한라이프 표준형 일반형 endpoint blocker 유지/재탐색을 순차 처리하는 것이다. 한화손보 실손은 갱신형 V 공식 문서 endpoint 발견 전까지 blocker로 유지한다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
+2026-06-01 13:06 KST 기준 동양생명 암보험을 `coverage_category=oncology`, `matching_strategy=risk_target`, `risk_targets=[pancreatic_cancer,liver_cancer,lung_cancer,breast_cancer,colon_cancer]` 기준의 snapshot 후보로 정리했다. caveat는 90일 암 보장개시일, 1년 미만 50% 감액, 유방암 180일 10% 조건, 소액암/갑상선/피부암 분류, 납입면제 제외, 갱신형 특약 보험료 변동, 가입/건강진단 조건, 해약환급금 유의사항으로 정리한다. 검증은 `../05_QA_Validation/91_TONGYANG_LIFE_CANCER_MATCHING_REVIEW_2026_06_01.md`에 둔다.
+
+다음 단계는 동양생명 암보험 source document seed/quote approval/snapshot seed, 삼성생명 입원 건강보험 category 정책 결정, 신한라이프 표준형 일반형 endpoint blocker 유지/재탐색을 순차 처리하는 것이다. 한화손보 실손은 갱신형 V 공식 문서 endpoint 발견 전까지 blocker로 유지한다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
 
 ---
 
@@ -366,3 +368,4 @@ DNA 분석 결과
 - **QA_Validation**: [Lotte Medical Baseline DB Apply](../05_QA_Validation/88_LOTTE_MEDICAL_BASELINE_DB_APPLY_2026_06_01.md) - 롯데손보 실손 baseline 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [Hanwha General Medical Disclosure Probe](../05_QA_Validation/89_HANWHA_GENERAL_MEDICAL_DISCLOSURE_PROBE_2026_06_01.md) - 한화손보 실손 official PDF variant mismatch 차단 검증
 - **QA_Validation**: [Tongyang Life Cancer Disclosure Adapter Probe](../05_QA_Validation/90_TONGYANG_LIFE_CANCER_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md) - 동양생명 암보험 공식 문서 hash 검증
+- **QA_Validation**: [Tongyang Life Cancer Matching Review](../05_QA_Validation/91_TONGYANG_LIFE_CANCER_MATCHING_REVIEW_2026_06_01.md) - 동양생명 암보험 매칭 키워드와 caveat 검수

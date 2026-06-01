@@ -1,0 +1,2 @@
+"provider","product_source_id","raw_product_name","coverage_category","matching_strategy","risk_targets","quote_rows","numeric_quote_rows","representative_condition","representative_monthly_premium_krw","official_document_hashes","snapshot_readiness"
+"동양생명","src_tongyang_wooriwon_cancer_202605","(무)우리WON하는실속하나로암보험","oncology","risk_target","pancreatic_cancer|liver_cancer|lung_cancer|breast_cancer|colon_cancer","4","4","age34_female","11000","3","matching_ready_snapshot_candidate"
