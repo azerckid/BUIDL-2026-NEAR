@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-06-01 13:06
+> Last Updated: 2026-06-01 13:20
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.63
+- **상태**: Draft v2.64
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -443,6 +443,8 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 2026-06-01 12:51 KST 기준 동양생명 `무배당우리WON하는실속하나로암보험`의 공식 공시실 adapter를 추가했다. `https://pbano.myangel.co.kr/paging/WE_AC_WEPAAP020100L` 판매상품 row에서 `2026.03.01` 상품과 `MasFiledownload` 호출 3건을 확인했고, `/process/CO_ComDownload` POST 방식으로 상품요약서, 사업방법서, 보험약관 hash 3건을 확보했다. 이번 단계는 DB write 없이 수집기와 산출물만 변경하며, source는 매칭 키워드/caveat 정리 전까지 `raw`로 유지한다. 검증은 `../05_QA_Validation/90_TONGYANG_LIFE_CANCER_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md`에 둔다.
 
 2026-06-01 13:06 KST 기준 동양생명 암보험의 문서 variant와 매칭 키워드/caveat를 정리했다. 공식 문서 3건과 보험다모아 숫자 quote 4건이 있어 `coverage_category=oncology`, `matching_strategy=risk_target`, `risk_targets=[pancreatic_cancer,liver_cancer,lung_cancer,breast_cancer,colon_cancer]` 기준의 snapshot 후보로 볼 수 있다. 이번 단계는 DB write 없이 data/docs만 변경하며, 검증은 `../05_QA_Validation/91_TONGYANG_LIFE_CANCER_MATCHING_REVIEW_2026_06_01.md`에 둔다. 다음 작업은 source document seed, quote approval, active oncology snapshot seed PR이다.
+
+2026-06-01 13:20 KST 기준 동양생명 암보험의 source document seed 3건, quote approval 4건, active oncology snapshot 1건을 준비했다. 운영 DB 읽기 전용 확인 결과 현재 source는 `raw`, document 0건, product 0건, quote 4건은 `needs_review`였고, `seed.ts` 적용 후 source-backed active 추천 상품은 18건에서 19건, approved quote는 72건에서 76건으로 늘어야 한다. 이번 단계는 DB write 없이 seed/data/docs만 변경하며, 검증은 `../05_QA_Validation/92_TONGYANG_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md`에 둔다. 다음 작업은 운영 DB 백업 후 seed apply PR이다.
 
 ---
 
@@ -1121,3 +1123,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Hanwha General Medical Disclosure Probe](../05_QA_Validation/89_HANWHA_GENERAL_MEDICAL_DISCLOSURE_PROBE_2026_06_01.md) - 한화손보 실손 공식 페이지/PDF variant mismatch 차단 검증
 - **QA_Validation**: [Tongyang Life Cancer Disclosure Adapter Probe](../05_QA_Validation/90_TONGYANG_LIFE_CANCER_DISCLOSURE_ADAPTER_PROBE_2026_06_01.md) - 동양생명 암보험 공식 문서 hash 검증
 - **QA_Validation**: [Tongyang Life Cancer Matching Review](../05_QA_Validation/91_TONGYANG_LIFE_CANCER_MATCHING_REVIEW_2026_06_01.md) - 동양생명 암보험 매칭 키워드와 caveat 검수
+- **QA_Validation**: [Tongyang Life Cancer Snapshot Seed](../05_QA_Validation/92_TONGYANG_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md) - 동양생명 암보험 추천 snapshot seed 검증
