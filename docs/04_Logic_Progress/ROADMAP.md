@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-06-01 19:49
+> Last Updated: 2026-06-01 20:08
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-06-01 (한화생명 NULL quote hygiene seed 준비)
+- **최종 수정일**: 2026-06-01 (한화생명 NULL quote hygiene DB 적용)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.82
+- **상태**: Draft v3.83
 - **phase**: Phase 2
 
 ---
@@ -206,6 +206,8 @@
 2026-06-01 19:38 KST 기준 운영 DB 백업 후 신한라이프 표준형 blocker를 적용했다. 적용 후 source catalog 후보 22개는 `approved=19`, `rejected=3`, `raw=0`, `needs_review=0`이 됐다. source-backed active 추천 상품은 19건, approved quote는 76건으로 유지된다. 전체 quote 기준으로 `src_hanwha_life_e_cancer_202604`의 e-insmarket NULL quote 4건이 아직 `needs_review` 상태라 별도 hygiene PR에서 seed rejection ID를 보정한다. 검증은 `../05_QA_Validation/99_SHINHAN_STANDARD_BLOCKER_DB_APPLY_2026_06_01.md`에 기록한다.
 
 2026-06-01 19:49 KST 기준 한화생명 e-insmarket NULL quote 4건의 actual row ID를 seed rejection 목록에 반영했다. 기존 `HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS`의 표준체형 e암보험 target ID 4개가 운영 DB actual row ID와 달라 no-op이었으므로, 운영 DB에서 확인한 `2589f537c6fc`, `0d807392cd7d`, `88d1cf1a2fad`, `dbd72b264aa2` suffix row로 교체했다. DB write는 후속 apply PR로 분리한다. 검증은 `../05_QA_Validation/100_HANWHA_LIFE_ZERO_QUOTE_HYGIENE_2026_06_01.md`에 기록한다.
+
+2026-06-01 20:08 KST 기준 운영 DB 백업 후 한화생명 e-insmarket NULL quote hygiene seed를 적용했다. 적용 후 source catalog 후보 22개는 `approved=19`, `rejected=3`, `raw=0`, `needs_review=0`이고, 전체 quote queue는 `approved=76`, `rejected=16`, `needs_review=0`이다. source-backed active 추천 상품은 19건으로 유지된다. 검증은 `../05_QA_Validation/101_HANWHA_LIFE_ZERO_QUOTE_HYGIENE_DB_APPLY_2026_06_01.md`에 기록한다.
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 매칭 키워드 정리 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.
@@ -1379,6 +1381,7 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 - [신한라이프 표준형 암보험 Blocker 종결 정책 검증](../05_QA_Validation/98_SHINHAN_STANDARD_BLOCKER_POLICY_2026_06_01.md)
 - [신한라이프 표준형 암보험 Blocker DB 적용 검증](../05_QA_Validation/99_SHINHAN_STANDARD_BLOCKER_DB_APPLY_2026_06_01.md)
 - [한화생명 E-insmarket NULL Quote Hygiene 검증](../05_QA_Validation/100_HANWHA_LIFE_ZERO_QUOTE_HYGIENE_2026_06_01.md)
+- [한화생명 E-insmarket NULL Quote Hygiene DB 적용 검증](../05_QA_Validation/101_HANWHA_LIFE_ZERO_QUOTE_HYGIENE_DB_APPLY_2026_06_01.md)
 - [데모 보험상품 운영 추천 제거 검증](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md)
 - [데모 보험상품 Archive DB 적용 검증](../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md)
 - [보험상품 매칭 키워드 정리 정책](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md)

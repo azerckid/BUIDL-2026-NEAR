@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-06-01 19:49
+> Last Updated: 2026-06-01 20:08
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.55
+- **상태**: Draft v1.56
 - **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준, 추천 snapshot 발행 기준
 - **결론**: 이 프로젝트에서 말하는 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DB에 보험상품을 넣기 전에 DNA risk target과 매칭할 수 있도록 `coverage_category`, `risk_targets`, `matching_strategy`, `coverage_caveats_json`을 정리하는 내부 데이터 정규화 작업이다.
 
@@ -297,7 +297,9 @@ DNA 분석 결과
 
 2026-06-01 19:49 KST 기준 한화생명 e-insmarket NULL quote 4건의 actual DB row ID를 seed rejection 목록에 반영했다. 이 4건은 active 추천에 쓰는 carrier quote가 아니라 보험다모아 NULL quote 잔여 row이므로 `rejected`로 내려야 한다. 검증은 `../05_QA_Validation/100_HANWHA_LIFE_ZERO_QUOTE_HYGIENE_2026_06_01.md`에 둔다.
 
-다음 단계는 한화생명 e-insmarket NULL quote hygiene seed를 운영 DB에 적용하는 것이다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
+2026-06-01 20:08 KST 기준 한화생명 e-insmarket NULL quote hygiene seed를 운영 DB에 적용했다. 적용 후 source catalog 후보 22개는 `approved=19`, `rejected=3`, `raw=0`, `needs_review=0`이고, quote review queue도 `needs_review=0`으로 닫혔다. 검증은 `../05_QA_Validation/101_HANWHA_LIFE_ZERO_QUOTE_HYGIENE_DB_APPLY_2026_06_01.md`에 둔다.
+
+다음 단계는 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개를 공식 URL, source row, 문서 hash 순서로 별도 확장하는 것이다.
 
 ---
 
@@ -396,3 +398,4 @@ DNA 분석 결과
 - **QA_Validation**: [Shinhan Standard Blocker Policy](../05_QA_Validation/98_SHINHAN_STANDARD_BLOCKER_POLICY_2026_06_01.md) - 신한라이프 표준형 일반 문서 endpoint blocker 종결 정책 검증
 - **QA_Validation**: [Shinhan Standard Blocker DB Apply](../05_QA_Validation/99_SHINHAN_STANDARD_BLOCKER_DB_APPLY_2026_06_01.md) - 신한라이프 표준형 blocker 운영 DB 적용 검증
 - **QA_Validation**: [Hanwha Life Zero Quote Hygiene](../05_QA_Validation/100_HANWHA_LIFE_ZERO_QUOTE_HYGIENE_2026_06_01.md) - 한화생명 e-insmarket NULL quote actual row ID 보정 검증
+- **QA_Validation**: [Hanwha Life Zero Quote Hygiene DB Apply](../05_QA_Validation/101_HANWHA_LIFE_ZERO_QUOTE_HYGIENE_DB_APPLY_2026_06_01.md) - 한화생명 e-insmarket NULL quote rejection 운영 DB 적용 검증
