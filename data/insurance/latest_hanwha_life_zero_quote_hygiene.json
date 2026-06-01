@@ -1,0 +1,63 @@
+{
+  "metadata": {
+    "reviewed_at": "2026-06-01T19:49:00+09:00",
+    "timezone": "Asia/Seoul",
+    "reviewer": "codex_quote_hygiene",
+    "output_version": "1.0",
+    "scope": "Hanwha Life e-insmarket NULL quote actual row ID correction",
+    "db_read_only_check_performed": true,
+    "db_write_performed": false,
+    "seed_file_changed": true
+  },
+  "summary": {
+    "target_source_count": 1,
+    "target_quote_count": 4,
+    "current_review_status": "needs_review",
+    "after_apply_review_status": "rejected",
+    "db_write_performed": false
+  },
+  "problem": {
+    "product_source_id": "src_hanwha_life_e_cancer_202604",
+    "current_needs_review_quote_count": 4,
+    "quote_source_type": "e_insmarket",
+    "monthly_premium_krw": null,
+    "reason": "The original zero quote rejection seed used semantic target IDs that did not match the actual DB row IDs for the standard Hanwha Life e-cancer source."
+  },
+  "decision": {
+    "action": "replace_stale_zero_quote_ids_with_actual_db_row_ids",
+    "review_status_after_apply": "rejected",
+    "active_product_count_change": 0,
+    "approved_quote_count_change": 0,
+    "needs_review_quote_count_change": -4,
+    "rejected_quote_count_change": 4
+  },
+  "target_quote_ids": [
+    "quote_src_hanwha_life_e_cancer_202604_age34_female_2589f537c6fc",
+    "quote_src_hanwha_life_e_cancer_202604_age34_male_0d807392cd7d",
+    "quote_src_hanwha_life_e_cancer_202604_age44_female_88d1cf1a2fad",
+    "quote_src_hanwha_life_e_cancer_202604_age44_male_dbd72b264aa2"
+  ],
+  "actual_quote_ids": [
+    "quote_src_hanwha_life_e_cancer_202604_age34_female_2589f537c6fc",
+    "quote_src_hanwha_life_e_cancer_202604_age34_male_0d807392cd7d",
+    "quote_src_hanwha_life_e_cancer_202604_age44_female_88d1cf1a2fad",
+    "quote_src_hanwha_life_e_cancer_202604_age44_male_dbd72b264aa2"
+  ],
+  "unchanged_nonsmoker_zero_quote_ids": [
+    "quote_src_hanwha_life_e_cancer_nonsmoker_202604_age34_female_1015b0165c0e",
+    "quote_src_hanwha_life_e_cancer_nonsmoker_202604_age34_male_d2e77ecf4a0c",
+    "quote_src_hanwha_life_e_cancer_nonsmoker_202604_age44_female_9cf2588db68b",
+    "quote_src_hanwha_life_e_cancer_nonsmoker_202604_age44_male_99a3f15d59fc"
+  ],
+  "expected_after_apply": {
+    "target_quote_review_status": "rejected",
+    "needs_review_quote_count_for_target_source": 0,
+    "active_product_count_change": 0,
+    "approved_quote_count_change": 0
+  },
+  "next_actions": [
+    "Merge the seed ID correction.",
+    "Run production DB backup and seed apply in a separate PR.",
+    "Verify insurance_premium_quotes.review_status='needs_review' count is 0 after apply."
+  ]
+}

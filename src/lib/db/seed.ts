@@ -96,10 +96,10 @@ const FIRST_SNAPSHOT_APPROVED_QUOTE_IDS = [
 ];
 
 const HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS = [
-  "quote_src_hanwha_life_e_cancer_202604_age34_male_d2e77ecf4a0c",
-  "quote_src_hanwha_life_e_cancer_202604_age34_female_1015b0165c0e",
-  "quote_src_hanwha_life_e_cancer_202604_age44_male_99a3f15d59fc",
-  "quote_src_hanwha_life_e_cancer_202604_age44_female_9cf2588db68b",
+  "quote_src_hanwha_life_e_cancer_202604_age34_female_2589f537c6fc",
+  "quote_src_hanwha_life_e_cancer_202604_age34_male_0d807392cd7d",
+  "quote_src_hanwha_life_e_cancer_202604_age44_female_88d1cf1a2fad",
+  "quote_src_hanwha_life_e_cancer_202604_age44_male_dbd72b264aa2",
   "quote_src_hanwha_life_e_cancer_nonsmoker_202604_age34_male_d2e77ecf4a0c",
   "quote_src_hanwha_life_e_cancer_nonsmoker_202604_age34_female_1015b0165c0e",
   "quote_src_hanwha_life_e_cancer_nonsmoker_202604_age44_male_99a3f15d59fc",
