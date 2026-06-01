@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-06-01 15:05
+> Last Updated: 2026-06-01 15:32
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.66
+- **상태**: Draft v2.67
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -449,6 +449,8 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 2026-06-01 13:42 KST 기준 운영 DB 백업 후 동양생명 암보험 추천 snapshot seed를 적용했다. 적용 후 source document는 36건에서 39건, approved source는 18건에서 19건, approved quote는 72건에서 76건, source-backed active 추천 상품은 18건에서 19건으로 증가했다. 검증은 `../05_QA_Validation/93_TONGYANG_LIFE_CANCER_DB_APPLY_2026_06_01.md`에 둔다. 다음 작업은 남은 non-approved source 3건 처리다.
 
 2026-06-01 15:05 KST 기준 삼성생명 인터넷 입원 건강보험은 source catalog에는 보존하되 현재 추천 snapshot에서는 제외하기로 결정했다. 현재 `coverage_category` enum과 추천 엔진은 `hospitalization`/`general_health`를 지원하지 않으며, 이 상품은 조건별 quote matrix도 없어 사용자 조건별 보험료를 표시할 수 없다. `seed.ts`에는 source catalog exclusion update를 추가했고, 적용 후 `review_status=rejected`가 되어야 한다. DB write는 별도 apply PR로 분리한다. 검증은 `../05_QA_Validation/94_SAMSUNG_LIFE_HOSPITAL_HEALTH_POLICY_2026_06_01.md`에 둔다.
+
+2026-06-01 15:32 KST 기준 운영 DB 백업 후 위 exclusion seed를 적용했다. 적용 후 삼성생명 입원 건강보험 source는 `review_status=rejected`가 됐고, 공식 약관 문서 1건과 대표 보험료 8,650 KRW는 유지됐다. active 추천 상품은 19건, approved quote는 76건으로 변하지 않으며, 남은 raw blocker는 한화손보 실손과 신한라이프 표준형 2건이다. 검증은 `../05_QA_Validation/95_SAMSUNG_LIFE_HOSPITAL_HEALTH_DB_APPLY_2026_06_01.md`에 둔다.
 
 ---
 
@@ -1130,3 +1132,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Tongyang Life Cancer Snapshot Seed](../05_QA_Validation/92_TONGYANG_LIFE_CANCER_SNAPSHOT_SEED_2026_06_01.md) - 동양생명 암보험 추천 snapshot seed 검증
 - **QA_Validation**: [Tongyang Life Cancer DB Apply](../05_QA_Validation/93_TONGYANG_LIFE_CANCER_DB_APPLY_2026_06_01.md) - 동양생명 암보험 추천 snapshot 운영 DB 적용 검증
 - **QA_Validation**: [Samsung Life Hospital Health Policy](../05_QA_Validation/94_SAMSUNG_LIFE_HOSPITAL_HEALTH_POLICY_2026_06_01.md) - 삼성생명 입원 건강보험 category 정책과 추천 제외 검증
+- **QA_Validation**: [Samsung Life Hospital Health DB Apply](../05_QA_Validation/95_SAMSUNG_LIFE_HOSPITAL_HEALTH_DB_APPLY_2026_06_01.md) - 삼성생명 입원 건강보험 추천 제외 운영 DB 적용 검증
