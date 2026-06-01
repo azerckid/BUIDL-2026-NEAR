@@ -1,11 +1,11 @@
 # [로드맵] 유전자 기반 AI 보험 설계 프로젝트 추진 일정
 > Created: 2026-03-31 00:00
-> Last Updated: 2026-06-01 15:32
+> Last Updated: 2026-06-01 15:40
 
 - **작성일**: 2026-03-31
-- **최종 수정일**: 2026-06-01 (삼성생명 입원 건강보험 추천 제외 DB 적용)
+- **최종 수정일**: 2026-06-01 (한화손보 실손 blocker 종결 정책)
 - **레이어**: 04_Logic_Progress
-- **상태**: Draft v3.77
+- **상태**: Draft v3.78
 - **phase**: Phase 2
 
 ---
@@ -68,7 +68,7 @@
 
 현재 의미는 “실제 보험상품 데이터 기반 추천”과 “무로그인·무결제 테스트 완주”를 동시에 검증하는 것이다. Test Pilot happy-path는 완료됐고, 다음 작업은 아래 순서로 진행한다.
 
-여기서 현재 추천 상품 19개는 “수집한 전체 데이터 수”가 아니라 “사용자 추천 화면에 노출 가능한 최종 snapshot 수”다. 현재까지 확보한 기반 데이터는 보험다모아 P0 샘플 56개, source catalog 후보 22개, 공식 문서 row 39개, 조건별 보험료 quote row 92개이며, 이 중 원천 근거, 매칭 키워드, caveat, approved quote를 통과해 active 추천으로 발행된 상품이 19개다. 동양생명까지 적용된 조건별 보험료 approved row는 76건이다. 구조화된 source 후보 22개 중 approved는 19개, 삼성생명 입원 건강보험 1개는 source catalog exclusion으로 `rejected` 적용 완료, 아직 raw blocker는 2개다. 한화손보 실손 source는 공식 페이지/PDF를 찾았지만 `갱신형 III` 문서라 target `갱신형 V`와 맞지 않아 blocker로 둔다.
+여기서 현재 추천 상품 19개는 “수집한 전체 데이터 수”가 아니라 “사용자 추천 화면에 노출 가능한 최종 snapshot 수”다. 현재까지 확보한 기반 데이터는 보험다모아 P0 샘플 56개, source catalog 후보 22개, 공식 문서 row 39개, 조건별 보험료 quote row 92개이며, 이 중 원천 근거, 매칭 키워드, caveat, approved quote를 통과해 active 추천으로 발행된 상품이 19개다. 동양생명까지 적용된 조건별 보험료 approved row는 76건이다. 구조화된 source 후보 22개 중 approved는 19개, 삼성생명 입원 건강보험 1개는 source catalog exclusion으로 `rejected` 적용 완료, 한화손보 실손 1개는 `rejected` seed 준비, 아직 raw blocker는 신한라이프 표준형 1개다.
 
 | 순서 | 트랙 | 작업 | 완료 기준 |
 |---:|---|---|---|
@@ -77,7 +77,7 @@
 | 3 | 보험료 개인화 | 사용자 나이/성별 입력값과 approved quote matrix 연결 | 대표 보험료와 사용자 조건별 보험료가 구분 표시됨 |
 | 4 | 한화생명 blocker | 한화생명 표준체형/비흡연체형 0원 quote 원인 해소 | 공식 carrier quote 숫자 KRW 8건 확보 및 DB 적용 완료 |
 | 5 | 신한라이프 blocker | 신한라이프 일반형 공식 문서 endpoint 추가 탐색 | 스크립트 기반 재탐색 완료. 일반형 endpoint 미발견으로 raw 차단 유지 |
-| 6 | 보험상품 확장 | 남은 non-approved source의 문서 hash, 매칭 키워드, caveat 정리 | 삼성생명 입원 건강보험 source catalog exclusion DB 적용 완료. 남은 raw blocker 2건 처리 |
+| 6 | 보험상품 확장 | 남은 non-approved source의 문서 hash, 매칭 키워드, caveat 정리 | 한화손보 실손 blocker 종결 seed 준비. 남은 raw blocker 1건 처리 |
 | 7 | 추천 snapshot 확대 | 새 source를 `approved`로 승격하고 `insurance_products` snapshot 발행 | 운영 active 추천 19건, approved quote 76건 |
 | 8 | 상담 AI 상품 설명 | The Secret Keeper에 추천상품 목록, 보험료, 출처, caveat context 전달 | 구현 완료. 사용자가 KDB/교보/한화/신한/DB/KB/현대/삼성/농협 상품을 물으면 DB-selected 추천상품 기준으로 설명 |
 
@@ -196,6 +196,8 @@
 2026-06-01 15:05 KST 기준 삼성생명 인터넷 입원 건강보험 category 정책을 결정했다. 현재 추천 엔진과 `insurance_products.coverage_category` enum은 DNA risk target 4개 계열과 `medical_expense` baseline만 지원하므로, 입원 건강보험을 기존 카테고리에 억지로 넣어 active 추천으로 발행하지 않는다. `seed.ts`에는 이 source를 `review_status=rejected`로 내리는 source catalog exclusion update를 추가했으며, DB write는 후속 apply PR로 분리한다. active 추천 상품 수와 approved quote 수는 변하지 않는다. 검증은 `../05_QA_Validation/94_SAMSUNG_LIFE_HOSPITAL_HEALTH_POLICY_2026_06_01.md`에 기록한다. 다음 작업은 운영 DB 백업 후 exclusion apply PR이거나 한화손보 실손/신한라이프 표준형 raw blocker 재탐색이다.
 
 2026-06-01 15:32 KST 기준 운영 DB 백업 후 삼성생명 입원 건강보험 source catalog exclusion을 적용했다. 적용 후 해당 source는 `review_status=rejected`, source-backed active 추천 상품은 19건, approved quote는 76건으로 유지된다. 남은 raw blocker는 한화손보 실손과 신한라이프 표준형 2건이다. 검증은 `../05_QA_Validation/95_SAMSUNG_LIFE_HOSPITAL_HEALTH_DB_APPLY_2026_06_01.md`에 기록한다. 다음 작업은 한화손보 실손 `갱신형 V` endpoint 재탐색/종결 정책 또는 신한라이프 표준형 일반형 endpoint 재탐색/종결 정책이다.
+
+2026-06-01 15:40 KST 기준 한화손보 실손의료보험 `갱신형 V` blocker 종결 정책을 seed에 준비했다. 공식 후보 페이지/PDF는 접근 가능하지만 `갱신형 III` 계열이라 target source와 맞지 않으므로 source를 `rejected`로 내리고 quote 4건도 `rejected`로 내린다. DB write는 후속 apply PR로 분리한다. 적용 후 active 추천 상품 19건은 유지되고, 남은 raw blocker는 신한라이프 표준형 1건이어야 한다. 검증은 `../05_QA_Validation/96_HANWHA_GENERAL_MEDICAL_BLOCKER_POLICY_2026_06_01.md`에 기록한다.
 
 적용 준비 문서는 `03_SERVICE_UPDATE_TWO_PILLARS_2026_05.md`를 기준으로 관리한다.
 보험상품 공식 출처 수집 PoC 결과는 `../05_QA_Validation/04_INSURANCE_DATA_ACQUISITION_POC_2026_05_27.md`와 `../../data/insurance/official_sources_poc_2026_05_27.json`에 기록한다. 반복 실행용 Collector v1 최신 결과는 `../../data/insurance/latest_official_sources_snapshot.json`에 두고, 대표 상품 공식 문서 probe 결과는 `../../data/insurance/latest_product_document_probe.json`에 둔다. 보험사 공시실 crawler v1 결과는 `../../data/insurance/latest_carrier_disclosure_probe.json`과 `../05_QA_Validation/06_CARRIER_DISCLOSURE_CRAWLER_2026_05_27.md`에 둔다. 매칭 키워드 정리 CSV v1은 `../../data/insurance/latest_insurance_review_queue.csv`와 `../05_QA_Validation/07_INSURANCE_REVIEW_QUEUE_2026_05_27.md`에 둔다.
@@ -1364,6 +1366,7 @@ hash-backed 7개 상품 매칭 키워드 정리 결과는 `../../data/insurance/
 - [동양생명 암보험 추천 Snapshot DB 적용 검증](../05_QA_Validation/93_TONGYANG_LIFE_CANCER_DB_APPLY_2026_06_01.md)
 - [삼성생명 입원 건강보험 Category 정책 검증](../05_QA_Validation/94_SAMSUNG_LIFE_HOSPITAL_HEALTH_POLICY_2026_06_01.md)
 - [삼성생명 입원 건강보험 Source Exclusion DB 적용 검증](../05_QA_Validation/95_SAMSUNG_LIFE_HOSPITAL_HEALTH_DB_APPLY_2026_06_01.md)
+- [한화손보 실손의료보험 Blocker 종결 정책 검증](../05_QA_Validation/96_HANWHA_GENERAL_MEDICAL_BLOCKER_POLICY_2026_06_01.md)
 - [데모 보험상품 운영 추천 제거 검증](../05_QA_Validation/33_DEMO_INSURANCE_PRODUCTS_RETIREMENT_2026_05_30.md)
 - [데모 보험상품 Archive DB 적용 검증](../05_QA_Validation/34_DEMO_PRODUCTS_ARCHIVE_DB_APPLY_2026_05_30.md)
 - [보험상품 매칭 키워드 정리 정책](../03_Technical_Specs/03_INSURANCE_MATCHING_KEYWORD_POLICY_2026_05_28.md)

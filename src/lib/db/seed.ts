@@ -36,6 +36,7 @@ const dbLifeCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T03:34:00+09:
 const lotteMedicalSnapshotReviewedAt = DateTime.fromISO("2026-06-01T04:30:00+09:00").toJSDate();
 const tongyangLifeCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T13:20:00+09:00").toJSDate();
 const samsungLifeHospitalPolicyReviewedAt = DateTime.fromISO("2026-06-01T15:05:00+09:00").toJSDate();
+const hanwhaGeneralMedicalBlockerReviewedAt = DateTime.fromISO("2026-06-01T15:40:00+09:00").toJSDate();
 
 type InsuranceCarrierSeed = typeof insuranceCarriers.$inferInsert;
 type InsuranceProductSourceSeed = typeof insuranceProductSources.$inferInsert;
@@ -102,6 +103,13 @@ const HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS = [
   "quote_src_hanwha_life_e_cancer_nonsmoker_202604_age34_female_1015b0165c0e",
   "quote_src_hanwha_life_e_cancer_nonsmoker_202604_age44_male_99a3f15d59fc",
   "quote_src_hanwha_life_e_cancer_nonsmoker_202604_age44_female_9cf2588db68b",
+];
+
+const SOURCE_CATALOG_EXCLUSION_QUOTE_REJECTED_IDS = [
+  "quote_src_hanwha_general_direct_medical_202605_age34_female_b141dc7c5700",
+  "quote_src_hanwha_general_direct_medical_202605_age34_male_60456bed3452",
+  "quote_src_hanwha_general_direct_medical_202605_age44_female_58dcc145a6b7",
+  "quote_src_hanwha_general_direct_medical_202605_age44_male_26615bdcb076",
 ];
 
 const MEDICAL_BASELINE_APPROVED_QUOTE_IDS = [
@@ -2888,6 +2896,39 @@ const SOURCE_CATALOG_EXCLUSION_UPDATES: InsuranceProductSourceApproval[] = [
       updatedAt: now,
     },
   },
+  {
+    id: "src_hanwha_general_direct_medical_202605",
+    values: {
+      saleStatusEvidence:
+        "공식 후보 페이지와 PDF는 접근 가능하지만 페이지/PDF가 한화실손의료보험 갱신형 III/TM 및 2021년 계열 문서로 식별된다. target source는 한화다이렉트실손의료보험 갱신형 V 무배당이므로 version mismatch다. 갱신형 V 공식 문서 endpoint 발견 전까지 추천 snapshot과 quote approval에서 제외한다.",
+      coverageSummary:
+        "한화손보 실손의료보험 source catalog 차단 상품. target 갱신형 V 공식 문서가 확인되지 않아 medical_expense baseline 추천으로 노출하지 않는다.",
+      exclusionsSummary:
+        "확보한 공식 PDF hash는 갱신형 III 문서라 target 갱신형 V source에 연결하지 않는다. 관련 보험다모아 quote 4건도 rejected로 내려 추천 UI와 상담 AI 컨텍스트에서 제외한다.",
+      coverageDetailsJson: JSON.stringify({
+        coverage_category: "medical_expense",
+        matching_strategy: "baseline_blocked_variant_mismatch",
+        risk_targets: [],
+        source_catalog_only: true,
+        rejection_reason: "official_document_variant_mismatch_renewal_type_iii_vs_v",
+        blocked_document_candidate: {
+          source_url: "https://mall.hwgeneralins.com/ins/ltr/meditm_features_01.do",
+          document_url: "https://mall.hwgeneralins.com/upload/product/LA02039001.pdf",
+          file_hash_sha256: "10ee12c4218099f34df16f195ad0d5eb968750ab2b35fa56b6f93aaeb24f497a",
+          observed_product_name: "한화실손의료보험갱신형Ⅲ_TM",
+        },
+      }),
+      coverageCaveatsJson: JSON.stringify([
+        "공식 후보 PDF가 target 갱신형 V가 아니라 갱신형 III 문서로 확인되어 source document로 seed하지 않는다.",
+        "실손의료보험 세대와 개정 버전은 보장 구조와 보험료 caveat에 직접 영향을 주므로 version mismatch를 허용하지 않는다.",
+        "갱신형 V 공식 문서 endpoint를 확보하기 전까지 보험다모아 quote 4건은 추천 보험료로 승인하지 않는다.",
+      ]),
+      reviewStatus: "rejected",
+      reviewedAt: hanwhaGeneralMedicalBlockerReviewedAt,
+      lastVerifiedAt: hanwhaGeneralMedicalBlockerReviewedAt,
+      updatedAt: now,
+    },
+  },
 ];
 
 const FIRST_RECOMMENDATION_SNAPSHOT_PRODUCTS: InsuranceProductSeed[] = [
@@ -3445,6 +3486,12 @@ async function seed() {
       ])
     );
 
+  console.log("Rejecting source catalog exclusion quote rows...");
+  await db
+    .update(insurancePremiumQuotes)
+    .set({ reviewStatus: "rejected" })
+    .where(inArray(insurancePremiumQuotes.id, SOURCE_CATALOG_EXCLUSION_QUOTE_REJECTED_IDS));
+
   console.log("Archiving legacy demo insurance products...");
   await db
     .update(insuranceProducts)
@@ -3459,7 +3506,7 @@ async function seed() {
       .onConflictDoNothing();
   }
   console.log(
-    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${SOURCE_CATALOG_EXCLUSION_UPDATES.length} source catalog exclusions, ${HANWHA_LIFE_CARRIER_QUOTE_ROWS.length} Hanwha carrier quotes inserted if missing, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length + HANWHA_LIFE_CARRIER_QUOTE_IDS.length + MEDICAL_BASELINE_APPROVED_QUOTE_IDS.length + SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS.length + MIRAEASSET_LIFE_CANCER_APPROVED_QUOTE_IDS.length + HANWHA_GENERAL_CANCER_APPROVED_QUOTE_IDS.length + DB_LIFE_CANCER_APPROVED_QUOTE_IDS.length + TONGYANG_LIFE_CANCER_APPROVED_QUOTE_IDS.length} quote approvals, ${HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS.length} Hanwha zero quotes rejected, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
+    `Seed complete. ${SOURCE_AWARE_CARRIERS.length} carriers, ${SOURCE_AWARE_PRODUCT_SOURCES.length} source candidates, ${SOURCE_AWARE_DOCUMENTS.length} documents, ${FIRST_RECOMMENDATION_SOURCE_APPROVALS.length} source approvals, ${SOURCE_CATALOG_EXCLUSION_UPDATES.length} source catalog exclusions, ${HANWHA_LIFE_CARRIER_QUOTE_ROWS.length} Hanwha carrier quotes inserted if missing, ${FIRST_SNAPSHOT_APPROVED_QUOTE_IDS.length + HANWHA_LIFE_CARRIER_QUOTE_IDS.length + MEDICAL_BASELINE_APPROVED_QUOTE_IDS.length + SHINHAN_NO_REFUND_APPROVED_QUOTE_IDS.length + MIRAEASSET_LIFE_CANCER_APPROVED_QUOTE_IDS.length + HANWHA_GENERAL_CANCER_APPROVED_QUOTE_IDS.length + DB_LIFE_CANCER_APPROVED_QUOTE_IDS.length + TONGYANG_LIFE_CANCER_APPROVED_QUOTE_IDS.length} quote approvals, ${HANWHA_LIFE_ZERO_QUOTE_REJECTED_IDS.length} Hanwha zero quotes rejected, ${SOURCE_CATALOG_EXCLUSION_QUOTE_REJECTED_IDS.length} source catalog exclusion quotes rejected, ${LEGACY_DEMO_PRODUCT_IDS.length} legacy demo products archived, and ${ACTIVE_INSURANCE_PRODUCTS.length} active source-backed insurance products checked.`
   );
 }
 
