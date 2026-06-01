@@ -1,9 +1,9 @@
 # [기술 명세] 보험상품 매칭 키워드 정리 정책
 > Created: 2026-05-28 03:56
-> Last Updated: 2026-06-01 19:13
+> Last Updated: 2026-06-01 19:26
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v1.52
+- **상태**: Draft v1.53
 - **범위**: DNA 질병 위험 결과와 한국 보험상품 보장 내용을 연결하기 위한 매칭 키워드 정리 기준, 추천 snapshot 발행 기준
 - **결론**: 이 프로젝트에서 말하는 "검수"는 보험상품의 외부 승인이나 품질 심사가 아니다. DB에 보험상품을 넣기 전에 DNA risk target과 매칭할 수 있도록 `coverage_category`, `risk_targets`, `matching_strategy`, `coverage_caveats_json`을 정리하는 내부 데이터 정규화 작업이다.
 
@@ -291,7 +291,9 @@ DNA 분석 결과
 
 2026-06-01 19:13 KST 기준 한화손보 실손 blocker seed를 운영 DB에 적용했다. 적용 후 source는 `rejected`, quote 4건은 `rejected`, active 추천 상품은 19건, approved quote는 76건, 남은 raw blocker는 1건이다. 검증은 `../05_QA_Validation/97_HANWHA_GENERAL_MEDICAL_BLOCKER_DB_APPLY_2026_06_01.md`에 둔다.
 
-다음 단계는 남은 raw blocker 1건을 정리하는 것이다. 신한라이프 표준형은 일반형 공식 문서 endpoint 발견 전까지 blocker로 유지한다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
+2026-06-01 19:26 KST 기준 신한라이프 표준형 암보험 source는 최신 endpoint 재탐색에서도 일반형 문서 row가 없으므로 추천 후보에서 종결 제외한다. source는 `rejected`, quote 4건은 `rejected`로 내리는 seed 변경을 준비했다. no-refund 문서 3건은 `src_shinhan_life_sol_cancer_202601` 전용 근거로 유지하고 표준형 source에 재사용하지 않는다. 검증은 `../05_QA_Validation/98_SHINHAN_STANDARD_BLOCKER_POLICY_2026_06_01.md`에 둔다.
+
+다음 단계는 신한라이프 표준형 blocker seed를 운영 DB에 적용하는 것이다. 적용 후 현재 source catalog 후보 22개는 `approved=19`, `rejected=3`, `raw=0`, `needs_review=0`이어야 한다. 아직 source 후보로 구조화하지 못한 보험다모아 P0 샘플 34개는 공식 URL, source row, 문서 hash 순서로 별도 확장한다.
 
 ---
 
@@ -387,3 +389,4 @@ DNA 분석 결과
 - **QA_Validation**: [Samsung Life Hospital Health DB Apply](../05_QA_Validation/95_SAMSUNG_LIFE_HOSPITAL_HEALTH_DB_APPLY_2026_06_01.md) - 삼성생명 입원 건강보험 추천 제외 운영 DB 적용 검증
 - **QA_Validation**: [Hanwha General Medical Blocker Policy](../05_QA_Validation/96_HANWHA_GENERAL_MEDICAL_BLOCKER_POLICY_2026_06_01.md) - 한화손보 실손 갱신형 V blocker 종결 정책 검증
 - **QA_Validation**: [Hanwha General Medical Blocker DB Apply](../05_QA_Validation/97_HANWHA_GENERAL_MEDICAL_BLOCKER_DB_APPLY_2026_06_01.md) - 한화손보 실손 blocker 운영 DB 적용 검증
+- **QA_Validation**: [Shinhan Standard Blocker Policy](../05_QA_Validation/98_SHINHAN_STANDARD_BLOCKER_POLICY_2026_06_01.md) - 신한라이프 표준형 일반 문서 endpoint blocker 종결 정책 검증

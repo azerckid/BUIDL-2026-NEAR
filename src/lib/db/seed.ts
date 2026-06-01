@@ -37,6 +37,7 @@ const lotteMedicalSnapshotReviewedAt = DateTime.fromISO("2026-06-01T04:30:00+09:
 const tongyangLifeCancerSnapshotReviewedAt = DateTime.fromISO("2026-06-01T13:20:00+09:00").toJSDate();
 const samsungLifeHospitalPolicyReviewedAt = DateTime.fromISO("2026-06-01T15:05:00+09:00").toJSDate();
 const hanwhaGeneralMedicalBlockerReviewedAt = DateTime.fromISO("2026-06-01T15:40:00+09:00").toJSDate();
+const shinhanStandardBlockerReviewedAt = DateTime.fromISO("2026-06-01T19:25:00+09:00").toJSDate();
 
 type InsuranceCarrierSeed = typeof insuranceCarriers.$inferInsert;
 type InsuranceProductSourceSeed = typeof insuranceProductSources.$inferInsert;
@@ -110,6 +111,10 @@ const SOURCE_CATALOG_EXCLUSION_QUOTE_REJECTED_IDS = [
   "quote_src_hanwha_general_direct_medical_202605_age34_male_60456bed3452",
   "quote_src_hanwha_general_direct_medical_202605_age44_female_58dcc145a6b7",
   "quote_src_hanwha_general_direct_medical_202605_age44_male_26615bdcb076",
+  "quote_src_shinhan_life_sol_cancer_standard_202605_age34_female_1015b0165c0e",
+  "quote_src_shinhan_life_sol_cancer_standard_202605_age34_male_d2e77ecf4a0c",
+  "quote_src_shinhan_life_sol_cancer_standard_202605_age44_female_9cf2588db68b",
+  "quote_src_shinhan_life_sol_cancer_standard_202605_age44_male_99a3f15d59fc",
 ];
 
 const MEDICAL_BASELINE_APPROVED_QUOTE_IDS = [
@@ -2926,6 +2931,39 @@ const SOURCE_CATALOG_EXCLUSION_UPDATES: InsuranceProductSourceApproval[] = [
       reviewStatus: "rejected",
       reviewedAt: hanwhaGeneralMedicalBlockerReviewedAt,
       lastVerifiedAt: hanwhaGeneralMedicalBlockerReviewedAt,
+      updatedAt: now,
+    },
+  },
+  {
+    id: "src_shinhan_life_sol_cancer_standard_202605",
+    values: {
+      saleStatusEvidence:
+        "신한라이프 공식 wcms endpoint를 active/historical keyword, active full catalog, historical full catalog 방식으로 재탐색했지만 신한SOL암보험 표준형/일반형 문서 row는 발견되지 않았다. 반환되는 판매중 row는 해약환급금 미지급형 1건뿐이며, 해당 문서 3건은 no-refund source 전용이므로 표준형 source에 재사용하지 않는다.",
+      coverageSummary:
+        "신한SOL암보험 표준형 source catalog 차단 상품. 일반형 공식 문서 endpoint가 없어 oncology risk_target 추천으로 노출하지 않는다.",
+      exclusionsSummary:
+        "공식 endpoint가 반환하는 문서는 해약환급금 미지급형 variant이므로 표준형 source에 연결하지 않는다. 관련 보험다모아 quote 4건도 rejected로 내려 추천 UI와 상담 AI 컨텍스트에서 제외한다.",
+      coverageDetailsJson: JSON.stringify({
+        coverage_category: "oncology",
+        matching_strategy: "risk_target_blocked_variant_endpoint_missing",
+        risk_targets: ONCOLOGY_RISK_TARGETS,
+        source_catalog_only: true,
+        rejection_reason: "standard_variant_official_document_endpoint_not_found",
+        blocked_variant: {
+          returned_product_name: "신한SOL암보험(무배당, 해약환급금 미지급형)",
+          blocked_document_owner: "src_shinhan_life_sol_cancer_202601",
+          active_rows_scanned: 134,
+          historical_rows_scanned: 1775,
+        },
+      }),
+      coverageCaveatsJson: JSON.stringify([
+        "공식 endpoint에서 표준형 일반 문서 row가 발견되지 않아 source document로 seed하지 않는다.",
+        "해약환급금 미지급형 문서는 이미 no-refund source 전용 근거이므로 표준형 source에 재사용하지 않는다.",
+        "표준형 공식 문서 endpoint를 확보하기 전까지 보험다모아 quote 4건은 추천 보험료로 승인하지 않는다.",
+      ]),
+      reviewStatus: "rejected",
+      reviewedAt: shinhanStandardBlockerReviewedAt,
+      lastVerifiedAt: shinhanStandardBlockerReviewedAt,
       updatedAt: now,
     },
   },
