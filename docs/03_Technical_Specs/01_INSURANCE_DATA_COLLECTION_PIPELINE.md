@@ -1,9 +1,9 @@
 # [기술 명세] 한국 보험상품 데이터 수집 파이프라인
 > Created: 2026-05-27 03:14
-> Last Updated: 2026-06-01 19:49
+> Last Updated: 2026-06-01 20:08
 
 - **레이어**: 03_Technical_Specs
-- **상태**: Draft v2.72
+- **상태**: Draft v2.73
 - **범위**: 한국 보험사 상품 공시자료, 보험다모아/협회 공시, 공공 OpenAPI, PDF 수집 및 정규화
 - **결론**: 보험상품 원문을 모델에 고정 학습시키지 않고, 공식 출처 기반 카탈로그 DB와 RAG/검색 계층으로 운영한다.
 
@@ -461,6 +461,8 @@ MVP와 유전자 위험 매칭의 직접성을 고려해 우선순위를 둔다.
 2026-06-01 19:38 KST 기준 운영 DB 백업 후 신한라이프 표준형 blocker seed를 적용했다. 적용 후 source catalog 후보 22개는 `approved=19`, `rejected=3`, `raw=0`, `needs_review=0` 상태가 됐다. active 추천 상품은 19건, approved quote는 76건으로 유지된다. 단, 한화생명 e-insmarket NULL quote 4건은 아직 `needs_review`로 남아 있어 별도 quote hygiene PR에서 닫는다. 검증은 `../05_QA_Validation/99_SHINHAN_STANDARD_BLOCKER_DB_APPLY_2026_06_01.md`에 둔다.
 
 2026-06-01 19:49 KST 기준 한화생명 e-insmarket NULL quote 4건의 actual DB row ID를 seed rejection 목록에 반영했다. 기존 zero quote rejection seed의 표준체형 e암보험 ID 4개가 운영 DB actual row ID와 달라 no-op이었으므로 실제 row ID로 교체한다. DB write는 후속 apply PR로 분리하며, 적용 후 전체 `needs_review` quote는 0건이어야 한다. 검증은 `../05_QA_Validation/100_HANWHA_LIFE_ZERO_QUOTE_HYGIENE_2026_06_01.md`에 둔다.
+
+2026-06-01 20:08 KST 기준 운영 DB 백업 후 위 quote hygiene seed를 적용했다. 적용 후 source-backed active 추천 상품은 19건, approved quote는 76건으로 유지되고, 한화생명 e-insmarket NULL quote 4건만 `rejected`가 됐다. 전체 `insurance_premium_quotes.review_status='needs_review'`는 0건이다. 검증은 `../05_QA_Validation/101_HANWHA_LIFE_ZERO_QUOTE_HYGIENE_DB_APPLY_2026_06_01.md`에 둔다.
 
 ---
 
@@ -1148,3 +1150,4 @@ npm run collect:insurance:hanwha-quotes -- --as-of-date 2026-05-31
 - **QA_Validation**: [Shinhan Standard Blocker Policy](../05_QA_Validation/98_SHINHAN_STANDARD_BLOCKER_POLICY_2026_06_01.md) - 신한라이프 표준형 일반 문서 endpoint blocker 종결 정책 검증
 - **QA_Validation**: [Shinhan Standard Blocker DB Apply](../05_QA_Validation/99_SHINHAN_STANDARD_BLOCKER_DB_APPLY_2026_06_01.md) - 신한라이프 표준형 blocker 운영 DB 적용 검증
 - **QA_Validation**: [Hanwha Life Zero Quote Hygiene](../05_QA_Validation/100_HANWHA_LIFE_ZERO_QUOTE_HYGIENE_2026_06_01.md) - 한화생명 e-insmarket NULL quote actual row ID 보정 검증
+- **QA_Validation**: [Hanwha Life Zero Quote Hygiene DB Apply](../05_QA_Validation/101_HANWHA_LIFE_ZERO_QUOTE_HYGIENE_DB_APPLY_2026_06_01.md) - 한화생명 e-insmarket NULL quote rejection 운영 DB 적용 검증
